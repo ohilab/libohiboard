@@ -8,6 +8,8 @@
 #ifndef LIBOHIBOARD_H_
 #define LIBOHIBOARD_H_
 
+#include <stdio.h>
+
 void test();
 
 #endif /* LIBOHIBOARD_H_ */

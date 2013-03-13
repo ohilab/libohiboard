@@ -2,6 +2,5 @@
 
 void test()
 {
-	int i = 0;
-	i++;
+	printf("From test!\n");
 }
