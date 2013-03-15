@@ -10,6 +10,11 @@
 
 #include <stdio.h>
 
+#include "k60/MK60DZ10.h"
+#include "types.h"
+#include "errors.h"
+#include "uart.h"
+
 void test();
 
 #endif /* LIBOHIBOARD_H_ */
