@@ -9,13 +9,7 @@
 
 #include "libohiboard.h"
 
-/*typedef enum BaudRate_t	{
-	br9600,
-	br19200,
-	br38400,
-	br57600,
-	br115200
-} BaudRate_t;*/
+typedef struct uart_dev_ *uart_dev;
 
 typedef enum {
 	None,
@@ -28,28 +22,18 @@ typedef enum {
 	bit9
 } DataBits_t;
 
-typedef struct uart_dev {
-	UART_MemMapPtr 		regMap;
-	
-	uint32				baudRate;
-	ParityMode_t 		parityMode;
-	DataBits_t			dataBits;
-} uart_dev;
+error_t uart_init(uart_dev dev);
 
-int uart_init(uart_dev *dev,int sysclk, int baud);
-void uart_enable(uart_dev *dev);
-void uart_disable(uart_dev *dev);
+error_t uart_setBaudRate(uart_dev dev, uint32 br);
+error_t uart_enable(uart_dev dev);
+error_t uart_disable(uart_dev dev);
 
-char uart_getChar (uart_dev *dev);
-void uart_putChar (uart_dev *dev, char c);
-int uart_getCharPresent (uart_dev *dev);
+error_t uart_getChar (uart_dev dev, char *out);
+void uart_putChar (uart_dev dev, char c);
+int uart_getCharPresent (uart_dev dev);
 
-extern struct uart_dev *UART2;
-
-/*
-#define UART0_DEV_DEFAULT	{	UART0_BASE_PTR \
-								}
-*/
+extern uart_dev UART2;
+extern uart_dev UART3;
 
 #endif /* UART_H_ */
      

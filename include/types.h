@@ -17,6 +17,8 @@ typedef short int16;
 typedef long int32;
 typedef long long int64;
 
+typedef uint32 error_t;
+
 typedef void (*voidFuncPtr)(void);
 typedef void (*voidArgumentFuncPtr)(void *);
 
