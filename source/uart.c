@@ -94,7 +94,7 @@ error_t uart_init(uart_dev dev)
 		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
 	else if (regmap == UART2_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
-#ifdef K60
+#ifdef MK60DZ10
 	else if (regmap == UART3_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART3_MASK;
 	else if (regmap == UART4_BASE_PTR)
