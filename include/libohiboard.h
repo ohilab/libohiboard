@@ -66,9 +66,9 @@
 #undef  MK60DZ10
 
 #if defined(MK60DZ10)
-#include "k60/MK60DZ10.h"
+#include "platforms/MK60DZ10.h"
 #elif defined(MKL15Z4)
-#include "kl15/MKL15Z4.h"
+#include "platforms/MKL15Z4.h"
 #endif
 
 #include "types.h"

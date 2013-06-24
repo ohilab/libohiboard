@@ -38,7 +38,7 @@ typedef struct I2c_dev_ {
  * 
  * @param dev
  */
-System_Errors I2c_init(I2C_dev dev)
+System_Errors I2c_init(I2c_dev dev)
 {
     I2C_MemMapPtr regmap = dev->regMap;
 
@@ -52,10 +52,10 @@ System_Errors I2c_init(I2C_dev dev)
     else
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
         
-///* configure GPIO for I2C0 function */
-//PORTD_PCR9 = PORT_PCR_MUX(2);
-//PORTD_PCR8 = PORT_PCR_MUX(2);
-//
+    /* TODO: configure GPIO for I2C function */
+//  PORTD_PCR9 = PORT_PCR_MUX(2);
+//  PORTD_PCR8 = PORT_PCR_MUX(2);
+
 ///* set MULT and ICR */
 //I2C0_F  = 0x14;
 //
