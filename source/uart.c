@@ -94,12 +94,14 @@ error_t uart_init(uart_dev dev)
 		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
 	else if (regmap == UART2_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
+#ifdef K60
 	else if (regmap == UART3_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART3_MASK;
 	else if (regmap == UART4_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART4_MASK;
 	else if (regmap == UART5_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART5_MASK;
+#endif
 	else
 		return ERR_PARAM_MASK;
 		
