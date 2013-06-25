@@ -34,8 +34,22 @@
 #include "libohiboard.h"
 #include "errors.h"
 
-typedef struct I2c_dev_ *I2c_dev;
+typedef enum {
+    IIC_MASTER_MODE,
+    IIC_SLAVE_MODE
+} Iic_DeviceType;
 
-System_Errors I2c_init(I2c_dev dev);
+typedef enum {
+    IIC_SEVEN_BIT,
+    IIC_TEN_BIT
+} Iic_AddressMode;
+
+typedef struct Iic_Device* Iic_DeviceHandle;
+
+System_Errors Iic_init(Iic_DeviceHandle dev);
+
+System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 br);
+System_Errors Iic_setDeviceType(Iic_DeviceHandle dev, Iic_DeviceType devType);
+
 
 #endif /* __I2C_H */

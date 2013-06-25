@@ -30,17 +30,45 @@
 
 #include "i2c.h"
 
-typedef struct I2c_dev_ {
-    I2C_MemMapPtr 		regMap;
-} I2c_dev_;
+#define IIC_DEF_BAUDRATE    100000 /* 100kbps */
+
+typedef struct {
+    I2C_MemMapPtr 		  regMap;
+
+    uint32_t              baudRate;
+    Iic_DeviceType        devType;
+    Iic_AddressMode       addressMode;
+    
+    uint8_t               unsaved;
+} Iic_Device;
+
+static Iic_Device iic0 = {
+        .regMap           = I2C0_BASE_PTR,
+        .baudRate         = IIC_DEF_BAUDRATE,
+        .devType          = IIC_MASTER_MODE,
+        .addressMode      = IIC_SEVEN_BIT,
+};
+Iic_DeviceHandle IIC0 = &iic0; 
+
+static Iic_Device iic1 = {
+        .regMap           = I2C1_BASE_PTR,
+        .baudRate         = IIC_DEF_BAUDRATE,
+        .devType          = IIC_MASTER_MODE,
+        .addressMode      = IIC_SEVEN_BIT,
+};
+Iic_DeviceHandle IIC1 = &iic1; 
+
+#ifdef MK60DZ10
+#endif
 
 /**
  * 
  * @param dev
  */
-System_Errors I2c_init(I2c_dev dev)
+System_Errors Iic_init(Iic_DeviceHandle dev)
 {
     I2C_MemMapPtr regmap = dev->regMap;
+    Iic_DeviceType devType = dev->devType;
 
     /* Turn on clock */
     if (regmap == I2C0_BASE_PTR)
@@ -53,12 +81,62 @@ System_Errors I2c_init(I2c_dev dev)
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
         
     /* TODO: configure GPIO for I2C function */
-//  PORTD_PCR9 = PORT_PCR_MUX(2);
-//  PORTD_PCR8 = PORT_PCR_MUX(2);
 
+    /* Select device type */
+    if (devType == IIC_MASTER_MODE)
+    {
+            
+    }
+    else
+    {
+            
+    }
 ///* set MULT and ICR */
 //I2C0_F  = 0x14;
 //
-///* enable IIC */
-//I2C0_C1 = I2C_C1_IICEN_MASK;
+    /* enable IIC */
+    if (regmap == I2C0_BASE_PTR)
+        I2C0_C1 = I2C_C1_IICEN_MASK;
+    else if (regmap == I2C1_BASE_PTR)
+        I2C1_C1 = I2C_C1_IICEN_MASK;
+#ifdef MK60DZ10
+#endif
+    else
+        I2C0_C1 = I2C_C1_IICEN_MASK;
+
+    dev->unsaved = 0;
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * @brief Set Baud Rate
+ * 
+ * Sets baud rate value into device structure. 
+ * The settings are applied only after the device is initialized.
+ * 
+ * 
+ * @param dev I2C device to be initialized
+ * @param baudrate Baud Rate value
+ * @return Error code
+ */
+System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 baudrate)
+{
+    if (baudrate >= 10000 && baudrate <= 100000)
+    {
+        dev->baudRate = baudrate;
+        dev->unsaved = 1;
+        return ERRORS_NO_ERROR;
+    }
+    else 
+    {
+        return ERRORS_PARAM_VALUE;
+    }
+}
+
+System_Errors Iic_setDeviceType(Iic_DeviceHandle dev, Iic_DeviceType devType)
+{
+    dev->devType = devType;
+
+    dev->unsaved = 1;
+    return ERRORS_NO_ERROR;
 }
