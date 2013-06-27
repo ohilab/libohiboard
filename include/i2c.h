@@ -20,7 +20,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>
- */
+ ******************************************************************************/
 
 /**
  * @file libohiboard/include/i2c.h
@@ -33,6 +33,8 @@
 
 #include "libohiboard.h"
 #include "errors.h"
+
+#include "platforms.h"
 
 typedef enum {
     IIC_MASTER_MODE,

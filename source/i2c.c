@@ -20,10 +20,10 @@
  * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>
- */
+ ******************************************************************************/
 
 /**
- * @file libohiboard/include/i2c.c
+ * @file libohiboard/source/i2c.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief I2C functions implementation
  */
@@ -42,6 +42,7 @@ typedef struct {
     uint8_t               unsaved;
 } Iic_Device;
 
+#if defined(MKL15Z4)
 static Iic_Device iic0 = {
         .regMap           = I2C0_BASE_PTR,
         .baudRate         = IIC_DEF_BAUDRATE,
@@ -58,9 +59,6 @@ static Iic_Device iic1 = {
 };
 Iic_DeviceHandle IIC1 = &iic1; 
 
-#ifdef MK60DZ10
-#endif
-
 /**
  * 
  * @param dev
@@ -69,14 +67,13 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
 {
     I2C_MemMapPtr regmap = dev->regMap;
     Iic_DeviceType devType = dev->devType;
+    uint32_t baudrate = dev->baudrate;
 
     /* Turn on clock */
     if (regmap == I2C0_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
     else if (regmap == I2C1_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C1_MASK;
-#ifdef MK60DZ10
-#endif
     else
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
         
@@ -85,28 +82,37 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
     {
-            
+        /* TODO: automatically selects the correct value. */
+        I2C1_F = 0x14;
+
+        /* enable IIC */
+        if (regmap == I2C0_BASE_PTR)
+            I2C0_C1 = I2C_C1_IICEN_MASK;
+        else if (regmap == I2C1_BASE_PTR)
+            I2C1_C1 = I2C_C1_IICEN_MASK;
+        else
+            I2C0_C1 = I2C_C1_IICEN_MASK;
     }
     else
     {
+        /* TODO: implement slave setup */
             
     }
-///* set MULT and ICR */
-//I2C0_F  = 0x14;
-//
-    /* enable IIC */
-    if (regmap == I2C0_BASE_PTR)
-        I2C0_C1 = I2C_C1_IICEN_MASK;
-    else if (regmap == I2C1_BASE_PTR)
-        I2C1_C1 = I2C_C1_IICEN_MASK;
-#ifdef MK60DZ10
-#endif
-    else
-        I2C0_C1 = I2C_C1_IICEN_MASK;
 
     dev->unsaved = 0;
     return ERRORS_NO_ERROR;
 }
+#elif defined(MK60DZ10)
+#elif defined(FRDM-KL05Z)
+static Iic_Device iic0 = {
+        .regMap           = I2C0_BASE_PTR,
+        .baudRate         = IIC_DEF_BAUDRATE,
+        .devType          = IIC_MASTER_MODE,
+        .addressMode      = IIC_SEVEN_BIT,
+};
+Iic_DeviceHandle IIC0 = &iic0; 
+#elif defined(FRDM-K20D50M)
+#endif
 
 /**
  * @brief Set Baud Rate
@@ -133,6 +139,13 @@ System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 baudrate)
     }
 }
 
+/**
+ * @brief
+ * 
+ * @param dev
+ * @param devType
+ * @return Error code.
+ */
 System_Errors Iic_setDeviceType(Iic_DeviceHandle dev, Iic_DeviceType devType)
 {
     dev->devType = devType;

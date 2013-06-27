@@ -21,7 +21,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>
- */
+ ******************************************************************************/
 
 /**
  * @file libohiboard/include/errors.h
@@ -36,7 +36,8 @@
 typedef enum _System_Errors
 {
 	ERRORS_NO_ERROR,                        /**< There is no error */
-	ERRORS_PARAM_VALUE                      /**< Invalid value. */
+	ERRORS_PARAM_VALUE,                     /**< Invalid value. */
+	ERRORS_EXT_OSC_NOT_SELECT               /**< External oscillator not selected */
 } System_Errors;
 
 #define ERR_OK                          0x00U /* OK */
