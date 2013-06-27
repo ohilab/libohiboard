@@ -40,13 +40,14 @@ typedef struct Iic_Device {
     uint32_t              baudRate;
     Iic_DeviceType        devType;
     Iic_AddressMode       addressMode;
-    
+
     uint8_t               unsaved;
 } Iic_Device;
 
 #if defined(MKL15Z4)
 static Iic_Device iic0 = {
         .regMap           = I2C0_BASE_PTR,
+
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
@@ -55,6 +56,7 @@ Iic_DeviceHandle IIC0 = &iic0;
 
 static Iic_Device iic1 = {
         .regMap           = I2C1_BASE_PTR,
+
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
@@ -88,12 +90,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         I2C1_F = 0x14;
 
         /* enable IIC */
-        if (regmap == I2C0_BASE_PTR)
-            I2C0_C1 = I2C_C1_IICEN_MASK;
-        else if (regmap == I2C1_BASE_PTR)
-            I2C1_C1 = I2C_C1_IICEN_MASK;
-        else
-            I2C0_C1 = I2C_C1_IICEN_MASK;
+        regmap->C1 = I2C_C1_IICEN_MASK;
     }
     else
     {
@@ -123,7 +120,9 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     /* Turn on clock */
     SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
         
-    /* TODO: configure GPIO for I2C function */
+    /* Configure GPIO for I2C function */
+    PORTB_PCR3 = PORT_PCR_MUX(2);
+    PORTB_PCR4 = PORT_PCR_MUX(2);
 
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
@@ -132,7 +131,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         I2C1_F = 0x14;
 
         /* enable IIC */
-        I2C0_C1 = I2C_C1_IICEN_MASK;
+        regmap->C1 = I2C_C1_IICEN_MASK;
     }
     else
     {
@@ -178,10 +177,73 @@ System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 baudrate)
  * @param devType
  * @return Error code.
  */
-System_Errors Iic_setDeviceType(Iic_DeviceHandle dev, Iic_DeviceType devType)
+System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType)
 {
     dev->devType = devType;
 
     dev->unsaved = 1;
     return ERRORS_NO_ERROR;
+}
+
+/**
+ * 
+ * @param dev
+ * @param slaveID
+ * @param mode
+ * @return Error code.
+ */
+System_Errors Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode)
+{
+    /* Shift ID in right position. */
+    slaveID <<= 1;
+    /* Set R/W bit at end of Slave Address. */
+    if (mode == IIC_MASTER_READ)
+        slaveID |= 0x01;
+    else
+        slaveID &= 0xFE;
+    
+    /* Send start signal. */
+    Iic_start(dev);
+    
+    /* Send ID with W/R bit. */
+    Iic_writeByte(dev, slaveID);
+}
+
+void Iic_disableAck (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 |= I2C_C1_TXAK_MASK;
+}
+
+void Iic_repeatedStart (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 |= I2C_C1_RSTA_MASK;
+}
+
+void Iic_start (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 |= I2C_C1_TX_MASK;
+    dev->regMap->C1 |= I2C_C1_MST_MASK;
+}
+
+void Iic_stop (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 &= ~I2C_C1_MST_MASK;
+    dev->regMap->C1 &= ~I2C_C1_TX_MASK;
+}
+
+void Iic_enterRxMode (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 &= ~I2C_C1_TX_MASK;
+    dev->regMap->C1 &= ~I2C_C1_TXAK_MASK;
+}
+
+void Iic_wait (Iic_DeviceHandle dev)
+{
+    while ((dev->regMap->S & I2C_S_IICIF_MASK) == 0);
+    dev->regMap->S |= I2C_S_IICIF_MASK;
+}
+
+void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
+{
+    dev->regMap->D = data;
 }

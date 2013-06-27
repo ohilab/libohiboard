@@ -45,12 +45,26 @@ typedef enum {
     IIC_TEN_BIT
 } Iic_AddressMode;
 
+typedef enum {
+    IIC_MASTER_WRITE,
+    IIC_MASTER_READ
+} Iic_TransmissionType;
+
 typedef struct Iic_Device* Iic_DeviceHandle;
 
-System_Errors Iic_init(Iic_DeviceHandle dev);
+System_Errors Iic_init (Iic_DeviceHandle dev);
 
-System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 br);
-System_Errors Iic_setDeviceType(Iic_DeviceHandle dev, Iic_DeviceType devType);
+System_Errors Iic_setBaudRate (Iic_DeviceHandle dev, uint32 br);
+System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType);
+
+void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode);
+void Iic_disableAck (Iic_DeviceHandle dev);
+void Iic_repeatedStart (Iic_DeviceHandle dev);
+void Iic_start (Iic_DeviceHandle dev);
+void Iic_stop (Iic_DeviceHandle dev);
+void Iic_enterRxMode (Iic_DeviceHandle dev);
+void Iic_wait (Iic_DeviceHandle dev);
+void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
 
 #if defined(MKL15Z4)
 extern Iic_DeviceHandle IIC1;
