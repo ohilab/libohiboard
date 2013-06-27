@@ -65,19 +65,19 @@
 /**
  * Define for use with Freedom Platform FRDM-KL05Z. 
  */
-#undef FRDM-KL05Z
+#undef FRDMKL05Z
 /**
  * Define for use with Freedom Platform FRDM-K20D50M. 
  */
-#undef FRDM-K20D50M
+#undef FRDMK20D50M
 
 #if defined(MK60DZ10)
 #include "platforms/MK60DZ10.h"
 #elif defined(MKL15Z4)
 #include "platforms/MKL15Z4.h"
-#elif defined(FRDM-KL05Z)
+#elif defined(FRDMKL05Z)
 #include "platforms/MKL05Z4.h"
-#elif defined(FRDM-K20D50M)
+#elif defined(FRDMK20D50M)
 #include "platforms/MK20D5.h"
 #endif
 

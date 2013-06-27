@@ -31,10 +31,9 @@
 #ifndef __I2C_H
 #define __I2C_H
 
-#include "libohiboard.h"
-#include "errors.h"
-
 #include "platforms.h"
+#include "errors.h"
+#include "types.h"
 
 typedef enum {
     IIC_MASTER_MODE,
@@ -53,5 +52,13 @@ System_Errors Iic_init(Iic_DeviceHandle dev);
 System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 br);
 System_Errors Iic_setDeviceType(Iic_DeviceHandle dev, Iic_DeviceType devType);
 
+#if defined(MKL15Z4)
+extern Iic_DeviceHandle IIC1;
+extern Iic_DeviceHandle IIC2;
+#elif defined(MK60DZ10)
+extern Iic_DeviceHandle IIC1;
+#elif defined(FRDMKL05Z)
+extern Iic_DeviceHandle IIC1;
+#endif
 
 #endif /* __I2C_H */

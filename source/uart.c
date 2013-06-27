@@ -5,6 +5,8 @@
  */
 
 #include "uart.h"
+#include "platforms.h"
+#include "types.h"
 
 #define PER_CLOCK_KHZ 25000 // Temporary
 #define UART_DEF_BAUDRATE 	9600

@@ -28,11 +28,13 @@
  * @brief I2C functions implementation
  */
 
+
+#include "platforms.h"
 #include "i2c.h"
 
 #define IIC_DEF_BAUDRATE    100000 /* 100kbps */
 
-typedef struct {
+typedef struct Iic_Device {
     I2C_MemMapPtr 		  regMap;
 
     uint32_t              baudRate;
@@ -67,7 +69,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
 {
     I2C_MemMapPtr regmap = dev->regMap;
     Iic_DeviceType devType = dev->devType;
-    uint32_t baudrate = dev->baudrate;
+    uint32_t baudrate = dev->baudRate;
 
     /* Turn on clock */
     if (regmap == I2C0_BASE_PTR)
@@ -103,7 +105,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     return ERRORS_NO_ERROR;
 }
 #elif defined(MK60DZ10)
-#elif defined(FRDM-KL05Z)
+#elif defined(FRDMKL05Z)
 static Iic_Device iic0 = {
         .regMap           = I2C0_BASE_PTR,
         .baudRate         = IIC_DEF_BAUDRATE,
@@ -111,7 +113,37 @@ static Iic_Device iic0 = {
         .addressMode      = IIC_SEVEN_BIT,
 };
 Iic_DeviceHandle IIC0 = &iic0; 
-#elif defined(FRDM-K20D50M)
+
+System_Errors Iic_init(Iic_DeviceHandle dev)
+{
+    I2C_MemMapPtr regmap = dev->regMap;
+    Iic_DeviceType devType = dev->devType;
+    uint32_t baudrate = dev->baudRate;
+
+    /* Turn on clock */
+    SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
+        
+    /* TODO: configure GPIO for I2C function */
+
+    /* Select device type */
+    if (devType == IIC_MASTER_MODE)
+    {
+        /* TODO: automatically selects the correct value. */
+        I2C1_F = 0x14;
+
+        /* enable IIC */
+        I2C0_C1 = I2C_C1_IICEN_MASK;
+    }
+    else
+    {
+        /* TODO: implement slave setup */
+            
+    }
+
+    dev->unsaved = 0;
+    return ERRORS_NO_ERROR;
+}
+#elif defined(FRDMK20D50M)
 #endif
 
 /**

@@ -36,6 +36,8 @@
 #include "types.h"
 #include "errors.h"
 
+#include "system.h"
+
 #include "uart.h"
 
 #include "i2c.h"
