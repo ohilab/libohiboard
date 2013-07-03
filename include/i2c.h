@@ -70,9 +70,9 @@ void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
 extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
 #elif defined(MK60DZ10)
-extern Iic_DeviceHandle IIC1;
+extern Iic_DeviceHandle IIC0;
 #elif defined(FRDMKL05Z)
-extern Iic_DeviceHandle IIC1;
+extern Iic_DeviceHandle IIC0;
 #endif
 
 #endif /* __I2C_H */
