@@ -67,8 +67,8 @@ void Iic_wait (Iic_DeviceHandle dev);
 void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
 
 #if defined(MKL15Z4)
+extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
-extern Iic_DeviceHandle IIC2;
 #elif defined(MK60DZ10)
 extern Iic_DeviceHandle IIC1;
 #elif defined(FRDMKL05Z)

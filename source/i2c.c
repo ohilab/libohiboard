@@ -192,7 +192,7 @@ System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType)
  * @param mode
  * @return Error code.
  */
-System_Errors Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode)
+void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode)
 {
     /* Shift ID in right position. */
     slaveID <<= 1;
