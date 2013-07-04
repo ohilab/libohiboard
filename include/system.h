@@ -2,10 +2,10 @@
  * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
- *	
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  
  * Project: libohiboard
- * Package: -
+ * Package: System
  * Version: 0.0
  * 
  * This library is free software: you can redistribute it and/or modify
@@ -23,25 +23,19 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
- * @brief Library main file.
+ * @file libohiboard/include/system.h
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief 
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
+#ifndef __SYSTEM_H
+#define __SYSTEM_H
 
-#include <stdio.h>
-
-#include "types.h"
+#include "platforms.h"
 #include "errors.h"
+#include "types.h"
 
-#include "system.h"
+System_Errors System_controlDevice (void);
+System_Errors System_initClock (void);
 
-#include "uart.h"
-
-#include "i2c.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+#endif /* __SYSTEM_H */
