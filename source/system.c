@@ -32,22 +32,39 @@
 
 #if defined(MK60DZ10)
 #elif defined(MKL15Z4)
+/**
+ * This function checks if the program has been downloaded to the right device.
+ */
+System_Errors System_controlDevice (void)
+{
+    /* TODO: implement... */
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function set FEE mode with MCG out to 47972352Hz.
+ * Core clock was set to 47972352Hz and bus clock to 23986176Hz.
+ */
 System_Errors System_initClock (void)
 {
     int i;
 
+    /* Clock prescaler */
+    SIM_CLKDIV1 = (SIM_CLKDIV1_OUTDIV1(0x00) | SIM_CLKDIV1_OUTDIV4(0x01));
+    
     /* Set low frequency range and select external clock. */
     MCG_C2 = (MCG_C2_RANGE0(0x00) | MCG_C2_EREFS0_MASK);
     /* Enable external reference clock and active 12pF internal capacitor. */
     OSC0_CR = (OSC_CR_ERCLKEN_MASK | OSC_CR_SC4P_MASK | OSC_CR_SC8P_MASK);
     /* Output of FLL is select, divide by 1 external clock and disable internal */
     MCG_C1 = (MCG_C1_CLKS(0x00) | MCG_C1_FRDIV(0x00) | MCG_C1_IRCLKEN_MASK);
-    /* DCO mid range and DMX32 disabled (x1280): output of FLL 41943040Hz */
+    /* DCO mid range and DMX32 disabled (x1280): output of FLL 47972352Hz */
     MCG_C4 = (uint8_t)((MCG_C4 & (uint8_t)~(uint8_t)(
-        MCG_C4_DMX32_MASK |
-        MCG_C4_DRST_DRS(0x02)
+            MCG_C4_DRST_DRS(0x02)
         )) | (uint8_t)(
-        MCG_C4_DRST_DRS(0x01)
+            MCG_C4_DMX32_MASK |
+            MCG_C4_DRST_DRS(0x01)
         ));
     /* Disable PLL */
     MCG_C5 = MCG_C5_PRDIV0(0x00);

@@ -71,7 +71,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
 {
     I2C_MemMapPtr regmap = dev->regMap;
     Iic_DeviceType devType = dev->devType;
-    uint32_t baudrate = dev->baudRate;
+//    uint32_t baudrate = dev->baudRate;
 
     /* Turn on clock */
     if (regmap == I2C0_BASE_PTR)
@@ -82,12 +82,24 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
         
     /* TODO: configure GPIO for I2C function */
+    /* WARNING: Current configurations is static!! */
+    if (regmap == I2C0_BASE_PTR)
+    {
+        PORTC_PCR8 = PORT_PCR_MUX(2);
+        PORTC_PCR9 = PORT_PCR_MUX(2);
+    }
+    else
+    {
+        PORTC_PCR10 = PORT_PCR_MUX(2);
+        PORTC_PCR11 = PORT_PCR_MUX(2);        
+    }
 
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
     {
         /* TODO: automatically selects the correct value. */
-        I2C1_F = 0x14;
+        /* WARNING: Current configurations is static for 100kbps!! */
+        I2C1_F = 0xCE;
 
         /* enable IIC */
         regmap->C1 = I2C_C1_IICEN_MASK;
@@ -95,7 +107,6 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     else
     {
         /* TODO: implement slave setup */
-            
     }
 
     dev->unsaved = 0;

@@ -35,6 +35,7 @@
 #include "errors.h"
 #include "types.h"
 
+System_Errors System_controlDevice (void);
 System_Errors System_initClock (void);
 
 #endif /* __SYSTEM_H */
