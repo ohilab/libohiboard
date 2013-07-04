@@ -62,6 +62,23 @@ static Iic_Device iic1 = {
         .addressMode      = IIC_SEVEN_BIT,
 };
 Iic_DeviceHandle IIC1 = &iic1; 
+#elif defined(MK60DZ10)
+static Iic_Device iic0 = {
+        .regMap           = I2C0_BASE_PTR,
+        .baudRate         = IIC_DEF_BAUDRATE,
+        .devType          = IIC_MASTER_MODE,
+        .addressMode      = IIC_SEVEN_BIT,
+};
+Iic_DeviceHandle IIC0 = &iic0;
+#elif defined(FRDMKL05Z)
+static Iic_Device iic0 = {
+        .regMap           = I2C0_BASE_PTR,
+        .baudRate         = IIC_DEF_BAUDRATE,
+        .devType          = IIC_MASTER_MODE,
+        .addressMode      = IIC_SEVEN_BIT,
+};
+Iic_DeviceHandle IIC0 = &iic0;
+#endif
 
 /**
  * 
@@ -74,15 +91,20 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
 //    uint32_t baudrate = dev->baudRate;
 
     /* Turn on clock */
+#if defined(MKL15Z4)
     if (regmap == I2C0_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
     else if (regmap == I2C1_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C1_MASK;
     else
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
-        
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#endif
+
     /* TODO: configure GPIO for I2C function */
     /* WARNING: Current configurations is static!! */
+#if defined(MKL15Z4)
     if (regmap == I2C0_BASE_PTR)
     {
         PORTC_PCR8 = PORT_PCR_MUX(2);
@@ -93,6 +115,9 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         PORTC_PCR10 = PORT_PCR_MUX(2);
         PORTC_PCR11 = PORT_PCR_MUX(2);        
     }
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#endif
 
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
@@ -112,49 +137,6 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     dev->unsaved = 0;
     return ERRORS_NO_ERROR;
 }
-#elif defined(MK60DZ10)
-#elif defined(FRDMKL05Z)
-static Iic_Device iic0 = {
-        .regMap           = I2C0_BASE_PTR,
-        .baudRate         = IIC_DEF_BAUDRATE,
-        .devType          = IIC_MASTER_MODE,
-        .addressMode      = IIC_SEVEN_BIT,
-};
-Iic_DeviceHandle IIC0 = &iic0; 
-
-System_Errors Iic_init(Iic_DeviceHandle dev)
-{
-    I2C_MemMapPtr regmap = dev->regMap;
-    Iic_DeviceType devType = dev->devType;
-    uint32_t baudrate = dev->baudRate;
-
-    /* Turn on clock */
-    SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
-        
-    /* Configure GPIO for I2C function */
-    PORTB_PCR3 = PORT_PCR_MUX(2);
-    PORTB_PCR4 = PORT_PCR_MUX(2);
-
-    /* Select device type */
-    if (devType == IIC_MASTER_MODE)
-    {
-        /* TODO: automatically selects the correct value. */
-        I2C1_F = 0x14;
-
-        /* enable IIC */
-        regmap->C1 = I2C_C1_IICEN_MASK;
-    }
-    else
-    {
-        /* TODO: implement slave setup */
-            
-    }
-
-    dev->unsaved = 0;
-    return ERRORS_NO_ERROR;
-}
-#elif defined(FRDMK20D50M)
-#endif
 
 /**
  * @brief Set Baud Rate
