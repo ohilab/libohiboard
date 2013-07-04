@@ -42,6 +42,8 @@
 
 #include "i2c.h"
 
+#include "spi.h"
+
 void test();
 
 #endif /* __LIBOHIBOARD_H */
