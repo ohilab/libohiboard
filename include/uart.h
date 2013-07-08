@@ -1,39 +1,80 @@
+/******************************************************************************
+ * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * 
+ * Author(s):
+ *	Edoardo Bezzeccheri <coolman3@gmail.com>
+ *	
+ * Project: libohiboard
+ * Package: UART
+ * Version: 0.0
+ * 
+ * This library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ ******************************************************************************/
+
 /**
  * @file libohiboard/include/uart.h
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @brief UART definitions and prototypes
  */
 
-#ifndef UART_H_
-#define UART_H_
+#ifndef __UART_H
+#define __UART_H
 
-#include "libohiboard.h"
-
-typedef struct uart_dev_ *uart_dev;
-
-typedef enum {
-	None,
-	Even,
-	Odd
-} ParityMode_t;
+#include "platforms.h"
+#include "errors.h"
+#include "types.h"
 
 typedef enum {
-	bit8,
-	bit9
-} DataBits_t;
+	UART_PARITY_NONE,
+	UART_PARITY_EVEN,
+	UART_PARITY_ODD
+} Uart_ParityMode;
 
-error_t uart_init(uart_dev dev);
+typedef enum {
+	UART_EIGHT_BIT,
+	UART_NINE_BIT
+} Uart_DataBits;
 
-error_t uart_setBaudRate(uart_dev dev, uint32 br);
-error_t uart_enable(uart_dev dev);
-error_t uart_disable(uart_dev dev);
+typedef struct Uart_Device* Uart_DeviceHandle;
 
-error_t uart_getChar (uart_dev dev, char *out);
-void uart_putChar (uart_dev dev, char c);
-int uart_getCharPresent (uart_dev dev);
+System_Errors uart_init (Uart_DeviceHandle dev);
 
-extern uart_dev UART2;
-extern uart_dev UART3;
+System_Errors uart_setBaudRate (Uart_DeviceHandle dev, uint32 br);
+System_Errors uart_enable (Uart_DeviceHandle dev);
+System_Errors uart_disable (Uart_DeviceHandle dev);
 
-#endif /* UART_H_ */
+System_Errors uart_getChar (Uart_DeviceHandle dev, char *out);
+void uart_putChar (Uart_DeviceHandle dev, char c);
+int uart_getCharPresent (Uart_DeviceHandle dev);
+
+#if defined(MKL15Z4)
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+
+#elif defined(MK60DZ10)
+extern Uart_DeviceHandle UART0;
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+extern Uart_DeviceHandle UART3;
+
+#elif defined(FRDMKL05Z)
+
+#elif defined(FRDMKL25Z)
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+#endif
+
+
+#endif /* __UART_H */
      

@@ -1,45 +1,106 @@
+/******************************************************************************
+ * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * 
+ * Author(s):
+ *	Edoardo Bezzeccheri <coolman3@gmail.com>
+ *	
+ * Project: libohiboard
+ * Package: UART
+ * Version: 0.0
+ * 
+ * This library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ ******************************************************************************/
+
 /**
  * @file libohiboard/uart.c
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @brief UART module functions
  */
 
-#include "uart.h"
 #include "platforms.h"
-#include "types.h"
+#include "uart.h"
 
 #define PER_CLOCK_KHZ 25000 // Temporary
 #define UART_DEF_BAUDRATE 	9600
-#define UART_DEF_PARITY 	None
-#define UART_DEF_DATABITS 	bit8
+#define UART_MIN_BAUDARATE	1200
+#define UART_MAX_BAUDARATE	115200
+#define UART_DEF_PARITY 	UART_PARITY_NONE
+#define UART_DEF_DATABITS 	UART_EIGHT_BIT
 
 /* 
  * Peripherals declaration with default values
  */
-typedef struct uart_dev_ {
+
+typedef struct Uart_Device {
 	UART_MemMapPtr 		regMap;
 	
 	uint32				baudRate;
-	ParityMode_t 		parityMode;
-	DataBits_t			dataBits;
-	uint8				unsaved;
-} uart_dev_;
+	Uart_ParityMode 		parityMode;
+	Uart_DataBits			dataBits;
+} Uart_Device;
 
-static uart_dev_ uart2 = {
+
+#if defined(MK60DZ10)
+static Uart_Device uart0 = {
+		.regMap 	= UART0_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS
+};
+Uart_DeviceHandle UART0 = &uart0; 
+
+static Uart_Device uart1 = {
+		.regMap 	= UART1_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS
+};
+Uart_DeviceHandle UART1 = &uart1; 
+
+static Uart_Device uart2 = {
 		.regMap 	= UART2_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
 		.dataBits 	= UART_DEF_DATABITS
 };
-uart_dev UART2 = &uart2; 
+Uart_DeviceHandle UART2 = &uart2; 
 
-static uart_dev_ uart3 = {
+static Uart_Device uart3 = {
+		.regMap 	= UART3_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS
+};
+Uart_DeviceHandle UART3 = &uart3; 
+
+#elif defined(MKL15Z4)
+static Uart_Device uart1 = {
+		.regMap 	= UART1_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS
+};
+Uart_DeviceHandle UART1 = &uart1; 
+
+static Uart_Device uart2 = {
 		.regMap 	= UART2_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
 		.dataBits 	= UART_DEF_DATABITS
 };
-uart_dev UART3 = &uart3; 
+Uart_DeviceHandle UART2 = &uart2; 
+#endif
 
 
 /*
@@ -57,12 +118,11 @@ uart_dev UART3 = &uart3;
  * @param br Baud Rate value
  * @return Error signal
  */
-error_t uart_setBaudRate(uart_dev dev, uint32 br)
+System_Errors uart_setBaudRate(Uart_DeviceHandle dev, uint32 br)
 {
-	if (br >= 9600 && br <= 115200)
+	if (br >= UART_MIN_BAUDARATE && br <= UART_MAX_BAUDARATE)
 	{
 		dev->baudRate = br;
-		dev->unsaved = 1;
 		return ERR_OK;
 	}
 	else ERR_PARAM_VALUE;
@@ -81,7 +141,7 @@ error_t uart_setBaudRate(uart_dev dev, uint32 br)
  * @param dev uart Device to be initialized
  * @return Error signal
  */
-error_t uart_init(uart_dev dev) 
+System_Errors uart_init(Uart_DeviceHandle dev) 
 {
     register uint16 sbr, brfa;
     uint8 temp;
@@ -90,23 +150,29 @@ error_t uart_init(uart_dev dev)
     uint32 baudRate = 		dev->baudRate;
     
 	/* Enable the clock to the selected UART */    
-    if (regmap == UART0_BASE_PTR)
+#if defined(MK60DZ10)
+	if (regmap == UART0_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART0_MASK;
 	else if (regmap == UART1_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
 	else if (regmap == UART2_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
-#ifdef MK60DZ10
 	else if (regmap == UART3_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART3_MASK;
 	else if (regmap == UART4_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART4_MASK;
 	else if (regmap == UART5_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART5_MASK;
+#elif defined(MKL15Z4)
+	/* WARNING: UART device doesn't contain UART0 peripheral */
+	if (regmap == UART1_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
+	else if (regmap == UART2_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
 #endif
+
 	else
-		return ERR_PARAM_MASK;
-		
+		return ERRORS_PARAM_VALUE;
                                 
     /* Make sure that the transmitter and receiver are disabled while we 
      * change settings.
@@ -135,8 +201,6 @@ error_t uart_init(uart_dev dev)
     
     UART_C4_REG(regmap) = temp |  UART_C4_BRFA(brfa);    
     
-    dev->unsaved = 0;
-    
     return ERR_OK;
 }
 
@@ -145,7 +209,7 @@ error_t uart_init(uart_dev dev)
  * @param dev uart Device to be enabled
  * @return Error signal
  */
-error_t uart_enable(uart_dev dev)
+System_Errors uart_enable(Uart_DeviceHandle dev)
 {
     /* Enable receiver and transmitter */
 	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
@@ -157,7 +221,7 @@ error_t uart_enable(uart_dev dev)
  * @brief Disable a Serial Port
  * @param dev uart Device to be disabled
  */
-error_t uart_disable(uart_dev dev)
+System_Errors uart_disable(Uart_DeviceHandle dev)
 {
 	/* Disable receiver and transmitter */
     UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
@@ -171,7 +235,7 @@ error_t uart_disable(uart_dev dev)
  * @param *out Buffer where to store the received character
  * @return Error signal
  */
-error_t uart_getChar (uart_dev dev, char *out)
+System_Errors uart_getChar (Uart_DeviceHandle dev, char *out)
 {
     /* Wait until character has been received */
     while (!(UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK));
@@ -187,7 +251,7 @@ error_t uart_getChar (uart_dev dev, char *out)
  * @param dev uart Device to send to
  * @param c Character to send
  */
-void uart_putChar (uart_dev dev, char c)
+void uart_putChar (Uart_DeviceHandle dev, char c)
 {
 	/* Wait until space is available in the FIFO */
     while(!(UART_S1_REG(dev->regMap) & UART_S1_TDRE_MASK));
@@ -203,7 +267,7 @@ void uart_putChar (uart_dev dev, char c)
  * 	0 No character received
  * 	1 Character has been received
  */
-int uart_getCharPresent (uart_dev dev)
+int uart_getCharPresent (Uart_DeviceHandle dev)
 {
 	return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
 }
