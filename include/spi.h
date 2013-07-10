@@ -35,6 +35,11 @@
 #include "errors.h"
 #include "types.h"
 
+typedef enum {
+    SPI_MASTER_MODE,
+    SPI_SLAVE_MODE
+} Spi_DeviceType;
+
 typedef struct Spi_Device* Spi_DeviceHandle;
 
 System_Errors Spi_init (Spi_DeviceHandle dev);

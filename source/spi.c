@@ -33,18 +33,25 @@
 
 typedef struct Spi_Device {
     SPI_MemMapPtr         regMap;
+    
+    uint32_t              baudRate;
+    Spi_DeviceType        devType;
 
     uint8_t               unsaved;
 } Spi_Device;
 
 #if defined(MKL15Z4)
 static Spi_Device spi0 = {
-        .regMap           = SPI0_BASE_PTR,
+    .regMap           = SPI0_BASE_PTR,
+    
+    .devType          = SPI_MASTER_MODE,
 };
 Spi_DeviceHandle SPI0 = &spi0; 
 
 static Spi_Device spi1 = {
-        .regMap           = SPI1_BASE_PTR,
+    .regMap           = SPI1_BASE_PTR,
+
+    .devType          = SPI_MASTER_MODE,
 };
 Spi_DeviceHandle SPI1 = &spi1;
 #elif defined(MK60DZ10)
@@ -55,6 +62,17 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 
+    /* Turn on clock */
+#if defined(MKL15Z4)
+    if (regmap == SPI0_BASE_PTR)
+        SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+    else if (regmap == I2C1_BASE_PTR)
+        SIM_SCGC4 |= SIM_SCGC4_SPI1_MASK;
+    else
+        SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#endif
     /* TODO */
 
     dev->unsaved = 0;
