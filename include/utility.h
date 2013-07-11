@@ -2,8 +2,8 @@
  * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
- *	
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  
  * Project: libohiboard
  * Package: -
  * Version: 0.0
@@ -23,27 +23,16 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
- * @brief Library main file.
+ * @file libohiboard/include/utility.h
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief Useful functions and definitions.
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
+#ifndef __UTILITY_H
+#define __UTILITY_H
 
-#include <stdio.h>
+/* Useful define */
+#define GPIO_PIN_MASK            0x1Fu
+#define GPIO_PIN(x)              (((1)<<(x & GPIO_PIN_MASK)))
 
-#include "types.h"
-#include "errors.h"
-
-#include "system.h"
-
-#include "uart.h"
-
-#include "i2c.h"
-
-#include "spi.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+#endif /* __UTILITY_H */
