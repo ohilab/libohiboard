@@ -67,6 +67,10 @@
  */
 #undef FRDMKL05Z
 /**
+ * Define for use with Freedom Platform FRDM-KL25Z. 
+ */
+#undef FRDMKL25Z
+/**
  * Define for use with Freedom Platform FRDM-K20D50M. 
  */
 #undef FRDMK20D50M
@@ -77,6 +81,8 @@
 #include "platforms/MKL15Z4.h"
 #elif defined(FRDMKL05Z)
 #include "platforms/MKL05Z4.h"
+#elif defined(FRDMKL25Z)
+#include "platforms/MKL25Z4.h"
 #elif defined(FRDMK20D50M)
 #include "platforms/MK20D5.h"
 #endif
