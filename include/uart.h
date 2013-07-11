@@ -48,15 +48,15 @@ typedef enum {
 
 typedef struct Uart_Device* Uart_DeviceHandle;
 
-System_Errors uart_init (Uart_DeviceHandle dev);
+System_Errors Uart_init (Uart_DeviceHandle dev);
 
-System_Errors uart_setBaudRate (Uart_DeviceHandle dev, uint32 br);
-System_Errors uart_enable (Uart_DeviceHandle dev);
-System_Errors uart_disable (Uart_DeviceHandle dev);
+System_Errors Uart_setBaudRate (Uart_DeviceHandle dev, uint32 br);
+System_Errors Uart_enable (Uart_DeviceHandle dev);
+System_Errors Uart_disable (Uart_DeviceHandle dev);
 
-System_Errors uart_getChar (Uart_DeviceHandle dev, char *out);
-void uart_putChar (Uart_DeviceHandle dev, char c);
-int uart_getCharPresent (Uart_DeviceHandle dev);
+System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
+void Uart_putChar (Uart_DeviceHandle dev, char c);
+int Uart_getCharPresent (Uart_DeviceHandle dev);
 
 #if defined(MKL15Z4)
 extern Uart_DeviceHandle UART1;

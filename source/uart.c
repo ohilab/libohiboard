@@ -43,11 +43,11 @@
  */
 
 typedef struct Uart_Device {
-	UART_MemMapPtr 		regMap;
-	
-	uint32				baudRate;
-	Uart_ParityMode 		parityMode;
-	Uart_DataBits			dataBits;
+	UART_MemMapPtr          regMap;
+
+	uint32_t                baudRate;
+	Uart_ParityMode         parityMode;
+	Uart_DataBits           dataBits;
 } Uart_Device;
 
 
@@ -118,14 +118,14 @@ Uart_DeviceHandle UART2 = &uart2;
  * @param br Baud Rate value
  * @return Error signal
  */
-System_Errors uart_setBaudRate(Uart_DeviceHandle dev, uint32 br)
+System_Errors Uart_setBaudRate(Uart_DeviceHandle dev, uint32_t br)
 {
 	if (br >= UART_MIN_BAUDARATE && br <= UART_MAX_BAUDARATE)
 	{
 		dev->baudRate = br;
-		return ERR_OK;
+		return ERRORS_NO_ERROR;
 	}
-	else ERR_PARAM_VALUE;
+	else ERRORS_PARAM_VALUE;
 }
 
 /**
@@ -141,13 +141,13 @@ System_Errors uart_setBaudRate(Uart_DeviceHandle dev, uint32 br)
  * @param dev uart Device to be initialized
  * @return Error signal
  */
-System_Errors uart_init(Uart_DeviceHandle dev) 
+System_Errors Uart_init(Uart_DeviceHandle dev) 
 {
-    register uint16 sbr, brfa;
-    uint8 temp;
+    register uint16_t sbr, brfa;
+    uint8_t temp;
     
     UART_MemMapPtr regmap = dev->regMap;
-    uint32 baudRate = 		dev->baudRate;
+    uint32_t baudRate     = dev->baudRate;
     
 	/* Enable the clock to the selected UART */    
 #if defined(MK60DZ10)
@@ -197,11 +197,12 @@ System_Errors uart_init(Uart_DeviceHandle dev)
     brfa = (((PER_CLOCK_KHZ*32000)/(baudRate * 16)) - (sbr * 32));
     
     /* Save off the current value of the UARTx_C4 register except for the BRFA field */
+    /* FIXME: In KL15 this register not match with register of K60 */
     temp = UART_C4_REG(regmap) & ~(UART_C4_BRFA(0x1F));
     
     UART_C4_REG(regmap) = temp |  UART_C4_BRFA(brfa);    
     
-    return ERR_OK;
+    return ERRORS_NO_ERROR;
 }
 
 /**
@@ -209,24 +210,24 @@ System_Errors uart_init(Uart_DeviceHandle dev)
  * @param dev uart Device to be enabled
  * @return Error signal
  */
-System_Errors uart_enable(Uart_DeviceHandle dev)
+System_Errors Uart_enable(Uart_DeviceHandle dev)
 {
     /* Enable receiver and transmitter */
 	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 	
-	return ERR_OK;
+	return ERRORS_NO_ERROR;
 }
 
 /**
  * @brief Disable a Serial Port
  * @param dev uart Device to be disabled
  */
-System_Errors uart_disable(Uart_DeviceHandle dev)
+System_Errors Uart_disable(Uart_DeviceHandle dev)
 {
 	/* Disable receiver and transmitter */
     UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
 
-    return ERR_OK;
+    return ERRORS_NO_ERROR;
 }
 
 /**
@@ -235,7 +236,7 @@ System_Errors uart_disable(Uart_DeviceHandle dev)
  * @param *out Buffer where to store the received character
  * @return Error signal
  */
-System_Errors uart_getChar (Uart_DeviceHandle dev, char *out)
+System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
 {
     /* Wait until character has been received */
     while (!(UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK));
@@ -243,7 +244,7 @@ System_Errors uart_getChar (Uart_DeviceHandle dev, char *out)
     /* Save the 8-bit data from the receiver to the output param */
     *out = UART_D_REG(dev->regMap);
     
-    return ERR_OK;
+    return ERRORS_NO_ERROR;
 }
 
 /**
@@ -251,13 +252,13 @@ System_Errors uart_getChar (Uart_DeviceHandle dev, char *out)
  * @param dev uart Device to send to
  * @param c Character to send
  */
-void uart_putChar (Uart_DeviceHandle dev, char c)
+void Uart_putChar (Uart_DeviceHandle dev, char c)
 {
 	/* Wait until space is available in the FIFO */
     while(!(UART_S1_REG(dev->regMap) & UART_S1_TDRE_MASK));
     
     /* Send the character */
-    UART_D_REG(dev->regMap) = (uint8)c;
+    UART_D_REG(dev->regMap) = (uint8_t)c;
 }
 
 /**
@@ -267,7 +268,7 @@ void uart_putChar (Uart_DeviceHandle dev, char c)
  * 	0 No character received
  * 	1 Character has been received
  */
-int uart_getCharPresent (Uart_DeviceHandle dev)
+int Uart_getCharPresent (Uart_DeviceHandle dev)
 {
 	return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
 }
