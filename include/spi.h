@@ -40,9 +40,19 @@ typedef enum {
     SPI_SLAVE_MODE
 } Spi_DeviceType;
 
+typedef enum {
+    SPI_LOW_SPEED, /**< Set to 375kHz */
+    SPI_HIGH_SPEED /**< Set to 12MHz */
+} Spi_SpeedType;
+
 typedef struct Spi_Device* Spi_DeviceHandle;
 
 System_Errors Spi_init (Spi_DeviceHandle dev);
+System_Errors Spi_setDeviceType (Spi_DeviceHandle dev, Spi_DeviceType devType);
+System_Errors Spi_setSpeedType (Spi_DeviceHandle dev, Spi_SpeedType speedType);
+
+System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
+System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
 
 #if defined(MKL15Z4)
 extern Spi_DeviceHandle SPI0;

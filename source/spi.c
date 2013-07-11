@@ -33,11 +33,9 @@
 
 typedef struct Spi_Device {
     SPI_MemMapPtr         regMap;
-    
-    uint32_t              baudRate;
-    Spi_DeviceType        devType;
 
-    uint8_t               unsaved;
+    Spi_DeviceType        devType;
+    Spi_SpeedType         speedType;
 } Spi_Device;
 
 #if defined(MKL15Z4)
@@ -45,6 +43,7 @@ static Spi_Device spi0 = {
     .regMap           = SPI0_BASE_PTR,
     
     .devType          = SPI_MASTER_MODE,
+    .speedType        = SPI_LOW_SPEED,
 };
 Spi_DeviceHandle SPI0 = &spi0; 
 
@@ -52,6 +51,7 @@ static Spi_Device spi1 = {
     .regMap           = SPI1_BASE_PTR,
 
     .devType          = SPI_MASTER_MODE,
+    .speedType        = SPI_LOW_SPEED,
 };
 Spi_DeviceHandle SPI1 = &spi1;
 #elif defined(MK60DZ10)
@@ -61,20 +61,114 @@ Spi_DeviceHandle SPI1 = &spi1;
 System_Errors Spi_init (Spi_DeviceHandle dev)
 {
     SPI_MemMapPtr regmap = dev->regMap;
+    Spi_DeviceType devType = dev->devType;
+    Spi_SpeedType speed = dev->speedType;
 
     /* Turn on clock */
 #if defined(MKL15Z4)
     if (regmap == SPI0_BASE_PTR)
+    {
         SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
-    else if (regmap == I2C1_BASE_PTR)
+    }
+    else if (regmap == SPI1_BASE_PTR)
+    {
         SIM_SCGC4 |= SIM_SCGC4_SPI1_MASK;
+    }
     else
+    {
         SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+    }
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #endif
-    /* TODO */
+    
+    /* TODO: configure GPIO for SPI function */
+    /* WARNING: Current configurations is static!! */
+#if defined(MKL15Z4)
+    if (regmap == SPI0_BASE_PTR)
+    {
+        /* Enable clock on PORTE */
+        SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;
+        PORTE_PCR16 = PORT_PCR_MUX(2);
+        PORTE_PCR17 = PORT_PCR_MUX(2);
+        PORTE_PCR18 = PORT_PCR_MUX(2);
+        PORTE_PCR19 = PORT_PCR_MUX(2);
+    }
+    else
+    {
+        /* FIXME: Quali pin? */
+    }
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#endif
 
-    dev->unsaved = 0;
+    /* Select device type */
+    if (devType == SPI_MASTER_MODE)
+    {
+        /* Disable all and clear interrutps */
+        regmap->C1 = 0;
+        /* Match interrupt disabled, uses separate pins and DMA disabled. */
+        regmap->C2 = 0;
+        /* Set baud rate */
+        if (speed == SPI_LOW_SPEED)
+        {
+            /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
+            regmap->BR = 0x10 | 0x40;
+        }
+        else
+        {
+            /* From 24MHz to 12MHz: set prescaler to 1 and divider to 2. */
+            regmap->BR = 0x00;            
+        }
+        /* Clear match register */
+        regmap->M = 0;
+        /* Enable master mode and SPI module. */
+        regmap->C1 = SPI_C1_MSTR_MASK | SPI_C1_SPE_MASK;
+    
+    }
+    else
+    {
+        /* TODO: implement slave setup */
+    }
+
     return ERRORS_NO_ERROR;
+}
+
+/**
+ * @brief
+ * 
+ * @param dev
+ * @param devType
+ * @return Error code.
+ */
+System_Errors Spi_setDeviceType (Spi_DeviceHandle dev, Spi_DeviceType devType)
+{
+    dev->devType = devType;
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * @brief
+ * 
+ * @param dev
+ * @param speedType
+ * @return Error code.
+ */
+System_Errors Spi_setSpeedType (Spi_DeviceHandle dev, Spi_SpeedType speedType)
+{
+    dev->speedType = speedType;
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
+{
+    
+    
+}
+
+System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
+{
+    
 }
