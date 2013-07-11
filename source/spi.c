@@ -89,7 +89,8 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     {
         /* Enable clock on PORTE */
         SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;
-        PORTE_PCR16 = PORT_PCR_MUX(2);
+        /* TODO: Enable this pin as output */
+        PORTE_PCR16 = PORT_PCR_MUX(1); /* General purpose I/O */
         PORTE_PCR17 = PORT_PCR_MUX(2);
         PORTE_PCR18 = PORT_PCR_MUX(2);
         PORTE_PCR19 = PORT_PCR_MUX(2);
@@ -164,11 +165,31 @@ System_Errors Spi_setSpeedType (Spi_DeviceHandle dev, Spi_SpeedType speedType)
 
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
 {
-    
-    
+    SPI_MemMapPtr regmap = dev->regMap;
+
+    /* Copy dummy data in D register */
+    regmap->D = 0xFF;
+    /* Wait until slave replay */
+    while (!(regmap->S & SPI_S_SPRF_MASK));
+    /* Save data register */
+    *data = regmap->D;
+
+    return ERRORS_NO_ERROR;    
 }
 
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
+    SPI_MemMapPtr regmap = dev->regMap;
     
+    /* Wait until SPTEF bit is 1 (transmit buffer is empty) */
+    while (!(regmap->S & SPI_S_SPTEF_MASK));
+    (void) regmap->S;
+    /* Copy data in D register */
+    regmap->D = data;
+    /* Wait until slave replay */
+    while (!(regmap->S & SPI_S_SPRF_MASK));
+    /* Read data register */
+    (void) regmap->D;
+    
+    return ERRORS_NO_ERROR;
 }
