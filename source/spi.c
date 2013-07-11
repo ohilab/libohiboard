@@ -68,17 +68,11 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     /* Turn on clock */
 #if defined(MKL15Z4)
     if (regmap == SPI0_BASE_PTR)
-    {
         SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
-    }
     else if (regmap == SPI1_BASE_PTR)
-    {
         SIM_SCGC4 |= SIM_SCGC4_SPI1_MASK;
-    }
     else
-    {
-        SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
-    }
+        return ERRORS_PARAM_VALUE;
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #endif
@@ -98,7 +92,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         PORTE_PCR18 = PORT_PCR_MUX(2);
         PORTE_PCR19 = PORT_PCR_MUX(2);
     }
-    else
+    else if (regmap == SPI1_BASE_PTR)
     {
         /* FIXME: Static pin definitions of SPI1 */
     }
@@ -130,9 +124,13 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         regmap->C1 = SPI_C1_MSTR_MASK | SPI_C1_SPE_MASK;
     
     }
-    else
+    else if (devType == SPI_SLAVE_MODE)
     {
         /* TODO: implement slave setup */
+    }
+    else
+    {
+        return ERRORS_PARAM_VALUE;
     }
 
     return ERRORS_NO_ERROR;
