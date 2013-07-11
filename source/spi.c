@@ -23,12 +23,13 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/spi.c
+ * @file libohiboard/source/spi.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief SPI definitions and prototypes
  */
 
 #include "platforms.h"
+#include "utility.h"
 #include "spi.h"
 
 typedef struct Spi_Device {
@@ -89,15 +90,17 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     {
         /* Enable clock on PORTE */
         SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;
-        /* TODO: Enable this pin as output */
-        PORTE_PCR16 = PORT_PCR_MUX(1); /* General purpose I/O */
+        /* Enable this pin as output */
+        GPIOE_PDDR  = GPIO_PDDR_PDD(GPIO_PIN(16));
+        /* Set CS as general purpose I/O */
+        PORTE_PCR16 = PORT_PCR_MUX(1); 
         PORTE_PCR17 = PORT_PCR_MUX(2);
         PORTE_PCR18 = PORT_PCR_MUX(2);
         PORTE_PCR19 = PORT_PCR_MUX(2);
     }
     else
     {
-        /* FIXME: Quali pin? */
+        /* FIXME: Static pin definitions of SPI1 */
     }
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)

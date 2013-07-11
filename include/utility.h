@@ -25,7 +25,7 @@
 /**
  * @file libohiboard/include/utility.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief SPI definitions and prototypes
+ * @brief Useful functions and definitions.
  */
 
 #ifndef __UTILITY_H
