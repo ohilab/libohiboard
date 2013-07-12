@@ -30,8 +30,6 @@
 
 #include "system.h"
 
-#if defined(MK60DZ10)
-#elif defined(MKL15Z4)
 /**
  * This function checks if the program has been downloaded to the right device.
  */
@@ -48,6 +46,7 @@ System_Errors System_controlDevice (void)
  */
 System_Errors System_initClock (void)
 {
+#if defined(MKL15Z4)
     int i;
 
     /* Clock prescaler */
@@ -80,7 +79,12 @@ System_Errors System_initClock (void)
         return ERRORS_EXT_OSC_NOT_SELECT;
     
     while ((MCG_S & 0x0CU) != 0x00U);
+
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#elif defined(FRDMKL25Z)
+#elif defined(FRDMK20D50M)
+#endif
     
     return ERRORS_NO_ERROR;
 }
-#endif
