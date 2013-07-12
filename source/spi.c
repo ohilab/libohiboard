@@ -110,13 +110,25 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         /* Set baud rate */
         if (speed == SPI_LOW_SPEED)
         {
+#if defined(MKL15Z4)
             /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
             regmap->BR = 0x10 | 0x40;
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#elif defined(FRDMKL25Z)
+#elif defined(FRDMK20D50M)
+#endif
         }
         else
         {
+#if defined(MKL15Z4)
             /* From 24MHz to 12MHz: set prescaler to 1 and divider to 2. */
             regmap->BR = 0x00;            
+#elif defined(MK60DZ10)
+#elif defined(FRDMKL05Z)
+#elif defined(FRDMKL25Z)
+#elif defined(FRDMK20D50M)
+#endif
         }
         /* Clear match register */
         regmap->M = 0;
