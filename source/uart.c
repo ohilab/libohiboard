@@ -125,7 +125,10 @@ System_Errors Uart_setBaudRate(Uart_DeviceHandle dev, uint32_t br)
 		dev->baudRate = br;
 		return ERRORS_NO_ERROR;
 	}
-	else ERRORS_PARAM_VALUE;
+	else
+    {
+	    return ERRORS_PARAM_VALUE;
+    }
 }
 
 /**
