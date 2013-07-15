@@ -35,6 +35,7 @@
 
 #include "types.h"
 #include "errors.h"
+#include "utility.h"
 
 #include "system.h"
 
