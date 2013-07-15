@@ -124,10 +124,10 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     {
         /* TODO: automatically selects the correct value. */
         /* WARNING: Current configurations is static for 100kbps!! */
-        I2C1_F = 0xCE;
+        I2C_F_REG(regmap) = 0xCE;
 
         /* enable IIC */
-        regmap->C1 = I2C_C1_IICEN_MASK;
+        I2C_C1_REG(regmap) = I2C_C1_IICEN_MASK;
     }
     else
     {
@@ -204,39 +204,39 @@ void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_Transmiss
 
 void Iic_disableAck (Iic_DeviceHandle dev)
 {
-    dev->regMap->C1 |= I2C_C1_TXAK_MASK;
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
 }
 
 void Iic_repeatedStart (Iic_DeviceHandle dev)
 {
-    dev->regMap->C1 |= I2C_C1_RSTA_MASK;
+    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
 }
 
 void Iic_start (Iic_DeviceHandle dev)
 {
-    dev->regMap->C1 |= I2C_C1_TX_MASK;
-    dev->regMap->C1 |= I2C_C1_MST_MASK;
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
+    I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
 }
 
 void Iic_stop (Iic_DeviceHandle dev)
 {
-    dev->regMap->C1 &= ~I2C_C1_MST_MASK;
-    dev->regMap->C1 &= ~I2C_C1_TX_MASK;
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_MST_MASK;
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
 }
 
 void Iic_enterRxMode (Iic_DeviceHandle dev)
 {
-    dev->regMap->C1 &= ~I2C_C1_TX_MASK;
-    dev->regMap->C1 &= ~I2C_C1_TXAK_MASK;
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
 }
 
 void Iic_wait (Iic_DeviceHandle dev)
 {
-    while ((dev->regMap->S & I2C_S_IICIF_MASK) == 0);
-    dev->regMap->S |= I2C_S_IICIF_MASK;
+    while ((I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK) == 0);
+    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
 }
 
 void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
 {
-    dev->regMap->D = data;
+    I2C_D_REG(dev->regMap) = data;
 }
