@@ -146,7 +146,11 @@ System_Errors Uart_setBaudRate(Uart_DeviceHandle dev, uint32_t br)
  */
 System_Errors Uart_init(Uart_DeviceHandle dev) 
 {
+#if defined(MKL15Z4)
+    register uint16_t sbr;
+#elif defined(MK60DZ10)
     register uint16_t sbr, brfa;
+#endif
     uint8_t temp;
     
     UART_MemMapPtr regmap = dev->regMap;
@@ -195,16 +199,18 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
     
     UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
     UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
-    
+
+#if defined(MKL15Z4)
+#elif defined(MK60DZ10)
     /* Determine if a fractional divider is needed to get closer to the baud rate */
     brfa = (((PER_CLOCK_KHZ*32000)/(baudRate * 16)) - (sbr * 32));
     
     /* Save off the current value of the UARTx_C4 register except for the BRFA field */
-    /* FIXME: In KL15 this register not match with register of K60 */
     temp = UART_C4_REG(regmap) & ~(UART_C4_BRFA(0x1F));
     
     UART_C4_REG(regmap) = temp |  UART_C4_BRFA(brfa);    
-    
+#endif
+
     return ERRORS_NO_ERROR;
 }
 
