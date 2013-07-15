@@ -104,15 +104,15 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     if (devType == SPI_MASTER_MODE)
     {
         /* Disable all and clear interrutps */
-        regmap->C1 = 0;
+        SPI_C1_REG(regmap) = 0;
         /* Match interrupt disabled, uses separate pins and DMA disabled. */
-        regmap->C2 = 0;
+        SPI_C2_REG(regmap) = 0;
         /* Set baud rate */
         if (speed == SPI_LOW_SPEED)
         {
 #if defined(MKL15Z4)
             /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
-            regmap->BR = 0x10 | 0x40;
+            SPI_BR_REG(regmap) = 0x10 | 0x40;
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMKL25Z)
@@ -123,7 +123,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         {
 #if defined(MKL15Z4)
             /* From 24MHz to 12MHz: set prescaler to 1 and divider to 2. */
-            regmap->BR = 0x00;            
+            SPI_BR_REG(regmap) = 0x00;            
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMKL25Z)
@@ -131,9 +131,9 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 #endif
         }
         /* Clear match register */
-        regmap->M = 0;
+        SPI_M_REG(regmap) = 0;
         /* Enable master mode and SPI module. */
-        regmap->C1 = SPI_C1_MSTR_MASK | SPI_C1_SPE_MASK;
+        SPI_C1_REG(regmap) = SPI_C1_MSTR_MASK | SPI_C1_SPE_MASK;
     
     }
     else if (devType == SPI_SLAVE_MODE)
@@ -181,11 +181,11 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
     SPI_MemMapPtr regmap = dev->regMap;
 
     /* Copy dummy data in D register */
-    regmap->D = 0xFF;
+    SPI_D_REG(regmap) = 0xFF;
     /* Wait until slave replay */
-    while (!(regmap->S & SPI_S_SPRF_MASK));
+    while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Save data register */
-    *data = regmap->D;
+    *data = SPI_D_REG(regmap);
 
     return ERRORS_NO_ERROR;    
 }
@@ -195,14 +195,14 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     SPI_MemMapPtr regmap = dev->regMap;
     
     /* Wait until SPTEF bit is 1 (transmit buffer is empty) */
-    while (!(regmap->S & SPI_S_SPTEF_MASK));
-    (void) regmap->S;
+    while (!(SPI_S_REG(regmap) & SPI_S_SPTEF_MASK));
+    (void) SPI_S_REG(regmap);
     /* Copy data in D register */
-    regmap->D = data;
+    SPI_D_REG(regmap) = data;
     /* Wait until slave replay */
-    while (!(regmap->S & SPI_S_SPRF_MASK));
+    while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Read data register */
-    (void) regmap->D;
+    (void) SPI_D_REG(regmap);
     
     return ERRORS_NO_ERROR;
 }
