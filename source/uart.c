@@ -99,7 +99,23 @@ static Uart_Device uart2 = {
 		.parityMode = UART_DEF_PARITY,
 		.dataBits 	= UART_DEF_DATABITS
 };
-Uart_DeviceHandle UART2 = &uart2; 
+Uart_DeviceHandle UART2 = &uart2;
+#elif defined(FRDMKL25Z)
+static Uart_Device uart1 = {
+		.regMap 	= UART1_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS
+};
+Uart_DeviceHandle UART1 = &uart1; 
+
+static Uart_Device uart2 = {
+		.regMap 	= UART2_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS
+};
+Uart_DeviceHandle UART2 = &uart2;
 #endif
 
 
@@ -146,7 +162,7 @@ System_Errors Uart_setBaudRate(Uart_DeviceHandle dev, uint32_t br)
  */
 System_Errors Uart_init(Uart_DeviceHandle dev) 
 {
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
     register uint16_t sbr;
 #elif defined(MK60DZ10)
     register uint16_t sbr, brfa;
@@ -170,7 +186,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 		SIM_SCGC1 |= SIM_SCGC1_UART4_MASK;
 	else if (regmap == UART5_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART5_MASK;
-#elif defined(MKL15Z4)
+#elif defined(MKL15Z4) || defined(FRDMKL25Z)
 	/* WARNING: UART device doesn't contain UART0 peripheral */
 	if (regmap == UART1_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
@@ -200,8 +216,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
     UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
     UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
 
-#if defined(MKL15Z4)
-#elif defined(MK60DZ10)
+#if defined(MK60DZ10)
     /* Determine if a fractional divider is needed to get closer to the baud rate */
     brfa = (((PER_CLOCK_KHZ*32000)/(baudRate * 16)) - (sbr * 32));
     
