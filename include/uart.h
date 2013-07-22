@@ -56,7 +56,7 @@ System_Errors Uart_disable (Uart_DeviceHandle dev);
 
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
 void Uart_putChar (Uart_DeviceHandle dev, char c);
-int Uart_getCharPresent (Uart_DeviceHandle dev);
+int Uart_isCharPresent (Uart_DeviceHandle dev);
 
 void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);

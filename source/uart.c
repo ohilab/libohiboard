@@ -294,7 +294,7 @@ void Uart_putChar (Uart_DeviceHandle dev, char c)
  * 	0 No character received
  * 	1 Character has been received
  */
-int Uart_getCharPresent (Uart_DeviceHandle dev)
+int Uart_isCharPresent (Uart_DeviceHandle dev)
 {
 	return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
 }
