@@ -58,6 +58,11 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
 void Uart_putChar (Uart_DeviceHandle dev, char c);
 int Uart_getCharPresent (Uart_DeviceHandle dev);
 
+void Uart_sendString (Uart_DeviceHandle dev, const char* text);
+void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
+void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
+
+
 #if defined(MKL15Z4)
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;

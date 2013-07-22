@@ -38,6 +38,8 @@
 #define UART_DEF_PARITY 	UART_PARITY_NONE
 #define UART_DEF_DATABITS 	UART_EIGHT_BIT
 
+static const char Uart_hexDigits[] = "0123456789ABCDEF";
+
 /* 
  * Peripherals declaration with default values
  */
@@ -297,3 +299,34 @@ int Uart_getCharPresent (Uart_DeviceHandle dev)
 	return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
 }
 
+void Uart_sendString (Uart_DeviceHandle dev, const char* text)
+{
+    if (text)
+    {
+        while (*text) Uart_putChar(dev, *text++);
+    }
+}
+
+void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length)
+{
+    if (data)
+    {
+        while (length--)
+        {
+            Uart_putChar(dev, *data++);
+        }
+    }
+}
+
+void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length)
+{
+    if (data)
+    {
+        while (length--)
+        {
+            uint8_t value = *data++;
+            Uart_putChar(dev, Uart_hexDigits[(value >> 4) & 0x0F]);
+            Uart_putChar(dev, Uart_hexDigits[(value >> 0) & 0x0F]);
+        }
+    }
+}
