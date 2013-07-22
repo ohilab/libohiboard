@@ -41,8 +41,12 @@ System_Errors System_controlDevice (void)
 }
 
 /**
- * This function set FEE mode with MCG out to 47972352Hz.
- * Core clock was set to 47972352Hz and bus clock to 23986176Hz.
+ * For MKL15Z4:
+ *   - This function set FEE mode with MCG out to 47972352Hz.
+ *   - Core clock was set to 47972352Hz and bus clock to 23986176Hz.
+ * For FRDMKL25Z:
+ *   - This function set FEE mode with MCG out to 40MHz.
+ *   - Core clock was set to 40MHz and bus clock to 20MHz.
  */
 System_Errors System_initClock (void)
 {
@@ -83,6 +87,39 @@ System_Errors System_initClock (void)
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMKL25Z)
+    int i;
+    
+    /* Clock prescaler */
+    SIM_CLKDIV1 = (SIM_CLKDIV1_OUTDIV1(0x00) | SIM_CLKDIV1_OUTDIV4(0x01));
+    
+    /* Set low frequency range and select external clock. */
+    MCG_C2 = (MCG_C2_RANGE0(0x02) | MCG_C2_EREFS0_MASK);
+    /* Enable external reference clock. */
+    OSC0_CR = OSC_CR_ERCLKEN_MASK;
+    /* Output of FLL is select, divide by 256 external clock and disable internal */
+    MCG_C1 = (MCG_C1_CLKS(0x00) | MCG_C1_FRDIV(0x03) | MCG_C1_IRCLKEN_MASK);
+    /* DCO mid range and DMX32 disabled (x1280): output of FLL 40MHz */
+    MCG_C4 = (uint8_t)((MCG_C4 & (uint8_t)~(uint8_t)(
+              MCG_C4_DMX32_MASK |
+              MCG_C4_DRST_DRS(0x02)
+             )) | (uint8_t)(
+              MCG_C4_DRST_DRS(0x01)
+             ));
+    /* Disable PLL */
+    MCG_C5 = MCG_C5_PRDIV0(0x00);                                   
+    /* Clock monitor disabled */
+    MCG_C6 = MCG_C6_VDIV0(0x00);
+    
+    /* Wait for reference clock status bit to clear (select external) */
+    for (i = 0; i < 2000; ++i)
+    {
+        if ((MCG_S & MCG_S_IREFST_MASK) == 0x00U) break;
+    }
+    if (MCG_S & MCG_S_IREFST_MASK)
+        return ERRORS_EXT_OSC_NOT_SELECT;
+    
+    while ((MCG_S & 0x0CU) != 0x00U);
+    
 #elif defined(FRDMK20D50M)
 #endif
     
