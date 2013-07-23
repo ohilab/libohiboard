@@ -44,7 +44,7 @@ typedef struct Iic_Device {
     uint8_t               unsaved;
 } Iic_Device;
 
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
 static Iic_Device iic0 = {
         .regMap           = I2C0_BASE_PTR,
 
@@ -113,7 +113,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     else
     {
         PORTC_PCR10 = PORT_PCR_MUX(2);
-        PORTC_PCR11 = PORT_PCR_MUX(2);        
+        PORTC_PCR11 = PORT_PCR_MUX(2);
     }
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)

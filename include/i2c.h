@@ -66,7 +66,7 @@ void Iic_enterRxMode (Iic_DeviceHandle dev);
 void Iic_wait (Iic_DeviceHandle dev);
 void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
 
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
 extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
 #elif defined(MK60DZ10)
