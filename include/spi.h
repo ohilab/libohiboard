@@ -54,7 +54,7 @@ System_Errors Spi_setSpeedType (Spi_DeviceHandle dev, Spi_SpeedType speedType);
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
 
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
 extern Spi_DeviceHandle SPI0;
 extern Spi_DeviceHandle SPI1;
 #elif defined(MK60DZ10)
