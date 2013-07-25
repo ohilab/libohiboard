@@ -39,7 +39,7 @@ typedef struct Spi_Device {
     Spi_SpeedType         speedType;
 } Spi_Device;
 
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
 static Spi_Device spi0 = {
     .regMap           = SPI0_BASE_PTR,
     
@@ -57,22 +57,6 @@ static Spi_Device spi1 = {
 Spi_DeviceHandle SPI1 = &spi1;
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
-#elif defined(FRDMKL25Z)
-static Spi_Device spi0 = {
-    .regMap           = SPI0_BASE_PTR,
-    
-    .devType          = SPI_MASTER_MODE,
-    .speedType        = SPI_LOW_SPEED,
-};
-Spi_DeviceHandle SPI0 = &spi0; 
-
-static Spi_Device spi1 = {
-    .regMap           = SPI1_BASE_PTR,
-
-    .devType          = SPI_MASTER_MODE,
-    .speedType        = SPI_LOW_SPEED,
-};
-Spi_DeviceHandle SPI1 = &spi1;
 #endif
 
 System_Errors Spi_init (Spi_DeviceHandle dev)
