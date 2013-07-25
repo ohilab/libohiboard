@@ -32,11 +32,16 @@
 #include "utility.h"
 #include "spi.h"
 
+#define SPI_PIN_ENABLED    1
+#define SPI_PIN_DISABLED   0
+
 typedef struct Spi_Device {
     SPI_MemMapPtr         regMap;
 
     Spi_DeviceType        devType;
     Spi_SpeedType         speedType;
+	
+	uint8_t               pinEnabled;
 } Spi_Device;
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
@@ -45,6 +50,7 @@ static Spi_Device spi0 = {
     
     .devType          = SPI_MASTER_MODE,
     .speedType        = SPI_LOW_SPEED,
+    .pinEnabled       = SPI_PIN_DISABLED
 };
 Spi_DeviceHandle SPI0 = &spi0; 
 
@@ -53,6 +59,7 @@ static Spi_Device spi1 = {
 
     .devType          = SPI_MASTER_MODE,
     .speedType        = SPI_LOW_SPEED,
+    .pinEnabled       = SPI_PIN_DISABLED
 };
 Spi_DeviceHandle SPI1 = &spi1;
 #elif defined(MK60DZ10)
@@ -64,38 +71,18 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     SPI_MemMapPtr regmap = dev->regMap;
     Spi_DeviceType devType = dev->devType;
     Spi_SpeedType speed = dev->speedType;
+    
+    if (dev->pinEnabled == SPI_PIN_DISABLED)
+    	return ERRORS_HW_NOT_ENABLED;
 
     /* Turn on clock */
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (regmap == SPI0_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
     else if (regmap == SPI1_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_SPI1_MASK;
     else
         return ERRORS_PARAM_VALUE;
-#elif defined(MK60DZ10)
-#elif defined(FRDMKL05Z)
-#endif
-    
-    /* TODO: configure GPIO for SPI function */
-    /* WARNING: Current configurations is static!! */
-#if defined(MKL15Z4)
-    if (regmap == SPI0_BASE_PTR)
-    {
-        /* Enable clock on PORTE */
-        SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;
-        /* Enable this pin as output */
-        GPIOE_PDDR  = GPIO_PDDR_PDD(GPIO_PIN(16));
-        /* Set CS as general purpose I/O */
-        PORTE_PCR16 = PORT_PCR_MUX(1); 
-        PORTE_PCR17 = PORT_PCR_MUX(2);
-        PORTE_PCR18 = PORT_PCR_MUX(2);
-        PORTE_PCR19 = PORT_PCR_MUX(2);
-    }
-    else if (regmap == SPI1_BASE_PTR)
-    {
-        /* FIXME: Static pin definitions of SPI1 */
-    }
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #endif
@@ -112,10 +99,12 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         {
 #if defined(MKL15Z4)
             /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
-            SPI_BR_REG(regmap) = 0x10 | 0x40;
+            SPI_BR_REG(regmap) = 0x10 | 0x04;
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMKL25Z)
+            /* From 20MHz to 357kHz: set prescaler to 7 and divider to 8. */
+            SPI_BR_REG(regmap) = 0x60 | 0x02;
 #elif defined(FRDMK20D50M)
 #endif
         }
@@ -127,6 +116,8 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMKL25Z)
+            /* From 20MHz to 10MHz: set prescaler to 1 and divider to 2. */
+            SPI_BR_REG(regmap) = 0x00;    
 #elif defined(FRDMK20D50M)
 #endif
         }
@@ -175,6 +166,16 @@ System_Errors Spi_setSpeedType (Spi_DeviceHandle dev, Spi_SpeedType speedType)
 
     return ERRORS_NO_ERROR;
 }
+
+/**
+ * @brief Indicate that device pin was selected.
+ * @param dev Spi device.
+ */
+void Spi_pinEnabled (Spi_DeviceHandle dev)
+{
+	dev->pinEnabled = SPI_PIN_ENABLED;
+}
+
 
 System_Errors Spi_readData (Spi_DeviceHandle dev, uint8_t * data)
 {

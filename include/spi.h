@@ -41,8 +41,8 @@ typedef enum {
 } Spi_DeviceType;
 
 typedef enum {
-    SPI_LOW_SPEED, /**< Set to 375kHz */
-    SPI_HIGH_SPEED /**< Set to 12MHz */
+    SPI_LOW_SPEED, /**< Set to more or less 350kHz */
+    SPI_HIGH_SPEED /**< Set to more or less 10MHz */
 } Spi_SpeedType;
 
 typedef struct Spi_Device* Spi_DeviceHandle;
