@@ -3,6 +3,7 @@
  * 
  * Author(s):
  *	Edoardo Bezzeccheri <coolman3@gmail.com>
+ *	Marco Giammarini <m.giammarini@warcomeb.it>
  *	
  * Project: libohiboard
  * Package: UART
@@ -25,6 +26,7 @@
 /**
  * @file libohiboard/include/uart.h
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief UART definitions and prototypes
  */
 
@@ -53,6 +55,7 @@ System_Errors Uart_init (Uart_DeviceHandle dev);
 System_Errors Uart_setBaudRate (Uart_DeviceHandle dev, uint32 br);
 System_Errors Uart_enable (Uart_DeviceHandle dev);
 System_Errors Uart_disable (Uart_DeviceHandle dev);
+void Uart_pinEnabled (Uart_DeviceHandle dev);
 
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
 void Uart_putChar (Uart_DeviceHandle dev, char c);

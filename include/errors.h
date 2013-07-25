@@ -35,9 +35,11 @@
 
 typedef enum _System_Errors
 {
-	ERRORS_NO_ERROR,                        /**< There is no error */
+	ERRORS_NO_ERROR,                        /**< There is no error. */
 	ERRORS_PARAM_VALUE,                     /**< Invalid value. */
-	ERRORS_EXT_OSC_NOT_SELECT               /**< External oscillator not selected */
+	ERRORS_EXT_OSC_NOT_SELECT,              /**< External oscillator not selected. */
+	
+	ERRORS_HW_NOT_ENABLED                   /**< Hardware pin of the device was not enabled. */
 } System_Errors;
 
 #define ERR_OK                          0x00U /* OK */

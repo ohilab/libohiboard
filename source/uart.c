@@ -3,6 +3,7 @@
  * 
  * Author(s):
  *	Edoardo Bezzeccheri <coolman3@gmail.com>
+ *	Marco Giammarini <m.giammarini@warcomeb.it>
  *	
  * Project: libohiboard
  * Package: UART
@@ -25,18 +26,26 @@
 /**
  * @file libohiboard/uart.c
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief UART module functions
  */
 
 #include "platforms.h"
 #include "uart.h"
 
-#define PER_CLOCK_KHZ 25000 // Temporary
+#if defined (FRDMKL25Z)
+#define PER_CLOCK_KHZ 20000
+#elif defined (MKL15Z4)
+#define PER_CLOCK_KHZ 24000
+#endif
 #define UART_DEF_BAUDRATE 	9600
 #define UART_MIN_BAUDARATE	1200
 #define UART_MAX_BAUDARATE	115200
 #define UART_DEF_PARITY 	UART_PARITY_NONE
 #define UART_DEF_DATABITS 	UART_EIGHT_BIT
+
+#define UART_PIN_ENABLED    1
+#define UART_PIN_DISABLED   0
 
 static const char Uart_hexDigits[] = "0123456789ABCDEF";
 
@@ -50,6 +59,8 @@ typedef struct Uart_Device {
 	uint32_t                baudRate;
 	Uart_ParityMode         parityMode;
 	Uart_DataBits           dataBits;
+	
+	uint8_t                 pinEnabled;
 } Uart_Device;
 
 
@@ -58,7 +69,8 @@ static Uart_Device uart0 = {
 		.regMap 	= UART0_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART0 = &uart0; 
 
@@ -66,7 +78,8 @@ static Uart_Device uart1 = {
 		.regMap 	= UART1_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART1 = &uart1; 
 
@@ -74,7 +87,8 @@ static Uart_Device uart2 = {
 		.regMap 	= UART2_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART2 = &uart2; 
 
@@ -82,16 +96,19 @@ static Uart_Device uart3 = {
 		.regMap 	= UART3_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART3 = &uart3; 
 
 #elif defined(MKL15Z4)
+
 static Uart_Device uart1 = {
 		.regMap 	= UART1_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART1 = &uart1; 
 
@@ -99,15 +116,19 @@ static Uart_Device uart2 = {
 		.regMap 	= UART2_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART2 = &uart2;
+
 #elif defined(FRDMKL25Z)
+
 static Uart_Device uart1 = {
 		.regMap 	= UART1_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART1 = &uart1; 
 
@@ -115,7 +136,8 @@ static Uart_Device uart2 = {
 		.regMap 	= UART2_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
-		.dataBits 	= UART_DEF_DATABITS
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART2 = &uart2;
 #endif
@@ -173,6 +195,9 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
     
     UART_MemMapPtr regmap = dev->regMap;
     uint32_t baudRate     = dev->baudRate;
+    
+    if (dev->pinEnabled == UART_PIN_DISABLED)
+    	return ERRORS_HW_NOT_ENABLED;
     
 	/* Enable the clock to the selected UART */    
 #if defined(MK60DZ10)
@@ -233,12 +258,15 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 
 /**
  * @brief Enable a Serial Port
- * @param dev uart Device to be enabled
+ * @param dev Uart device to be enabled
  * @return Error signal
  */
 System_Errors Uart_enable(Uart_DeviceHandle dev)
 {
-    /* Enable receiver and transmitter */
+    if (dev->pinEnabled == UART_PIN_DISABLED)
+    	return ERRORS_HW_NOT_ENABLED;
+	
+	/* Enable receiver and transmitter */
 	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 	
 	return ERRORS_NO_ERROR;
@@ -246,7 +274,7 @@ System_Errors Uart_enable(Uart_DeviceHandle dev)
 
 /**
  * @brief Disable a Serial Port
- * @param dev uart Device to be disabled
+ * @param dev Uart device to be disabled
  */
 System_Errors Uart_disable(Uart_DeviceHandle dev)
 {
@@ -257,8 +285,17 @@ System_Errors Uart_disable(Uart_DeviceHandle dev)
 }
 
 /**
+ * @brief Indicate that device pin was selected.
+ * @param dev Uart device.
+ */
+void Uart_pinEnabled (Uart_DeviceHandle dev)
+{
+	dev->pinEnabled = UART_PIN_ENABLED;
+}
+
+/**
  * @brief Wait for a character to be received on the specified uart
- * @param dev Serial port Device to receive byte from
+ * @param dev Serial port device to receive byte from
  * @param *out Buffer where to store the received character
  * @return Error signal
  */

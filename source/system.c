@@ -92,7 +92,7 @@ System_Errors System_initClock (void)
     /* Clock prescaler */
     SIM_CLKDIV1 = (SIM_CLKDIV1_OUTDIV1(0x00) | SIM_CLKDIV1_OUTDIV4(0x01));
     
-    /* Set low frequency range and select external clock. */
+    /* Set high frequency range and select external clock. */
     MCG_C2 = (MCG_C2_RANGE0(0x02) | MCG_C2_EREFS0_MASK);
     /* Enable external reference clock. */
     OSC0_CR = OSC_CR_ERCLKEN_MASK;
