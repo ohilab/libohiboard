@@ -56,6 +56,7 @@ System_Errors Iic_init (Iic_DeviceHandle dev);
 
 System_Errors Iic_setBaudRate (Iic_DeviceHandle dev, uint32 br);
 System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType);
+void Iic_pinEnabled (Iic_DeviceHandle dev);
 
 void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode);
 void Iic_disableAck (Iic_DeviceHandle dev);

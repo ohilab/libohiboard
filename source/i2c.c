@@ -34,6 +34,9 @@
 
 #define IIC_DEF_BAUDRATE    100000 /* 100kbps */
 
+#define IIC_PIN_ENABLED    1
+#define IIC_PIN_DISABLED   0
+
 typedef struct Iic_Device {
     I2C_MemMapPtr 		  regMap;
 
@@ -41,7 +44,7 @@ typedef struct Iic_Device {
     Iic_DeviceType        devType;
     Iic_AddressMode       addressMode;
 
-    uint8_t               unsaved;
+    uint8_t               pinEnabled;
 } Iic_Device;
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
@@ -51,6 +54,7 @@ static Iic_Device iic0 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .pinEnabled       = IIC_PIN_DISABLED,
 };
 Iic_DeviceHandle IIC0 = &iic0; 
 
@@ -60,6 +64,7 @@ static Iic_Device iic1 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .pinEnabled       = IIC_PIN_DISABLED
 };
 Iic_DeviceHandle IIC1 = &iic1; 
 #elif defined(MK60DZ10)
@@ -68,6 +73,7 @@ static Iic_Device iic0 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .pinEnabled       = IIC_PIN_DISABLED,
 };
 Iic_DeviceHandle IIC0 = &iic0;
 #elif defined(FRDMKL05Z)
@@ -76,6 +82,7 @@ static Iic_Device iic0 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .pinEnabled       = IIC_PIN_DISABLED,
 };
 Iic_DeviceHandle IIC0 = &iic0;
 #endif
@@ -90,6 +97,9 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     Iic_DeviceType devType = dev->devType;
 //    uint32_t baudrate = dev->baudRate;
 
+    if (dev->pinEnabled == IIC_PIN_DISABLED)
+    	return ERRORS_HW_NOT_ENABLED;
+    
     /* Turn on clock */
 #if defined(MKL15Z4)
     if (regmap == I2C0_BASE_PTR)
@@ -98,23 +108,6 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         SIM_SCGC4 |= SIM_SCGC4_I2C1_MASK;
     else
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
-#elif defined(MK60DZ10)
-#elif defined(FRDMKL05Z)
-#endif
-
-    /* TODO: configure GPIO for I2C function */
-    /* WARNING: Current configurations is static!! */
-#if defined(MKL15Z4)
-    if (regmap == I2C0_BASE_PTR)
-    {
-        PORTC_PCR8 = PORT_PCR_MUX(2);
-        PORTC_PCR9 = PORT_PCR_MUX(2);
-    }
-    else
-    {
-        PORTC_PCR10 = PORT_PCR_MUX(2);
-        PORTC_PCR11 = PORT_PCR_MUX(2);
-    }
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #endif
@@ -134,7 +127,6 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         /* TODO: implement slave setup */
     }
 
-    dev->unsaved = 0;
     return ERRORS_NO_ERROR;
 }
 
@@ -154,7 +146,6 @@ System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 baudrate)
     if (baudrate >= 10000 && baudrate <= 100000)
     {
         dev->baudRate = baudrate;
-        dev->unsaved = 1;
         return ERRORS_NO_ERROR;
     }
     else 
@@ -174,8 +165,16 @@ System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType)
 {
     dev->devType = devType;
 
-    dev->unsaved = 1;
     return ERRORS_NO_ERROR;
+}
+
+/**
+ * @brief Indicate that device pin was selected.
+ * @param dev Iic device.
+ */
+void Iic_pinEnabled (Iic_DeviceHandle dev)
+{
+	dev->pinEnabled = IIC_PIN_ENABLED;
 }
 
 /**
