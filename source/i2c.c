@@ -188,37 +188,70 @@ void Iic_pinEnabled (Iic_DeviceHandle dev)
  * @param mode
  * @return Error code.
  */
-void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode)
-{
-    /* Shift ID in right position. */
-    slaveID <<= 1;
-    /* Set R/W bit at end of Slave Address. */
-    if (mode == IIC_MASTER_READ)
-        slaveID |= 0x01;
-    else
-        slaveID &= 0xFE;
-    
-    /* Send start signal. */
-    Iic_start(dev);
-    
-    /* Send ID with W/R bit. */
-    Iic_writeByte(dev, slaveID);
-}
-
-void Iic_disableAck (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
-}
-
-void Iic_repeatedStart (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
-}
+//void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode)
+//{
+//    /* Shift ID in right position. */
+//    slaveID <<= 1;
+//    /* Set R/W bit at end of Slave Address. */
+//    if (mode == IIC_MASTER_READ)
+//        slaveID |= 0x01;
+//    else
+//        slaveID &= 0xFE;
+//    
+//    /* Send start signal. */
+//    Iic_start(dev);
+//    
+//    /* Send ID with W/R bit. */
+//    Iic_writeByte(dev, slaveID);
+//}
+//
+//void Iic_disableAck (Iic_DeviceHandle dev)
+//{
+//    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
+//}
+//
+//void Iic_repeatedStart (Iic_DeviceHandle dev)
+//{
+//    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
+//}
+//
+//void Iic_enterRxMode (Iic_DeviceHandle dev)
+//{
+//    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+//    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
+//}
+//
+//void Iic_wait (Iic_DeviceHandle dev)
+//{
+//    while ((I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK) == 0);
+//    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
+//}
+//
+//void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
+//{
+//    I2C_D_REG(dev->regMap) = data;
+//}
+//
+//void Iic_readByte (Iic_DeviceHandle dev, Iic_AcknoledgeType ackMode, uint8_t *data)
+//{
+//    Iic_enterRxMode(dev);
+//    if (ackMode == IIC_NO_ACK)
+//    	Iic_disableAck(dev);
+//    *data = I2C_D_REG(dev->regMap);
+//}
 
 void Iic_start (Iic_DeviceHandle dev)
 {
-    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
-    I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
+    /* If we are in communication set repeat star flag */
+    if (I2C_S_REG(dev->regMap) & I2C_S_BUSY_MASK)
+    {
+        I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
+    }
+    else
+    {
+        I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
+        I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
+    }
 }
 
 void Iic_stop (Iic_DeviceHandle dev)
@@ -227,27 +260,3 @@ void Iic_stop (Iic_DeviceHandle dev)
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
 }
 
-void Iic_enterRxMode (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
-}
-
-void Iic_wait (Iic_DeviceHandle dev)
-{
-    while ((I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK) == 0);
-    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
-}
-
-void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
-{
-    I2C_D_REG(dev->regMap) = data;
-}
-
-void Iic_readByte (Iic_DeviceHandle dev, Iic_AcknoledgeType ackMode, uint8_t *data)
-{
-    Iic_enterRxMode(dev);
-    if (ackMode == IIC_NO_ACK)
-    	Iic_disableAck(dev);
-    *data = I2C_D_REG(dev->regMap);
-}
