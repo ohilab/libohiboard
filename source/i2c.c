@@ -243,3 +243,11 @@ void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
 {
     I2C_D_REG(dev->regMap) = data;
 }
+
+void Iic_readByte (Iic_DeviceHandle dev, Iic_AcknoledgeType ackMode, uint8_t *data)
+{
+    Iic_enterRxMode(dev);
+    if (ackMode == IIC_NO_ACK)
+    	Iic_disableAck(dev);
+    *data = I2C_D_REG(dev->regMap);
+}
