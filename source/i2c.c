@@ -107,7 +107,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     else if (regmap == I2C1_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C1_MASK;
     else
-        SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
+        return ERRORS_PARAM_VALUE;
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #endif
@@ -117,7 +117,11 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     {
         /* TODO: automatically selects the correct value. */
         /* WARNING: Current configurations is static for 100kbps!! */
-        I2C_F_REG(regmap) = 0xCE;
+#if defined(MKL15Z4)
+        I2C_F_REG(regmap) = (0x00 | 0x1F);
+#elif defined(FRDMKL25Z)
+        I2C_F_REG(regmap) = (0x40 | 0x16);
+#endif
 
         /* enable IIC */
         I2C_C1_REG(regmap) = I2C_C1_IICEN_MASK;
