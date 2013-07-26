@@ -101,7 +101,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     	return ERRORS_HW_NOT_ENABLED;
     
     /* Turn on clock */
-#if defined(MKL15Z4)
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (regmap == I2C0_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
     else if (regmap == I2C1_BASE_PTR)
