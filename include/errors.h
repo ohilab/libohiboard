@@ -39,7 +39,14 @@ typedef enum _System_Errors
 	ERRORS_PARAM_VALUE,                     /**< Invalid value. */
 	ERRORS_EXT_OSC_NOT_SELECT,              /**< External oscillator not selected. */
 	
-	ERRORS_HW_NOT_ENABLED                   /**< Hardware pin of the device was not enabled. */
+	ERRORS_HW_NOT_ENABLED,                  /**< Hardware pin of the device was not enabled. */
+	
+	ERROR_IIC_TX_OK,
+	ERRORS_IIC_TX_ERROR,
+	ERRORS_IIC_TX_TIMEOUT,
+	ERRORS_IIC_TX_ACK_RECEIVED,
+	ERRORS_IIC_TX_ACK_NOT_RECEIVED,
+	ERRORS_IIC_RX_TIMEOUT,
 } System_Errors;
 
 #define ERR_OK                          0x00U /* OK */

@@ -260,3 +260,100 @@ void Iic_stop (Iic_DeviceHandle dev)
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
 }
 
+static System_Errors Iic_waitTxTransfer (Iic_DeviceHandle dev)
+{
+    uint16_t i, timeoutResult = 0;
+    
+    /* Wait for interrutp flag */
+    for (i = 0; i < 1000; ++i)
+    {
+        if (I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)
+        {
+            timeoutResult = 1;
+            break;
+        }
+    }
+    
+    if (timeoutResult == 0)
+        return ERRORS_IIC_TX_TIMEOUT;
+    
+    /* Reset value */
+    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
+    timeoutResult = 0;
+    
+    /* Wait for transfer complete */
+    for (i = 0; i < 1000; ++i)
+    {
+        if (I2C_S_REG(dev->regMap) & I2C_S_TCF_MASK)
+        {
+            timeoutResult = 1;
+            break;
+        }
+    }
+
+    if (timeoutResult == 0)
+        return ERRORS_IIC_TX_TIMEOUT;
+    
+    /* Check ACK! */
+    return (I2C_S_REG(dev->regMap) & I2C_S_RXAK_MASK) ? 
+            ERRORS_IIC_TX_ACK_NOT_RECEIVED : ERRORS_IIC_TX_ACK_RECEIVED;
+    
+}
+
+//static System_Errors Iic_waitRxTransfer (Iic_DeviceHandle dev)
+//{
+//}
+
+System_Errors Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
+{
+    /* Set TX mode */
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
+
+    /* Write the data in the register */
+    I2C_D_REG(dev->regMap) = data;
+    
+    /* Wait and return */
+    return Iic_waitTxTransfer(dev);
+    
+}
+
+System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address, 
+        const uint8_t *data, uint8_t length, uint8_t stopRequest)
+{
+    uint8_t i;
+
+    Iic_start(dev);
+    
+    /* Write address */
+    I2C_D_REG(dev->regMap) = (address & 0xFE);
+    if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
+    {
+        Iic_stop(dev);
+        return ERRORS_IIC_TX_ERROR;
+    }
+    
+    for (i = 0; i < length; ++i)
+    {
+        I2C_D_REG(dev->regMap) = data[i];
+        if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
+        {
+            Iic_stop(dev);
+            return ERRORS_IIC_TX_ERROR;
+        }
+    }
+
+    if (stopRequest)
+        Iic_stop(dev);
+    
+    return ERROR_IIC_TX_OK;
+}
+
+//System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, Iic_AcknoledgeType ackType)
+//{
+//    /* Set RX mode */
+//    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+//    
+//    /* First dummy read if necessary... */
+//    
+//    /* */
+//}
