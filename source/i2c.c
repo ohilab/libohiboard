@@ -122,7 +122,8 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
 #if defined(MKL15Z4)
         I2C_F_REG(regmap) = (0x00 | 0x1F);
 #elif defined(FRDMKL25Z)
-        I2C_F_REG(regmap) = (0x40 | 0x16);
+//        I2C_F_REG(regmap) = (0x40 | 0x16);
+		I2C_F_REG(regmap) = (0x00 | 0x21);
 #endif
 
         /* enable IIC */
@@ -204,8 +205,13 @@ void Iic_start (Iic_DeviceHandle dev)
 
 void Iic_stop (Iic_DeviceHandle dev)
 {
+	uint8_t i;
+	
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_MST_MASK;
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+    
+    for (i = 0; i < 100; ++i ) __asm ("nop");
+
     /* Setup for manage dummy read. */
     Iic_firstRead = 1;
 }
@@ -299,7 +305,7 @@ System_Errors Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
 }
 
 System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address, 
-        const uint8_t *data, uint8_t length, uint8_t stopRequest)
+        const uint8_t *data, uint8_t length, Iic_StopMode stopRequest)
 {
     uint8_t i;
 
@@ -323,7 +329,7 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
         }
     }
 
-    if (stopRequest)
+    if (stopRequest == IIC_STOP)
         Iic_stop(dev);
     
     return ERRORS_IIC_TX_OK;
@@ -363,7 +369,7 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByt
 }
 
 System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
-        uint8_t *data, uint8_t length, uint8_t stopRequest)
+        uint8_t *data, uint8_t length, Iic_StopMode stopRequest)
 {
     uint8_t i;
 
@@ -383,7 +389,7 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
     for (i = 0; i < length; ++i)
     {
         /* Ack type */
-        if (i == (length -1))
+        if (i == (length-1))
             Iic_sendNack(dev);
         else   
             Iic_sendAck(dev);
@@ -401,7 +407,7 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
         }
     }
 
-    if (stopRequest)
+    if (stopRequest == IIC_STOP)
         Iic_stop(dev);
 
     /* Last read */

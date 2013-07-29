@@ -45,6 +45,11 @@ typedef enum {
     IIC_TEN_BIT
 } Iic_AddressMode;
 
+typedef enum {
+    IIC_NO_STOP,
+    IIC_STOP
+} Iic_StopMode;
+
 typedef struct Iic_Device* Iic_DeviceHandle;
 
 System_Errors Iic_init (Iic_DeviceHandle dev);
@@ -58,10 +63,10 @@ void Iic_stop (Iic_DeviceHandle dev);
 
 System_Errors Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
 System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address, 
-        const uint8_t *data, uint8_t length, uint8_t stopRequest);
+        const uint8_t *data, uint8_t length, Iic_StopMode stopRequest);
 System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByte);
 System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
-        uint8_t *data, uint8_t length, uint8_t stopRequest);
+        uint8_t *data, uint8_t length, Iic_StopMode stopRequest);
 
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
