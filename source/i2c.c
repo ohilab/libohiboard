@@ -133,6 +133,9 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
         /* TODO: implement slave setup */
     }
 
+    /* Setup for manage dummy read. */
+    Iic_firstRead = 1;
+
     return ERRORS_NO_ERROR;
 }
 
@@ -183,65 +186,6 @@ void Iic_pinEnabled (Iic_DeviceHandle dev)
 	dev->pinEnabled = IIC_PIN_ENABLED;
 }
 
-/**
- * 
- * @param dev
- * @param slaveID
- * @param mode
- * @return Error code.
- */
-//void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode)
-//{
-//    /* Shift ID in right position. */
-//    slaveID <<= 1;
-//    /* Set R/W bit at end of Slave Address. */
-//    if (mode == IIC_MASTER_READ)
-//        slaveID |= 0x01;
-//    else
-//        slaveID &= 0xFE;
-//    
-//    /* Send start signal. */
-//    Iic_start(dev);
-//    
-//    /* Send ID with W/R bit. */
-//    Iic_writeByte(dev, slaveID);
-//}
-//
-//void Iic_disableAck (Iic_DeviceHandle dev)
-//{
-//    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
-//}
-//
-//void Iic_repeatedStart (Iic_DeviceHandle dev)
-//{
-//    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
-//}
-//
-//void Iic_enterRxMode (Iic_DeviceHandle dev)
-//{
-//    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
-//    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
-//}
-//
-//void Iic_wait (Iic_DeviceHandle dev)
-//{
-//    while ((I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK) == 0);
-//    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
-//}
-//
-//void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
-//{
-//    I2C_D_REG(dev->regMap) = data;
-//}
-//
-//void Iic_readByte (Iic_DeviceHandle dev, Iic_AcknoledgeType ackMode, uint8_t *data)
-//{
-//    Iic_enterRxMode(dev);
-//    if (ackMode == IIC_NO_ACK)
-//    	Iic_disableAck(dev);
-//    *data = I2C_D_REG(dev->regMap);
-//}
-
 void Iic_start (Iic_DeviceHandle dev)
 {
     /* If we are in communication set repeat star flag */
@@ -254,19 +198,23 @@ void Iic_start (Iic_DeviceHandle dev)
         I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
         I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
     }
+    /* Setup for manage dummy read. */
+    Iic_firstRead = 1;
 }
 
 void Iic_stop (Iic_DeviceHandle dev)
 {
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_MST_MASK;
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+    /* Setup for manage dummy read. */
+    Iic_firstRead = 1;
 }
 
 static System_Errors Iic_waitTxTransfer (Iic_DeviceHandle dev)
 {
     uint16_t i, timeoutResult = 0;
     
-    /* Wait for interrutp flag */
+    /* Wait for interrupt flag */
     for (i = 0; i < 1000; ++i)
     {
         if (I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)
@@ -304,6 +252,25 @@ static System_Errors Iic_waitTxTransfer (Iic_DeviceHandle dev)
 
 static System_Errors Iic_waitRxTransfer (Iic_DeviceHandle dev)
 {
+    uint16_t i, timeoutResult = 0;
+    
+    /* Wait for interrupt flag */
+    for (i = 0; i < 1000; ++i)
+    {
+        if (I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)
+        {
+            timeoutResult = 1;
+            break;
+        }
+    }
+    
+    if (timeoutResult == 0)
+        return ERRORS_IIC_RX_TIMEOUT;
+    
+    /* Reset value */
+    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
+    
+    return ERRORS_IIC_RX_OK;
 }
 
 static void Iic_sendNack (Iic_DeviceHandle dev)
@@ -339,7 +306,7 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
     Iic_start(dev);
     
     /* Write address */
-    I2C_D_REG(dev->regMap) = (address & 0xFE);
+    I2C_D_REG(dev->regMap) = address;
     if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
     {
         Iic_stop(dev);
@@ -359,13 +326,11 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
     if (stopRequest)
         Iic_stop(dev);
     
-    return ERROR_IIC_TX_OK;
+    return ERRORS_IIC_TX_OK;
 }
 
 System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByte)
 {
-    uint8_t dummyByte = 0;
-    
     /* Set RX mode */
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
     
@@ -373,7 +338,7 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByt
     if (Iic_firstRead)
     {
         Iic_sendAck(dev);
-        dummyByte = (I2C_D_REG(dev->regMap) & 0xFF);
+        (void) I2C_D_REG(dev->regMap);
         Iic_waitRxTransfer(dev);
         Iic_firstRead = 0;
     }
@@ -394,5 +359,53 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByt
     *data = (I2C_D_REG(dev->regMap) & 0xFF);
     Iic_waitRxTransfer(dev);
 
+    return ERRORS_IIC_RX_OK;
+}
+
+System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
+        uint8_t *data, uint8_t length, uint8_t stopRequest)
+{
+    uint8_t i;
+
+    Iic_start(dev);
+    
+    /* Write address */
+    I2C_D_REG(dev->regMap) = address;
+    if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
+    {
+        Iic_stop(dev);
+        return ERRORS_IIC_TX_ERROR;
+    }
+
+    /* Set RX mode */
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+
+    for (i = 0; i < length; ++i)
+    {
+        /* Ack type */
+        if (i == (length -1))
+            Iic_sendNack(dev);
+        else   
+            Iic_sendAck(dev);
+
+        /* Delete first dummy read */
+        if (i == 0)
+            (void) I2C_D_REG(dev->regMap);
+        else
+            data[i-1] = (I2C_D_REG(dev->regMap) & 0xFF);
+        
+        if (Iic_waitRxTransfer(dev) == ERRORS_IIC_RX_TIMEOUT)
+        {
+            Iic_stop(dev);
+            return ERRORS_IIC_RX_TIMEOUT;
+        }
+    }
+
+    if (stopRequest)
+        Iic_stop(dev);
+
+    /* Last read */
+    data[i-1] = (I2C_D_REG(dev->regMap) & 0xFF);
+    
     return ERRORS_IIC_RX_OK;
 }
