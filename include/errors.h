@@ -41,11 +41,12 @@ typedef enum _System_Errors
 	
 	ERRORS_HW_NOT_ENABLED,                  /**< Hardware pin of the device was not enabled. */
 	
-	ERROR_IIC_TX_OK,
+	ERRORS_IIC_TX_OK,
 	ERRORS_IIC_TX_ERROR,
 	ERRORS_IIC_TX_TIMEOUT,
 	ERRORS_IIC_TX_ACK_RECEIVED,
 	ERRORS_IIC_TX_ACK_NOT_RECEIVED,
+    ERRORS_IIC_RX_OK,
 	ERRORS_IIC_RX_TIMEOUT,
 } System_Errors;
 

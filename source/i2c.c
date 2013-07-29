@@ -37,6 +37,8 @@
 #define IIC_PIN_ENABLED    1
 #define IIC_PIN_DISABLED   0
 
+static uint8_t Iic_firstRead = 0;
+
 typedef struct Iic_Device {
     I2C_MemMapPtr 		  regMap;
 
@@ -300,12 +302,24 @@ static System_Errors Iic_waitTxTransfer (Iic_DeviceHandle dev)
     
 }
 
-//static System_Errors Iic_waitRxTransfer (Iic_DeviceHandle dev)
-//{
-//}
+static System_Errors Iic_waitRxTransfer (Iic_DeviceHandle dev)
+{
+}
+
+static void Iic_sendNack (Iic_DeviceHandle dev)
+{
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
+}
+
+static void Iic_sendAck (Iic_DeviceHandle dev)
+{
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
+}
 
 System_Errors Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
 {
+    Iic_firstRead = 1;
+    
     /* Set TX mode */
     I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
 
@@ -348,12 +362,37 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
     return ERROR_IIC_TX_OK;
 }
 
-//System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, Iic_AcknoledgeType ackType)
-//{
-//    /* Set RX mode */
-//    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
-//    
-//    /* First dummy read if necessary... */
-//    
-//    /* */
-//}
+System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByte)
+{
+    uint8_t dummyByte = 0;
+    
+    /* Set RX mode */
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+    
+    /* First dummy read if necessary... */
+    if (Iic_firstRead)
+    {
+        Iic_sendAck(dev);
+        dummyByte = (I2C_D_REG(dev->regMap) & 0xFF);
+        Iic_waitRxTransfer(dev);
+        Iic_firstRead = 0;
+    }
+
+    if (lastByte)
+    {
+        /* Set to TX mode */
+        I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
+        *data = (I2C_D_REG(dev->regMap) & 0xFF);
+        return ERRORS_IIC_RX_OK;
+    }
+    
+    if (lastByte)
+        Iic_sendNack(dev);
+    else   
+        Iic_sendAck(dev);
+
+    *data = (I2C_D_REG(dev->regMap) & 0xFF);
+    Iic_waitRxTransfer(dev);
+
+    return ERRORS_IIC_RX_OK;
+}
