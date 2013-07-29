@@ -45,16 +45,6 @@ typedef enum {
     IIC_TEN_BIT
 } Iic_AddressMode;
 
-typedef enum {
-    IIC_MASTER_WRITE,
-    IIC_MASTER_READ
-} Iic_TransmissionType;
-
-typedef enum {
-    IIC_ACK,
-    IIC_NO_ACK
-} Iic_AcknoledgeType;
-
 typedef struct Iic_Device* Iic_DeviceHandle;
 
 System_Errors Iic_init (Iic_DeviceHandle dev);
@@ -63,16 +53,16 @@ System_Errors Iic_setBaudRate (Iic_DeviceHandle dev, uint32 br);
 System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType);
 void Iic_pinEnabled (Iic_DeviceHandle dev);
 
-void Iic_startTransmission (Iic_DeviceHandle dev, uint8_t slaveID, Iic_TransmissionType mode);
-void Iic_disableAck (Iic_DeviceHandle dev);
-void Iic_repeatedStart (Iic_DeviceHandle dev);
 void Iic_start (Iic_DeviceHandle dev);
 void Iic_stop (Iic_DeviceHandle dev);
-void Iic_enterRxMode (Iic_DeviceHandle dev);
-void Iic_wait (Iic_DeviceHandle dev);
 
-void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
-void Iic_readByte (Iic_DeviceHandle dev, Iic_AcknoledgeType ackMode, uint8_t *data);
+System_Errors Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
+System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address, 
+        const uint8_t *data, uint8_t length, uint8_t stopRequest);
+System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByte);
+System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
+        uint8_t *data, uint8_t length, uint8_t stopRequest);
+
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
 extern Iic_DeviceHandle IIC0;
