@@ -308,24 +308,27 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
         const uint8_t *data, uint8_t length, Iic_StopMode stopRequest)
 {
     uint8_t i;
+    System_Errors error;
 
     Iic_start(dev);
     
     /* Write address */
     I2C_D_REG(dev->regMap) = address;
-    if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
+    error = Iic_waitTxTransfer(dev);
+    if (error == ERRORS_IIC_TX_TIMEOUT)
     {
         Iic_stop(dev);
-        return ERRORS_IIC_TX_ERROR;
+        return error;
     }
     
     for (i = 0; i < length; ++i)
     {
         I2C_D_REG(dev->regMap) = data[i];
-        if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
+        error = Iic_waitTxTransfer(dev);
+        if (error == ERRORS_IIC_TX_TIMEOUT)
         {
             Iic_stop(dev);
-            return ERRORS_IIC_TX_ERROR;
+            return error;
         }
     }
 
@@ -363,9 +366,8 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByt
         Iic_sendAck(dev);
 
     *data = (I2C_D_REG(dev->regMap) & 0xFF);
-    Iic_waitRxTransfer(dev);
 
-    return ERRORS_IIC_RX_OK;
+    return Iic_waitRxTransfer(dev);
 }
 
 System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
