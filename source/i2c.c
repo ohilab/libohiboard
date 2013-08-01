@@ -338,7 +338,8 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
     return ERRORS_IIC_TX_OK;
 }
 
-System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByte)
+System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, 
+        Iic_LastByteMode lastByte)
 {
     /* Set RX mode */
     I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
@@ -352,20 +353,19 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data, uint8_t lastByt
         Iic_firstRead = 0;
     }
 
-    if (lastByte)
+    if (lastByte == IIC_LAST_BYTE)
     {
         /* Set to TX mode */
         I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
         *data = (I2C_D_REG(dev->regMap) & 0xFF);
+        Iic_sendNack(dev);
         return ERRORS_IIC_RX_OK;
     }
-    
-    if (lastByte)
-        Iic_sendNack(dev);
-    else   
+    else
+    {
         Iic_sendAck(dev);
-
-    *data = (I2C_D_REG(dev->regMap) & 0xFF);
+        *data = (I2C_D_REG(dev->regMap) & 0xFF);
+    }
 
     return Iic_waitRxTransfer(dev);
 }
