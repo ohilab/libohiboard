@@ -35,6 +35,12 @@
 #include "errors.h"
 #include "types.h"
 
+#if defined (FRDMKL25Z)
+#define SYSTEM_CLOCK_KHZ 20000
+#elif defined (MKL15Z4)
+#define SYSTEM_CLOCK_KHZ 24000
+#endif
+
 System_Errors System_controlDevice (void);
 System_Errors System_initClock (void);
 
