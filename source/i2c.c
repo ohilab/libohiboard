@@ -30,14 +30,18 @@
 
 
 #include "platforms.h"
+#include "system.h"
 #include "i2c.h"
 
-#define IIC_DEF_BAUDRATE    100000 /* 100kbps */
+#define IIC_TIMEOUT_CLOCK_KHZ  SYSTEM_CLOCK_KHZ/64  
 
-#define IIC_PIN_ENABLED    1
-#define IIC_PIN_DISABLED   0
+#define IIC_DEF_BAUDRATE       100000 /* 100kbps */
+
+#define IIC_PIN_ENABLED        1
+#define IIC_PIN_DISABLED       0
 
 static uint8_t Iic_firstRead = 0;
+static const uint8_t Iic_usSclTimeout = (uint8_t)((uint16_t)(1000/IIC_TIMEOUT_CLOCK_KHZ));
 
 typedef struct Iic_Device {
     I2C_MemMapPtr 		  regMap;
@@ -46,6 +50,8 @@ typedef struct Iic_Device {
     Iic_DeviceType        devType;
     Iic_AddressMode       addressMode;
 
+    uint16_t              sclTimeout;
+    
     uint8_t               pinEnabled;
 } Iic_Device;
 
@@ -56,6 +62,7 @@ static Iic_Device iic0 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .sclTimeout       = 0,
         .pinEnabled       = IIC_PIN_DISABLED,
 };
 Iic_DeviceHandle IIC0 = &iic0; 
@@ -66,6 +73,7 @@ static Iic_Device iic1 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .sclTimeout       = 0,
         .pinEnabled       = IIC_PIN_DISABLED
 };
 Iic_DeviceHandle IIC1 = &iic1; 
@@ -75,6 +83,7 @@ static Iic_Device iic0 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .sclTimeout       = 0,
         .pinEnabled       = IIC_PIN_DISABLED,
 };
 Iic_DeviceHandle IIC0 = &iic0;
@@ -84,6 +93,7 @@ static Iic_Device iic0 = {
         .baudRate         = IIC_DEF_BAUDRATE,
         .devType          = IIC_MASTER_MODE,
         .addressMode      = IIC_SEVEN_BIT,
+        .sclTimeout       = 0,
         .pinEnabled       = IIC_PIN_DISABLED,
 };
 Iic_DeviceHandle IIC0 = &iic0;
@@ -416,4 +426,39 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
     data[i-1] = (I2C_D_REG(dev->regMap) & 0xFF);
     
     return ERRORS_IIC_RX_OK;
+}
+
+System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay)
+{
+    uint32_t ticks = usDelay/Iic_usSclTimeout;
+    
+    if (ticks > 65535)
+        return ERRORS_IIC_SCLTIMEOUT_TOO_LARGE;
+    
+    I2C_SMB_REG(dev->regMap) &= ~I2C_SMB_TCKSEL_MASK;
+    I2C_SLTL_REG(dev->regMap) = ticks & 0x000000FF;
+    I2C_SLTH_REG(dev->regMap) = ((ticks >> 8) & 0x000000FF);            
+
+    /* Just for debug! */
+    dev->sclTimeout = (0x0000FFFF & ticks);
+
+    return ERRORS_NO_ERROR;
+}
+
+void Iic_resetSclTimeout (Iic_DeviceHandle dev)
+{
+    I2C_SMB_REG(dev->regMap) |= I2C_SMB_SLTF_MASK;
+    I2C_SLTL_REG(dev->regMap) = 0;
+    I2C_SLTH_REG(dev->regMap) = 0;
+
+    /* Just for debug! */
+    dev->sclTimeout = 0;
+}
+
+System_Errors Iic_isToggleSclTimeout (Iic_DeviceHandle dev)
+{
+    if (I2C_SMB_REG(dev->regMap) & I2C_SMB_SLTF_MASK)
+        return ERRORS_IIC_SCLTIMEOUT;
+    else
+        return ERRORS_IIC_NO_SCLTIMEOUT;
 }
