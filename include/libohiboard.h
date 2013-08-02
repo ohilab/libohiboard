@@ -37,6 +37,8 @@
 #include "errors.h"
 #include "utility.h"
 
+#include "interrupt.h"
+
 #include "system.h"
 
 #include "uart.h"
