@@ -47,6 +47,8 @@
 
 #include "spi.h"
 
+#include "rtc.h"
+
 void test();
 
 #endif /* __LIBOHIBOARD_H */
