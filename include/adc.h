@@ -83,6 +83,7 @@ typedef struct Adc_Device* Adc_DeviceHandle;
 System_Errors Adc_init (Adc_DeviceHandle dev);
 
 void Adc_setResolution (Adc_DeviceHandle dev, Adc_Resolution resolution);
+void Adc_setAvarage (Adc_DeviceHandle dev, Adc_Avarage avarage);
 
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
