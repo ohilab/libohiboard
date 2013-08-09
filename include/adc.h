@@ -85,6 +85,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev);
 void Adc_setResolution (Adc_DeviceHandle dev, Adc_Resolution resolution);
 void Adc_setAvarage (Adc_DeviceHandle dev, Adc_Avarage avarage);
 
+System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel, uint16_t *value);
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
 extern Adc_DeviceHandle ADC0;
