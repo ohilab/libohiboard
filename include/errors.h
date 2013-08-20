@@ -53,6 +53,8 @@ typedef enum _System_Errors
 	ERRORS_IIC_SCLTIMEOUT_TOO_LARGE,
 	ERRORS_IIC_SCLTIMEOUT,
 	ERRORS_IIC_NO_SCLTIMEOUT,
+	
+	ERRORS_ADC_CHANNEL_WRONG,
 } System_Errors;
 
 #define ERR_OK                          0x00U /* OK */

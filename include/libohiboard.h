@@ -47,6 +47,8 @@
 
 #include "spi.h"
 
+#include "adc.h"
+
 void test();
 
 #endif /* __LIBOHIBOARD_H */
