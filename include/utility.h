@@ -39,11 +39,15 @@
 #define GPIO_PIN_MASK            0x1Fu
 #define GPIO_PIN(x)              (((1)<<(x & GPIO_PIN_MASK)))
 
+extern const char hexDigits[];
+
+System_Errors xdigit (uint8_t digit, uint8_t* result);
+
 System_Errors xtu8 (const uint8_t* xString, uint8_t* result, uint8_t slength);
 System_Errors xtu16 (const uint8_t* xString, uint16_t* result, uint8_t slength);
 System_Errors xtu32 (const uint8_t* xString, uint32_t* result, uint8_t slength);
 
 void u8tx (uint8_t *xString, uint8_t number);
-void u16tx (uint8_t *xString, uint16_t number);
+void u16tx (uint8_t *xString, uint16_t number, uint8_t slength);
 
 #endif /* __UTILITY_H */
