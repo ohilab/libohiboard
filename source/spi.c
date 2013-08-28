@@ -177,7 +177,7 @@ void Spi_pinEnabled (Spi_DeviceHandle dev)
 }
 
 
-System_Errors Spi_readData (Spi_DeviceHandle dev, uint8_t * data)
+System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 
@@ -191,7 +191,7 @@ System_Errors Spi_readData (Spi_DeviceHandle dev, uint8_t * data)
     return ERRORS_NO_ERROR;    
 }
 
-System_Errors Spi_writeData (Spi_DeviceHandle dev, uint8_t data)
+System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
     
