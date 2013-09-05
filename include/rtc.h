@@ -2,10 +2,10 @@
  * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
+ *	Marco Giammarini <m.giammarini@warcomeb.it>
  *	
  * Project: libohiboard
- * Package: -
+ * Package: RTC
  * Version: 0.0
  * 
  * This library is free software: you can redistribute it and/or modify
@@ -23,34 +23,35 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
- * @brief Library main file.
+ * @file libohiboard/include/rtc.h
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief RTC definitions and prototypes.
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
+#ifndef __RTC_H
+#define __RTC_H
 
-#include <stdio.h>
-
-#include "types.h"
+#include "platforms.h"
 #include "errors.h"
-#include "utility.h"
+#include "types.h"
 
-#include "interrupt.h"
+typedef enum {
+    RTC_SYSTEM_OSCILLATOR,
+    RTC_CLKIN,
+    RTC_LPO_1kHz
+} Rtc_ClockSource;
 
-#include "system.h"
+typedef uint32_t Rtc_Time;
 
-#include "uart.h"
+typedef struct Rtc_Device* Rtc_DeviceHandle;
 
-#include "i2c.h"
+System_Errors Rtc_init (Rtc_DeviceHandle dev);
 
-#include "spi.h"
+System_Errors Rtc_setClockSource (Rtc_DeviceHandle dev, Rtc_ClockSource clock);
 
-#include "adc.h"
+void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
+Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
 
-#include "rtc.h"
+extern Rtc_DeviceHandle RTC;
 
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+#endif /* __RTC_H */
