@@ -35,7 +35,23 @@
 #include "errors.h"
 #include "types.h"
 
+typedef enum {
+    RTC_SYSTEM_OSCILLATOR,
+    RTC_CLKIN,
+    RTC_LPO_1kHz
+} Rtc_ClockSource;
 
+typedef uint32_t Rtc_Time;
 
+typedef struct Rtc_Device* Rtc_DeviceHandle;
+
+System_Errors Rtc_init (Rtc_DeviceHandle dev);
+
+System_Errors Rtc_setClockSource (Rtc_DeviceHandle dev, Rtc_ClockSource clock);
+
+void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
+Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
+
+extern Rtc_DeviceHandle RTC;
 
 #endif /* __RTC_H */
