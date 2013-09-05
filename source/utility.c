@@ -166,3 +166,35 @@ void u16tx (uint8_t *xString, uint16_t number, uint8_t slength)
     }
 }
 
+void u32tx (uint8_t *xString, uint32_t number, uint8_t slength)
+{
+    switch (slength)
+    {
+    case 8:
+        *xString = hexDigits[(number >> 28) & 0x0000000F];
+        ++xString;
+    case 7:
+        *xString = hexDigits[(number >> 24) & 0x0000000F];
+        ++xString;
+    case 6:
+        *xString = hexDigits[(number >> 20) & 0x0000000F];
+        ++xString;
+    case 5:
+        *xString = hexDigits[(number >> 16) & 0x0000000F];
+        ++xString;
+    case 4:
+        *xString = hexDigits[(number >> 12) & 0x0000000F];
+        ++xString;
+    case 3:
+        *xString = hexDigits[(number >> 8) & 0x0000000F];
+        ++xString;
+    case 2:
+        *xString = hexDigits[(number >> 4) & 0x0000000F];
+        ++xString;
+    case 1:
+        *xString = hexDigits[(number >> 0) & 0x0000000F];
+        break;
+    default:
+        return;
+    }
+}
