@@ -81,6 +81,34 @@ System_Errors xtu8 (const uint8_t* xString, uint8_t* result, uint8_t slength)
     return ERRORS_UTILITY_EMPTY_STRING;
 }
 
+System_Errors xtu16 (const uint8_t* xString, uint16_t* result, uint8_t slength)
+{
+    uint8_t i, singleByte;
+
+    if (slength > 0)
+    {
+        if (slength > 4) return ERRORS_UTILITY_LONG_STRING;
+
+        /* Start conversion... */
+        *result = 0;
+        for (i = 0; i < slength; ++i)
+        {
+            if (xdigit(*xString,&singleByte) == ERRORS_UTILITY_CONVERSION_OK)
+            {
+                *result = 16 * (*result) + singleByte;
+            }
+            else
+            {
+                return ERRORS_UTILITY_ILLEGAL_CHAR;
+            }
+            xString++;
+        }
+        return ERRORS_UTILITY_CONVERSION_OK;
+    }
+
+    return ERRORS_UTILITY_EMPTY_STRING;
+}
+
 System_Errors xtu32 (const uint8_t* xString, uint32_t* result, uint8_t slength)
 {
     uint8_t i, singleByte;
