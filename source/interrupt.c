@@ -40,7 +40,7 @@
 #define NVIC_NUM_VECTORS                NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
 #endif
 
-System_Errors Interrupt_enable (uint16_t vectorNumber)
+System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 {
 #if defined (MK60DZ10)
     uint16_t div;
@@ -77,7 +77,7 @@ System_Errors Interrupt_enable (uint16_t vectorNumber)
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Interrupt_disable (uint16_t vectorNumber)
+System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
 {
 #if defined (MK60DZ10)
     uint16_t div;

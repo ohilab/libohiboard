@@ -35,7 +35,21 @@
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
 
-System_Errors Interrupt_enable (uint16_t vectorNumber);
-System_Errors Interrupt_disable (uint16_t vectorNumber);
+typedef enum {
+    INTERRUPT_ENABLE_OFF,
+    INTERRUPT_ENABLE_ON,
+} Interrupt_Status;
+
+typedef enum {
+#if defined (FRDMKL25Z)
+    INTERRUPT_TPM0       = 17,
+    INTERRUPT_RTC_ALARM  = 20,
+    INTERRUPT_RTC_SECOND = 21,
+#elif defined (MK60DZ10)
+#endif
+} Interrupt_Vector;
+
+System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
+System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);
 
 #endif /* __INTERRUPT_H */
