@@ -35,7 +35,100 @@
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
 
-System_Errors Interrupt_enable (uint16_t vectorNumber);
-System_Errors Interrupt_disable (uint16_t vectorNumber);
+typedef enum {
+    INTERRUPT_ENABLE_OFF,
+    INTERRUPT_ENABLE_ON,
+} Interrupt_Status;
+
+typedef enum {
+#if defined (FRDMKL25Z)
+    INTERRUPT_DMA0       = 0,
+    INTERRUPT_DMA1       = 1,
+    INTERRUPT_DMA2       = 2,
+    INTERRUPT_DMA3       = 3,
+    INTERRUPT_FTFA       = 5,
+    INTERRUPT_PMC        = 6,
+    INTERRUPT_LLWU       = 7,
+    INTERRUPT_IIC0       = 8,
+    INTERRUPT_IIC1       = 9,
+    INTERRUPT_SPI0       = 10,
+    INTERRUPT_SPI1       = 11,
+    INTERRUPT_UART0      = 12,
+    INTERRUPT_UART1      = 13,
+    INTERRUPT_UART2      = 14,
+    INTERRUPT_ADC0       = 15,
+    INTERRUPT_CMP0       = 16,
+    INTERRUPT_TPM0       = 17,
+    INTERRUPT_TPM1       = 18,
+    INTERRUPT_TPM2       = 19,
+    INTERRUPT_RTC_ALARM  = 20,
+    INTERRUPT_RTC_SECOND = 21,
+    INTERRUPT_PIT        = 22,
+    INTERRUPT_USBOTG     = 24,
+    INTERRUPT_DAC0       = 25,
+    INTERRUPT_TSI0       = 26,
+    INTERRUPT_MCG        = 27,
+    INTERRUPT_LPTMR0     = 28,
+    INTERRUPT_PORTA      = 30,
+    INTERRUPT_PORTD      = 31,
+#elif defined(MKL15Z4)
+    INTERRUPT_DMA0       = 0,
+    INTERRUPT_DMA1       = 1,
+    INTERRUPT_DMA2       = 2,
+    INTERRUPT_DMA3       = 3,
+    INTERRUPT_FTFA       = 5,
+    INTERRUPT_PMC        = 6,
+    INTERRUPT_LLWU       = 7,
+    INTERRUPT_IIC0       = 8,
+    INTERRUPT_IIC1       = 9,
+    INTERRUPT_SPI0       = 10,
+    INTERRUPT_SPI1       = 11,
+    INTERRUPT_UART0      = 12,
+    INTERRUPT_UART1      = 13,
+    INTERRUPT_UART2      = 14,
+    INTERRUPT_ADC0       = 15,
+    INTERRUPT_CMP0       = 16,
+    INTERRUPT_TPM0       = 17,
+    INTERRUPT_TPM1       = 18,
+    INTERRUPT_TPM2       = 19,
+    INTERRUPT_RTC_ALARM  = 20,
+    INTERRUPT_RTC_SECOND = 21,
+    INTERRUPT_PIT        = 22,
+    INTERRUPT_DAC0       = 25,
+    INTERRUPT_TSI0       = 26,
+    INTERRUPT_MCG        = 27,
+    INTERRUPT_LPTMR0     = 28,
+    INTERRUPT_PORTA      = 30,
+    INTERRUPT_PORTD      = 31,
+#elif defined(FRDMKL05Z)
+    INTERRUPT_DMA0       = 0,
+    INTERRUPT_DMA1       = 1,
+    INTERRUPT_DMA2       = 2,
+    INTERRUPT_DMA3       = 3,
+    INTERRUPT_FTFA       = 5,
+    INTERRUPT_PMC        = 6,
+    INTERRUPT_LLWU       = 7,
+    INTERRUPT_IIC0       = 8,
+    INTERRUPT_SPI0       = 10,
+    INTERRUPT_UART0      = 12,
+    INTERRUPT_ADC0       = 15,
+    INTERRUPT_CMP0       = 16,
+    INTERRUPT_TPM0       = 17,
+    INTERRUPT_TPM1       = 18,
+    INTERRUPT_RTC_ALARM  = 20,
+    INTERRUPT_RTC_SECOND = 21,
+    INTERRUPT_PIT        = 22,
+    INTERRUPT_DAC0       = 25,
+    INTERRUPT_TSI0       = 26,
+    INTERRUPT_MCG        = 27,
+    INTERRUPT_LPTMR0     = 28,
+    INTERRUPT_PORTA      = 30,
+    INTERRUPT_PORTD      = 31,
+#elif defined (MK60DZ10)
+#endif
+} Interrupt_Vector;
+
+System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
+System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);
 
 #endif /* __INTERRUPT_H */

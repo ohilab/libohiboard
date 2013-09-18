@@ -34,6 +34,7 @@
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "interrupt.h"
 
 typedef enum {
     RTC_SYSTEM_OSCILLATOR,
@@ -51,6 +52,9 @@ System_Errors Rtc_setClockSource (Rtc_DeviceHandle dev, Rtc_ClockSource clock);
 
 void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
 Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
+
+void Rtc_enableAlarm (Rtc_DeviceHandle dev, Rtc_Time alarm, Interrupt_Status irqEnable);
+void Rtc_disableAlarm (Rtc_DeviceHandle dev, Interrupt_Status irqEnable);
 
 extern Rtc_DeviceHandle RTC;
 
