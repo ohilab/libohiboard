@@ -43,12 +43,12 @@ typedef enum {
 } Adc_Resolution;
 
 typedef enum {
-    ADC_AVARAGE_1_SAMPLES,
-    ADC_AVARAGE_4_SAMPLES,
-    ADC_AVARAGE_8_SAMPLES,
-    ADC_AVARAGE_16_SAMPLES,
-    ADC_AVARAGE_32_SAMPLES,    
-} Adc_Avarage;
+    ADC_AVERAGE_1_SAMPLES,
+    ADC_AVERAGE_4_SAMPLES,
+    ADC_AVERAGE_8_SAMPLES,
+    ADC_AVERAGE_16_SAMPLES,
+    ADC_AVERAGE_32_SAMPLES,    
+} Adc_Average;
 
 typedef enum {
 #if defined (FRDMKL25Z)
@@ -83,7 +83,7 @@ typedef struct Adc_Device* Adc_DeviceHandle;
 System_Errors Adc_init (Adc_DeviceHandle dev);
 
 void Adc_setResolution (Adc_DeviceHandle dev, Adc_Resolution resolution);
-void Adc_setAvarage (Adc_DeviceHandle dev, Adc_Avarage avarage);
+void Adc_setAverage (Adc_DeviceHandle dev, Adc_Average average);
 
 System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel, uint16_t *value);
 

@@ -41,7 +41,7 @@ typedef struct Adc_Device {
     ADC_MemMapPtr 		  regMap;
     
     Adc_Resolution        resolution;
-    Adc_Avarage           avarage;
+    Adc_Average           average;
     
 //    uint8_t               pinEnabled;
 } Adc_Device;
@@ -50,7 +50,7 @@ typedef struct Adc_Device {
 static Adc_Device adc0 = {
         .regMap           = ADC0_BASE_PTR,
         .resolution       = ADC_RESOLUTION_8BIT,
-        .avarage          = ADC_AVARAGE_1_SAMPLES
+        .average          = ADC_AVERAGE_1_SAMPLES
 };
 Adc_DeviceHandle ADC0 = &adc0; 
 #elif defined(MK60DZ10)
@@ -116,22 +116,22 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
     /* Select voltage reference: default */
     ADC_SC2_REG(regmap) = ADC_SC2_REFSEL(0);
     
-    /* Select the avarage */
-    switch (dev->avarage)
+    /* Select the average */
+    switch (dev->average)
     {
-    case ADC_AVARAGE_1_SAMPLES:
+    case ADC_AVERAGE_1_SAMPLES:
         /* Nothing to do! */
         break;
-    case ADC_AVARAGE_4_SAMPLES:
+    case ADC_AVERAGE_4_SAMPLES:
         ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0);
         break;
-    case ADC_AVARAGE_8_SAMPLES:
+    case ADC_AVERAGE_8_SAMPLES:
         ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(1);
         break;
-    case ADC_AVARAGE_16_SAMPLES:
+    case ADC_AVERAGE_16_SAMPLES:
         ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(2);
         break;
-    case ADC_AVARAGE_32_SAMPLES:
+    case ADC_AVERAGE_32_SAMPLES:
         ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
         break;
     }
@@ -170,7 +170,7 @@ void Adc_setResolution (Adc_DeviceHandle dev, Adc_Resolution resolution)
 	dev->resolution = resolution;
 }
 
-void Adc_setAvarage (Adc_DeviceHandle dev, Adc_Avarage avarage)
+void Adc_setAverage (Adc_DeviceHandle dev, Adc_Average average)
 {
-    dev->avarage = avarage;
+    dev->average = average;
 }
