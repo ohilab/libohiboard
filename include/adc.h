@@ -73,6 +73,11 @@ typedef enum {
 	ADC_CH_DISABLE = 0x1F
 #elif defined(MKL15Z4)
 #elif defined(MK60DZ10)
+	ADC_CH_TEMP    = 0x1A,
+	ADC_CH_BANDGAP = 0x1B,
+	ADC_CH_VREFH   = 0x1D,
+	ADC_CH_VREFL   = 0x1E,
+	ADC_CH_DISABLE = 0x1F
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 #endif

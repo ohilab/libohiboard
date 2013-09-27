@@ -37,6 +37,8 @@
 #define PER_CLOCK_KHZ 20000
 #elif defined (MKL15Z4)
 #define PER_CLOCK_KHZ 24000
+#elif defined (MK60DZ10)
+#define PER_CLOCK_KHZ 48000
 #endif
 #define UART_DEF_BAUDRATE 	9600
 #define UART_MIN_BAUDARATE	1200

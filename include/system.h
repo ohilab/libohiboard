@@ -39,6 +39,8 @@
 #define SYSTEM_CLOCK_KHZ 20000
 #elif defined (MKL15Z4)
 #define SYSTEM_CLOCK_KHZ 24000
+#elif defined (MK60DZ10)
+#define SYSTEM_CLOCK_KHZ 48000
 #endif
 
 System_Errors System_controlDevice (void);

@@ -90,10 +90,15 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     /* Select device type */
     if (devType == SPI_MASTER_MODE)
     {
+#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)
         /* Disable all and clear interrutps */
         SPI_C1_REG(regmap) = 0;
         /* Match interrupt disabled, uses separate pins and DMA disabled. */
         SPI_C2_REG(regmap) = 0;
+#elif defined(MK60DZ10)
+#elif defined(FRDMK20D50M)
+#endif
+        
         /* Set baud rate */
         if (speed == SPI_LOW_SPEED)
         {
@@ -121,11 +126,15 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 #elif defined(FRDMK20D50M)
 #endif
         }
+
+#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)
         /* Clear match register */
         SPI_M_REG(regmap) = 0;
         /* Enable master mode and SPI module. */
         SPI_C1_REG(regmap) = SPI_C1_MSTR_MASK | SPI_C1_SPE_MASK;
-    
+#elif defined(MK60DZ10)
+#elif defined(FRDMK20D50M)
+#endif    
     }
     else if (devType == SPI_SLAVE_MODE)
     {
@@ -181,13 +190,17 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 
+#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)    
     /* Copy dummy data in D register */
     SPI_D_REG(regmap) = 0xFF;
     /* Wait until slave replay */
     while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Save data register */
     *data = SPI_D_REG(regmap);
-
+#elif defined(MK60DZ10)
+#elif defined(FRDMK20D50M)
+#endif
+    
     return ERRORS_NO_ERROR;    
 }
 
@@ -195,6 +208,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
     
+#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)    
     /* Wait until SPTEF bit is 1 (transmit buffer is empty) */
     while (!(SPI_S_REG(regmap) & SPI_S_SPTEF_MASK));
     (void) SPI_S_REG(regmap);
@@ -204,6 +218,9 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Read data register */
     (void) SPI_D_REG(regmap);
+#elif defined(MK60DZ10)
+#elif defined(FRDMK20D50M)
+#endif
     
     return ERRORS_NO_ERROR;
 }
