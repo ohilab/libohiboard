@@ -76,9 +76,6 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
 {
     ADC_MemMapPtr regmap = dev->regMap;
 
-//    if (dev->pinEnabled == IIC_PIN_DISABLED)
-//    	return ERRORS_HW_NOT_ENABLED;
-    
     /* Turn on clock */
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (regmap == ADC0_BASE_PTR)

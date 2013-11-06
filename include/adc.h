@@ -80,6 +80,43 @@ typedef enum {
 	ADC_CH_DISABLE = 0x1F
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
+#elif defined(MK10DZ10)
+	ADC_CH_ADC0_DP0      = 0x00,
+	ADC_CH_ADC0_PGA0_DP  = 0x02,
+	ADC_CH_ADC0_DP3      = 0x03,
+	ADC_CH_ADC0_SE4b     = 0x04,
+	ADC_CH_ADC0_SE5b     = 0x05,
+	ADC_CH_ADC0_SE6b     = 0x06,
+	ADC_CH_ADC0_SE7b     = 0x07,
+	ADC_CH_ADC0_SE8      = 0x08,
+	ADC_CH_ADC0_SE9      = 0x09,
+	ADC_CH_ADC0_SE12     = 0x0C,
+	ADC_CH_ADC0_SE13     = 0x0D,
+	ADC_CH_ADC0_SE14     = 0x0E,
+	ADC_CH_ADC0_SE15     = 0x0F,
+	ADC_CH_ADC0_DM0      = 0x13,
+	ADC_CH_ADC0_SE23     = 0x17,
+
+	ADC_CH_ADC1_DP0      = 0x00,
+	ADC_CH_ADC1_PGA1_DP  = 0x02,
+	ADC_CH_ADC1_DP3      = 0x03,
+	ADC_CH_ADC1_SE4b     = 0x04,
+	ADC_CH_ADC1_SE5b     = 0x05,
+	ADC_CH_ADC1_SE6b     = 0x06,
+	ADC_CH_ADC1_SE7b     = 0x07,
+	ADC_CH_ADC1_SE8      = 0x08,
+	ADC_CH_ADC1_SE9      = 0x09,
+	ADC_CH_ADC1_SE14     = 0x0E,
+	ADC_CH_ADC1_SE15     = 0x0F,
+	ADC_CH_ADC1_SE17     = 0x11,
+	ADC_CH_ADC1_VREF_OUT = 0x12,
+	ADC_CH_ADC1_DM0      = 0x13,
+
+	ADC_CH_TEMP          = 0x1A,
+	ADC_CH_BANDGAP       = 0x1B,
+	ADC_CH_VREFH         = 0x1D,
+	ADC_CH_VREFL         = 0x1E,
+	ADC_CH_DISABLE       = 0x1F
 #endif
 } Adc_ChannelNumber;
 
