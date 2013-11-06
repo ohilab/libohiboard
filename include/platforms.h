@@ -62,14 +62,34 @@
  * </ul>
  */
 #undef  MK60DZ10
+
+/**
+ * Define for use with this micro-controllers:
+ * <ul>
+ *   <li>MK10DN512ZVLK10</li>
+ *   <li>MK10DN512ZVLL10</li>
+ *   <li>MK10DN512ZVLQ10</li>
+ *   <li>MK10DX128ZVLQ10</li>
+ *   <li>MK10DX256ZVLQ10</li>
+ *   <li>MK10DN512ZVMB10</li>
+ *   <li>MK10DN512ZVMC10</li>
+ *   <li>MK10DN512ZVMD10</li>
+ *   <li>MK10DX256ZVMD10</li>
+ *   <li>MK10DX128ZVMD10</li>
+ * </ul>
+ */
+#define  MK10DZ10
+
 /**
  * Define for use with Freedom Platform FRDM-KL05Z. 
  */
 #undef FRDMKL05Z
+
 /**
  * Define for use with Freedom Platform FRDM-KL25Z. 
  */
-#define FRDMKL25Z
+#undef FRDMKL25Z
+
 /**
  * Define for use with Freedom Platform FRDM-K20D50M. 
  */
@@ -77,6 +97,8 @@
 
 #if defined(MK60DZ10)
 #include "platforms/MK60DZ10.h"
+#elif defined(MK10DZ10)
+#include "platforms/MK10DZ10.h"
 #elif defined(MKL15Z4)
 #include "platforms/MKL15Z4.h"
 #elif defined(FRDMKL05Z)
