@@ -81,6 +81,14 @@ extern Uart_DeviceHandle UART3;
 #elif defined(FRDMKL25Z)
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
+
+#elif defined(MK10DZ10)
+extern Uart_DeviceHandle UART0;
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+extern Uart_DeviceHandle UART3;
+extern Uart_DeviceHandle UART4;
+
 #endif
 
 

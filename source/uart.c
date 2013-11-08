@@ -39,6 +39,8 @@
 #define PER_CLOCK_KHZ 24000
 #elif defined (MK60DZ10)
 #define PER_CLOCK_KHZ 48000
+#elif defined (MK10DZ10)
+#define PER_CLOCK_KHZ 50000 //Velocità del Bus clock 50MHz, cioè 100MHz/2
 #endif
 #define UART_DEF_BAUDRATE 	9600
 #define UART_MIN_BAUDARATE	1200
@@ -142,6 +144,46 @@ static Uart_Device uart2 = {
 		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART2 = &uart2;
+
+#elif defined (MK10DZ10)
+
+static Uart_Device uart1 = {
+		.regMap 	= UART1_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART1 = &uart1; 
+
+static Uart_Device uart2 = {
+		.regMap 	= UART2_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART2 = &uart2;
+
+static Uart_Device uart3 = {
+		.regMap 	= UART3_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART3 = &uart3; 
+
+static Uart_Device uart4 = {
+		.regMap 	= UART4_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART4 = &uart4;
+
+
 #endif
 
 
@@ -190,8 +232,8 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 {
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     register uint16_t sbr;
-#elif defined(MK60DZ10)
-    register uint16_t sbr, brfa;
+#elif defined(MK60DZ10) || defined (MK10DZ10)
+    register uint16_t sbr, brfa;	//BaudRateFineAdjust
 #endif
     uint8_t temp;
     
@@ -221,6 +263,19 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
 	else if (regmap == UART2_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
+
+#elif defined(MK10DZ10)
+	if (regmap == UART0_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART0_MASK;
+	else if (regmap == UART1_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
+	else if (regmap == UART2_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
+	else if (regmap == UART3_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART3_MASK;
+	else if (regmap == UART4_BASE_PTR)
+		SIM_SCGC1 |= SIM_SCGC1_UART4_MASK; 
+	
 #endif
 
 	else
@@ -245,14 +300,15 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
     UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
     UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
 
-#if defined(MK60DZ10)
+#if defined(MK60DZ10) || defined (MK10DZ10)
     /* Determine if a fractional divider is needed to get closer to the baud rate */
     brfa = (((PER_CLOCK_KHZ*32000)/(baudRate * 16)) - (sbr * 32));
     
     /* Save off the current value of the UARTx_C4 register except for the BRFA field */
     temp = UART_C4_REG(regmap) & ~(UART_C4_BRFA(0x1F));
     
-    UART_C4_REG(regmap) = temp |  UART_C4_BRFA(brfa);    
+    UART_C4_REG(regmap) = temp |  UART_C4_BRFA(brfa);  
+    
 #endif
 
     return ERRORS_NO_ERROR;
@@ -294,7 +350,7 @@ void Uart_pinEnabled (Uart_DeviceHandle dev)
 {
 	dev->pinEnabled = UART_PIN_ENABLED;
 }
-
+ 
 /**
  * @brief Wait for a character to be received on the specified uart
  * @param dev Serial port device to receive byte from
