@@ -142,6 +142,26 @@ typedef enum {
     INTERRUPT_DMA14      = 14,
     INTERRUPT_DMA15      = 15,
     INTERRUPT_RTC_ALARM  = 66,
+    INTERRUPT_RTC_SECOND = 67,    
+#elif defined (MK10DZ10)
+    INTERRUPT_DMA0       = 0,
+    INTERRUPT_DMA1       = 1,
+    INTERRUPT_DMA2       = 2,
+    INTERRUPT_DMA3       = 3,
+    INTERRUPT_DMA4       = 4,
+    INTERRUPT_DMA5       = 5,
+    INTERRUPT_DMA6       = 6,
+    INTERRUPT_DMA7       = 7,
+    INTERRUPT_DMA8       = 8,
+    INTERRUPT_DMA9       = 9,
+    INTERRUPT_DMA10      = 10,
+    INTERRUPT_DMA11      = 11,
+    INTERRUPT_DMA12      = 12,
+    INTERRUPT_DMA13      = 13,
+    INTERRUPT_DMA14      = 14,
+    INTERRUPT_DMA15      = 15,
+    INTERRUPT_RTC_ALARM  = 66,
+    INTERRUPT_RTC_SECOND = 67,
 #endif
 } Interrupt_Vector;
 

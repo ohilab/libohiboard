@@ -31,18 +31,28 @@
 #include "interrupt.h"
 
 #if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z)
+
 #define NVIC_NUM_CORE_VECTORS           16
 #define NVIC_NUM_MCU_VECTORS            32
 #define NVIC_NUM_VECTORS                NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
+
 #elif defined (MK60DZ10)
+
 #define NVIC_NUM_CORE_VECTORS           16
 #define NVIC_NUM_MCU_VECTORS            95
 #define NVIC_NUM_VECTORS                NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
+
+#elif defined (MK10DZ10)
+
+#define NVIC_NUM_CORE_VECTORS           16
+#define NVIC_NUM_MCU_VECTORS            95
+#define NVIC_NUM_VECTORS                NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
+
 #endif
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 {
-#if defined (MK60DZ10)
+#if defined (MK60DZ10) || defined (MK10DZ10)
     uint16_t div;
 #endif
 
@@ -53,7 +63,7 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 #if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z)
     NVIC_ICPR = 1 << (vectorNumber%32);
     NVIC_ISER = 1 << (vectorNumber%32);
-#elif defined (MK60DZ10)
+#elif defined (MK60DZ10) || defined (MK10DZ10)
     /* Determine which of the NVICISERs corresponds to the irq */
     div = vectorNumber/32;
 
@@ -79,7 +89,7 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 
 System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
 {
-#if defined (MK60DZ10)
+#if defined (MK60DZ10) || defined (MK10DZ10)
     uint16_t div;
 #endif
 
@@ -89,7 +99,7 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
 
 #if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z)
     NVIC_ICER = 1 << (vectorNumber%32);
-#elif defined (MK60DZ10)
+#elif defined (MK60DZ10) || defined (MK10DZ10)
     /* Determine which of the NVICISERs corresponds to the irq */
     div = vectorNumber/32;
 
