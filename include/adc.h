@@ -134,6 +134,12 @@ extern Adc_DeviceHandle ADC0;
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
+
+#elif defined(MK10DZ10)
+
+extern Adc_DeviceHandle ADC0;
+extern Adc_DeviceHandle ADC1;
+
 #endif
 
 #endif /* __ADC_H */

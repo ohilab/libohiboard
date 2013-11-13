@@ -42,20 +42,36 @@ typedef struct Adc_Device {
     
     Adc_Resolution        resolution;
     Adc_Average           average;
-    
-//    uint8_t               pinEnabled;
 } Adc_Device;
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
+
 static Adc_Device adc0 = {
         .regMap           = ADC0_BASE_PTR,
         .resolution       = ADC_RESOLUTION_8BIT,
         .average          = ADC_AVERAGE_1_SAMPLES
 };
 Adc_DeviceHandle ADC0 = &adc0; 
+
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
+#elif defined(MK10DZ10)
+
+static Adc_Device adc0 = {
+        .regMap           = ADC0_BASE_PTR,
+        .resolution       = ADC_RESOLUTION_8BIT,
+        .average          = ADC_AVERAGE_1_SAMPLES
+};
+Adc_DeviceHandle ADC0 = &adc0; 
+
+static Adc_Device adc1 = {
+        .regMap           = ADC1_BASE_PTR,
+        .resolution       = ADC_RESOLUTION_8BIT,
+        .average          = ADC_AVERAGE_1_SAMPLES
+};
+Adc_DeviceHandle ADC1 = &adc1;
+
 #endif
 
 /**
@@ -85,6 +101,13 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
+#elif defined(MK10DZ10)
+    if (regmap == ADC0_BASE_PTR)
+        SIM_SCGC6 |= SIM_SCGC6_ADC0_MASK;
+    else if (regmap == ADC1_BASE_PTR)
+    	SIM_SCGC3 |= SIM_SCGC3_ADC1_MASK;
+    else
+        return ERRORS_PARAM_VALUE;
 #endif
 
     /* Long sample time, busclock/2 and divide by-1*/
