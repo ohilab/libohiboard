@@ -131,7 +131,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
 	}
     
     /* 24 ADCK cycles total: Long sample time */
-    ADC_CFG2_REG(regmap) = ADC_CFG2_MUXSEL_MASK | ADC_CFG2_ADLSTS(0);
+    ADC_CFG2_REG(regmap) = ADC_CFG2_ADLSTS(0);
     
     /* Select voltage reference: default */
     ADC_SC2_REG(regmap) = ADC_SC2_REFSEL(0);
@@ -141,6 +141,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
     {
     case ADC_AVERAGE_1_SAMPLES:
         /* Nothing to do! */
+    	ADC_SC3_REG(regmap) &= ~ADC_SC3_AVGE_MASK;
         break;
     case ADC_AVERAGE_4_SAMPLES:
         ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0);
@@ -159,12 +160,22 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
 	return ERRORS_NO_ERROR;
 }
 
-System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel, uint16_t *value)
+System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel,
+		Adc_ChannelMux mux, uint16_t *value)
 {
     ADC_MemMapPtr regmap = dev->regMap;
 
     if (channel != ADC_CH_DISABLE)
     {
+#if defined (MK10DZ10)
+    	if (mux == ADC_CHL_A)
+    		ADC_CFG2_REG(regmap) &= ~ADC_CFG2_MUXSEL_MASK;   		
+    	else
+    		ADC_CFG2_REG(regmap) |= ADC_CFG2_MUXSEL_MASK; 
+#else
+		ADC_CFG2_REG(regmap) |= ADC_CFG2_MUXSEL_MASK; 
+#endif
+ 
         /* Start conversion */
         ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(channel);
     

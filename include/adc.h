@@ -84,10 +84,10 @@ typedef enum {
 	ADC_CH_ADC0_DP0      = 0x00,
 	ADC_CH_ADC0_PGA0_DP  = 0x02,
 	ADC_CH_ADC0_DP3      = 0x03,
-	ADC_CH_ADC0_SE4b     = 0x04,
-	ADC_CH_ADC0_SE5b     = 0x05,
-	ADC_CH_ADC0_SE6b     = 0x06,
-	ADC_CH_ADC0_SE7b     = 0x07,
+	ADC_CH_ADC0_SE4      = 0x04,
+	ADC_CH_ADC0_SE5      = 0x05,
+	ADC_CH_ADC0_SE6      = 0x06,
+	ADC_CH_ADC0_SE7      = 0x07,
 	ADC_CH_ADC0_SE8      = 0x08,
 	ADC_CH_ADC0_SE9      = 0x09,
 	ADC_CH_ADC0_SE12     = 0x0C,
@@ -100,10 +100,10 @@ typedef enum {
 	ADC_CH_ADC1_DP0      = 0x00,
 	ADC_CH_ADC1_PGA1_DP  = 0x02,
 	ADC_CH_ADC1_DP3      = 0x03,
-	ADC_CH_ADC1_SE4b     = 0x04,
-	ADC_CH_ADC1_SE5b     = 0x05,
-	ADC_CH_ADC1_SE6b     = 0x06,
-	ADC_CH_ADC1_SE7b     = 0x07,
+	ADC_CH_ADC1_SE4      = 0x04,
+	ADC_CH_ADC1_SE5      = 0x05,
+	ADC_CH_ADC1_SE6      = 0x06,
+	ADC_CH_ADC1_SE7      = 0x07,
 	ADC_CH_ADC1_SE8      = 0x08,
 	ADC_CH_ADC1_SE9      = 0x09,
 	ADC_CH_ADC1_SE14     = 0x0E,
@@ -120,6 +120,17 @@ typedef enum {
 #endif
 } Adc_ChannelNumber;
 
+typedef enum {
+#if defined (FRDMKL25Z)
+#elif defined (FRDMKL25Z)
+#elif defined(FRDMKL05Z)
+#elif defined(FRDMK20D50M)
+#elif defined(MK10DZ10)
+	ADC_CHL_A = 0x00,
+	ADC_CHL_B = 0x01,
+#endif
+} Adc_ChannelMux;
+
 typedef struct Adc_Device* Adc_DeviceHandle;
 
 System_Errors Adc_init (Adc_DeviceHandle dev);
@@ -127,10 +138,13 @@ System_Errors Adc_init (Adc_DeviceHandle dev);
 void Adc_setResolution (Adc_DeviceHandle dev, Adc_Resolution resolution);
 void Adc_setAverage (Adc_DeviceHandle dev, Adc_Average average);
 
-System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel, uint16_t *value);
+System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel, 
+		Adc_ChannelMux mux, uint16_t *value);
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
+
 extern Adc_DeviceHandle ADC0;
+
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
