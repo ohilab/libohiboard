@@ -167,7 +167,7 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel,
 
     if (channel != ADC_CH_DISABLE)
     {
-#if defined (MK10DZ10)
+#if defined (MK10DZ10) || defined(MKL15Z4)
     	if (mux == ADC_CHL_A)
     		ADC_CFG2_REG(regmap) &= ~ADC_CFG2_MUXSEL_MASK;   		
     	else
