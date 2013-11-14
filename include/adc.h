@@ -143,7 +143,9 @@ typedef enum {
 
 typedef enum {
 #if defined (FRDMKL25Z)
-#elif defined (FRDMKL25Z)
+#elif defined (MKL15Z4)
+    ADC_CHL_A = 0x00,
+    ADC_CHL_B = 0x01,
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 #elif defined(MK10DZ10)
