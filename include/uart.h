@@ -4,6 +4,7 @@
  * Author(s):
  *	Edoardo Bezzeccheri <coolman3@gmail.com>
  *	Marco Giammarini <m.giammarini@warcomeb.it>
+ *	Niccolo' Paolinelli <ai03@hotmail.it>
  *	
  * Project: libohiboard
  * Package: UART
@@ -27,6 +28,7 @@
  * @file libohiboard/include/uart.h
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Niccolo' Paolinelli <ai03@hotmail.it>
  * @brief UART definitions and prototypes
  */
 
@@ -67,10 +69,12 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
 
 
 #if defined(MKL15Z4)
+
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
 #elif defined(MK60DZ10)
+
 extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
@@ -79,10 +83,12 @@ extern Uart_DeviceHandle UART3;
 #elif defined(FRDMKL05Z)
 
 #elif defined(FRDMKL25Z)
+
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
 #elif defined(MK10DZ10)
+
 extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;

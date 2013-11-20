@@ -4,6 +4,7 @@
  * Author(s):
  *	Edoardo Bezzeccheri <coolman3@gmail.com>
  *	Marco Giammarini <m.giammarini@warcomeb.it>
+ *	Niccolo' Paolinelli <>
  *	
  * Project: libohiboard
  * Package: UART
@@ -27,6 +28,7 @@
  * @file libohiboard/uart.c
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Niccolo' Paolinelli <>
  * @brief UART module functions
  */
 
@@ -69,6 +71,7 @@ typedef struct Uart_Device {
 
 
 #if defined(MK60DZ10)
+
 static Uart_Device uart0 = {
 		.regMap 	= UART0_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
@@ -147,6 +150,15 @@ Uart_DeviceHandle UART2 = &uart2;
 
 #elif defined (MK10DZ10)
 
+static Uart_Device uart0 = {
+		.regMap 	= UART0_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART0 = &uart0; 
+
 static Uart_Device uart1 = {
 		.regMap 	= UART1_BASE_PTR,
 		.baudRate 	= UART_DEF_BAUDRATE,
@@ -182,7 +194,6 @@ static Uart_Device uart4 = {
 		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART4 = &uart4;
-
 
 #endif
 
@@ -232,7 +243,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 {
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     register uint16_t sbr;
-#elif defined(MK60DZ10) || defined (MK10DZ10)
+#elif defined(MK60DZ10) || defined(MK10DZ10)
     register uint16_t sbr, brfa;	//BaudRateFineAdjust
 #endif
     uint8_t temp;
@@ -300,7 +311,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
     UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
     UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
 
-#if defined(MK60DZ10) || defined (MK10DZ10)
+#if defined(MK60DZ10) || defined(MK10DZ10)
     /* Determine if a fractional divider is needed to get closer to the baud rate */
     brfa = (((PER_CLOCK_KHZ*32000)/(baudRate * 16)) - (sbr * 32));
     
