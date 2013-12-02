@@ -4,7 +4,7 @@
  * Author(s):
  *	Edoardo Bezzeccheri <coolman3@gmail.com>
  *	Marco Giammarini <m.giammarini@warcomeb.it>
- *	Niccolo' Paolinelli <>
+ *	Niccolo' Paolinelli <ai03@hotmail.it>
  *	
  * Project: libohiboard
  * Package: UART
@@ -28,7 +28,7 @@
  * @file libohiboard/uart.c
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @author Niccolo' Paolinelli <>
+ * @author Niccolo' Paolinelli <ai03@hotmail.it>
  * @brief UART module functions
  */
 
@@ -59,8 +59,12 @@ static const char Uart_hexDigits[] = "0123456789ABCDEF";
  * Peripherals declaration with default values
  */
 
-typedef struct Uart_Device {
+typedef struct Uart_Device
+{
 	UART_MemMapPtr          regMap;
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+	UART0_MemMapPtr         regMap0;
+#endif
 
 	uint32_t                baudRate;
 	Uart_ParityMode         parityMode;
@@ -110,8 +114,19 @@ Uart_DeviceHandle UART3 = &uart3;
 
 #elif defined(MKL15Z4)
 
+static Uart_Device uart0 = {
+		.regMap 	= 0,
+		.regMap0 	= UART0_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART0 = &uart0; 
+
 static Uart_Device uart1 = {
-		.regMap 	= UART1_BASE_PTR,
+		.regMap     = UART1_BASE_PTR,
+		.regMap0    = 0,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
 		.dataBits 	= UART_DEF_DATABITS,
@@ -120,7 +135,8 @@ static Uart_Device uart1 = {
 Uart_DeviceHandle UART1 = &uart1; 
 
 static Uart_Device uart2 = {
-		.regMap 	= UART2_BASE_PTR,
+		.regMap     = UART2_BASE_PTR,
+		.regMap0    = 0,
 		.baudRate 	= UART_DEF_BAUDRATE,
 		.parityMode = UART_DEF_PARITY,
 		.dataBits 	= UART_DEF_DATABITS,
@@ -129,6 +145,16 @@ static Uart_Device uart2 = {
 Uart_DeviceHandle UART2 = &uart2;
 
 #elif defined(FRDMKL25Z)
+
+static Uart_Device uart0 = {
+		.regMap 	= 0,
+		.regMap0 	= UART0_BASE_PTR,
+		.baudRate 	= UART_DEF_BAUDRATE,
+		.parityMode = UART_DEF_PARITY,
+		.dataBits 	= UART_DEF_DATABITS,
+		.pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART0 = &uart0; 
 
 static Uart_Device uart1 = {
 		.regMap 	= UART1_BASE_PTR,
@@ -197,7 +223,6 @@ Uart_DeviceHandle UART4 = &uart4;
 
 #endif
 
-
 /*
  *  Function definitions
  */
@@ -248,7 +273,17 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 #endif
     uint8_t temp;
     
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    UART_MemMapPtr  regmap = 0;
+    UART0_MemMapPtr regmap0 = 0;
+    
+    if (dev == UART0)
+    	regmap0 = dev->regMap0;
+    else
+    	regmap = dev->regMap;
+#elif defined(MK60DZ10) || defined(MK10DZ10)
     UART_MemMapPtr regmap = dev->regMap;
+#endif
     uint32_t baudRate     = dev->baudRate;
     
     if (dev->pinEnabled == UART_PIN_DISABLED)
@@ -269,8 +304,9 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 	else if (regmap == UART5_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART5_MASK;
 #elif defined(MKL15Z4) || defined(FRDMKL25Z)
-	/* WARNING: UART device doesn't contain UART0 peripheral */
-	if (regmap == UART1_BASE_PTR)
+	if (regmap0 == UART0_BASE_PTR)
+		SIM_SCGC4 |= SIM_SCGC4_UART0_MASK;
+	else if (regmap == UART1_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
 	else if (regmap == UART2_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
@@ -286,30 +322,56 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 		SIM_SCGC4 |= SIM_SCGC4_UART3_MASK;
 	else if (regmap == UART4_BASE_PTR)
 		SIM_SCGC1 |= SIM_SCGC1_UART4_MASK; 
-	
+
 #endif
 
 	else
 		return ERRORS_PARAM_VALUE;
-                                
-    /* Make sure that the transmitter and receiver are disabled while we 
-     * change settings.
-     */
-    UART_C2_REG(regmap) &= ~(UART_C2_TE_MASK
-				| UART_C2_RE_MASK );
 
-    /* Configure the UART for 8-bit mode, no parity */
-    /* We need all default settings, so entire register is cleared */
-    UART_C1_REG(regmap) = 0;	
-    
-    /* Calculate baud settings */
-    sbr = (uint16)((PER_CLOCK_KHZ*1000)/(baudRate * 16));
-        
-    /* Save off the current value of the UARTx_BDH except for the SBR field */
-    temp = UART_BDH_REG(regmap) & ~(UART_BDH_SBR(0x1F));
-    
-    UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
-    UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+	if (dev == UART0)
+	{
+		/* Make sure that the transmitter and receiver are disabled while we 
+	     * change settings.
+	     */
+		UART0_C2_REG(regmap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+		
+	    /* Configure the UART for 8-bit mode, no parity */
+	    /* We need all default settings, so entire register is cleared */
+	    UART0_C1_REG(regmap0) = 0;	
+	    
+	    /* Calculate baud settings */
+	    sbr = (uint16)((PER_CLOCK_KHZ*1000)/(baudRate * 16));
+	        
+	    /* Save off the current value of the UARTx_BDH except for the SBR field */
+	    temp = UART0_BDH_REG(regmap0) & ~(UART0_BDH_SBR(0x1F));
+	    
+	    UART0_BDH_REG(regmap0) = temp |  UART0_BDH_SBR(((sbr & 0x1F00) >> 8));
+	    UART0_BDL_REG(regmap0) = (uint8)(sbr & UART0_BDL_SBR_MASK);
+	}
+	else
+	{
+#endif
+	    /* Make sure that the transmitter and receiver are disabled while we 
+	     * change settings.
+	     */
+		UART_C2_REG(regmap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+
+	    /* Configure the UART for 8-bit mode, no parity */
+	    /* We need all default settings, so entire register is cleared */
+	    UART_C1_REG(regmap) = 0;	
+	    
+	    /* Calculate baud settings */
+	    sbr = (uint16)((PER_CLOCK_KHZ*1000)/(baudRate * 16));
+	        
+	    /* Save off the current value of the UARTx_BDH except for the SBR field */
+	    temp = UART_BDH_REG(regmap) & ~(UART_BDH_SBR(0x1F));
+	    
+	    UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
+	    UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+	}
+#endif
 
 #if defined(MK60DZ10) || defined(MK10DZ10)
     /* Determine if a fractional divider is needed to get closer to the baud rate */
@@ -335,9 +397,19 @@ System_Errors Uart_enable(Uart_DeviceHandle dev)
     if (dev->pinEnabled == UART_PIN_DISABLED)
     	return ERRORS_HW_NOT_ENABLED;
 	
-	/* Enable receiver and transmitter */
-	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
-	
+    /* Enable receiver and transmitter */
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    if (dev == UART0)
+    {
+    	UART0_C2_REG(dev->regMap0) |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+    }
+    else
+    {
+#endif
+    	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+#if defined(MKL15Z4) || defined(FRDMKL25Z)    	
+    }
+#endif
 	return ERRORS_NO_ERROR;
 }
 
@@ -348,7 +420,18 @@ System_Errors Uart_enable(Uart_DeviceHandle dev)
 System_Errors Uart_disable(Uart_DeviceHandle dev)
 {
 	/* Disable receiver and transmitter */
-    UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    if (dev == UART0)
+    {
+    	UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+    }
+    else
+    {
+#endif
+    	UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+#if defined(MKL15Z4) || defined(FRDMKL25Z)    	
+    }
+#endif
 
     return ERRORS_NO_ERROR;
 }
@@ -370,12 +453,26 @@ void Uart_pinEnabled (Uart_DeviceHandle dev)
  */
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
 {
-    /* Wait until character has been received */
-    while (!(UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK));
-    
-    /* Save the 8-bit data from the receiver to the output param */
-    *out = UART_D_REG(dev->regMap);
-    
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    if (dev == UART0)
+    {
+		/* Wait until character has been received */
+		while (!(UART0_S1_REG(dev->regMap0) & UART0_S1_RDRF_MASK));
+		
+		/* Save the 8-bit data from the receiver to the output param */
+		*out = UART0_D_REG(dev->regMap0);
+    }
+    else
+    {
+#endif
+		/* Wait until character has been received */
+		while (!(UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK));
+		
+		/* Save the 8-bit data from the receiver to the output param */
+		*out = UART_D_REG(dev->regMap);    	
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    }
+#endif
     return ERRORS_NO_ERROR;
 }
 
@@ -386,11 +483,26 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
  */
 void Uart_putChar (Uart_DeviceHandle dev, char c)
 {
-	/* Wait until space is available in the FIFO */
-    while(!(UART_S1_REG(dev->regMap) & UART_S1_TDRE_MASK));
-    
-    /* Send the character */
-    UART_D_REG(dev->regMap) = (uint8_t)c;
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    if (dev == UART0)
+    {
+    	/* Wait until space is available in the FIFO */
+        while(!(UART0_S1_REG(dev->regMap0) & UART0_S1_TDRE_MASK));
+        
+        /* Send the character */
+        UART0_D_REG(dev->regMap0) = (uint8_t)c;
+    }
+    else
+    {
+#endif
+    	/* Wait until space is available in the FIFO */
+        while(!(UART_S1_REG(dev->regMap) & UART_S1_TDRE_MASK));
+        
+        /* Send the character */
+        UART_D_REG(dev->regMap) = (uint8_t)c;
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    }
+#endif
 }
 
 /**
@@ -402,7 +514,18 @@ void Uart_putChar (Uart_DeviceHandle dev, char c)
  */
 int Uart_isCharPresent (Uart_DeviceHandle dev)
 {
-	return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    if (dev == UART0)
+    {
+    	return (UART0_S1_REG(dev->regMap0) & UART0_S1_RDRF_MASK);
+    }
+    else
+    {
+#endif
+    	return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    }
+#endif
 }
 
 void Uart_sendString (Uart_DeviceHandle dev, const char* text)

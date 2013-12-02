@@ -70,6 +70,7 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
 
 #if defined(MKL15Z4)
 
+extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
@@ -84,6 +85,7 @@ extern Uart_DeviceHandle UART3;
 
 #elif defined(FRDMKL25Z)
 
+extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
