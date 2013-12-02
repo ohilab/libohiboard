@@ -198,3 +198,13 @@ void u32tx (uint8_t *xString, uint32_t number, uint8_t slength)
         return;
     }
 }
+
+uint8_t stringCompare (const char* string1, const char* string2)
+{
+    while ((*string1 && *string2) && (*string1 == *string2))
+    {
+        string1++;
+        string2++;
+    }
+    return (*string1 - *string2);
+}

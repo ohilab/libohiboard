@@ -55,4 +55,6 @@ void u8tx (uint8_t *xString, uint8_t number);
 void u16tx (uint8_t *xString, uint16_t number, uint8_t slength);
 void u32tx (uint8_t *xString, uint32_t number, uint8_t slength);
 
+uint8_t stringCompare (const char* string1, const char* string2);
+
 #endif /* __UTILITY_H */
