@@ -39,6 +39,7 @@
 #define PER_CLOCK_KHZ 20000
 #elif defined (MKL15Z4)
 #define PER_CLOCK_KHZ 24000
+#define PER_CLOCK_MCG 48000000
 #elif defined (MK60DZ10)
 #define PER_CLOCK_KHZ 48000
 #elif defined (MK10DZ10)
@@ -341,7 +342,8 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 	    UART0_C1_REG(regmap0) = 0;	
 	    
 	    /* Calculate baud settings */
-	    sbr = (uint16)((PER_CLOCK_KHZ*1000)/(baudRate * 16));
+	    /* TODO: 2000 is JUST FOR TEST! */
+	    sbr = (uint16)(PER_CLOCK_MCG/(baudRate * ((UART0_C4_REG(regmap0) & UART0_C4_OSR_MASK) + 1)));
 	        
 	    /* Save off the current value of the UARTx_BDH except for the SBR field */
 	    temp = UART0_BDH_REG(regmap0) & ~(UART0_BDH_SBR(0x1F));
@@ -517,6 +519,8 @@ int Uart_isCharPresent (Uart_DeviceHandle dev)
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (dev == UART0)
     {
+        if (UART0_S1_REG(dev->regMap0) & UART0_S1_OR_MASK)
+            UART0_S1_REG(dev->regMap0) |= UART0_S1_OR_MASK;
     	return (UART0_S1_REG(dev->regMap0) & UART0_S1_RDRF_MASK);
     }
     else
