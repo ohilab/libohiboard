@@ -55,6 +55,12 @@ void u8tx (uint8_t *xString, uint8_t number);
 void u16tx (uint8_t *xString, uint16_t number, uint8_t slength);
 void u32tx (uint8_t *xString, uint32_t number, uint8_t slength);
 
+System_Errors ddigit (uint8_t digit, uint8_t* result);
+
+System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength);
+
+System_Errors strtf (const uint8_t* fString, float* result);
+
 uint8_t stringCompare (const char* string1, const char* string2);
 
 #endif /* __UTILITY_H */
