@@ -247,6 +247,38 @@ System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength)
 }
 
 /**
+ * @brief Decimal to uint16_t conversion. 
+ * 
+ */
+System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength)
+{
+    uint8_t i, singleByte;
+
+    if (slength > 0)
+    {
+        if (slength > 2) return ERRORS_UTILITY_LONG_STRING;
+
+        /* Start conversion... */
+        *result = 0;
+        for (i = 0; i < slength; ++i)
+        {
+            if (ddigit(*dString,&singleByte) == ERRORS_UTILITY_CONVERSION_OK)
+            {
+                *result = 10 * (*result) + singleByte;
+            }
+            else
+            {
+                return ERRORS_UTILITY_ILLEGAL_CHAR;
+            }
+            dString++;
+        }
+        return ERRORS_UTILITY_CONVERSION_OK;
+    }
+
+    return ERRORS_UTILITY_EMPTY_STRING;
+}
+
+/**
  * @brief String to float conversion.
  * 
  * @param uint8_t* fString String that must be convert.
@@ -256,34 +288,34 @@ System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength)
 System_Errors strtf (const uint8_t* fString, float* result)
 {
     uint8_t digit;
-    char* dotPosition = fString+2;
+    const char* dotPosition = fString+2;
 
     uint8_t isNegative = 0;
     uint8_t isDecimal = 0;
     float decimalPart = 0.0, decimalDivisor = 1.0;
     
     *result = 0;
-    while (*message)
+    while (*fString)
     {
-        if (*message == '-')
+        if (*fString == '-')
         {
             isNegative = 1;
             continue;
         }
         
         /* Skip without any operation */
-        if (*message == '+') continue;
+        if (*fString == '+') continue;
         
-        if (*message == '.')
+        if (*fString == '.')
         {
             isDecimal = 1;
             continue;
         }
 
-        if (ddigit(*message,&digit) != ERRORS_UTILITY_CONVERSION_OK)
+        if (ddigit(*fString,&digit) != ERRORS_UTILITY_CONVERSION_OK)
             return ERRORS_UTILITY_ILLEGAL_CHAR;
         
-        if (!isDecimal && (*dotOnMessage != '.'))
+        if (!isDecimal && (*dotPosition != '.'))
         {
             *result = (10 * (*result)) + digit;
             dotPosition++;
@@ -293,7 +325,7 @@ System_Errors strtf (const uint8_t* fString, float* result)
             decimalPart = (10.0 * decimalPart) + digit;
             decimalDivisor *= 10.0; 
         }
-        message++;
+        fString++;
     }
     
     *result += (decimalPart/decimalDivisor);
