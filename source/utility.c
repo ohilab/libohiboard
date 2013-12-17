@@ -300,15 +300,21 @@ System_Errors strtf (const uint8_t* fString, float* result)
         if (*fString == '-')
         {
             isNegative = 1;
+            fString++;
             continue;
         }
         
         /* Skip without any operation */
-        if (*fString == '+') continue;
-        
+        if (*fString == '+') 
+        {
+            fString++;        
+            continue;
+        }
+
         if (*fString == '.')
         {
             isDecimal = 1;
+            fString++;        
             continue;
         }
 
