@@ -2,11 +2,10 @@
  * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
- *	Marco Giammarini <m.giammarini@warcomeb.it>
- *	
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  
  * Project: libohiboard
- * Package: -
+ * Package: TIME
  * Version: 0.0
  * 
  * This library is free software: you can redistribute it and/or modify
@@ -24,37 +23,39 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/include/time.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Library main file.
+ * @brief Time manage functions declarations
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
+#ifndef __TIME_H
+#define __TIME_H
 
-#include <stdio.h>
-
-#include "types.h"
+#include "platforms.h"
 #include "errors.h"
-#include "utility.h"
+#include "types.h"
 
-#include "interrupt.h"
+#define TIME_UNIX_YEAR       1970
 
-#include "system.h"
+#define TIME_SECOND_PER_DAY  86400
+#define TIME_SECOND_PER_HOUR 3600
 
-#include "uart.h"
+typedef struct
+{
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+} Time_TimeType;
 
-#include "i2c.h"
+typedef struct
+{
+    uint8_t  day;
+    uint8_t  month;
+    uint16_t year;
+} Time_DateType;
 
-#include "spi.h"
+typedef uint32_t Time_UnixTime;
 
-#include "adc.h"
+Time_UnixTime Time_getUnixTime (Time_DateType date, Time_TimeType time);
 
-#include "rtc.h"
-
-#include "time.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+#endif /* __TIME_H */
