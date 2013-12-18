@@ -343,13 +343,13 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 	    
 	    /* Calculate baud settings */
 	    /* TODO: 2000 is JUST FOR TEST! */
-	    sbr = (uint16)(PER_CLOCK_MCG/(baudRate * ((UART0_C4_REG(regmap0) & UART0_C4_OSR_MASK) + 1)));
+	    sbr = (uint16_t)(PER_CLOCK_MCG/(baudRate * ((UART0_C4_REG(regmap0) & UART0_C4_OSR_MASK) + 1)));
 	        
 	    /* Save off the current value of the UARTx_BDH except for the SBR field */
 	    temp = UART0_BDH_REG(regmap0) & ~(UART0_BDH_SBR(0x1F));
 	    
 	    UART0_BDH_REG(regmap0) = temp |  UART0_BDH_SBR(((sbr & 0x1F00) >> 8));
-	    UART0_BDL_REG(regmap0) = (uint8)(sbr & UART0_BDL_SBR_MASK);
+	    UART0_BDL_REG(regmap0) = (uint8_t)(sbr & UART0_BDL_SBR_MASK);
 	}
 	else
 	{
@@ -364,13 +364,13 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 	    UART_C1_REG(regmap) = 0;	
 	    
 	    /* Calculate baud settings */
-	    sbr = (uint16)((PER_CLOCK_KHZ*1000)/(baudRate * 16));
+	    sbr = (uint16_t)((PER_CLOCK_KHZ*1000)/(baudRate * 16));
 	        
 	    /* Save off the current value of the UARTx_BDH except for the SBR field */
 	    temp = UART_BDH_REG(regmap) & ~(UART_BDH_SBR(0x1F));
 	    
 	    UART_BDH_REG(regmap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
-	    UART_BDL_REG(regmap) = (uint8)(sbr & UART_BDL_SBR_MASK);
+	    UART_BDL_REG(regmap) = (uint8_t)(sbr & UART_BDL_SBR_MASK);
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
 	}
 #endif

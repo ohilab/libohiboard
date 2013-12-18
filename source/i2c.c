@@ -161,7 +161,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
  * @param baudrate Baud Rate value
  * @return Error code
  */
-System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32 baudrate)
+System_Errors Iic_setBaudRate(Iic_DeviceHandle dev, uint32_t baudrate)
 {
     if (baudrate >= 10000 && baudrate <= 100000)
     {

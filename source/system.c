@@ -62,7 +62,7 @@ System_Errors System_initClock (void)
     OSC0_CR = (OSC_CR_ERCLKEN_MASK | OSC_CR_SC4P_MASK | OSC_CR_SC8P_MASK);
     /* Output of FLL is select, divide by 1 external clock and disable internal */
     MCG_C1 = (MCG_C1_CLKS(0x00) | MCG_C1_FRDIV(0x00) | MCG_C1_IRCLKEN_MASK);
-    /* DCO mid range and DMX32 disabled (x1280): output of FLL 47972352Hz */
+    /* DCO mid range and DMX32 enabled (x1464): output of FLL 47972352Hz */
     MCG_C4 = (uint8_t)((MCG_C4 & (uint8_t)~(uint8_t)(
             MCG_C4_DRST_DRS(0x02)
         )) | (uint8_t)(

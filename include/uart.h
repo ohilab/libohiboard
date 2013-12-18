@@ -54,7 +54,7 @@ typedef struct Uart_Device* Uart_DeviceHandle;
 
 System_Errors Uart_init (Uart_DeviceHandle dev);
 
-System_Errors Uart_setBaudRate (Uart_DeviceHandle dev, uint32 br);
+System_Errors Uart_setBaudRate (Uart_DeviceHandle dev, uint32_t br);
 System_Errors Uart_enable (Uart_DeviceHandle dev);
 System_Errors Uart_disable (Uart_DeviceHandle dev);
 void Uart_pinEnabled (Uart_DeviceHandle dev);

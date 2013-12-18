@@ -59,7 +59,7 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 System_Errors Iic_init (Iic_DeviceHandle dev);
 
-System_Errors Iic_setBaudRate (Iic_DeviceHandle dev, uint32 br);
+System_Errors Iic_setBaudRate (Iic_DeviceHandle dev, uint32_t br);
 System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType);
 void Iic_pinEnabled (Iic_DeviceHandle dev);
 
