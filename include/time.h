@@ -36,6 +36,7 @@
 #include "types.h"
 
 #define TIME_UNIX_YEAR       1970
+#define TIME_UNIX_YEAR_LEAP  1968
 
 #define TIME_SECOND_PER_DAY  86400
 #define TIME_SECOND_PER_HOUR 3600
