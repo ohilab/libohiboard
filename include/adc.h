@@ -148,7 +148,7 @@ typedef enum {
     ADC_CHL_B = 0x01,
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK60DZ10)
 	ADC_CHL_A = 0x00,
 	ADC_CHL_B = 0x01,
 #endif
@@ -169,6 +169,10 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel,
 extern Adc_DeviceHandle ADC0;
 
 #elif defined(MK60DZ10)
+
+extern Adc_DeviceHandle ADC0;
+extern Adc_DeviceHandle ADC1;
+
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 
