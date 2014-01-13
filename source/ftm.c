@@ -35,7 +35,7 @@
 
 #include "board.h"
 
-#define FTM_MAX_PINS_CHANNEL 20
+#define FTM_MAX_PINS                     20
 
 typedef enum 
 {
@@ -62,7 +62,7 @@ typedef struct Ftm_Device
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
     Ftm_Pins pins[FTM_MAX_PINS];    /**< List of the pin for the FTM channel. */
-    uint32_t* pinsPtr[FTM_MAX_PINS];
+    volatile uint32_t* pinsPtr[FTM_MAX_PINS];
     Ftm_Channels channel[FTM_MAX_PINS];
     uint8_t pinMux[FTM_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
      
@@ -71,6 +71,8 @@ typedef struct Ftm_Device
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
     
     Ftm_Mode mode;                                  /**< Modes of operations. */
+    
+    uint8_t configurationBits;        /**< A useful variable to configure FTM */
 } Ftm_Device;
 
 #if defined(MK60DZ10)
@@ -311,6 +313,10 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
 {
     Ftm_Prescaler prescaler;
     uint16_t modulo;
+    int16_t initCounter;
+    
+    uint8_t channelIndex;
+    uint8_t pinIndex;
     
     /* Enable the clock to the selected FTM */ 
     *dev->simScgcPtr |= dev->simScgcBitEnable;
@@ -335,6 +341,94 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     case FTM_MODE_QUADRATURE_DECODE:
         break;
     case FTM_MODE_PWM:
+        /* Compute prescale factor */
+        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        
+        if (config->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
+        {
+            dev->configurationBits = FTM_CONFIG_PWM_CENTER_ALIGNED;
+            FTM_SC_REG(dev->regMap) |= FTM_SC_CPWMS_MASK;
+        }
+        else
+        {
+            dev->configurationBits = FTM_CONFIG_PWM_EDGE_ALIGNED;
+            FTM_SC_REG(dev->regMap) &= ~FTM_SC_CPWMS_MASK;            
+        }
+        
+        /* Compute timer modulo */
+        modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
+        if (dev->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
+        {
+            modulo = (modulo / 2) - 1;
+            initCounter = 0;
+        }
+        else
+        {
+            modulo -= 1;
+            initCounter = 0;
+        }
+        FTM_CNTIN_REG(dev->regMap) = FTM_CNTIN_INIT(initCounter);
+        FTM_MOD_REG(dev->regMap) = modulo;
+        
+        for (channelIndex = 0; channelIndex < FTM_MAX_CHANNEL; ++channelIndex)
+        {
+            volatile uint32_t* regCCSPtr;
+            volatile uint32_t* regCVPtr;
+            
+            if (config->pins[channelIndex] == FTM_PINS_STOP)
+                break;
+            
+            for (pinIndex = 0; pinIndex < FTM_MAX_PINS; ++pinIndex)
+            {
+                if (dev->pins[pinIndex] == config->pins[channelIndex])
+                {
+                    *(dev->pinsPtr[pinIndex]) = 
+                       PORT_PCR_MUX(dev->pinMux[pinIndex]) | PORT_PCR_IRQC(0);
+                    break;
+                }
+            }
+            
+            switch (dev->channel[channelIndex])
+            {
+            case FTM_CHANNELS_CH0:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,0);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,0);
+                break;
+            case FTM_CHANNELS_CH1:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,1);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,1);
+                break;
+            case FTM_CHANNELS_CH2:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,2);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,2);
+                break;
+            case FTM_CHANNELS_CH3:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,3);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,3);
+                break;
+            case FTM_CHANNELS_CH4:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,4);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,4);
+                break;
+            case FTM_CHANNELS_CH5:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,5);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,5);
+                break;
+            case FTM_CHANNELS_CH6:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,6);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,6);
+                break;
+            case FTM_CHANNELS_CH7:
+                regCCSPtr = &FTM_CnSC_REG(dev->regMap,7);
+                regCVPtr = &FTM_CnV_REG(dev->regMap,7);
+                break;
+            default:
+                assert(0);
+                break;
+            }
+
+        }
+        
         break;
     case FTM_MODE_FREE:
         

@@ -48,7 +48,11 @@ typedef struct Ftm_Device* Ftm_DeviceHandle;
 
 #if defined(MK60DZ10)
 
-#define FTM_MAX_CHANNEL  8
+#define FTM_MAX_CHANNEL                  8
+
+/* Configuration bits */
+#define FTM_CONFIG_PWM_EDGE_ALIGNED      0x00
+#define FTM_CONFIG_PWM_CENTER_ALIGNED    0x01
 
 typedef enum
 {
@@ -109,6 +113,8 @@ typedef struct Ftm_Config
     
     Ftm_Pins pins[FTM_MAX_CHANNEL + 1];
     uint16_t duty[FTM_MAX_CHANNEL + 1];
+    
+    uint8_t configurationBits;        /**< A useful variable to configure FTM */
     
 } Ftm_Config;
 
