@@ -53,6 +53,8 @@ typedef struct Ftm_Device* Ftm_DeviceHandle;
 /* Configuration bits */
 #define FTM_CONFIG_PWM_EDGE_ALIGNED      0x00
 #define FTM_CONFIG_PWM_CENTER_ALIGNED    0x01
+#define FTM_CONFIG_PWM_POLARITY_HIGH     0x00
+#define FTM_CONFIG_PWM_POLARITY_LOW      0x02
 
 typedef enum
 {
