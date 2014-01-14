@@ -222,7 +222,6 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     case FTM_MODE_QUADRATURE_DECODE:
         break;
     case FTM_MODE_PWM:
-        break;
     case FTM_MODE_FREE:
         /* Reading SC register and clear TOF bit */
         FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
@@ -309,9 +308,58 @@ static uint16_t Ftm_computeModulo (uint32_t timerFrequency, Ftm_Prescaler presca
     return (uint16_t) modulo;
 }
 
-void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel)
+static uint16_t Ftm_computeDutyValue (uint16_t dutyScaled, uint16_t modulo)
 {
+    if (dutyScaled > 32768)
+    {
+        return 32768;
+    }
+    else
+    {
+        return (modulo * dutyScaled) / 32768;
+    }
+}
+
+void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled)
+{
+    volatile uint32_t* regCVPtr;
     
+    switch (channel)
+    {
+    case FTM_CHANNELS_CH0:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,0);
+        break;
+    case FTM_CHANNELS_CH1:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,1);
+        break;
+    case FTM_CHANNELS_CH2:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,2);
+        break;
+    case FTM_CHANNELS_CH3:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,3);
+        break;
+    case FTM_CHANNELS_CH4:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,4);
+        break;
+    case FTM_CHANNELS_CH5:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,5);
+        break;
+    case FTM_CHANNELS_CH6:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,6);
+        break;
+    case FTM_CHANNELS_CH7:
+        regCVPtr = &FTM_CnV_REG(dev->regMap,7);
+        break;
+    default:
+        assert(0);
+        regCVPtr = 0;
+        break;
+    }
+    
+    if (regCVPtr)
+    {
+        *regCVPtr = Ftm_computeDutyValue(dutyScaled,FTM_MOD_REG(dev->regMap)); 
+    }
 }
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
@@ -447,6 +495,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
                 break;
             }
 
+            /* Enable channel and set PWM value */
             if (regCSCPtr && regCVPtr)
             {
                 if (dev->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
@@ -458,9 +507,8 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
                     *regCSCPtr = FTM_CnSC_ELSB_MASK | FTM_CnSC_MSB_MASK;                    
                 }
                 
-                Ftm_setPwm (dev,dev->channel[devPinIndex]);
+                Ftm_setPwm (dev,dev->channel[devPinIndex],config->duty[configPinIndex]);
             }
-            
         }
 
         FTM_SC_REG(dev->regMap) = FTM_SC_CLKS(1) | FTM_SC_PS(prescaler) | 0;
