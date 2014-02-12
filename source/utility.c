@@ -278,6 +278,64 @@ System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength)
     return ERRORS_UTILITY_EMPTY_STRING;
 }
 
+void u16td (uint8_t *dString, uint16_t number)
+{
+    uint16_t scale = 10000;
+    char pad = 0;
+    for (; scale; scale /= 10)
+    {
+        if (number >= scale)
+        {
+            *dString = hexDigits[number / scale];
+            dString++;
+            number %= scale;
+            pad = '0';
+        }
+        else
+        {
+            if (pad)
+            {
+                *dString = pad;
+                dString++;
+            }
+        }
+    }
+    *dString = '\0';
+}
+
+void i16td (uint8_t *dString, int16_t number)
+{
+    int16_t scale = 10000;
+    char pad = 0;
+ 
+    if (number < 0)
+    {
+        number = -number;
+        *dString = '-';
+        dString++;
+    }
+        
+    for (; scale; scale /= 10)
+    {
+        if (number >= scale)
+        {
+            *dString = hexDigits[number / scale];
+            dString++;
+            number %= scale;
+            pad = '0';
+        }
+        else
+        {
+            if (pad)
+            {
+                *dString = pad;
+                dString++;
+            }
+        }
+    }
+    *dString = '\0';
+}
+
 /**
  * @brief String to float conversion.
  * 
