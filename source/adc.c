@@ -135,10 +135,10 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
         ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(0);
         break;
     case ADC_RESOLUTION_10BIT:
-        ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(1);
+        ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(2);
         break;
     case ADC_RESOLUTION_12BIT:
-        ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(2);
+        ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(1);
         break;
     case ADC_RESOLUTION_16BIT:
         ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(3);
