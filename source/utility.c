@@ -282,6 +282,14 @@ void u16td (uint8_t *dString, uint16_t number)
 {
     uint16_t scale = 10000;
     char pad = 0;
+    
+    if (number == 0)
+    {
+        *dString = '0';
+        dString++;
+        *dString = '\0';
+    }
+    
     for (; scale; scale /= 10)
     {
         if (number >= scale)
@@ -307,7 +315,14 @@ void i16td (uint8_t *dString, int16_t number)
 {
     int16_t scale = 10000;
     char pad = 0;
- 
+
+    if (number == 0)
+    {
+        *dString = '0';
+        dString++;
+        *dString = '\0';
+    }
+    
     if (number < 0)
     {
         number = -number;
