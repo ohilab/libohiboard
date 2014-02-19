@@ -53,7 +53,7 @@
 
 #include "rtc.h"
 
-#include "time.h"
+#include "timeday.h"
 
 void test();
 

@@ -23,13 +23,13 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/time.h
+ * @file libohiboard/include/timeday.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Time manage functions declarations
  */
 
-#ifndef __TIME_H
-#define __TIME_H
+#ifndef __TIMEDAY_H
+#define __TIMEDAY_H
 
 #include "platforms.h"
 #include "errors.h"
@@ -59,4 +59,4 @@ typedef uint32_t Time_UnixTime;
 
 Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time);
 
-#endif /* __TIME_H */
+#endif /* __TIMEDAY_H */

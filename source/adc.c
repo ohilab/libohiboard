@@ -54,6 +54,21 @@ static Adc_Device adc0 = {
 Adc_DeviceHandle ADC0 = &adc0; 
 
 #elif defined(MK60DZ10)
+
+static Adc_Device adc0 = {
+        .regMap           = ADC0_BASE_PTR,
+        .resolution       = ADC_RESOLUTION_8BIT,
+        .average          = ADC_AVERAGE_1_SAMPLES
+};
+Adc_DeviceHandle ADC0 = &adc0; 
+
+static Adc_Device adc1 = {
+        .regMap           = ADC1_BASE_PTR,
+        .resolution       = ADC_RESOLUTION_8BIT,
+        .average          = ADC_AVERAGE_1_SAMPLES
+};
+Adc_DeviceHandle ADC1 = &adc1;
+
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 #elif defined(MK10DZ10)

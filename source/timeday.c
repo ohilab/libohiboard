@@ -23,12 +23,12 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/time.c
+ * @file libohiboard/source/timeday.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Time manage functions
  */
 
-#include "time.h"
+#include "timeday.h"
 
 static uint8_t Time_dayPerMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
