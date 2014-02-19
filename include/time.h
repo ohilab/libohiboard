@@ -57,6 +57,6 @@ typedef struct
 
 typedef uint32_t Time_UnixTime;
 
-Time_UnixTime Time_getUnixTime (Time_DateType date, Time_TimeType time);
+Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time);
 
 #endif /* __TIME_H */

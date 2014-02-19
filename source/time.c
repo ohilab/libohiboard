@@ -32,28 +32,28 @@
 
 static uint8_t Time_dayPerMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-Time_UnixTime Time_getUnixTime (Time_DateType date, Time_TimeType time)
+Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 {
     Time_UnixTime result = 0;
     
-    if (!(date.year % 4) && (date.month > 2)) result += TIME_SECOND_PER_DAY;
-    date.month--;
+    if (!(date->year % 4) && (date->month > 2)) result += TIME_SECOND_PER_DAY;
+    date->month--;
     
     /* Save seconds for the months of the current year */
-    while (date.month)
+    while (date->month)
     {
-        date.month--;
-        result += Time_dayPerMonth[date.month] * TIME_SECOND_PER_DAY;
+        date->month--;
+        result += Time_dayPerMonth[date->month] * TIME_SECOND_PER_DAY;
     }
     
     /* Save seconds for past years */
-    result += (((date.year-TIME_UNIX_YEAR)*365) + ((date.year-TIME_UNIX_YEAR_LEAP)/4)) * (uint32_t)TIME_SECOND_PER_DAY;
+    result += (((date->year-TIME_UNIX_YEAR)*365) + ((date->year-TIME_UNIX_YEAR_LEAP)/4)) * (uint32_t)TIME_SECOND_PER_DAY;
     /* Save seconds for the days of the current month */
-    result += (date.day-1) * (uint32_t)TIME_SECOND_PER_DAY;
+    result += (date->day-1) * (uint32_t)TIME_SECOND_PER_DAY;
     /* Save seconds for the hours of the current day */
-    result += (time.hours) * (uint32_t)TIME_SECOND_PER_HOUR;
+    result += (time->hours) * (uint32_t)TIME_SECOND_PER_HOUR;
     /* Save seconds for the minutes and seconds of the current hour */
-    result += (time.minutes * 60) + time.seconds;
+    result += (time->minutes * 60) + time->seconds;
     
     return result;
 }
