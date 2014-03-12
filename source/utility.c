@@ -278,16 +278,19 @@ System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength)
     return ERRORS_UTILITY_EMPTY_STRING;
 }
 
-void u16td (uint8_t *dString, uint16_t number)
+uint8_t u16td (uint8_t *dString, uint16_t number)
 {
     uint16_t scale = 10000;
     char pad = 0;
+    uint8_t charCount = 0;
     
     if (number == 0)
     {
         *dString = '0';
         dString++;
         *dString = '\0';
+        charCount++;
+        return charCount;
     }
     
     for (; scale; scale /= 10)
@@ -296,6 +299,7 @@ void u16td (uint8_t *dString, uint16_t number)
         {
             *dString = hexDigits[number / scale];
             dString++;
+            charCount++;
             number %= scale;
             pad = '0';
         }
@@ -305,22 +309,27 @@ void u16td (uint8_t *dString, uint16_t number)
             {
                 *dString = pad;
                 dString++;
+                charCount++;
             }
         }
     }
     *dString = '\0';
+    return charCount;
 }
 
-void i16td (uint8_t *dString, int16_t number)
+uint8_t i16td (uint8_t *dString, int16_t number)
 {
     int16_t scale = 10000;
     char pad = 0;
+    uint8_t charCount = 0;
 
     if (number == 0)
     {
         *dString = '0';
         dString++;
         *dString = '\0';
+        charCount++;
+        return charCount;
     }
     
     if (number < 0)
@@ -328,6 +337,7 @@ void i16td (uint8_t *dString, int16_t number)
         number = -number;
         *dString = '-';
         dString++;
+        charCount++;
     }
         
     for (; scale; scale /= 10)
@@ -336,6 +346,7 @@ void i16td (uint8_t *dString, int16_t number)
         {
             *dString = hexDigits[number / scale];
             dString++;
+            charCount++;
             number %= scale;
             pad = '0';
         }
@@ -345,10 +356,12 @@ void i16td (uint8_t *dString, int16_t number)
             {
                 *dString = pad;
                 dString++;
+                charCount++;
             }
         }
     }
     *dString = '\0';
+    return charCount;
 }
 
 /**
@@ -409,6 +422,60 @@ System_Errors strtf (const uint8_t* fString, float* result)
     
     *result += (decimalPart/decimalDivisor);
     *result *= (isNegative) ? -1.0 : +1.0;
+    
+    return ERRORS_UTILITY_CONVERSION_OK;
+}
+
+/**
+ * 
+ */
+System_Errors ftstr (float value, uint8_t* fString, uint8_t precision)
+{
+    float rounding = 0.5;
+    uint16_t decMultiplier = 1;
+    uint16_t fractional;
+    uint16_t intPart;
+    
+    uint8_t index;
+    uint8_t addChar;
+
+    if (precision > 4)
+        return ERRORS_UTILITY_FLOAT_WRONG_PRECISION;
+    
+    if (value < 0.0)
+    {
+        value = -value;
+        *fString = '-';
+        fString++;
+    }
+    
+    // Setup rounding and decimal multiplier
+    if (precision > 0)
+    {
+        for (index=0; index < precision; ++index)
+        {
+            rounding /= 10.0;
+            decMultiplier *= 10;
+        }
+    }
+    
+    // round number and save integer part
+    value += rounding;
+    intPart = (uint16_t) value;
+    // Print integer part
+    addChar = u16td(fString,value);
+    fString += addChar;
+    
+    if (precision > 0)
+    {
+        *fString = '.'; 
+        fString++;
+        
+        fractional = (uint16_t)((value - intPart) * decMultiplier);
+        
+        // Print fractional part
+        u16td (fString,fractional);
+    }
     
     return ERRORS_UTILITY_CONVERSION_OK;
 }
