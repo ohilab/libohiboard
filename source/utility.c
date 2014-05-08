@@ -480,6 +480,40 @@ System_Errors ftstr (float value, uint8_t* fString, uint8_t precision)
     return ERRORS_UTILITY_CONVERSION_OK;
 }
 
+void fti (float number, uint8_t precision, int16_t* integerPart, uint16_t* decimalPart)
+{ 
+    uint16_t decMultiplier = 1;
+    uint8_t i;
+    uint16_t intPart;
+  
+    for(i=precision; i > 0; --i) 
+    {
+        decMultiplier *= 10;
+    }
+
+    intPart = *integerPart = (int16_t) number;
+    if (number < 0.0)
+    {
+        number = -number;
+        intPart = -intPart;
+    }
+    *decimalPart = (uint16_t)((number - intPart) * decMultiplier);
+}
+
+void ftu (float number, uint8_t precision, uint16_t* integerPart, uint16_t* decimalPart)
+{ 
+    uint16_t decMultiplier = 1;
+    uint8_t i;
+  
+    for(i=precision; i > 0; --i) 
+    {
+        decMultiplier *= 10;
+    }
+
+    *integerPart = (uint16_t) number;
+    *decimalPart = (uint16_t)((number - *integerPart) * decMultiplier);
+}
+
 uint8_t stringCompare (const char* string1, const char* string2)
 {
     while ((*string1 && *string2) && (*string1 == *string2))
