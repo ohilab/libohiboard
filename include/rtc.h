@@ -56,6 +56,9 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
 void Rtc_enableAlarm (Rtc_DeviceHandle dev, Rtc_Time alarm, Interrupt_Status irqEnable);
 void Rtc_disableAlarm (Rtc_DeviceHandle dev, Interrupt_Status irqEnable);
 
+void Rtc_enableSecond (Rtc_DeviceHandle dev);
+void Rtc_disableSecond (Rtc_DeviceHandle dev);
+
 extern Rtc_DeviceHandle RTC;
 
 #endif /* __RTC_H */

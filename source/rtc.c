@@ -128,20 +128,20 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
 
 void Rtc_enableAlarm (Rtc_DeviceHandle dev, Rtc_Time alarm, Interrupt_Status irqEnable)
 {
-    /* Set allarm value */
+    /* Set alarm value */
     RTC_TAR_REG(dev->regMap) = alarm;
     
     /* Set interrupt */
     if (irqEnable == INTERRUPT_ENABLE_ON)
     {
-        RTC_IER_REG(dev->regMap) = RTC_IER_TAIE_MASK;
+        RTC_IER_REG(dev->regMap) |= RTC_IER_TAIE_MASK;
         Interrupt_enable(INTERRUPT_RTC_ALARM);
     }
 }
 
 void Rtc_disableAlarm (Rtc_DeviceHandle dev, Interrupt_Status irqEnable)
 {
-    /* Set allarm value */
+    /* Set alarm value */
     RTC_TAR_REG(dev->regMap) = 0;
     
     /* Set interrupt */
@@ -150,5 +150,16 @@ void Rtc_disableAlarm (Rtc_DeviceHandle dev, Interrupt_Status irqEnable)
         RTC_IER_REG(dev->regMap) &= ~RTC_IER_TAIE_MASK;
         Interrupt_disable(INTERRUPT_RTC_ALARM);
     }
-    
+}
+
+void Rtc_enableSecond (Rtc_DeviceHandle dev)
+{
+    RTC_IER_REG(dev->regMap) |= RTC_IER_TSIE_MASK;
+    Interrupt_enable(INTERRUPT_RTC_SECOND);
+}
+
+void Rtc_disableSecond (Rtc_DeviceHandle dev)
+{
+    RTC_IER_REG(dev->regMap) &= ~RTC_IER_TSIE_MASK;
+    Interrupt_disable(INTERRUPT_RTC_SECOND);
 }
