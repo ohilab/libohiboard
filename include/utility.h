@@ -60,7 +60,14 @@ System_Errors ddigit (uint8_t digit, uint8_t* result);
 System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength);
 System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength);
 
+uint8_t u16td (uint8_t *dString, uint16_t number);
+uint8_t i16td (uint8_t *dString, int16_t number);
+
 System_Errors strtf (const uint8_t* fString, float* result);
+System_Errors ftstr (float value, uint8_t* fString, uint8_t precision);
+
+void fti (float number, uint8_t precision, int16_t* integerPart, uint16_t* decimalPart);
+void ftu (float number, uint8_t precision, uint16_t* integerPart, uint16_t* decimalPart);
 
 uint8_t stringCompare (const char* string1, const char* string2);
 

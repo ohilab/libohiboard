@@ -42,7 +42,7 @@
  *   <li>MKL15Z128VLK4</li>
  * </ul>
  */
-#undef MKL15Z4
+#define MKL15Z4
 
 /**
  * Define for use with this micro-controllers:
@@ -78,7 +78,7 @@
  *   <li>MK10DX128ZVMD10</li>
  * </ul>
  */
-#define  MK10DZ10
+#undef  MK10DZ10
 
 /**
  * Define for use with Freedom Platform FRDM-KL05Z. 
