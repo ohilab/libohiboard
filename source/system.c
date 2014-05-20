@@ -1,8 +1,10 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ *  Nicola Orlandini <n.orlandini90@gmail.com>
  *  
  * Project: libohiboard
  * Package: System
@@ -25,6 +27,8 @@
 /**
  * @file libohiboard/source/system.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ * @author Nicola Orlandini <n.orlandini90@gmail.com>
  * @brief 
  */
 
@@ -90,10 +94,10 @@ System_Errors System_initClock (void)
        
        /* System clock initialization */
        /* SIM_SCGC5: PORTA=1 */
-       SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;   /* Enable clock gate for ports to enable pin routing */
+       //SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;   /* Enable clock gate for ports to enable pin routing */
        /* SIM_CLKDIV1: OUTDIV1=0,OUTDIV2=1,OUTDIV3=1,OUTDIV4=3,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0 */
        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0x00) |
-                     SIM_CLKDIV1_OUTDIV2(0x00) |
+                     SIM_CLKDIV1_OUTDIV2(0x01) |
                      SIM_CLKDIV1_OUTDIV3(0x01) |
                      SIM_CLKDIV1_OUTDIV4(0x03); /* Update system prescalers */
        /* SIM_SOPT2: PLLFLLSEL=0 */

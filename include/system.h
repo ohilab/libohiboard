@@ -1,8 +1,10 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ *  Nicola Orlandini <n.orlandini90@gmail.com>
  *  
  * Project: libohiboard
  * Package: System
@@ -25,6 +27,8 @@
 /**
  * @file libohiboard/include/system.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ * @author Nicola Orlandini <n.orlandini90@gmail.com>
  * @brief 
  */
 
@@ -40,7 +44,7 @@
 #elif defined (MKL15Z4)
 #define SYSTEM_CLOCK_KHZ 24000
 #elif defined (MK10DZ10)
-#define SYSTEM_CLOCK_KHZ 100000
+#define SYSTEM_CLOCK_KHZ 50000
 #elif defined (MK60DZ10)
 #define SYSTEM_CLOCK_KHZ 48000
 #endif
