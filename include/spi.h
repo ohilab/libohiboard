@@ -1,8 +1,10 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ *  Nicola Orlandini <n.orlandini90@gmail.com>
  *  
  * Project: libohiboard
  * Package: SPI
@@ -25,6 +27,8 @@
 /**
  * @file libohiboard/include/spi.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ * @author Nicola Orlandini <n.orlandini90@gmail.com>
  * @brief SPI definitions and prototypes
  */
 
@@ -58,6 +62,10 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
 extern Spi_DeviceHandle SPI0;
 extern Spi_DeviceHandle SPI1;
+#elif defined (MK10DZ10)
+extern Spi_DeviceHandle SPI0;
+extern Spi_DeviceHandle SPI1;
+extern Spi_DeviceHandle SPI2;
 #elif defined(MK60DZ10)
 extern Spi_DeviceHandle SPI0;
 #elif defined(FRDMKL05Z)
