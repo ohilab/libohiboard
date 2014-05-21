@@ -37,6 +37,7 @@
 
 #if defined (FRDMKL25Z)
 #define PER_CLOCK_KHZ 20000
+#define PER_CLOCK_MCG 40000000
 #elif defined (MKL15Z4)
 #define PER_CLOCK_KHZ 24000
 #define PER_CLOCK_MCG 48000000
