@@ -41,7 +41,7 @@
 #define PER_CLOCK_KHZ 24000
 #define PER_CLOCK_MCG 48000000
 #elif defined (MK60DZ10)
-#define PER_CLOCK_KHZ 48000
+#define PER_CLOCK_KHZ 50000
 #elif defined (MK10DZ10)
 #define PER_CLOCK_KHZ 50000 //Velocità del Bus clock 50MHz, cioè 100MHz/2
 #endif
@@ -112,6 +112,24 @@ static Uart_Device uart3 = {
 		.pinEnabled = UART_PIN_DISABLED
 };
 Uart_DeviceHandle UART3 = &uart3; 
+
+static Uart_Device uart4 = {
+        .regMap     = UART4_BASE_PTR,
+        .baudRate   = UART_DEF_BAUDRATE,
+        .parityMode = UART_DEF_PARITY,
+        .dataBits   = UART_DEF_DATABITS,
+        .pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART4 = &uart4; 
+
+static Uart_Device uart5 = {
+        .regMap     = UART5_BASE_PTR,
+        .baudRate   = UART_DEF_BAUDRATE,
+        .parityMode = UART_DEF_PARITY,
+        .dataBits   = UART_DEF_DATABITS,
+        .pinEnabled = UART_PIN_DISABLED
+};
+Uart_DeviceHandle UART5 = &uart5; 
 
 #elif defined(MKL15Z4)
 
