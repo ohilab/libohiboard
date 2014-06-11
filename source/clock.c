@@ -1,12 +1,11 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
- *	Marco Giammarini <m.giammarini@warcomeb.it>
- *	
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  
  * Project: libohiboard
- * Package: -
+ * Package: MCG
  * Version: 0.0
  * 
  * This library is free software: you can redistribute it and/or modify
@@ -24,41 +23,14 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/include/clock.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Library main file.
+ * @brief Clock implementations.
  */
-
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
-
-#include <stdio.h>
-
-#include "types.h"
-#include "errors.h"
-#include "utility.h"
-
-#include "interrupt.h"
-
-#include "system.h"
 
 #include "clock.h"
 
-#include "ftm.h"
-
-#include "uart.h"
-
-#include "i2c.h"
-
-#include "spi.h"
-
-#include "adc.h"
-
-#include "rtc.h"
-
-#include "timeday.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+uint32_t Clock_getFrequency (Clock_Source source)
+{
+    return 50000000; /* TODO: FIXME: */
+}

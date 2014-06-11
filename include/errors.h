@@ -64,6 +64,9 @@ typedef enum _System_Errors
 
 } System_Errors;
 
+void Errors_assert (const char* file, const int line);
+#define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+
 #define ERR_OK                          0x00U /* OK */
 #define ERR_SPEED                       0x01U /* This device does not work in the active speed mode. */
 #define ERR_RANGE                       0x02U /* Parameter out of range. */

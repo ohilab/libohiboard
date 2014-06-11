@@ -1,12 +1,11 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
- *	Marco Giammarini <m.giammarini@warcomeb.it>
- *	
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  
  * Project: libohiboard
- * Package: -
+ * Package: MCG
  * Version: 0.0
  * 
  * This library is free software: you can redistribute it and/or modify
@@ -24,41 +23,26 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/include/clock.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Library main file.
+ * @brief Clock definitions and prototypes.
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
+#ifndef __CLOCK_H
+#define __CLOCK_H
 
-#include <stdio.h>
-
-#include "types.h"
+#include "platforms.h"
 #include "errors.h"
-#include "utility.h"
+#include "types.h"
 
-#include "interrupt.h"
+typedef enum
+{
+    CLOCK_BUS,
+    CLOCK_SYSTEM,
+    CLOCK_FLEXBUS,
+    CLOCK_FLASH
+} Clock_Source;
 
-#include "system.h"
+uint32_t Clock_getFrequency (Clock_Source source);
 
-#include "clock.h"
-
-#include "ftm.h"
-
-#include "uart.h"
-
-#include "i2c.h"
-
-#include "spi.h"
-
-#include "adc.h"
-
-#include "rtc.h"
-
-#include "timeday.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+#endif /* __CLOCK_H */

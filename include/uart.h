@@ -80,6 +80,8 @@ extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 extern Uart_DeviceHandle UART3;
+extern Uart_DeviceHandle UART4;
+extern Uart_DeviceHandle UART5;
 
 #elif defined(FRDMKL05Z)
 

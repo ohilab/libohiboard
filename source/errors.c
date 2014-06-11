@@ -2,9 +2,9 @@
  * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
- *	Edoardo Bezzeccheri <coolman3@gmail.com>
- *	Marco Giammarini <m.giammarini@warcomeb.it>
- *	
+ *  Edoardo Bezzeccheri <coolman3@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  
  * Project: libohiboard
  * Package: -
  * Version: 0.0
@@ -24,41 +24,15 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
+ * @file libohiboard/include/errors.h
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Library main file.
+ * @brief Errors definition
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
-
-#include <stdio.h>
-
-#include "types.h"
 #include "errors.h"
-#include "utility.h"
 
-#include "interrupt.h"
-
-#include "system.h"
-
-#include "clock.h"
-
-#include "ftm.h"
-
-#include "uart.h"
-
-#include "i2c.h"
-
-#include "spi.h"
-
-#include "adc.h"
-
-#include "rtc.h"
-
-#include "timeday.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+void Errors_assert (const char* file, const int line)
+{
+    /* Set breakpoint to control the execution! */
+}
