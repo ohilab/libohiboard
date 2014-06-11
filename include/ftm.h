@@ -1,25 +1,26 @@
 /******************************************************************************
  * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
  * 
- * Author(s):
+ * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
- * Project: libohiboard
- * Package: FTM
- * Version: 0.0
  * 
- * This library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  ******************************************************************************/
 
 /**
@@ -93,6 +94,74 @@ typedef enum
     FTM_CHANNELS_CH7,
 } Ftm_Channels;
 
+
+void Ftm_isrFtm0 (void);
+void Ftm_isrFtm1 (void);
+void Ftm_isrFtm2 (void);
+
+extern Ftm_DeviceHandle FTM0;
+extern Ftm_DeviceHandle FTM1;
+extern Ftm_DeviceHandle FTM2;
+
+#elif defined (OHIBOARD_R1)
+
+/* Da definire in base all'ohiboard!! */
+
+#define FTM_MAX_CHANNEL                  8
+
+/* Configuration bits */
+#define FTM_CONFIG_PWM_EDGE_ALIGNED      0x00
+#define FTM_CONFIG_PWM_CENTER_ALIGNED    0x01
+#define FTM_CONFIG_PWM_POLARITY_HIGH     0x00
+#define FTM_CONFIG_PWM_POLARITY_LOW      0x02
+
+typedef enum
+{
+    FTM_PINS_PTA0,
+    FTM_PINS_PTA1,
+    FTM_PINS_PTA2,
+    FTM_PINS_PTA3,
+    FTM_PINS_PTA4,
+    FTM_PINS_PTA5,
+    FTM_PINS_PTA12,
+    FTM_PINS_PTA13,
+    FTM_PINS_PTB0,
+    FTM_PINS_PTB1,
+    FTM_PINS_PTB18,
+    FTM_PINS_PTB19,
+    FTM_PINS_PTC1,
+    FTM_PINS_PTC2,
+    FTM_PINS_PTC3,
+    FTM_PINS_PTC4,
+    FTM_PINS_PTD4,
+    FTM_PINS_PTD5,
+    FTM_PINS_PTD6,
+    FTM_PINS_PTD7,
+    FTM_PINS_STOP,
+} Ftm_Pins;
+
+typedef enum
+{
+    FTM_CHANNELS_CH0,
+    FTM_CHANNELS_CH1,
+    FTM_CHANNELS_CH2,
+    FTM_CHANNELS_CH3,
+    FTM_CHANNELS_CH4,
+    FTM_CHANNELS_CH5,
+    FTM_CHANNELS_CH6,
+    FTM_CHANNELS_CH7,
+} Ftm_Channels;
+
+
+void Ftm_isrFtm0 (void);
+void Ftm_isrFtm1 (void);
+void Ftm_isrFtm2 (void);
+
+extern Ftm_DeviceHandle FTM0;
+extern Ftm_DeviceHandle FTM1;
+extern Ftm_DeviceHandle FTM2;
+
+#elif defined (FRDMKL25Z)
 
 void Ftm_isrFtm0 (void);
 void Ftm_isrFtm1 (void);
