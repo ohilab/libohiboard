@@ -43,6 +43,10 @@
 
 #include "system.h"
 
+#include "clock.h"
+
+#include "ftm.h"
+
 #include "uart.h"
 
 #include "i2c.h"

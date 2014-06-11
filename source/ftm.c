@@ -67,7 +67,7 @@ typedef struct Ftm_Device
     uint8_t pinMux[FTM_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
      
     void (*isr)(void);                     /**< The function pointer for ISR. */
-    void (*callback)(void);  /**< The function pointer for user callback. */
+    void (*callback)(void);      /**< The function pointer for user callback. */
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
     
     Ftm_Mode mode;                                  /**< Modes of operations. */

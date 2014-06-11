@@ -122,5 +122,6 @@ typedef struct Ftm_Config
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
 
+void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
 
 #endif /* __FTM_H */
