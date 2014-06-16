@@ -74,7 +74,9 @@ typedef struct Ftm_Device
     
     Ftm_Mode mode;                                  /**< Modes of operations. */
     
-    uint8_t configurationBits;        /**< A useful variable to configure FTM */
+    uint8_t configurationBits;       /**< A useful variable to configure FTM. */
+    
+    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Ftm_Device;
 
 #if defined(MK60DZ10)
@@ -152,6 +154,8 @@ static Ftm_Device ftm0 = {
 
         .isr              = Ftm_isrFtm0,
         .isrNumber        = INTERRUPT_FTM0,
+        
+        .devInitialized   = 0,
 };
 Ftm_DeviceHandle FTM0 = &ftm0; 
 
@@ -184,6 +188,8 @@ static Ftm_Device ftm1 = {
         
         .isr              = Ftm_isrFtm1,
         .isrNumber        = INTERRUPT_FTM1,
+        
+        .devInitialized   = 0,
 };
 Ftm_DeviceHandle FTM1 = &ftm1;
 
@@ -208,6 +214,8 @@ static Ftm_Device ftm2 = {
         
         .isr              = Ftm_isrFtm2,
         .isrNumber        = INTERRUPT_FTM2,
+        
+        .devInitialized   = 0,
 };
 Ftm_DeviceHandle FTM2 = &ftm2;
 
@@ -304,6 +312,8 @@ static Ftm_Device ftm0 = {
 
         .isr              = Ftm_isrFtm0,
         .isrNumber        = INTERRUPT_TPM0,
+        
+        .devInitialized   = 0,
 };
 Ftm_DeviceHandle FTM0 = &ftm0; 
 
@@ -344,6 +354,8 @@ static Ftm_Device ftm1 = {
 
         .isr              = Ftm_isrFtm1,
         .isrNumber        = INTERRUPT_TPM1,
+        
+        .devInitialized   = 0,
 };
 Ftm_DeviceHandle FTM1 = &ftm1; 
 
@@ -392,6 +404,8 @@ static Ftm_Device ftm2 = {
 
         .isr              = Ftm_isrFtm2,
         .isrNumber        = INTERRUPT_TPM2,
+        
+        .devInitialized   = 0,
 };
 Ftm_DeviceHandle FTM2 = &ftm2; 
 
@@ -615,6 +629,8 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     
     dev->mode = config->mode;
     
+    dev->devInitialized = 1;
+    
     switch (dev->mode)
     {
     case FTM_MODE_INPUT_CAPTURE:
@@ -716,6 +732,9 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     
     volatile uint32_t* regCSCPtr;
     volatile uint32_t* regCVPtr;
+    
+    if (dev->devInitialized == 0)
+        return ERRORS_FTM_DEVICE_NOT_INIT;
     
     for (devPinIndex = 0; devPinIndex < FTM_MAX_PINS; ++devPinIndex)
     {
