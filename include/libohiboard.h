@@ -45,7 +45,9 @@
 
 #include "clock.h"
 
+#ifdef LIBOHIBOARD_FTM
 #include "ftm.h"
+#endif
 
 #include "uart.h"
 
