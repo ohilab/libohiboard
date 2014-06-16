@@ -252,6 +252,7 @@ typedef struct Ftm_Config
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
 
+System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
 void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
 
 #endif /* __FTM_H */
