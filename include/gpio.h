@@ -1,8 +1,7 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,45 +24,14 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/include/gpio.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Library main file.
+ * @brief GPIO definitions and prototypes.
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
+#ifndef __GPIO_H
+#define __GPIO_H
 
-#include <stdio.h>
 
-#include "types.h"
-#include "errors.h"
-#include "utility.h"
 
-#include "interrupt.h"
-
-#include "gpio.h"
-
-#include "system.h"
-
-#include "clock.h"
-
-#ifdef LIBOHIBOARD_FTM
-#include "ftm.h"
-#endif
-
-#include "uart.h"
-
-#include "i2c.h"
-
-#include "spi.h"
-
-#include "adc.h"
-
-#include "rtc.h"
-
-#include "timeday.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */
+#endif /* __GPIO_H */
