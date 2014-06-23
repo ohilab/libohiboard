@@ -32,6 +32,99 @@
 #ifndef __GPIO_H
 #define __GPIO_H
 
+#include "platforms.h"
+#include "errors.h"
+#include "types.h"
 
+#if defined (MK60DZ10)
+
+#elif defined (OHIBOARD_R1)
+
+#elif defined (FRDMKL25Z)
+
+typedef enum
+{
+    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA1,
+    GPIO_PINS_PTA2,
+    GPIO_PINS_PTA3,
+    GPIO_PINS_PTA4,
+    GPIO_PINS_PTA5,
+    GPIO_PINS_PTA12,
+    GPIO_PINS_PTA13,
+    GPIO_PINS_PTA14,
+    GPIO_PINS_PTA15,
+    GPIO_PINS_PTA16,
+    GPIO_PINS_PTA17,
+    GPIO_PINS_PTA18,
+    GPIO_PINS_PTA19,
+    GPIO_PINS_PTA20,
+
+    GPIO_PINS_PTB0,
+    GPIO_PINS_PTB1,
+    GPIO_PINS_PTB2,
+    GPIO_PINS_PTB3,
+    GPIO_PINS_PTB8,
+    GPIO_PINS_PTB9,
+    GPIO_PINS_PTB10,
+    GPIO_PINS_PTB11,
+    GPIO_PINS_PTB16,
+    GPIO_PINS_PTB17,
+    GPIO_PINS_PTB18,
+    GPIO_PINS_PTB19,
+
+    GPIO_PINS_PTC0,
+    GPIO_PINS_PTC1,
+    GPIO_PINS_PTC2,
+    GPIO_PINS_PTC3,
+    GPIO_PINS_PTC4,
+    GPIO_PINS_PTC5,
+    GPIO_PINS_PTC6,
+    GPIO_PINS_PTC7,
+    GPIO_PINS_PTC8,
+    GPIO_PINS_PTC9,
+    GPIO_PINS_PTC10,
+    GPIO_PINS_PTC11,
+    GPIO_PINS_PTC12,
+    GPIO_PINS_PTC13,
+    GPIO_PINS_PTC16,
+    GPIO_PINS_PTC17,
+
+    GPIO_PINS_PTD0,
+    GPIO_PINS_PTD1,
+    GPIO_PINS_PTD2,
+    GPIO_PINS_PTD3,
+    GPIO_PINS_PTD4,
+    GPIO_PINS_PTD5,
+    GPIO_PINS_PTD6,
+    GPIO_PINS_PTD7,
+
+    GPIO_PINS_PTE0,
+    GPIO_PINS_PTE1,
+    GPIO_PINS_PTE2,
+    GPIO_PINS_PTE3,
+    GPIO_PINS_PTE4,
+    GPIO_PINS_PTE5,
+    GPIO_PINS_PTE20,
+    GPIO_PINS_PTE21,
+    GPIO_PINS_PTE22,
+    GPIO_PINS_PTE23,
+    GPIO_PINS_PTE24,
+    GPIO_PINS_PTE25,
+    GPIO_PINS_PTE29,
+    GPIO_PINS_PTE30,
+    GPIO_PINS_PTE31,
+
+} Gpio_Pins;
+
+#endif
+
+void Gpio_config (Gpio_Pins pin, uint8_t options);
+
+void Gpio_set (Gpio_Pins pin);
+void Gpio_clear (Gpio_Pins pin);
+void Gpio_toggle (Gpio_Pins pin);
+
+uint8_t Gpio_get (Gpio_Pins pin);
 
 #endif /* __GPIO_H */
