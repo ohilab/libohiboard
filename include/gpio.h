@@ -36,6 +36,19 @@
 #include "errors.h"
 #include "types.h"
 
+#define GPIO_PINS_OUTPUT                    0x01
+#define GPIO_PINS_INPUT                     0x02
+#define GPIO_PINS_PULL                      0x04
+#define GPIO_PINS_ENABLE_PULLUP             0x08
+#define GPIO_PINS_ENABLE_PULLDOWN           0x10
+#define GPIO_PINS_ENABLE_DRIVE_STRENGTH     0x20
+#define GPIO_PINS_ENABLE_SLEW_RATE          0x40
+#define GPIO_PINS_ENABLE_PASSIVE_FILTER     0x80
+
+/* Useful define */
+#define GPIO_PIN_MASK                       0x1Fu
+#define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK)))
+
 #if defined (MK60DZ10)
 
 #elif defined (OHIBOARD_R1)
@@ -119,7 +132,7 @@ typedef enum
 
 #endif
 
-void Gpio_config (Gpio_Pins pin, uint8_t options);
+System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
 
 void Gpio_set (Gpio_Pins pin);
 void Gpio_clear (Gpio_Pins pin);

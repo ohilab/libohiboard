@@ -35,10 +35,6 @@
 #include "errors.h"
 #include "types.h"
 
-/* Useful define */
-#define GPIO_PIN_MASK               0x1Fu
-#define GPIO_PIN(x)                 (((1)<<(x & GPIO_PIN_MASK)))
-
 #define IS_DIGIT(c)                 ((c <= '9') && (c >= '0'))
 #define IS_LOWERLETTER(c)           ((c <= 'z') && (c >= 'a'))
 #define IS_UPPERLETTER(c)           ((c <= 'Z') && (c >= 'A'))
