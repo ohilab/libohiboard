@@ -268,10 +268,10 @@ void Gpio_toggle (Gpio_Pins pin)
     port->PTOR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
-uint8_t Gpio_get (Gpio_Pins pin)
+Gpio_Level Gpio_get (Gpio_Pins pin)
 {
     GPIO_MemMapPtr port;
     Gpio_getPort(pin,&port);
     
-    return ((port->PDIR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? 1 : 0;
+    return ((port->PDIR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }

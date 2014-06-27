@@ -49,6 +49,13 @@
 #define GPIO_PIN_MASK                       0x1Fu
 #define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK)))
 
+typedef enum 
+{
+    GPIO_LOW    = 0x00,
+    GPIO_HIGH   = 0x01,
+    GPIO_TOGGLE = 0xFF,
+} Gpio_Level;
+
 #if defined (MK60DZ10)
 
 #elif defined (OHIBOARD_R1)
@@ -127,6 +134,8 @@ typedef enum
     GPIO_PINS_PTE29,
     GPIO_PINS_PTE30,
     GPIO_PINS_PTE31,
+    
+    GPIO_PINS_NONE,
 
 } Gpio_Pins;
 
@@ -138,6 +147,6 @@ void Gpio_set (Gpio_Pins pin);
 void Gpio_clear (Gpio_Pins pin);
 void Gpio_toggle (Gpio_Pins pin);
 
-uint8_t Gpio_get (Gpio_Pins pin);
+Gpio_Level Gpio_get (Gpio_Pins pin);
 
 #endif /* __GPIO_H */
