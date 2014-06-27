@@ -29,6 +29,12 @@
  * @brief FTM implementations.
  */
 
+/**
+ * TODO:
+ * -> Aggiungere enable del clock dei pin direttamente da qui per i canali 
+ *    che fanno il PWM!
+ */
+
 #ifdef LIBOHIBOARD_FTM
 
 #include "ftm.h"
@@ -428,7 +434,7 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
 #if defined (MK60DZ10) || defined (OHIBOARD_R1)
         FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
 #elif defined (FRDMKL25Z)
-        TPM_SC_REG(dev->regMap) &= ~TPM_SC_TOF_MASK;
+        TPM_SC_REG(dev->regMap) |= TPM_SC_TOF_MASK;
 #endif
         dev->callback();
         break;
@@ -741,7 +747,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
         if (dev->pins[devPinIndex] == pin)
         {
             *(dev->pinsPtr[devPinIndex]) = 
-               PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);
+                PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);
             break;
         }
     }
