@@ -1,25 +1,26 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
  * 
- * Author(s):
- *	Marco Giammarini <m.giammarini@warcomeb.it>
- *	
- * Project: libohiboard
- * Package: ADC
- * Version: 0.0
+ * Authors:
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  * 
- * This library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  ******************************************************************************/
 
 /**
@@ -34,20 +35,121 @@
 
 #include "adc.h"
 
-#define ADC_PIN_ENABLED        1
-#define ADC_PIN_DISABLED       0
+#define ADC_PIN_ENABLED                  1
+#define ADC_PIN_DISABLED                 0
+
+#define ADC_MAX_PINS                     20
 
 typedef struct Adc_Device {
-    ADC_MemMapPtr 		  regMap;
+    ADC_MemMapPtr regMap;
     
-    Adc_Resolution        resolution;
-    Adc_Average           average;
+    volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
+    uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
+
+    Adc_Pins pins[ADC_MAX_PINS];    /**< List of the pin for the FTM channel. */
+    volatile uint32_t* pinsPtr[ADC_MAX_PINS];
+    Adc_ChannelNumber channelNumber[ADC_MAX_PINS];
+    Adc_ChannelMux channelMux[ADC_MAX_PINS];
+    uint8_t pinMux[ADC_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
+    
+    Adc_Resolution resolution;
+    Adc_Average average;
 } Adc_Device;
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
 
 static Adc_Device adc0 = {
         .regMap           = ADC0_BASE_PTR,
+        
+        .simScgcPtr       = &SIM_SCGC6,
+        .simScgcBitEnable = SIM_SCGC6_ADC0_MASK,
+        
+        .pins             = {ADC_PINS_PTE20,
+                             ADC_PINS_PTE21,
+                             ADC_PINS_PTE22,
+                             ADC_PINS_PTE23,
+                             ADC_PINS_PTE29,
+                             ADC_PINS_PTE30,
+                             ADC_PINS_PTB0,
+                             ADC_PINS_PTB1,
+                             ADC_PINS_PTB2,
+                             ADC_PINS_PTB3,
+                             ADC_PINS_PTC0,
+                             ADC_PINS_PTC1,
+                             ADC_PINS_PTC2,
+                             ADC_PINS_PTD1,
+                             ADC_PINS_PTD5,
+                             ADC_PINS_PTD6,
+        },
+        .pinsPtr          = {&PORTE_PCR20,
+                             &PORTE_PCR21,
+                             &PORTE_PCR22,
+                             &PORTE_PCR23,
+                             &PORTE_PCR29,
+                             &PORTE_PCR30,
+                             &PORTB_PCR0,
+                             &PORTB_PCR1,
+                             &PORTB_PCR2,
+                             &PORTB_PCR3,
+                             &PORTC_PCR0,
+                             &PORTC_PCR1,
+                             &PORTC_PCR2,
+                             &PORTD_PCR1,
+                             &PORTD_PCR5,
+                             &PORTD_PCR6,
+        },
+        .pinMux           = {0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+        },
+        .channelNumber    = {ADC_CH_SE0,
+                             ADC_CH_SE4a,
+                             ADC_CH_SE3,
+                             ADC_CH_SE7a,
+                             ADC_CH_SE4b,
+                             ADC_CH_SE23,
+                             ADC_CH_SE8,
+                             ADC_CH_SE9,
+                             ADC_CH_SE12,
+                             ADC_CH_SE13,
+                             ADC_CH_SE14,
+                             ADC_CH_SE15,
+                             ADC_CH_SE11,
+                             ADC_CH_SE5b,
+                             ADC_CH_SE6b,
+                             ADC_CH_SE7b,
+        },
+        .channelMux       = {ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_B,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_A,
+                             ADC_CHL_B,
+                             ADC_CHL_B,
+                             ADC_CHL_B,
+        },
+
         .resolution       = ADC_RESOLUTION_8BIT,
         .average          = ADC_AVERAGE_1_SAMPLES
 };
@@ -109,10 +211,9 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
 
     /* Turn on clock */
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
-    if (regmap == ADC0_BASE_PTR)
-        SIM_SCGC6 |= SIM_SCGC6_ADC0_MASK;
-    else
-        return ERRORS_PARAM_VALUE;
+
+    *dev->simScgcPtr |= dev->simScgcBitEnable;
+    
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
@@ -175,6 +276,8 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
 	return ERRORS_NO_ERROR;
 }
 
+#if 0
+
 System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel,
 		Adc_ChannelMux mux, uint16_t *value)
 {
@@ -190,6 +293,72 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel,
 #else
 		ADC_CFG2_REG(regmap) |= ADC_CFG2_MUXSEL_MASK; 
 #endif
+ 
+        /* Start conversion */
+        ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(channel);
+    
+        /* wait until conversion ended */
+        while ((ADC_SC1_REG(regmap,0) & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
+    
+        *value = (uint16_t) ADC_R_REG(regmap,0);
+    
+        /* Disable conversion */
+        ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+
+        return ERRORS_NO_ERROR;
+    }
+    else
+    {
+        *value = 0;
+        return ERRORS_ADC_CHANNEL_WRONG;
+    }
+}
+
+#endif
+
+void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
+{
+    uint8_t devPinIndex;
+    
+    for (devPinIndex = 0; devPinIndex < ADC_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->pins[devPinIndex] == pin)
+        {
+            *(dev->pinsPtr[devPinIndex]) = 
+                PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);
+            break;
+        }
+    }
+    
+    /* TODO: It's all? */
+}
+
+System_Errors Adc_readValue (Adc_DeviceHandle dev, 
+                             Adc_ChannelNumber channel,
+                             uint16_t *value)
+{
+    ADC_MemMapPtr regmap = dev->regMap;
+    uint8_t channelIndex;
+    Adc_ChannelMux channelMux;
+    
+    if (channel != ADC_CH_DISABLE)
+    {
+        for (channelIndex = 0; channelIndex < ADC_MAX_PINS; ++channelIndex)
+        {
+            if (dev->channelNumber[channelIndex] == channel)
+            {    
+                channelMux = dev->channelMux[channelIndex];
+                break;
+            }
+        }
+        
+        if (channel > 0x1F)
+            channel -= 0x20;
+
+        if (channelMux == ADC_CHL_A)
+            ADC_CFG2_REG(regmap) &= ~ADC_CFG2_MUXSEL_MASK;          
+        else
+            ADC_CFG2_REG(regmap) |= ADC_CFG2_MUXSEL_MASK; 
  
         /* Start conversion */
         ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(channel);
