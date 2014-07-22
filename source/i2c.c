@@ -55,7 +55,7 @@ typedef struct Iic_Device {
     uint8_t               pinEnabled;
 } Iic_Device;
 
-#if defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(MKL15Z4) || defined(FRDMKL25Z) || defined(MK10D10)
 static Iic_Device iic0 = {
         .regMap           = I2C0_BASE_PTR,
 

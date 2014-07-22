@@ -43,7 +43,7 @@
 #define PER_CLOCK_MCG 48000000
 #elif defined (MK60DZ10)
 #define PER_CLOCK_KHZ 50000
-#elif defined (MK10DZ10)
+#elif defined (MK10DZ10) || defined(MK10D10)
 #define PER_CLOCK_KHZ 50000 //Velocità del Bus clock 50MHz, cioè 100MHz/2
 #endif
 #define UART_DEF_BAUDRATE 	9600
@@ -194,7 +194,7 @@ static Uart_Device uart2 = {
 };
 Uart_DeviceHandle UART2 = &uart2;
 
-#elif defined (MK10DZ10)
+#elif defined (MK10DZ10) || defined(MK10D10)
 
 static Uart_Device uart0 = {
 		.regMap 	= UART0_BASE_PTR,
@@ -288,7 +288,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 {
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     register uint16_t sbr;
-#elif defined(MK60DZ10) || defined(MK10DZ10)
+#elif defined(MK60DZ10) || defined(MK10DZ10) || defined(MK10D10)
     register uint16_t sbr, brfa;	//BaudRateFineAdjust
 #endif
     uint8_t temp;
@@ -301,7 +301,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
     	regmap0 = dev->regMap0;
     else
     	regmap = dev->regMap;
-#elif defined(MK60DZ10) || defined(MK10DZ10)
+#elif defined(MK60DZ10) || defined(MK10DZ10)|| defined(MK10D10)
     UART_MemMapPtr regmap = dev->regMap;
 #endif
     uint32_t baudRate     = dev->baudRate;
@@ -331,7 +331,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 	else if (regmap == UART2_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
 
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
 	if (regmap == UART0_BASE_PTR)
 		SIM_SCGC4 |= SIM_SCGC4_UART0_MASK;
 	else if (regmap == UART1_BASE_PTR)
@@ -394,7 +394,7 @@ System_Errors Uart_init(Uart_DeviceHandle dev)
 	}
 #endif
 
-#if defined(MK60DZ10) || defined(MK10DZ10)
+#if defined(MK60DZ10) || defined(MK10DZ10) || defined(MK10D10)
     /* Determine if a fractional divider is needed to get closer to the baud rate */
     brfa = (((PER_CLOCK_KHZ*32000)/(baudRate * 16)) - (sbr * 32));
     

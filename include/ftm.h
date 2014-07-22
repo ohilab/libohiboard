@@ -167,7 +167,7 @@ extern Ftm_DeviceHandle FTM2;
 
 #elif defined (FRDMKL25Z)
 
-#define FTM_MAX_CHANNEL                  6
+#define FTM_MAX_CHANNEL   6
 
 typedef enum
 {

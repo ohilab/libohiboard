@@ -146,7 +146,7 @@ typedef enum {
     INTERRUPT_FTM2       = 64,
     INTERRUPT_RTC_ALARM  = 66,
     INTERRUPT_RTC_SECOND = 67,    
-#elif defined (MK10DZ10)
+#elif defined (MK10DZ10) || defined(MK10D10)
     INTERRUPT_DMA0       = 0,
     INTERRUPT_DMA1       = 1,
     INTERRUPT_DMA2       = 2,

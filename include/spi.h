@@ -62,7 +62,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
 extern Spi_DeviceHandle SPI0;
 extern Spi_DeviceHandle SPI1;
-#elif defined (MK10DZ10)
+#elif defined (MK10DZ10)|| defined(MK10D10)
 extern Spi_DeviceHandle SPI0;
 extern Spi_DeviceHandle SPI1;
 extern Spi_DeviceHandle SPI2;

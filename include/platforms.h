@@ -82,6 +82,23 @@
 #undef  MK10DZ10
 
 /**
+ * Define for use with this micro-controllers:
+ * <ul>
+ *   <li>MK10DN512VLK10</li>
+ *   <li>MK10DN512VLL10</li>
+ *   <li>MK10DN512VLQ10</li>
+ *   <li>MK10DX128VLQ10</li>
+ *   <li>MK10DX256VLQ10</li>
+ *   <li>MK10DN512VMB10</li>
+ *   <li>MK10DN512VMC10</li>
+ *   <li>MK10DN512VMD10</li>
+ *   <li>MK10DX256VMD10</li>
+ *   <li>MK10DX128VMD10</li>
+ * </ul>
+ */
+#define  MK10D10
+
+/**
  * Define for use with OHIBOARD-R1. 
  */
 #undef OHIBOARD_R1
@@ -94,7 +111,7 @@
 /**
  * Define for use with Freedom Platform FRDM-KL25Z. 
  */
-#define FRDMKL25Z
+#undef FRDMKL25Z
 
 /**
  * Define for use with Freedom Platform FRDM-K20D50M. 
@@ -105,6 +122,8 @@
 #include "platforms/MK60DZ10.h"
 #elif defined(MK10DZ10)
 #include "platforms/MK10DZ10.h"
+#elif defined(MK10D10)
+#include "platforms/MK10D10.h"
 #elif defined(MKL15Z4)
 #include "platforms/MKL15Z4.h"
 #elif defined(FRDMKL05Z)

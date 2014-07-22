@@ -67,7 +67,7 @@ static Spi_Device spi1 = {
 };
 Spi_DeviceHandle SPI1 = &spi1;
 
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
 static Spi_Device spi0 = {
     .regMap           = SPI0_BASE_PTR,
     
@@ -116,7 +116,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         SIM_SCGC4 |= SIM_SCGC4_SPI1_MASK;
     else
         return ERRORS_PARAM_VALUE;
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
     if (regmap == SPI0_BASE_PTR)
         SIM_SCGC6 |= SIM_SCGC6_SPI0_MASK;
     else if (regmap == SPI1_BASE_PTR)
@@ -137,7 +137,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         SPI_C1_REG(regmap) = 0;
         /* Match interrupt disabled, uses separate pins and DMA disabled. */
         SPI_C2_REG(regmap) = 0;
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
         SPI_MCR_REG(regmap) = SPI_MCR_MSTR_MASK | SPI_MCR_PCSIS(0xF) | 0;
 #elif defined(MK60DZ10)
 #elif defined(FRDMK20D50M)
@@ -149,7 +149,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 #if defined(MKL15Z4)
             /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
             SPI_BR_REG(regmap) = 0x10 | 0x04;
-#elif defined (MK10DZ10)
+#elif defined (MK10DZ10) || defined(MK10D10)
             /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
             SPI_CTAR_REG(regmap,0) = SPI_CTAR_FMSZ(0x7) | SPI_CTAR_CPOL_MASK | SPI_CTAR_BR(0x05) | SPI_CTAR_CPHA_MASK | 0;
             SPI_CTAR_REG(regmap,1) = SPI_CTAR_FMSZ(0x7) | SPI_CTAR_CPOL_MASK | SPI_CTAR_BR(0x05) | SPI_CTAR_CPHA_MASK | 0;
@@ -166,7 +166,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 #if defined(MKL15Z4)
             /* From 24MHz to 12MHz: set prescaler to 1 and divider to 2. */
             SPI_BR_REG(regmap) = 0x00;
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMKL25Z)
@@ -246,7 +246,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
     while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Save data register */
     *data = SPI_D_REG(regmap);
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
     
 	//wait till TX FIFO is Empty.
 	while((SPI_SR_REG(regmap) & SPI_SR_TFFF_MASK) != SPI_SR_TFFF_MASK);
@@ -297,7 +297,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Read data register */
     (void) SPI_D_REG(regmap);
-#elif defined(MK10DZ10)  
+#elif defined(MK10DZ10) || defined(MK10D10)
     uint16_t x = 0;
     
 	//wait till TX FIFO is Empty.

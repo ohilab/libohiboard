@@ -91,7 +91,7 @@ extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
 
 extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
