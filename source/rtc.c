@@ -154,12 +154,20 @@ void Rtc_disableAlarm (Rtc_DeviceHandle dev, Interrupt_Status irqEnable)
 
 void Rtc_enableSecond (Rtc_DeviceHandle dev)
 {
-    RTC_IER_REG(dev->regMap) |= RTC_IER_TSIE_MASK;
+#if defined (MK10DZ10)
+    RTC_IER_REG(dev->regMap) |= 0x10;
+#else
+    RTC_IER_REG(dev->regMap) |= RTC_IER_TAIE_MASK;
+#endif
     Interrupt_enable(INTERRUPT_RTC_SECOND);
 }
 
 void Rtc_disableSecond (Rtc_DeviceHandle dev)
 {
+#if defined (MK10DZ10)
+    RTC_IER_REG(dev->regMap) &= ~0x10;
+#else
     RTC_IER_REG(dev->regMap) &= ~RTC_IER_TSIE_MASK;
+#endif
     Interrupt_disable(INTERRUPT_RTC_SECOND);
 }

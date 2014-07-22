@@ -37,5 +37,7 @@ uint32_t Clock_getFrequency (Clock_Source source)
     return 50000000; /* TODO: FIXME: */
 #elif defined (FRDMKL25Z)
     return 40000000; /* TODO: FIXME: */
+#elif defined (MK10DZ10)
+    return 50000000; /* TODO: FIXME: */
 #endif
 }

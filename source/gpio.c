@@ -31,22 +31,32 @@
 
 #include "gpio.h"
 
-#if defined (MK60DZ10)
-
-#elif defined (OHIBOARD_R1)
-
-#elif defined (FRDMKL25Z)
-
 typedef enum
 {
+#if defined (MK60DZ10)
+    
+#elif defined (MK10DZ10)
+
     GPIO_PORTS_A,
     GPIO_PORTS_B,
     GPIO_PORTS_C,
     GPIO_PORTS_D,
     GPIO_PORTS_E,
-} Gpio_Ports;
+
+#elif defined (OHIBOARD_R1)
+
+#elif defined (FRDMKL25Z)
+    
+    GPIO_PORTS_A,
+    GPIO_PORTS_B,
+    GPIO_PORTS_C,
+    GPIO_PORTS_D,
+    GPIO_PORTS_E,
 
 #endif
+} Gpio_Ports;
+
+
 
 typedef struct _Gpio_PinDevice
 {
@@ -54,14 +64,25 @@ typedef struct _Gpio_PinDevice
     uint8_t pinNumber;       /**< The number of the pin of the relative port */
 } Gpio_PinDevice;
 
-#if defined (MK60DZ10)
 
-#elif defined (OHIBOARD_R1)
-
-#elif defined (FRDMKL25Z)
 
 static Gpio_PinDevice Gpio_availablePins[] = 
 {
+#if defined (MK60DZ10)
+
+#elif defined (MK10DZ10)
+        
+        {GPIO_PORTS_E,0},
+        {GPIO_PORTS_E,1},
+        {GPIO_PORTS_E,2},
+        {GPIO_PORTS_E,3},
+        {GPIO_PORTS_E,4},
+        {GPIO_PORTS_E,5},
+        
+#elif defined (OHIBOARD_R1)
+
+#elif defined (FRDMKL25Z)
+        
         {GPIO_PORTS_A,0},
         {GPIO_PORTS_A,1},
         {GPIO_PORTS_A,2},
@@ -132,9 +153,10 @@ static Gpio_PinDevice Gpio_availablePins[] =
         {GPIO_PORTS_C,29},
         {GPIO_PORTS_C,30},
         {GPIO_PORTS_C,31},
-};
 
 #endif
+};
+
 
 static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
 {

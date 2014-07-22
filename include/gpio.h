@@ -56,14 +56,14 @@ typedef enum
     GPIO_TOGGLE = 0xFF,
 } Gpio_Level;
 
+
+typedef enum
+{
 #if defined (MK60DZ10)
 
 #elif defined (OHIBOARD_R1)
 
 #elif defined (FRDMKL25Z)
-
-typedef enum
-{
     GPIO_PINS_PTA0 = 0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
@@ -134,12 +134,15 @@ typedef enum
     GPIO_PINS_PTE29,
     GPIO_PINS_PTE30,
     GPIO_PINS_PTE31,
+
+#elif defined (MK10DZ10)
     
     GPIO_PINS_NONE,
-
+    
+#endif
 } Gpio_Pins;
 
-#endif
+
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
 

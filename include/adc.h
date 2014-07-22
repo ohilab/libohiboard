@@ -78,6 +78,9 @@ typedef enum {
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 #elif defined(MK10DZ10)
+    
+    ADC_PINS_INTERNAL,
+    
 #endif
 } Adc_Pins;
 
