@@ -3,6 +3,7 @@
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Francesco Piunti <francesco.piunti89@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/include/adc.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Francesco Piunti <francesco.piunti89@gmail.com>
  * @brief ADC definitions and prototypes.
  */
 
@@ -78,6 +80,61 @@ typedef enum {
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 #elif defined(MK10DZ10)
+#elif defined(MK10D10)
+    
+    ADC_PINS_ADC0_DP0,
+    ADC_PINS_ADC0_DP1,
+    ADC_PINS_PGA0_DP,
+    ADC_PINS_ADC0_DP3,
+    ADC_PINS_PTE16,
+    ADC_PINS_PTE17,
+    ADC_PINS_PTE18,
+    ADC_PINS_PTE19,
+    ADC_PINS_PTC2,
+    ADC_PINS_PTD1,
+    ADC_PINS_PTD5,
+    ADC_PINS_PTD6,
+    ADC_PINS_PTB0,
+    ADC_PINS_PTB1,
+    ADC_PINS_PTA7,
+    ADC_PINS_PTA8,
+    ADC_PINS_PTB2,
+    ADC_PINS_PTB3,
+    ADC_PINS_PTC0,
+    ADC_PINS_PTC1,
+    ADC_PINS_PTE24,
+    ADC_PINS_PTE25,
+    ADC_PINS_ADC0_DM0,
+    ADC_PINS_ADC0_DM1,
+    ADC_PINS_ADC0_SE21,
+    ADC_PINS_ADC0_SE22,
+    ADC_PINS_ADC0_SE23,
+    
+    ADC_PINS_ADC1_DP0,
+    ADC_PINS_ADC1_DP1,
+    ADC_PINS_PGA_DP,
+    ADC_PINS_ADC1_DP3,		        		
+    ADC_PINS_PTE0,
+    ADC_PINS_PTE1,
+    ADC_PINS_PTE2,
+    ADC_PINS_PTE3,
+    ADC_PINS_PTC7,
+    ADC_PINS_PTC8,
+    ADC_PINS_PTC9,
+    ADC_PINS_PTC10,
+    
+    ADC_PINS_PTB4,
+    ADC_PINS_PTB5,
+    ADC_PINS_PTB6,
+    ADC_PINS_PTB7,
+    ADC_PINS_PTB10,
+    ADC_PINS_PTB11,
+    ADC_PINS_ADC1_SE16,
+    ADC_PINS_PTA17,
+    ADC_PINS_ADC1_SE18,
+    ADC_PINS_ADC1_DM0,
+    ADC_PINS_ADC1_DM1,
+    ADC_PINS_ADC1_SE23,
     
     ADC_PINS_INTERNAL,
     
@@ -85,6 +142,7 @@ typedef enum {
 } Adc_Pins;
 
 typedef enum {
+
 #if defined (FRDMKL25Z)
 
 	ADC_CH_SE0     = 0x00,
@@ -111,6 +169,7 @@ typedef enum {
 	ADC_CH_DISABLE = 0x1F
 
 #elif defined(MKL15Z4)
+
 	ADC_CH_SE0     = 0x00,
 	ADC_CH_SE1     = 0x01,
 	ADC_CH_SE2     = 0x02,
@@ -127,20 +186,25 @@ typedef enum {
 	ADC_CH_SE14    = 0x0E,
 	ADC_CH_SE15    = 0x0F,
 	ADC_CH_SE23    = 0x17,
+
 	ADC_CH_TEMP    = 0x1A,
 	ADC_CH_BANDGAP = 0x1B,
 	ADC_CH_VREFH   = 0x1D,
 	ADC_CH_VREFL   = 0x1E,
 	ADC_CH_DISABLE = 0x1F
+
 #elif defined(MK60DZ10)
+
 	ADC_CH_TEMP    = 0x1A,
 	ADC_CH_BANDGAP = 0x1B,
 	ADC_CH_VREFH   = 0x1D,
 	ADC_CH_VREFL   = 0x1E,
 	ADC_CH_DISABLE = 0x1F
+
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10)  
+
 	ADC_CH_ADC0_DP0      = 0x00,
 	ADC_CH_ADC0_PGA0_DP  = 0x02,
 	ADC_CH_ADC0_DP3      = 0x03,
@@ -177,6 +241,44 @@ typedef enum {
 	ADC_CH_VREFH         = 0x1D,
 	ADC_CH_VREFL         = 0x1E,
 	ADC_CH_DISABLE       = 0x1F
+
+#elif defined(MK10D10)
+
+    ADC_CH_DP0          = 0x00,
+    ADC_CH_DP1          = 0x01,
+    ADC_CH_PGA_DP       = 0x02,
+    ADC_CH_DP3          = 0x03,
+    ADC_CH_SE4a         = 0x04,
+    ADC_CH_SE5a	        = 0x05,
+    ADC_CH_SE6a	        = 0x06,
+    ADC_CH_SE7a	        = 0x07,
+    ADC_CH_SE4b	        = 0x24,
+    ADC_CH_SE5b	        = 0x25,
+    ADC_CH_SE6b	        = 0x26,
+    ADC_CH_SE7b	        = 0x27,
+    ADC_CH_SE8          = 0x08,
+    ADC_CH_SE9          = 0x09,
+    ADC_CH_SE10	        = 0x0A,
+    ADC_CH_SE11	        = 0x0B,
+    ADC_CH_SE12	        = 0x0C,
+    ADC_CH_SE13	        = 0x0D,
+    ADC_CH_SE14	        = 0x0E,
+    ADC_CH_SE15	        = 0x0F,
+    ADC_CH_SE16	        = 0x10,
+    ADC_CH_SE17         = 0x11,
+    ADC_CH_SE18         = 0x12,
+    ADC_CH_DM0          = 0x13,
+    ADC_CH_DM1          = 0x14,
+    ADC_CH_SE21         = 0x15,
+    ADC_CH_SE22         = 0x16,
+    ADC_CH_SE23         = 0x17,
+	
+	ADC_CH_TEMP          = 0x1A,
+	ADC_CH_BANDGAP       = 0x1B,
+	ADC_CH_VREFH         = 0x1D,
+	ADC_CH_VREFL         = 0x1E,
+	ADC_CH_DISABLE       = 0x1F,
+
 #endif
 } Adc_ChannelNumber;
 
@@ -189,10 +291,13 @@ typedef enum {
     ADC_CHL_B = 0x01,
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
-#elif defined(MK10DZ10) || defined(MK60DZ10)
+#elif defined(MK10DZ10) || defined(MK60DZ10) || defined(MK10D10)
+    
 	ADC_CHL_A = 0x00,
 	ADC_CHL_B = 0x01,
+
 #endif
+
 } Adc_ChannelMux;
 
 typedef struct Adc_Device* Adc_DeviceHandle;
@@ -225,7 +330,7 @@ extern Adc_DeviceHandle ADC1;
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
 
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) || defined(MK10D10)
 
 extern Adc_DeviceHandle ADC0;
 extern Adc_DeviceHandle ADC1;

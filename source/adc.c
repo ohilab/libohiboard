@@ -3,6 +3,7 @@
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Francesco Piunti <francesco.piunti89@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/source/adc.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Francesco Piunti <francesco.piunti89@gmail.com>
  * @brief ADC functions implementation.
  */
 
@@ -38,7 +40,7 @@
 #define ADC_PIN_ENABLED                  1
 #define ADC_PIN_DISABLED                 0
 
-#define ADC_MAX_PINS                     20
+#define ADC_MAX_PINS                     28
 
 typedef struct Adc_Device {
     ADC_MemMapPtr regMap;
@@ -56,7 +58,7 @@ typedef struct Adc_Device {
     Adc_Average average;
 } Adc_Device;
 
-#if defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(MKL15Z4) || defined(FRDMKL25Z) 
 
 static Adc_Device adc0 = {
         .regMap           = ADC0_BASE_PTR,
@@ -173,19 +175,333 @@ Adc_DeviceHandle ADC1 = &adc1;
 
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) 
+static Adc_Device adc0 = {
+		.regMap           = ADC0_BASE_PTR,
+		.resolution       = ADC_RESOLUTION_8BIT,
+		.average          = ADC_AVERAGE_1_SAMPLES
+		};
+Adc_DeviceHandle ADC0 = &adc0; 
+
+static Adc_Device adc1 = {
+	 .regMap           = ADC1_BASE_PTR,
+	 .resolution       = ADC_RESOLUTION_8BIT,
+	 .average          = ADC_AVERAGE_1_SAMPLES
+	 };
+Adc_DeviceHandle ADC1 = &adc1;
+
+#elif defined(MK10D10)
 
 static Adc_Device adc0 = {
-        .regMap           = ADC0_BASE_PTR,
-        .resolution       = ADC_RESOLUTION_8BIT,
+     .regMap           = ADC0_BASE_PTR,
+		
+     .simScgcPtr       = &SIM_SCGC6,
+     .simScgcBitEnable = SIM_SCGC6_ADC0_MASK,
+		        
+     .pins             = {ADC_PINS_ADC0_DP0,
+                          ADC_PINS_ADC0_DP1,
+                          ADC_PINS_PGA0_DP,
+                          ADC_PINS_ADC0_DP3,
+                          ADC_PINS_PTE16,
+                          ADC_PINS_PTE17,
+                          ADC_PINS_PTE18,
+                          ADC_PINS_PTE19,
+                          ADC_PINS_PTC2,
+                          ADC_PINS_PTD1,
+                          ADC_PINS_PTD5,
+                          ADC_PINS_PTD6,
+                          ADC_PINS_PTB0,
+                          ADC_PINS_PTB1,
+                          ADC_PINS_PTA7,
+                          ADC_PINS_PTA8,
+                          ADC_PINS_PTB2,
+                          ADC_PINS_PTB3,
+                          ADC_PINS_PTC0,
+                          ADC_PINS_PTC1,
+                          ADC_PINS_PTE24,
+                          ADC_PINS_PTE25,
+                          ADC_PINS_ADC0_DM0,
+                          ADC_PINS_ADC0_DM1,
+                          ADC_PINS_ADC0_SE21,
+                          ADC_PINS_ADC0_SE22,
+                          ADC_PINS_ADC0_SE23,					 
+                     
+		        },
+      .pinsPtr         = {0,//&ADC_PINS_ADC0_DP0,
+                          0,//&ADC_PINS_ADC0_DP1,
+                          0,//&ADC_PINS_PGA0_DP,
+                          0,//&ADC_PINS_ADC0_DP3,
+                          &PORTE_PCR16,
+                          &PORTE_PCR17,
+                          &PORTE_PCR18,
+                          &PORTE_PCR19,
+                          &PORTC_PCR2,
+                          &PORTD_PCR1,
+                          &PORTD_PCR5,
+                          &PORTD_PCR6,
+                          &PORTB_PCR0,
+                          &PORTB_PCR1,
+                          &PORTA_PCR7,
+                          &PORTA_PCR8,
+                          &PORTB_PCR2,
+                          &PORTB_PCR3,
+                          &PORTC_PCR0,
+                          &PORTC_PCR1,
+				 	 	  &PORTE_PCR24,
+				 	 	  &PORTE_PCR25,
+                          0,//&ADC_PINS_ADC0_DM0,
+                          0,//&ADC_PINS_ADC0_DM1,
+                          0,//&ADC_PINS_ADC0_SE21
+                          0,//&ADC_PINS_ADC0_SE22,
+                          0,//&ADC_PINS_ADC0_SE23,
+		        },
+        .pinMux        = {0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0, 
+                          0,
+                          0,
+               },
+         .channelNumber  = {ADC_CH_DP0,
+                          ADC_CH_DP1,
+                          ADC_CH_PGA_DP,
+                          ADC_CH_DP3,
+                          ADC_CH_SE4a,
+                          ADC_CH_SE5a,
+                          ADC_CH_SE6a,
+                          ADC_CH_SE7a,
+                          ADC_CH_SE4b,
+                          ADC_CH_SE5b,
+                          ADC_CH_SE6b,
+                          ADC_CH_SE7b,
+                          ADC_CH_SE8,
+                          ADC_CH_SE9,
+                          ADC_CH_SE10,
+                          ADC_CH_SE11,
+                          ADC_CH_SE12,
+                          ADC_CH_SE13,
+                          ADC_CH_SE14,
+                          ADC_CH_SE15,
+                          ADC_CH_SE16,
+                          ADC_CH_SE17,
+                          ADC_CH_SE18,
+                          ADC_CH_DM0,
+                          ADC_CH_DM1,
+                          ADC_CH_SE21,
+                          ADC_CH_SE22,
+                          ADC_CH_SE23,
+
+              },
+         .channelMux   = {ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_B,
+                          ADC_CHL_B,
+                          ADC_CHL_B,
+                          ADC_CHL_B,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+                          ADC_CHL_A,
+},
+		
+	    .resolution       = ADC_RESOLUTION_8BIT,
         .average          = ADC_AVERAGE_1_SAMPLES
 };
 Adc_DeviceHandle ADC0 = &adc0; 
 
 static Adc_Device adc1 = {
-        .regMap           = ADC1_BASE_PTR,
-        .resolution       = ADC_RESOLUTION_8BIT,
-        .average          = ADC_AVERAGE_1_SAMPLES
+        .regMap          = ADC1_BASE_PTR,
+
+        .simScgcPtr      = &SIM_SCGC3,
+        .simScgcBitEnable= SIM_SCGC3_ADC1_MASK,
+
+        .pins            = {ADC_PINS_ADC1_DP0,
+                            ADC_PINS_ADC1_DP1,
+                            ADC_PINS_PGA_DP,
+                            ADC_PINS_ADC0_DP3,		        		
+                            ADC_PINS_PTE0,
+                            ADC_PINS_PTE1,
+                            ADC_PINS_PTE2,
+                            ADC_PINS_PTE3,
+                            ADC_PINS_PTC7,
+                            ADC_PINS_PTC8,
+                            ADC_PINS_PTC9,
+                            ADC_PINS_PTC10,
+                            ADC_PINS_PTB0,
+                            ADC_PINS_PTB1,
+                            ADC_PINS_PTB4,
+                            ADC_PINS_PTB5,
+                            ADC_PINS_PTB6,
+                            ADC_PINS_PTB7,
+                            ADC_PINS_PTB10,
+                            ADC_PINS_PTB11,
+                            ADC_PINS_ADC1_SE16,
+                            ADC_PINS_PTA17,
+                            ADC_PINS_ADC1_SE18,
+                            ADC_PINS_ADC1_DM0,
+                            ADC_PINS_ADC1_DM1,
+                            ADC_PINS_ADC1_SE23,
+
+        },
+        
+        .pinsPtr         = {0,//&ADC_PINS_ADC1_DP0
+                            0,//&ADC_PINS_ADC1_DP1,
+                            0,//&ADC_PINS_PGA_DP,
+                            0,//&ADC_PINS_ADC0_DP3,		        		
+                            &PORTE_PCR0,
+                            &PORTE_PCR1,
+                            &PORTE_PCR2,
+                            &PORTE_PCR3,
+                            &PORTC_PCR7,
+                            &PORTC_PCR8,
+                            &PORTC_PCR9,
+                            &PORTC_PCR10,
+                            &PORTB_PCR0,
+                            &PORTB_PCR1,
+                            &PORTB_PCR4,
+                            &PORTB_PCR5,
+                            &PORTB_PCR6,
+                            &PORTB_PCR7,
+                            &PORTB_PCR10,
+                            &PORTB_PCR11,
+                            0,//&ADC_PINS_ADC1_SE16,
+                            &PORTA_PCR17,
+                            0,//&ADC_PINS_ADC1_SE18,
+                            0,//&ADC_PINS_ADC1_DM0,
+                            0,//&ADC_PINS_ADC1_DM1,
+                            0,//&ADC_PIN_ADC1_SE23,
+       },
+       
+       .pinMux           = {0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+     },
+      .channelNumber    = {ADC_CH_DP0,
+                           ADC_CH_DP1,
+                           ADC_CH_PGA_DP,
+                           ADC_CH_DP3,
+                           ADC_CH_SE4a,
+                           ADC_CH_SE5a,
+                           ADC_CH_SE6a,
+                           ADC_CH_SE7a,
+                           ADC_CH_SE4b,
+                           ADC_CH_SE5b,
+                           ADC_CH_SE6b,
+                           ADC_CH_SE7b,
+                           ADC_CH_SE8,
+                           ADC_CH_SE9,
+                           ADC_CH_SE10,
+                           ADC_CH_SE11,
+                           ADC_CH_SE12,
+                           ADC_CH_SE13,
+                           ADC_CH_SE14,
+                           ADC_CH_SE15,
+                           ADC_CH_SE16,
+                           ADC_CH_SE17,
+                           ADC_CH_SE18,
+                           ADC_CH_DM0,
+                           ADC_CH_DM1,
+                           //ADC_CH_SE21,
+                           //ADC_CH_SE22,
+                           ADC_CH_SE23,
+       },
+       .channelMux      = {ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_B,
+                           ADC_CHL_B,
+                           ADC_CHL_B,
+                           ADC_CHL_B,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           ADC_CHL_A,
+                           //ADC_CHL_A,
+                           //ADC_CHL_A,
+                           ADC_CHL_A,
+      },
+
+
+
+      .resolution       = ADC_RESOLUTION_8BIT,
+      .average          = ADC_AVERAGE_1_SAMPLES
 };
 Adc_DeviceHandle ADC1 = &adc1;
 
@@ -210,20 +526,21 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
     ADC_MemMapPtr regmap = dev->regMap;
 
     /* Turn on clock */
-#if defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(MKL15Z4) || defined(FRDMKL25Z) || defined (MK10D10)
 
     *dev->simScgcPtr |= dev->simScgcBitEnable;
     
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
-#elif defined(MK10DZ10)
+#elif defined(MK10DZ10) 
     if (regmap == ADC0_BASE_PTR)
         SIM_SCGC6 |= SIM_SCGC6_ADC0_MASK;
     else if (regmap == ADC1_BASE_PTR)
     	SIM_SCGC3 |= SIM_SCGC3_ADC1_MASK;
     else
         return ERRORS_PARAM_VALUE;
+
 #endif
 
     /* Long sample time, busclock/2 and divide by-1*/
@@ -285,7 +602,7 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev, Adc_ChannelNumber channel,
 
     if (channel != ADC_CH_DISABLE)
     {
-#if defined (MK10DZ10) || defined(MKL15Z4)
+#if defined (MK10DZ10) || defined(MKL15Z4) || defined (MK10D10)
     	if (mux == ADC_CHL_A)
     		ADC_CFG2_REG(regmap) &= ~ADC_CFG2_MUXSEL_MASK;   		
     	else
