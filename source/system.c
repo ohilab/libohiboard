@@ -261,6 +261,7 @@ System_Errors System_initClock (void)
 #elif defined(FRDMK20D50M)
     
 #elif defined (MK10D10)
+    int i;
     
     /* SIM_CLKDIV1: OUTDIV1=0,OUTDIV2=1,OUTDIV3=1,OUTDIV4=3,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0 */
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0x00) |
