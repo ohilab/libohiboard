@@ -232,6 +232,66 @@ extern Ftm_DeviceHandle FTM0;
 extern Ftm_DeviceHandle FTM1;
 extern Ftm_DeviceHandle FTM2;
 
+#elif defined(MK10D10)
+
+#define FTM_MAX_CHANNEL                  8
+
+typedef enum
+{
+    FTM_PINS_PTA0,
+    FTM_PINS_PTA1,
+    FTM_PINS_PTA2,
+    FTM_PINS_PTA3,
+    FTM_PINS_PTA4,
+    FTM_PINS_PTA5,
+    FTM_PINS_PTA6,
+    FTM_PINS_PTA7,
+    FTM_PINS_PTA8,
+    FTM_PINS_PTA9,
+    FTM_PINS_PTA10,
+    FTM_PINS_PTA11,
+    FTM_PINS_PTA12,
+    FTM_PINS_PTA13,
+
+    FTM_PINS_PTB0,
+    FTM_PINS_PTB1,
+    FTM_PINS_PTB18,
+    FTM_PINS_PTB19,
+
+    FTM_PINS_PTC1,
+    FTM_PINS_PTC2,
+    FTM_PINS_PTC3,
+    FTM_PINS_PTC4,
+
+    FTM_PINS_PTD4,
+    FTM_PINS_PTD5,
+    FTM_PINS_PTD6,
+    FTM_PINS_PTD7,
+
+    FTM_PINS_STOP,
+} Ftm_Pins;
+
+typedef enum
+{
+    FTM_CHANNELS_CH0,
+    FTM_CHANNELS_CH1,
+    FTM_CHANNELS_CH2,
+    FTM_CHANNELS_CH3,
+    FTM_CHANNELS_CH4,
+    FTM_CHANNELS_CH5,
+    FTM_CHANNELS_CH6,
+    FTM_CHANNELS_CH7,
+} Ftm_Channels;
+
+
+void Ftm_isrFtm0 (void);
+void Ftm_isrFtm1 (void);
+void Ftm_isrFtm2 (void);
+
+extern Ftm_DeviceHandle FTM0;
+extern Ftm_DeviceHandle FTM1;
+extern Ftm_DeviceHandle FTM2;
+
 #endif
 
 typedef struct Ftm_Config

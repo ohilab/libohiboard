@@ -42,8 +42,6 @@
 #include "interrupt.h"
 #include "clock.h"
 
-//#include "board.h"
-
 #define FTM_MAX_PINS                     20
 
 typedef enum 
@@ -60,7 +58,7 @@ typedef enum
 
 typedef struct Ftm_Device
 {
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
     FTM_MemMapPtr regMap;                          /**< Device memory pointer */
 #elif defined (FRDMKL25Z)
     TPM_MemMapPtr regMap;                          /**< Device memory pointer */
@@ -415,6 +413,169 @@ static Ftm_Device ftm2 = {
 };
 Ftm_DeviceHandle FTM2 = &ftm2; 
 
+#elif defined(MK10D10)
+
+void Ftm_isrFtm0 (void);
+void Ftm_isrFtm1 (void);
+void Ftm_isrFtm2 (void);
+
+static Ftm_Device ftm0 = {
+        .regMap           = FTM0_BASE_PTR,
+        
+        .simScgcPtr       = &SIM_SCGC6, 
+        .simScgcBitEnable = SIM_SCGC6_FTM0_MASK,
+
+        .pins             = {FTM_PINS_PTA0,
+                             FTM_PINS_PTA1,
+                             FTM_PINS_PTA2,
+                             FTM_PINS_PTA3,
+                             FTM_PINS_PTA4,
+                             FTM_PINS_PTA5,
+                             FTM_PINS_PTA6,
+                             FTM_PINS_PTA7,                             
+                             FTM_PINS_PTC1,
+                             FTM_PINS_PTC2,
+                             FTM_PINS_PTC3,
+                             FTM_PINS_PTC4,       
+                             FTM_PINS_PTD4,
+                             FTM_PINS_PTD5,
+                             FTM_PINS_PTD6,
+                             FTM_PINS_PTD7,
+        },
+        .pinsPtr          = {&PORTA_PCR0,
+                             &PORTA_PCR1,
+                             &PORTA_PCR2,
+                             &PORTA_PCR3,
+                             &PORTA_PCR4,
+                             &PORTA_PCR5,
+                             &PORTA_PCR6,
+                             &PORTA_PCR7,                            
+                             &PORTC_PCR1,
+                             &PORTC_PCR2,
+                             &PORTC_PCR3,
+                             &PORTC_PCR4,
+                             &PORTD_PCR4,
+                             &PORTD_PCR5,
+                             &PORTD_PCR6,
+                             &PORTD_PCR7,
+        },
+        .pinMux           = {3,
+                             3,
+                             3,
+                             3,
+                             3,
+                             3,
+                             3,
+                             3,
+                             4,
+                             4,
+                             4,
+                             4,
+                             4,
+                             4,
+                             4,
+                             4,
+        },
+        .channel          = {FTM_CHANNELS_CH5,
+                             FTM_CHANNELS_CH6,
+                             FTM_CHANNELS_CH7,
+                             FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+                             FTM_CHANNELS_CH2,
+                             FTM_CHANNELS_CH3,
+                             FTM_CHANNELS_CH4,
+                             FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+                             FTM_CHANNELS_CH2,
+                             FTM_CHANNELS_CH3,
+                             FTM_CHANNELS_CH4,
+                             FTM_CHANNELS_CH5,
+                             FTM_CHANNELS_CH6,
+                             FTM_CHANNELS_CH7,
+        },
+
+        .isr              = Ftm_isrFtm0,
+        .isrNumber        = INTERRUPT_FTM0,
+        
+        .devInitialized   = 0,
+};
+Ftm_DeviceHandle FTM0 = &ftm0; 
+
+static Ftm_Device ftm1 = {
+        .regMap           = FTM1_BASE_PTR,
+        
+        .simScgcPtr       = &SIM_SCGC6,
+        .simScgcBitEnable = SIM_SCGC6_FTM1_MASK,
+
+        .pins             = {FTM_PINS_PTA8,
+                             FTM_PINS_PTA9,
+                             FTM_PINS_PTA12,
+                             FTM_PINS_PTA13,
+                             FTM_PINS_PTB0,
+                             FTM_PINS_PTB1,
+        },
+        .pinsPtr          = {&PORTA_PCR8,
+                             &PORTA_PCR9,
+                             &PORTA_PCR12,
+                             &PORTA_PCR13,
+                             &PORTB_PCR0,
+                             &PORTB_PCR1,
+        },
+        .pinMux           = {3,
+                             3,
+                             3,
+                             3,
+                             3,
+                             3,
+        },
+        .channel          = {FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+                             FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+                             FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+        },
+        
+        .isr              = Ftm_isrFtm1,
+        .isrNumber        = INTERRUPT_FTM1,
+        
+        .devInitialized   = 0,
+};
+Ftm_DeviceHandle FTM1 = &ftm1;
+
+static Ftm_Device ftm2 = {
+        .regMap           = FTM2_BASE_PTR,
+        
+        .simScgcPtr       = &SIM_SCGC3,
+        .simScgcBitEnable = SIM_SCGC3_FTM2_MASK,
+
+        .pins             = {FTM_PINS_PTA10,
+                             FTM_PINS_PTA11,
+                             FTM_PINS_PTB18,
+                             FTM_PINS_PTB19,
+        },
+        .pinsPtr          = {&PORTA_PCR10,
+                             &PORTA_PCR11,
+                             &PORTB_PCR18,
+                             &PORTB_PCR19,
+        },
+        .pinMux           = {3,
+                             3,
+                             3,
+                             3,
+        },
+        .channel          = {FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+                             FTM_CHANNELS_CH0,
+                             FTM_CHANNELS_CH1,
+        },
+        
+        .isr              = Ftm_isrFtm2,
+        .isrNumber        = INTERRUPT_FTM2,
+        
+        .devInitialized   = 0,
+};
+Ftm_DeviceHandle FTM2 = &ftm2;
 
 #endif
 
@@ -431,7 +592,7 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     case FTM_MODE_PWM:
     case FTM_MODE_FREE:
         /* Reading SC register and clear TOF bit */
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
 #elif defined (FRDMKL25Z)
         TPM_SC_REG(dev->regMap) |= TPM_SC_TOF_MASK;
@@ -538,48 +699,48 @@ void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled
     switch (channel)
     {
     case FTM_CHANNELS_CH0:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCVPtr = &FTM_CnV_REG(dev->regMap,0);
 #elif defined (FRDMKL25Z)
         regCVPtr = &TPM_CnV_REG(dev->regMap,0);
 #endif
         break;
     case FTM_CHANNELS_CH1:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCVPtr = &FTM_CnV_REG(dev->regMap,1);
 #elif defined (FRDMKL25Z)
         regCVPtr = &TPM_CnV_REG(dev->regMap,1);
 #endif
         break;
     case FTM_CHANNELS_CH2:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCVPtr = &FTM_CnV_REG(dev->regMap,2);
 #elif defined (FRDMKL25Z)
         regCVPtr = &TPM_CnV_REG(dev->regMap,2);
 #endif
         break;
     case FTM_CHANNELS_CH3:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCVPtr = &FTM_CnV_REG(dev->regMap,3);
 #elif defined (FRDMKL25Z)
         regCVPtr = &TPM_CnV_REG(dev->regMap,3);
 #endif
         break;
     case FTM_CHANNELS_CH4:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCVPtr = &FTM_CnV_REG(dev->regMap,4);
 #elif defined (FRDMKL25Z)
         regCVPtr = &TPM_CnV_REG(dev->regMap,4);
 #endif
         break;
     case FTM_CHANNELS_CH5:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCVPtr = &FTM_CnV_REG(dev->regMap,5);
 #elif defined (FRDMKL25Z)
         regCVPtr = &TPM_CnV_REG(dev->regMap,5);
 #endif
         break;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
     case FTM_CHANNELS_CH6:
         regCVPtr = &FTM_CnV_REG(dev->regMap,6);
         break;
@@ -595,7 +756,7 @@ void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled
     
     if (regCVPtr)
     {
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         *regCVPtr = Ftm_computeDutyValue(dutyScaled,FTM_MOD_REG(dev->regMap));
 #elif defined (FRDMKL25Z)
         *regCVPtr = Ftm_computeDutyValue(dutyScaled,TPM_MOD_REG(dev->regMap));        
@@ -607,7 +768,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
 {
     Ftm_Prescaler prescaler;
     uint16_t modulo;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
     int16_t initCounter;
 #endif
     
@@ -626,7 +787,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         dev->callback = callback;
         /* Enable interrupt */
         Interrupt_enable(dev->isrNumber);
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         FTM_SC_REG(dev->regMap) |= FTM_SC_TOIE_MASK;
 #elif defined (FRDMKL25Z)
         TPM_SC_REG(dev->regMap) |= TPM_SC_TOIE_MASK;
@@ -652,7 +813,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         if (config->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
         {
             dev->configurationBits = FTM_CONFIG_PWM_CENTER_ALIGNED;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
             FTM_SC_REG(dev->regMap) |= FTM_SC_CPWMS_MASK;
 #elif defined (FRDMKL25Z)
             TPM_SC_REG(dev->regMap) |= TPM_SC_CPWMS_MASK;
@@ -661,7 +822,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         else
         {
             dev->configurationBits = FTM_CONFIG_PWM_EDGE_ALIGNED;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
             FTM_SC_REG(dev->regMap) &= ~FTM_SC_CPWMS_MASK;  
 #elif defined (FRDMKL25Z)
             TPM_SC_REG(dev->regMap) &= ~TPM_SC_CPWMS_MASK;  
@@ -673,18 +834,18 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         if (dev->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
         {
             modulo = (modulo / 2) - 1;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
             initCounter = 0;
 #endif
         }
         else
         {
             modulo -= 1;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
             initCounter = 0;
 #endif
         }
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         FTM_CNTIN_REG(dev->regMap) = FTM_CNTIN_INIT(initCounter);
         FTM_MOD_REG(dev->regMap) = modulo;
 #elif defined (FRDMKL25Z)
@@ -702,7 +863,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
             Ftm_addPwmPin(dev,pin,config->duty[configPinIndex]);
         }
 
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         FTM_SC_REG(dev->regMap) = FTM_SC_CLKS(1) | FTM_SC_PS(prescaler) | 0;
 #elif defined (FRDMKL25Z)
         TPM_SC_REG(dev->regMap) = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
@@ -717,7 +878,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         /* Compute timer modulo */
         modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
         
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         FTM_CNTIN_REG(dev->regMap) = FTM_CNTIN_INIT(config->initCounter);
         FTM_MOD_REG(dev->regMap) = modulo - 1;
         FTM_SC_REG(dev->regMap) = FTM_SC_TOIE_MASK | FTM_SC_CLKS(1) | 
@@ -756,7 +917,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     switch (dev->channel[devPinIndex])
     {
     case FTM_CHANNELS_CH0:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,0);
         regCVPtr = &FTM_CnV_REG(dev->regMap,0);
 #elif defined (FRDMKL25Z)
@@ -765,7 +926,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 #endif                
         break;
     case FTM_CHANNELS_CH1:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,1);
         regCVPtr = &FTM_CnV_REG(dev->regMap,1);
 #elif defined (FRDMKL25Z)
@@ -774,7 +935,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 #endif   
         break;
     case FTM_CHANNELS_CH2:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,2);
         regCVPtr = &FTM_CnV_REG(dev->regMap,2);
 #elif defined (FRDMKL25Z)
@@ -783,7 +944,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 #endif   
         break;
     case FTM_CHANNELS_CH3:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,3);
         regCVPtr = &FTM_CnV_REG(dev->regMap,3);
 #elif defined (FRDMKL25Z)
@@ -792,7 +953,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 #endif   
         break;
     case FTM_CHANNELS_CH4:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,4);
         regCVPtr = &FTM_CnV_REG(dev->regMap,4);
 #elif defined (FRDMKL25Z)
@@ -801,7 +962,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 #endif   
         break;
     case FTM_CHANNELS_CH5:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,5);
         regCVPtr = &FTM_CnV_REG(dev->regMap,5);
 #elif defined (FRDMKL25Z)
@@ -809,7 +970,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
         regCVPtr = &TPM_CnV_REG(dev->regMap,5);
 #endif   
         break;
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
     case FTM_CHANNELS_CH6:
         regCSCPtr = &FTM_CnSC_REG(dev->regMap,6);
         regCVPtr = &FTM_CnV_REG(dev->regMap,6);
@@ -831,7 +992,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     {
         if (dev->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
         {
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
             *regCSCPtr = FTM_CnSC_ELSB_MASK;
 #elif defined (FRDMKL25Z)
             *regCSCPtr = TPM_CnSC_ELSB_MASK;
@@ -839,7 +1000,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
         }
         else
         {
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (MK60DZ10) || defined (OHIBOARD_R1) || defined (MK10D10)
             *regCSCPtr = FTM_CnSC_ELSB_MASK | FTM_CnSC_MSB_MASK;
 #elif defined (FRDMKL25Z)
             *regCSCPtr = TPM_CnSC_ELSB_MASK | TPM_CnSC_MSB_MASK;
