@@ -83,6 +83,25 @@ typedef enum
     UART_PINS_PTE21,
     UART_PINS_PTE23,
 
+#elif defined (MKL15Z4)
+
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+    UART_PINS_PTA18,
+
+    UART_PINS_PTB16,
+
+    UART_PINS_PTC3,
+    
+    UART_PINS_PTD2,
+    UART_PINS_PTD4,
+    UART_PINS_PTD6,
+    
+    UART_PINS_PTE1,
+    UART_PINS_PTE17,
+    UART_PINS_PTE21,
+    UART_PINS_PTE23,
+    
 #elif defined (MK10DZ10) || defined (MK10D10)
 
     UART_PINS_PTA1,
@@ -132,6 +151,25 @@ typedef enum
     UART_PINS_PTD7,
     
     UART_PINS_PTE0,
+    UART_PINS_PTE20,
+    UART_PINS_PTE22,
+    
+#elif defined (MKL15Z4)
+    
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+    UART_PINS_PTA19,
+
+    UART_PINS_PTB17,
+
+    UART_PINS_PTC4,
+    
+    UART_PINS_PTD3,
+    UART_PINS_PTD5,
+    UART_PINS_PTD7,
+    
+    UART_PINS_PTE0,
+    UART_PINS_PTE16,
     UART_PINS_PTE20,
     UART_PINS_PTE22,
     
