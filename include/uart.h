@@ -33,7 +33,7 @@
  * @brief UART definitions and prototypes.
  */
 
-//#ifdef LIBOHIBOARD_UART
+#ifdef LIBOHIBOARD_UART
 
 #ifndef __UART_H
 #define __UART_H
@@ -49,8 +49,8 @@ typedef enum {
 } Uart_ParityMode;
 
 typedef enum {
-    UART_EIGHT_BIT,
-    UART_NINE_BIT
+    UART_DATABITS_EIGHT,
+    UART_DATABITS_NINE
 } Uart_DataBits;
 
 typedef enum {
@@ -230,4 +230,4 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
 
 #endif /* __UART_H */
 
-//#endif
+#endif

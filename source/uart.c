@@ -33,7 +33,7 @@
  * @brief UART implementations.
  */
 
-//#ifdef LIBOHIBOARD_UART
+#ifdef LIBOHIBOARD_UART
 
 #include "uart.h"
 
@@ -480,8 +480,36 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     UART_CFIFO_REG(dev->regMap) |= UART_CFIFO_RXFLUSH_MASK | UART_CFIFO_TXFLUSH_MASK;
 #endif
 
-    /* TODO: FIXME: Configure the UART just for 8-bit mode */
-    
+    /* FIXME: Configure the UART just for 8-bit mode */
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    if (dev == UART0)
+    {
+        switch (config->dataBits)
+        {
+        case UART_DATABITS_EIGHT:
+            UART_C1_REG(dev->regMap0) &= ~(UART_C1_M_MASK);
+            break;
+        case UART_DATABITS_NINE:
+            /* FIXME: UART_C1_REG(dev->regMap0) |= UART_C1_M_MASK; */
+            break;
+        }
+    }
+    else
+    {
+#endif
+        switch (config->dataBits)
+        {
+        case UART_DATABITS_EIGHT:
+            UART_C1_REG(dev->regMap) &= ~(UART_C1_M_MASK);
+            break;
+        case UART_DATABITS_NINE:
+            /* FIXME: UART_C1_REG(dev->regMap) |= UART_C1_M_MASK; */
+        	break;
+        }    
+#if defined(MKL15Z4) || defined(FRDMKL25Z)
+    }
+#endif
+
     /* Set parity type */
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (dev == UART0)
@@ -489,13 +517,13 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
         switch (config->parity)
         {
         case UART_PARITY_NONE:
-            UART0_C1_REG(dev->regMap0) = 0;
+            UART0_C1_REG(dev->regMap0) &= ~(UART0_C1_PE_MASK | UART0_C1_PT_MASK);
             break;
         case UART_PARITY_ODD:
-            UART0_C1_REG(dev->regMap0) = UART0_C1_PE_MASK | UART0_C1_PT_MASK | 0;
+            UART0_C1_REG(dev->regMap0) |= UART0_C1_PE_MASK | UART0_C1_PT_MASK | 0;
             break;
         case UART_PARITY_EVEN:
-            UART0_C1_REG(dev->regMap0) = UART0_C1_PE_MASK | 0;
+            UART0_C1_REG(dev->regMap0) |= UART0_C1_PE_MASK | 0;
             break;
         }
     }
@@ -505,13 +533,13 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
         switch (config->parity)
         {
         case UART_PARITY_NONE:
-            UART_C1_REG(dev->regMap) = 0;
+            UART_C1_REG(dev->regMap) &= ~(UART_C1_PE_MASK | UART_C1_PT_MASK);
             break;
         case UART_PARITY_ODD:
-            UART_C1_REG(dev->regMap) = UART_C1_PE_MASK | UART_C1_PT_MASK | 0;
+            UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | UART_C1_PT_MASK | 0;
             break;
         case UART_PARITY_EVEN:
-            UART_C1_REG(dev->regMap) = UART_C1_PE_MASK | 0;
+            UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | 0;
             break;
         }    
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
@@ -539,7 +567,7 @@ System_Errors Uart_close (Uart_DeviceHandle dev)
     /* Disable transmitter and receiver. */
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (dev == UART0)
-        UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );    }
+        UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
     else
 #endif
         UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
@@ -590,4 +618,4 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;    
 }
 
-//#endif
+#endif

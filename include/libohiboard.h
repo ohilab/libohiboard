@@ -52,9 +52,9 @@
 #include "ftm.h"
 #endif
 
-//#ifdef LIBOHIBOARD_UART
+#ifdef LIBOHIBOARD_UART
 #include "uart.h"
-//#endif
+#endif
 
 #include "i2c.h"
 

@@ -32,6 +32,11 @@
  */
 
 
+/* TODO:
+ * Gestione dell'adc per gli altri microcontrollori
+ * Togliere i set a favore del config come per uart e ftm
+ */
+
 #include "platforms.h"
 #include "system.h"
 
