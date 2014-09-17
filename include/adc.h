@@ -76,6 +76,30 @@ typedef enum {
     ADC_PINS_INTERNAL,
 
 #elif defined(MKL15Z4)
+    
+    ADC_PINS_PTE16,
+    ADC_PINS_PTE17,
+    ADC_PINS_PTE18,
+    ADC_PINS_PTE19,
+    ADC_PINS_PTE20,
+    ADC_PINS_PTE21,
+    ADC_PINS_PTE22,
+    ADC_PINS_PTE23,
+    ADC_PINS_PTE29,
+    ADC_PINS_PTE30,
+    ADC_PINS_PTB0,
+    ADC_PINS_PTB1,
+    ADC_PINS_PTB2,
+    ADC_PINS_PTB3,
+    ADC_PINS_PTC0,
+    ADC_PINS_PTC1,
+    ADC_PINS_PTC2,
+    ADC_PINS_PTD1,
+    ADC_PINS_PTD5,
+    ADC_PINS_PTD6,
+    
+    ADC_PINS_INTERNAL,
+    
 #elif defined(MK60DZ10)
 #elif defined(FRDMKL05Z)
 #elif defined(FRDMK20D50M)
@@ -174,10 +198,14 @@ typedef enum {
 	ADC_CH_SE1     = 0x01,
 	ADC_CH_SE2     = 0x02,
 	ADC_CH_SE3     = 0x03,
-	ADC_CH_SE4     = 0x04,
-	ADC_CH_SE5     = 0x05,
-	ADC_CH_SE6     = 0x06,
-	ADC_CH_SE7     = 0x07,
+	ADC_CH_SE4a    = 0x04,
+	ADC_CH_SE4b    = 0x24,
+	ADC_CH_SE5a    = 0x05,
+	ADC_CH_SE5b    = 0x25,
+	ADC_CH_SE6a    = 0x06,
+	ADC_CH_SE6b    = 0x26,
+	ADC_CH_SE7a    = 0x07,
+	ADC_CH_SE7b    = 0x27,
 	ADC_CH_SE8     = 0x08,
 	ADC_CH_SE9     = 0x09,
 	ADC_CH_SE11    = 0x0B,
