@@ -53,7 +53,7 @@ typedef enum
     
 #elif defined (OHIBOARD_R1)
 
-#elif defined (FRDMKL25Z)
+#elif defined (FRDMKL25Z) || defined (MKL15Z4)
     
     GPIO_PORTS_A,
     GPIO_PORTS_B,
@@ -273,6 +273,83 @@ static Gpio_PinDevice Gpio_availablePins[] =
     {GPIO_PORTS_C,30},
     {GPIO_PORTS_C,31},
 
+#elif defined (MKL15Z4)
+        
+    {GPIO_PORTS_A,0},
+    {GPIO_PORTS_A,1},
+    {GPIO_PORTS_A,2},
+    {GPIO_PORTS_A,3},
+    {GPIO_PORTS_A,4},
+    {GPIO_PORTS_A,5},
+    {GPIO_PORTS_A,12},
+    {GPIO_PORTS_A,13},
+    {GPIO_PORTS_A,14},
+    {GPIO_PORTS_A,15},
+    {GPIO_PORTS_A,16},
+    {GPIO_PORTS_A,17},
+    {GPIO_PORTS_A,18},
+    {GPIO_PORTS_A,19},
+    {GPIO_PORTS_A,20},
+    
+    {GPIO_PORTS_B,0},
+    {GPIO_PORTS_B,1},
+    {GPIO_PORTS_B,2},
+    {GPIO_PORTS_B,3},
+    {GPIO_PORTS_B,8},
+    {GPIO_PORTS_B,9},
+    {GPIO_PORTS_B,10},
+    {GPIO_PORTS_B,11},
+    {GPIO_PORTS_B,16},
+    {GPIO_PORTS_B,17},
+    {GPIO_PORTS_B,18},
+    {GPIO_PORTS_B,19},
+    
+    {GPIO_PORTS_C,0},
+    {GPIO_PORTS_C,1},
+    {GPIO_PORTS_C,2},
+    {GPIO_PORTS_C,3},
+    {GPIO_PORTS_C,4},
+    {GPIO_PORTS_C,5},
+    {GPIO_PORTS_C,6},
+    {GPIO_PORTS_C,7},
+    {GPIO_PORTS_C,8},
+    {GPIO_PORTS_C,9},
+    {GPIO_PORTS_C,10},
+    {GPIO_PORTS_C,11},
+    {GPIO_PORTS_C,12},
+    {GPIO_PORTS_C,13},
+    {GPIO_PORTS_C,16},
+    {GPIO_PORTS_C,17},
+    
+    {GPIO_PORTS_D,0},
+    {GPIO_PORTS_D,1},
+    {GPIO_PORTS_D,2},
+    {GPIO_PORTS_D,3},
+    {GPIO_PORTS_D,4},
+    {GPIO_PORTS_D,5},
+    {GPIO_PORTS_D,6},
+    {GPIO_PORTS_D,7},
+    
+    {GPIO_PORTS_E,0},
+    {GPIO_PORTS_E,1},
+    {GPIO_PORTS_E,2},
+    {GPIO_PORTS_E,3},
+    {GPIO_PORTS_E,4},
+    {GPIO_PORTS_E,5},
+    {GPIO_PORTS_E,16},
+    {GPIO_PORTS_E,17},
+    {GPIO_PORTS_E,18},
+    {GPIO_PORTS_E,19},
+    {GPIO_PORTS_E,20},
+    {GPIO_PORTS_E,21},
+    {GPIO_PORTS_E,22},
+    {GPIO_PORTS_E,23},
+    {GPIO_PORTS_C,24},
+    {GPIO_PORTS_C,25},
+    {GPIO_PORTS_C,29},
+    {GPIO_PORTS_C,30},
+    {GPIO_PORTS_C,31},
+    
 #endif
 };
 
@@ -339,7 +416,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         gpioPort   = PTE_BASE_PTR;
         break;
 
-#elif defined (FRDMKL25Z)
+#elif defined (FRDMKL25Z) || defined (MKL15Z4)
         
     case GPIO_PORTS_A:
         SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
@@ -366,7 +443,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         port       = PORTE_BASE_PTR;
         gpioPort   = PTE_BASE_PTR;
         break;
-  
+        
 #endif
     default:
         assert(0);
