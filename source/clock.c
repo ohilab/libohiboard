@@ -39,7 +39,9 @@ uint32_t Clock_getFrequency (Clock_Source source)
 #if defined (MK60DZ10) || defined (OHIBOARD_R1)
         return 50000000; /* TODO: FIXME: */
 #elif defined (FRDMKL25Z)
-        return 40000000; /* TODO: FIXME: */
+        return 20000000; /* TODO: FIXME: */
+#elif defined (MKL15Z4)
+        return 23986176; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
         return 50000000; /* TODO: FIXME: */
 #endif
@@ -49,6 +51,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
         return 50000000; /* TODO: FIXME: */
 #elif defined (FRDMKL25Z)
         return 40000000; /* TODO: FIXME: */
+#elif defined (MKL15Z4)
+        return 47972352; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
         return 50000000; /* TODO: FIXME: */
 #endif    
