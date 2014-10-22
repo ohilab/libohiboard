@@ -682,9 +682,16 @@ System_Errors Adc_init (Adc_DeviceHandle dev)
     case ADC_RESOLUTION_12BIT:
         ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(1);
         break;
+#if defined (MKL15Z4) ||                                     \
+	defined (OHIBOARD_R1) || defined (MK60DZ10) ||           \
+    defined (FRDMKL25Z) ||                                   \
+    defined (MK10DZ10) || defined (MK10D10)
+        
     case ADC_RESOLUTION_16BIT:
         ADC_CFG1_REG(regmap) |= ADC_CFG1_MODE(3);
         break;
+        
+#endif
 	}
     
     /* 24 ADCK cycles total: Long sample time */

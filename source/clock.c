@@ -44,6 +44,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
         return 23986176; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
         return 50000000; /* TODO: FIXME: */
+#elif defined (FRDMKL02Z)
+        return 23986176; /* TODO: FIXME: */
 #endif
         break;
     case CLOCK_SYSTEM:
@@ -55,6 +57,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
         return 47972352; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
         return 50000000; /* TODO: FIXME: */
+#elif defined (FRDMKL02Z)
+        return 47972352; /* TODO: FIXME: */
 #endif    
     }
 }

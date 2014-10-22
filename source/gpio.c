@@ -60,6 +60,11 @@ typedef enum
     GPIO_PORTS_C,
     GPIO_PORTS_D,
     GPIO_PORTS_E,
+    
+#elif defined (FRDMKL02Z) || defined (MKL02Z4)
+
+    GPIO_PORTS_A,
+    GPIO_PORTS_B,
 
 #endif
 } Gpio_Ports;
@@ -349,6 +354,38 @@ static Gpio_PinDevice Gpio_availablePins[] =
     {GPIO_PORTS_C,29},
     {GPIO_PORTS_C,30},
     {GPIO_PORTS_C,31},
+
+#elif defined (FRDMKL02Z) || defined (MKL02Z4)
+        
+    {GPIO_PORTS_A,0},
+    {GPIO_PORTS_A,1},
+    {GPIO_PORTS_A,2},
+    {GPIO_PORTS_A,3},
+    {GPIO_PORTS_A,4},
+    {GPIO_PORTS_A,5},
+    {GPIO_PORTS_A,6},
+    {GPIO_PORTS_A,7},
+    {GPIO_PORTS_A,8},
+    {GPIO_PORTS_A,9},
+    {GPIO_PORTS_A,10},
+    {GPIO_PORTS_A,11},
+    {GPIO_PORTS_A,12},
+    {GPIO_PORTS_A,13},
+    
+    {GPIO_PORTS_B,0},
+    {GPIO_PORTS_B,1},
+    {GPIO_PORTS_B,2},
+    {GPIO_PORTS_B,3},
+    {GPIO_PORTS_B,4},
+    {GPIO_PORTS_B,5},
+    {GPIO_PORTS_B,6},
+    {GPIO_PORTS_B,7},
+    {GPIO_PORTS_B,8},
+    {GPIO_PORTS_B,9},
+    {GPIO_PORTS_B,10},
+    {GPIO_PORTS_B,11},
+    {GPIO_PORTS_B,12},
+    {GPIO_PORTS_B,13},
     
 #endif
 };
@@ -364,6 +401,11 @@ static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
     case GPIO_PORTS_B:
         *port = PTB_BASE_PTR;
         break;
+#if defined (MKL15Z4) ||                                     \
+	defined (OHIBOARD_R1) || defined (MK60DZ10) ||           \
+    defined (FRDMKL25Z)  ||                                  \
+    defined (MK10DZ10) || defined (MK10D10)
+    
     case GPIO_PORTS_C:
         *port = PTC_BASE_PTR;
         break;
@@ -373,6 +415,8 @@ static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
     case GPIO_PORTS_E:
         *port = PTE_BASE_PTR;
         break;
+#endif
+    
     default:
         assert(0);
     }
@@ -444,6 +488,19 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         gpioPort   = PTE_BASE_PTR;
         break;
         
+#elif defined (FRDMKL02Z) || defined (MKL02Z4)
+    
+    case GPIO_PORTS_A:
+        SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
+        port       = PORTA_BASE_PTR;
+        gpioPort   = PTA_BASE_PTR;
+        break;
+    case GPIO_PORTS_B:
+        SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+        port       = PORTB_BASE_PTR;
+        gpioPort   = PTB_BASE_PTR;
+        break;
+
 #endif
     default:
         assert(0);

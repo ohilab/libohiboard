@@ -32,6 +32,9 @@
 #define __RTC_H
 
 #include "platforms.h"
+
+#if !defined (FRDMKL02Z) && !defined(MKL02Z4)
+
 #include "errors.h"
 #include "types.h"
 #include "interrupt.h"
@@ -60,5 +63,7 @@ void Rtc_enableSecond (Rtc_DeviceHandle dev);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
 extern Rtc_DeviceHandle RTC;
+
+#endif
 
 #endif /* __RTC_H */

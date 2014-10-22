@@ -168,6 +168,12 @@ typedef enum {
     INTERRUPT_FTM2       = 64,
     INTERRUPT_RTC_ALARM  = 66,
     INTERRUPT_RTC_SECOND = 67,
+
+#elif defined (FRDMKL02Z) || defined(MKL02Z4)
+
+    INTERRUPT_TPM0       = 33,
+    INTERRUPT_TPM1       = 34,
+
 #endif
 } Interrupt_Vector;
 

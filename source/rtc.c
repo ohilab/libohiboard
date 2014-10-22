@@ -29,6 +29,9 @@
  */
 
 #include "platforms.h"
+
+#if !defined (FRDMKL02Z) && !defined(MKL02Z4)
+
 #include "utility.h"
 #include "rtc.h"
 
@@ -171,3 +174,5 @@ void Rtc_disableSecond (Rtc_DeviceHandle dev)
 #endif
     Interrupt_disable(INTERRUPT_RTC_SECOND);
 }
+
+#endif

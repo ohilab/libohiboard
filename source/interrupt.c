@@ -30,7 +30,8 @@
 
 #include "interrupt.h"
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z)
+#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+	defined (FRDMKL02Z) || defined(MKL02Z4)
 
 #define NVIC_NUM_CORE_VECTORS           16
 #define NVIC_NUM_MCU_VECTORS            32
@@ -60,7 +61,8 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z)
+#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+	defined (FRDMKL02Z) || defined(MKL02Z4)
     NVIC_ICPR = 1 << (vectorNumber%32);
     NVIC_ISER = 1 << (vectorNumber%32);
 #elif defined (MK60DZ10) || defined (MK10DZ10) || defined(MK10D10)
@@ -97,7 +99,8 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z)
+#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+	defined (FRDMKL02Z) || defined(MKL02Z4)
     NVIC_ICER = 1 << (vectorNumber%32);
 #elif defined (MK60DZ10) || defined (MK10DZ10) || defined(MK10D10)
     /* Determine which of the NVICISERs corresponds to the irq */
