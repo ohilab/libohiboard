@@ -428,7 +428,8 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
     return ERRORS_IIC_RX_OK;
 }
 
-#if !defined(FRDMKL02Z) && !defined(MKL02Z4)
+#if !defined(FRDMKL02Z) && !defined(MKL02Z4) && \
+	!defined(FRDMKL03Z) && !defined(MKL03Z4)
 System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay)
 {
     uint32_t ticks = usDelay/Iic_usSclTimeout;

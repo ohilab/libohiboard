@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
  *	Marco Giammarini <m.giammarini@warcomeb.it>
@@ -8,18 +8,23 @@
  * Package: Interrupt
  * Version: 0.0
  * 
- * This library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  ******************************************************************************/
 
 /**
@@ -171,8 +176,26 @@ typedef enum {
 
 #elif defined (FRDMKL02Z) || defined(MKL02Z4)
 
-    INTERRUPT_TPM0       = 33,
-    INTERRUPT_TPM1       = 34,
+    INTERRUPT_TPM0       = 17,
+    INTERRUPT_TPM1       = 18,
+
+#elif defined (FRDMKL03Z) || defined(MKL03Z4)
+
+    INTERRUPT_FTFA       = 5,
+    INTERRUPT_PMC        = 6,
+    INTERRUPT_LLWU       = 7,
+    INTERRUPT_IIC0       = 8,
+    INTERRUPT_SPI0       = 10,
+    INTERRUPT_LPUART0    = 12,
+    INTERRUPT_ADC0       = 15,
+    INTERRUPT_CMP0       = 16,
+    INTERRUPT_TPM0       = 17,
+    INTERRUPT_TPM1       = 18,
+    INTERRUPT_RTC_ALARM  = 20,
+    INTERRUPT_RTC_SECOND = 21,
+    INTERRUPT_LPTPM0     = 28,
+    INTERRUPT_PORTA      = 30,
+    INTERRUPT_PORTD      = 31,
 
 #endif
 } Interrupt_Vector;

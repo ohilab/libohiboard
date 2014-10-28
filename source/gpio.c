@@ -66,6 +66,11 @@ typedef enum
     GPIO_PORTS_A,
     GPIO_PORTS_B,
 
+#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+
+    GPIO_PORTS_A,
+    GPIO_PORTS_B,
+
 #endif
 } Gpio_Ports;
 
@@ -386,6 +391,32 @@ static Gpio_PinDevice Gpio_availablePins[] =
     {GPIO_PORTS_B,11},
     {GPIO_PORTS_B,12},
     {GPIO_PORTS_B,13},
+
+#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+
+    {GPIO_PORTS_A,0},
+    {GPIO_PORTS_A,1},
+    {GPIO_PORTS_A,2},
+    {GPIO_PORTS_A,3},
+    {GPIO_PORTS_A,4},
+    {GPIO_PORTS_A,5},
+    {GPIO_PORTS_A,6},
+    {GPIO_PORTS_A,7},
+    {GPIO_PORTS_A,8},
+    {GPIO_PORTS_A,9},
+    {GPIO_PORTS_A,12},
+    {GPIO_PORTS_A,13},
+
+    {GPIO_PORTS_B,0},
+    {GPIO_PORTS_B,1},
+    {GPIO_PORTS_B,2},
+    {GPIO_PORTS_B,3},
+    {GPIO_PORTS_B,4},
+    {GPIO_PORTS_B,5},
+    {GPIO_PORTS_B,6},
+    {GPIO_PORTS_B,7},
+    {GPIO_PORTS_B,10},
+    {GPIO_PORTS_B,11},
     
 #endif
 };

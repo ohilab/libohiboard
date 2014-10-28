@@ -41,11 +41,11 @@ typedef struct Rtc_Device {
     Rtc_ClockSource       clockSource;
 } Rtc_Device;
 
-static Rtc_Device rtc = {
+static Rtc_Device rtc0 = {
         .regMap        = RTC_BASE_PTR,
         .clockSource   = RTC_SYSTEM_OSCILLATOR,
 };
-Rtc_DeviceHandle RTC = &rtc;
+Rtc_DeviceHandle RTC0 = &rtc0;
 
 System_Errors Rtc_init (Rtc_DeviceHandle dev)
 {

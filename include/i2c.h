@@ -74,9 +74,12 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data,
 System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
         uint8_t *data, uint8_t length, Iic_StopMode stopRequest);
 
+#if !defined(FRDMKL02Z) && !defined(MKL02Z4) && \
+	!defined(FRDMKL03Z) && !defined(MKL03Z4)
 System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay);
 void Iic_resetSclTimeout (Iic_DeviceHandle dev);
 System_Errors Iic_isToggleSclTimeout (Iic_DeviceHandle dev);
+#endif
 
 #if defined(MKL15Z4) || defined(FRDMKL25Z) || defined(MK10D10)
 extern Iic_DeviceHandle IIC0;

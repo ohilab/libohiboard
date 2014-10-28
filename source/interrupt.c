@@ -8,18 +8,23 @@
  * Package: Interrupt
  * Version: 0.0
  * 
- * This library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  ******************************************************************************/
 
 /**
@@ -31,7 +36,8 @@
 #include "interrupt.h"
 
 #if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
-	defined (FRDMKL02Z) || defined(MKL02Z4)
+	defined (FRDMKL02Z) || defined(MKL02Z4) ||                       \
+	defined (FRDMKL03Z) || defined(MKL03Z4)
 
 #define NVIC_NUM_CORE_VECTORS           16
 #define NVIC_NUM_MCU_VECTORS            32
@@ -65,6 +71,9 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 	defined (FRDMKL02Z) || defined(MKL02Z4)
     NVIC_ICPR = 1 << (vectorNumber%32);
     NVIC_ISER = 1 << (vectorNumber%32);
+#elif defined (FRDMKL03Z) || defined(MKL03Z4) /* FIXME: This kind of use is for KDS! */
+    NVIC->ICPR[0] = 1 << (vectorNumber%32);
+    NVIC->ISER[0] = 1 << (vectorNumber%32);
 #elif defined (MK60DZ10) || defined (MK10DZ10) || defined(MK10D10)
     /* Determine which of the NVICISERs corresponds to the irq */
     div = vectorNumber/32;
@@ -102,6 +111,8 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
 #if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
 	defined (FRDMKL02Z) || defined(MKL02Z4)
     NVIC_ICER = 1 << (vectorNumber%32);
+#elif defined (FRDMKL03Z) || defined(MKL03Z4) /* FIXME: This kind of use is for KDS! */
+    NVIC->ICER[0] = 1 << (vectorNumber%32);
 #elif defined (MK60DZ10) || defined (MK10DZ10) || defined(MK10D10)
     /* Determine which of the NVICISERs corresponds to the irq */
     div = vectorNumber/32;

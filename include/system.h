@@ -45,6 +45,8 @@
 #define SYSTEM_CLOCK_KHZ 24000
 #elif defined (FRDMKL02Z)
 #define SYSTEM_CLOCK_KHZ 24000
+#elif defined (FRDMKL03Z)
+#define SYSTEM_CLOCK_KHZ 24000
 #elif defined (MK10DZ10)|| defined(MK10D10)
 #define SYSTEM_CLOCK_KHZ 50000
 #elif defined (MK60DZ10)

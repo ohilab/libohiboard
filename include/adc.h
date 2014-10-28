@@ -172,6 +172,10 @@ typedef enum {
 #elif defined (FRDMKL02Z) || defined(MKL02Z4)
 
     ADC_PINS_INTERNAL,
+
+#elif defined (FRDMKL03Z) || defined(MKL03Z4)
+
+    ADC_PINS_INTERNAL,
     
 #endif
 
@@ -326,6 +330,14 @@ typedef enum {
 	ADC_CH_VREFH         = 0x1D,
 	ADC_CH_VREFL         = 0x1E,
 	ADC_CH_DISABLE       = 0x1F,
+
+#elif defined (FRDMKL03Z) || defined(MKL03Z4)
+
+	ADC_CH_TEMP          = 0x1A,
+	ADC_CH_BANDGAP       = 0x1B,
+	ADC_CH_VREFH         = 0x1D,
+	ADC_CH_VREFL         = 0x1E,
+	ADC_CH_DISABLE       = 0x1F,
 	
 #endif
 } Adc_ChannelNumber;
@@ -344,7 +356,8 @@ typedef enum {
 	ADC_CHL_A = 0x00,
 	ADC_CHL_B = 0x01,
 
-#elif defined (FRDMKL02Z) || defined(MKL02Z4)
+#elif defined (FRDMKL02Z) || defined(MKL02Z4) || \
+      defined (FRDMKL03Z) || defined(MKL03Z4)
 
 	ADC_CHL_A = 0x00,
 

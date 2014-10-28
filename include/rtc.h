@@ -62,7 +62,7 @@ void Rtc_disableAlarm (Rtc_DeviceHandle dev, Interrupt_Status irqEnable);
 void Rtc_enableSecond (Rtc_DeviceHandle dev);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
-extern Rtc_DeviceHandle RTC;
+extern Rtc_DeviceHandle RTC0;
 
 #endif
 
