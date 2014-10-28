@@ -373,7 +373,6 @@ typedef enum
     GPIO_PINS_PTA8,
     GPIO_PINS_PTA9,
     GPIO_PINS_PTA12,
-    GPIO_PINS_PTA13,
 
     GPIO_PINS_PTB0,
     GPIO_PINS_PTB1,
@@ -385,6 +384,7 @@ typedef enum
     GPIO_PINS_PTB7,
     GPIO_PINS_PTB10,
     GPIO_PINS_PTB11,
+    GPIO_PINS_PTB13,
     
 #endif
 } Gpio_Pins;

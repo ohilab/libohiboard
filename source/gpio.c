@@ -405,7 +405,6 @@ static Gpio_PinDevice Gpio_availablePins[] =
     {GPIO_PORTS_A,8},
     {GPIO_PORTS_A,9},
     {GPIO_PORTS_A,12},
-    {GPIO_PORTS_A,13},
 
     {GPIO_PORTS_B,0},
     {GPIO_PORTS_B,1},
@@ -417,6 +416,7 @@ static Gpio_PinDevice Gpio_availablePins[] =
     {GPIO_PORTS_B,7},
     {GPIO_PORTS_B,10},
     {GPIO_PORTS_B,11},
+    {GPIO_PORTS_B,13},
     
 #endif
 };
