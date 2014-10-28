@@ -532,6 +532,19 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         gpioPort   = PTB_BASE_PTR;
         break;
 
+#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+
+    case GPIO_PORTS_A:
+        SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
+        port       = PORTA_BASE_PTR;
+        gpioPort   = PTA_BASE_PTR;
+        break;
+    case GPIO_PORTS_B:
+        SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+        port       = PORTB_BASE_PTR;
+        gpioPort   = PTB_BASE_PTR;
+        break;
+
 #endif
     default:
         assert(0);
