@@ -116,7 +116,26 @@
 /**
  * Define for use with Freedom Platform FRDM-KL02Z.  
  */
-#define FRDMKL02Z
+#undef FRDMKL02Z
+
+/**
+ * Define for use with this micro-controllers:
+ * <ul>
+ *   <li>MKL03Z32CAF4</li>
+ *   <li>MKL03Z32VFG4</li>
+ *   <li>MKL03Z16VFG4</li>
+ *   <li>MKL03Z8VFG4</li>
+ *   <li>MKL03Z32VFK4</li>
+ *   <li>MKL03Z16VFK4</li>
+ *   <li>MKL03Z8VFK4</li>
+ * </ul>
+ */
+#undef MKL03Z4
+
+/**
+ * Define for use with Freedom Platform FRDM-KL03Z.
+ */
+#define FRDMKL03Z
 
 /**
  * Define for use with OHIBOARD-R1. 
@@ -146,10 +165,14 @@
 #include "platforms/MK10D10.h"
 #elif defined(MKL02Z4)
 #include "platforms/MKL02Z4.h"
+#elif defined(MKL03Z4)
+#include "platforms/MKL03Z4.h"
 #elif defined(MKL15Z4)
 #include "platforms/MKL15Z4.h"
 #elif defined(FRDMKL02Z)
 #include "platforms/MKL02Z4.h"
+#elif defined(FRDMKL03Z)
+#include "platforms/MKL03Z4.h"
 #elif defined(FRDMKL05Z)
 #include "platforms/MKL05Z4.h"
 #elif defined(FRDMKL05Z)
