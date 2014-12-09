@@ -62,6 +62,10 @@
 
 #include "adc.h"
 
+#ifdef LIBOHIBOARD_DAC
+#include "dac.h"
+#endif
+
 #include "rtc.h"
 
 #include "timeday.h"

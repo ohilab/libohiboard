@@ -58,7 +58,7 @@ uint32_t Clock_getFrequency (Clock_Source source)
 #elif defined (MKL15Z4)
         return 47972352; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
-        return 50000000; /* TODO: FIXME: */
+        return 100000000; /* TODO: FIXME: */
 #elif defined (FRDMKL02Z)
         return 47972352; /* TODO: FIXME: */
 #elif defined (FRDMKL03Z)

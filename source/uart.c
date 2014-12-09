@@ -417,20 +417,29 @@ static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     uint8_t temp;
     uint32_t clockHz;
     
-    switch (dev->clockSource)
-    {
-    case UART_CLOCKSOURCE_BUS:
-        clockHz = Clock_getFrequency(CLOCK_BUS);
-        break;
-    case UART_CLOCKSOURCE_SYSTEM:
-        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
-        break;
-    }
+//    switch (dev->clockSource)
+//    {
+//    case UART_CLOCKSOURCE_BUS:
+//        clockHz = Clock_getFrequency(CLOCK_BUS);
+//        break;
+//    case UART_CLOCKSOURCE_SYSTEM:
+//        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+//        break;
+//    }
     
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (dev == UART0)
     {
         clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+    }
+#elif defined(MK10DZ10) || defined(MK10D10)
+    if ((dev == UART0) || (dev == UART1))
+    {
+        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+    }
+    else
+    {
+        clockHz = Clock_getFrequency(CLOCK_BUS);
     }
 #endif
 
@@ -594,14 +603,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     
     /* Enable the clock to the selected UART */ 
     *dev->simScgcPtr |= dev->simScgcBitEnable;
-    
-    /* Config the port controller */
-    if (config->rxPin != UART_PINS_RXNONE)
-        Uart_setRxPin(dev, config->rxPin);
-    
-    if (config->txPin != UART_PINS_TXNONE)
-        Uart_setTxPin(dev, config->txPin);
-    
+        
     /* Make sure that the transmitter and receiver are disabled while we change settings. */
 #if defined(MKL15Z4) || defined(FRDMKL25Z)
     if (dev == UART0)
@@ -693,6 +695,14 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
         UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 
     dev->devInitialized = 1;
+    
+    /* Config the port controller */
+    if (config->rxPin != UART_PINS_RXNONE)
+        Uart_setRxPin(dev, config->rxPin);
+    
+    if (config->txPin != UART_PINS_TXNONE)
+        Uart_setTxPin(dev, config->txPin);
+    
     return ERRORS_NO_ERROR;
 }
 
