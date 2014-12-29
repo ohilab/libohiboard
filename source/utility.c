@@ -224,7 +224,7 @@ System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength)
 
     if (slength > 0)
     {
-        if (slength > 2) return ERRORS_UTILITY_LONG_STRING;
+        if (slength > 3) return ERRORS_UTILITY_LONG_STRING;
 
         /* Start conversion... */
         *result = 0;
@@ -256,7 +256,7 @@ System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength)
 
     if (slength > 0)
     {
-        if (slength > 2) return ERRORS_UTILITY_LONG_STRING;
+        if (slength > 5) return ERRORS_UTILITY_LONG_STRING;
 
         /* Start conversion... */
         *result = 0;
@@ -522,4 +522,36 @@ uint8_t stringCompare (const char* string1, const char* string2)
         string2++;
     }
     return (*string1 - *string2);
+}
+
+uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t size)
+{
+    while (size != 0)
+    {
+        if ((*string1 == '\0') && (*string2 == '\0')) break;
+
+        if (*string1 != *string2) return 0;
+
+        string1++;
+        string2++;
+        size--;
+    }
+    return 1;
+}
+
+int8_t stringFindFirstOf (const char* string, char find, uint8_t size)
+{
+    int8_t position = 0;
+    
+    while (size != 0)
+    {
+        if (*string == '\0') break;
+
+        if (*string == find) return ;
+
+        string++;
+        position++;
+        size--;
+    }
+    return -1;
 }

@@ -66,5 +66,7 @@ void fti (float number, uint8_t precision, int16_t* integerPart, uint16_t* decim
 void ftu (float number, uint8_t precision, uint16_t* integerPart, uint16_t* decimalPart);
 
 uint8_t stringCompare (const char* string1, const char* string2);
+uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t size);
+int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
 
 #endif /* __UTILITY_H */

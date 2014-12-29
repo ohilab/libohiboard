@@ -96,7 +96,7 @@
  *   <li>MK10DX128VMD10</li>
  * </ul>
  */
-#undef  MK10D10
+#define  MK10D10
 
 /**
  * Define for use with this micro-controllers:
@@ -135,7 +135,7 @@
 /**
  * Define for use with Freedom Platform FRDM-KL03Z.
  */
-#define FRDMKL03Z
+#undef FRDMKL03Z
 
 /**
  * Define for use with OHIBOARD-R1. 

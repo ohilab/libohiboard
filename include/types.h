@@ -41,6 +41,10 @@ typedef short              int16_t;
 typedef long               int32_t;
 typedef long long          int64_t;
 
+typedef uint8_t            bool;
+#define TRUE               1
+#define FALSE              0
+
 typedef void (*voidFuncPtr)(void);
 typedef void (*voidArgumentFuncPtr)(void *);
 
