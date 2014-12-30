@@ -50,7 +50,8 @@ typedef enum {
 
 typedef enum {
     UART_DATABITS_EIGHT,
-    UART_DATABITS_NINE
+    UART_DATABITS_NINE,
+    UART_DATABITS_TEN,
 } Uart_DataBits;
 
 typedef enum {
@@ -124,6 +125,14 @@ typedef enum
     UART_PINS_PTE17,
     UART_PINS_PTE25,
 
+#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+
+    UART_PINS_PTA4,
+
+    UART_PINS_PTB1R,
+    UART_PINS_PTB2R,
+    UART_PINS_PTB4,
+
 #endif
 
     UART_PINS_RXNONE,
@@ -195,6 +204,14 @@ typedef enum
     UART_PINS_PTE16,
     UART_PINS_PTE24,
 
+#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+
+    UART_PINS_PTA3,
+
+    UART_PINS_PTB1T,
+    UART_PINS_PTB2T,
+    UART_PINS_PTB3,
+
 #endif
 
     UART_PINS_TXNONE,
@@ -235,6 +252,10 @@ extern Uart_DeviceHandle UART3;
 extern Uart_DeviceHandle UART4;
 extern Uart_DeviceHandle UART5;
 
+#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+
+extern Uart_DeviceHandle UART0;
+
 #endif
 
 
@@ -255,16 +276,17 @@ typedef struct _Uart_Config
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
 void Uart_putChar (Uart_DeviceHandle dev, char c);
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
-
-void Uart_sendString (Uart_DeviceHandle dev, const char* text);
-void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
-void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
+uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 
 System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config);
 System_Errors Uart_close (Uart_DeviceHandle dev);
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
+
+void Uart_sendString (Uart_DeviceHandle dev, const char* text);
+void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
+void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
 
 #endif /* __UART_H */
 
