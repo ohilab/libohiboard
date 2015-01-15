@@ -29,7 +29,16 @@
  * @brief Clock implementations.
  */
 
+#include "platforms.h"
 #include "clock.h"
+
+#if defined(MKL15Z4) || defined(MK60DZ10) ||  \
+	defined(FRDMKL05Z) || defined(MK60F15) || \
+	defined(FRDMKL02Z) || defined(MKL02Z4) || \
+	defined(MK10DZ10) || defined(MK10D10) ||  \
+	defined(MKL03Z4) || defined(FRDMKL03Z) || \
+	defined(OHIBOARD_R1) || defined(FRDMK20D50M) || \
+	defined(MK64F12)
 
 uint32_t Clock_getFrequency (Clock_Source source)
 {
@@ -64,5 +73,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
 #elif defined (FRDMKL03Z)
         return 47972352; /* TODO: FIXME: */
 #endif    
+        break;
     }
 }
+
+#endif
