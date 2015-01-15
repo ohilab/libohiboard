@@ -76,6 +76,15 @@ typedef enum _System_Errors
 	ERRORS_UTILITY_LONG_STRING,
     ERRORS_UTILITY_CONVERSION_OK,
     ERRORS_UTILITY_FLOAT_WRONG_PRECISION,
+    
+    ERRORS_MCG_OUT_OF_RANGE, //Frequency outside of the allowed range
+    ERRORS_MCG_NO_FREQUENCY, //Impossible to obtain the request fout_SYS with this setup
+    ERRORS_MCG_NO_STATE, //Not valid state
+    ERRORS_MCG_EXTERNAL_REFERENCE_OUT_OF_RANGE,
+    ERRORS_MCG_UNDER_100khz, //There is a strange behavior if foutSYS < 100Khz
+    ERRORS_MCG_JUST_INIT,
+    ERRORS_MCG_NOT_INIT,
+    ERRORS_MCG_ERRATA_DIVIDER
 
 } System_Errors;
 
