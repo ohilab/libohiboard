@@ -62,7 +62,22 @@
  *   <li>MK60DN256ZVMD10</li>
  * </ul>
  */
-#undef  MK60DZ10
+#define  MK60DZ10
+
+/**
+ * Define for use with this micro-controllers:
+ * <ul>
+ *   <li>MK60FX512VLQ12</li>
+ *   <li>MK60FN1M0VLQ12</li>
+ *   <li>MK60FX512VMD12</li>
+ *   <li>MK60FN1M0VMD12</li>
+ *   <li>MK60FX512VLQ15</li>
+ *   <li>MK60FN1M0VLQ15</li>
+ *   <li>MK60FX512VMD15</li>
+ *   <li>MK60FN1M0VMD15</li>
+ * </ul>
+ */
+#undef  MK60F15
 
 /**
  * Define for use with this micro-controllers:
@@ -96,7 +111,7 @@
  *   <li>MK10DX128VMD10</li>
  * </ul>
  */
-#define  MK10D10
+#undef  MK10D10
 
 /**
  * Define for use with this micro-controllers:
@@ -157,8 +172,15 @@
  */
 #undef FRDMK20D50M
 
+/**
+ * Define for use with.
+ */
+#undef MK64F12
+
 #if defined(MK60DZ10)
 #include "platforms/MK60DZ10.h"
+#elif defined(MK60F15)
+#include "platforms/MK60F15.h"
 #elif defined(MK10DZ10)
 #include "platforms/MK10DZ10.h"
 #elif defined(MK10D10)
@@ -179,6 +201,8 @@
 #include "platforms/MKL05Z4.h"
 #elif defined(FRDMKL25Z)
 #include "platforms/MKL25Z4.h"
+#elif defined(MK64F12)
+#include "platforms/MK64F12.h"
 #elif defined(FRDMK20D50M)
 #include "platforms/MK20D5.h"
 #elif defined(OHIBOARD_R1)
