@@ -34,7 +34,7 @@
 #include "clock.h"
 
 
-#if defined(MK64F12)
+#if defined(MK64F12) || defined(FRDMK64F)
 
 #define CLOCK_INIT_DIFF                       200000000
 #define CLOCK_MAX_FREQ_MCG                    120000000
