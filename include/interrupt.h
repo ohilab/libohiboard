@@ -219,7 +219,12 @@ typedef enum {
     INTERRUPT_FTM1       = 43,
     INTERRUPT_FTM2       = 44,
     INTERRUPT_RTC_ALARM  = 46,
-    INTERRUPT_RTC_SECOND = 47,   
+    INTERRUPT_RTC_SECOND = 47,
+    INTERRUPT_PORTA		 = 59,
+    INTERRUPT_PORTB		 = 60,
+    INTERRUPT_PORTC		 = 61,
+    INTERRUPT_PORTD		 = 62,
+    INTERRUPT_PORTE		 = 63,
     INTERRUPT_FTM3       = 71,
 
 #endif
