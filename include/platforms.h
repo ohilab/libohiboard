@@ -57,12 +57,8 @@
  *   <li>MK60DN512ZVMC10</li>
  *   <li>MK60DN256ZVMC10</li>
  *   <li>MK60DX256ZVMC10</li>
- *   <li>MK60DN512ZVMD10</li>
- *   <li>MK60DX256ZVMD10</li>
- *   <li>MK60DN256ZVMD10</li>
- * </ul>
- */
-#define  MK60DZ10
+*/
+#undef  MK60DZ10
 
 /**
  * Define for use with this micro-controllers:
@@ -148,6 +144,21 @@
 #undef MKL03Z4
 
 /**
+ * Define for use withthis micro-controllers:
+ * <ul>
+ *    <li>MK64FX512VLL12</li>
+ *    <li>MK64FN1M0VLL12</li>
+ *    <li>MK64FX512VDC12</li>
+ *    <li>MK64FN1M0VDC12</li>
+ *    <li>MK64FX512VLQ12</li>
+ *    <li>MK64FX512VMD12</li>
+ *    <li>MK64FN1M0VLQ12</li>
+ *    <li>MK64FN1M0VMD12</li>
+ * </ul>
+ */
+#define MK64F12
+
+/**
  * Define for use with Freedom Platform FRDM-KL03Z.
  */
 #undef FRDMKL03Z
@@ -173,9 +184,9 @@
 #undef FRDMK20D50M
 
 /**
- * Define for use with.
+ * Define for use with Freedom Platform FRDM-K64F
  */
-#undef MK64F12
+#undef FRDMK64F
 
 #if defined(MK60DZ10)
 #include "platforms/MK60DZ10.h"
@@ -191,6 +202,8 @@
 #include "platforms/MKL03Z4.h"
 #elif defined(MKL15Z4)
 #include "platforms/MKL15Z4.h"
+#elif defined(MK64F12)
+#include "platforms/MK64F12.h"
 #elif defined(FRDMKL02Z)
 #include "platforms/MKL02Z4.h"
 #elif defined(FRDMKL03Z)
@@ -201,7 +214,7 @@
 #include "platforms/MKL05Z4.h"
 #elif defined(FRDMKL25Z)
 #include "platforms/MKL25Z4.h"
-#elif defined(MK64F12)
+#elif defined(FRDMK64F)
 #include "platforms/MK64F12.h"
 #elif defined(FRDMK20D50M)
 #include "platforms/MK20D5.h"
