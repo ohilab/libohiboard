@@ -198,7 +198,7 @@ typedef enum {
     INTERRUPT_LPTPM0     = 28,
     INTERRUPT_PORTA      = 30,
     INTERRUPT_PORTD      = 31,
-#elif defined (MK64F12)
+#elif defined (MK64F12) || defined (FRDMK64F12)
     INTERRUPT_DMA0       = 0,
     INTERRUPT_DMA1       = 1,
     INTERRUPT_DMA2       = 2,
