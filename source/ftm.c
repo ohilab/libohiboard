@@ -39,6 +39,11 @@
 
 #include "ftm.h"
 
+#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+	defined (FRDMKL02Z) || defined(MKL02Z4) ||                       \
+	defined (FRDMKL03Z) || defined(MKL03Z4) || defined (MK60DZ10) || \
+	defined (MK10DZ10) || defined(MK10D10)
+
 #include "interrupt.h"
 #include "clock.h"
 
@@ -1018,3 +1023,5 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 }
 
 #endif
+
+#endif /*LIBOHIBOARD_FTM*/
