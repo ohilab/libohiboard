@@ -28,12 +28,15 @@
  * @brief RTC definitions and prototypes.
  */
 
-#ifdef LIBOHIBOARD_UART
+#include "platforms.h"
 
 #ifndef __RTC_H
 #define __RTC_H
 
-#include "platforms.h"
+#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
+	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
+	  defined(OHIBOARD_R1)
 
 #if !defined (FRDMKL02Z) && !defined(MKL02Z4)
 
@@ -68,6 +71,6 @@ extern Rtc_DeviceHandle RTC0;
 
 #endif
 
-#endif /* __RTC_H */
-
 #endif
+
+#endif /* __RTC_H */
