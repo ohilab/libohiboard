@@ -36,6 +36,11 @@
 #include "utility.h"
 #include "spi.h"
 
+#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
+	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
+	  defined(OHIBOARD_R1)
+
 #define SPI_PIN_ENABLED    1
 #define SPI_PIN_DISABLED   0
 
@@ -269,7 +274,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
 	
 	SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
 	
-	//wait till RX_FIFO is full
+	//wait till RX_FIFO is not empty
 	while((SPI_SR_REG(regmap) & SPI_SR_RFDF_MASK) != SPI_SR_RFDF_MASK);
 
 	*data = SPI_POPR_REG(regmap) & 0x000000FF;
@@ -331,3 +336,5 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     
     return ERRORS_NO_ERROR;
 }
+
+#endif
