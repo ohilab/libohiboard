@@ -34,7 +34,6 @@
 #ifdef LIBOHIBOARD_UART
 
 #include "uart.h"
-
 #include "interrupt.h"
 #include "clock.h"
 
@@ -76,3 +75,5 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length)
 }
 
 #endif
+
+

@@ -133,6 +133,25 @@ typedef enum
     UART_PINS_PTB2R,
     UART_PINS_PTB4,
 
+#elif defined (MK64F12) || defined (FRDMK64F)
+    
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+    
+    UART_PINS_PTB10,
+    UART_PINS_PTB16,
+    
+    UART_PINS_PTC3,
+    UART_PINS_PTC14,
+    UART_PINS_PTC16,
+    
+    UART_PINS_PTD2,
+    UART_PINS_PTD6,
+    
+    UART_PINS_PTE1,
+    UART_PINS_PTE5,
+    UART_PINS_PTE25,
+
 #endif
 
     UART_PINS_RXNONE,
@@ -203,6 +222,29 @@ typedef enum
     UART_PINS_PTE8,
     UART_PINS_PTE16,
     UART_PINS_PTE24,
+    
+#elif defined (MK64F12) || defined (FRDMK64F)
+    
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+
+    UART_PINS_PTB11,
+    UART_PINS_PTB17,
+
+    UART_PINS_PTC4,
+    UART_PINS_PTC15,
+    UART_PINS_PTC17,
+
+    UART_PINS_PTD3,
+    UART_PINS_PTD7,
+    UART_PINS_PTD8,
+    UART_PINS_PTD9,
+
+    UART_PINS_PTE0,
+    UART_PINS_PTE4,
+    UART_PINS_PTE8,
+    UART_PINS_PTE9,
+    UART_PINS_PTE24,
 
 #elif defined (FRDMKL03Z) || defined (MKL03Z4)
 
@@ -255,6 +297,15 @@ extern Uart_DeviceHandle UART5;
 #elif defined (FRDMKL03Z) || defined (MKL03Z4)
 
 extern Uart_DeviceHandle UART0;
+
+#elif defined (MK64F12)
+
+extern Uart_DeviceHandle UART0;
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+extern Uart_DeviceHandle UART3;
+extern Uart_DeviceHandle UART4;
+extern Uart_DeviceHandle UART5;
 
 #endif
 
