@@ -57,10 +57,80 @@ typedef enum {
 
 typedef struct Iic_Device* Iic_DeviceHandle;
 
+#if defined(MK64F12) || defined(FRDMK64F)
+
+typedef enum
+{
+#if defined (MK64F12) || defined (FRDMK64F)
+	IIC_PINS_PTA12,
+	IIC_PINS_PTA14,
+
+	IIC_PINS_PTB0,
+	IIC_PINS_PTB2,
+
+	IIC_PINS_PTC10,
+
+	IIC_PINS_PTD2,
+	IIC_PINS_PTD8,
+
+	IIC_PINS_PTE1,
+	IIC_PINS_PTE24,
+
+#endif
+
+	IIC_PINS_SCLNONE,
+} Iic_SclPins;
+
+typedef enum
+{
+#if defined (MK64F12) || defined (FRDMK64F)
+	IIC_PINS_PTA11,
+	IIC_PINS_PTA13,
+
+	IIC_PINS_PTB1,
+	IIC_PINS_PTB3,
+
+	IIC_PINS_PTC11,
+
+	IIC_PINS_PTD3,
+	IIC_PINS_PTD9,
+
+	IIC_PINS_PTE0,
+	IIC_PINS_PTE25,
+#endif
+
+	IIC_PINS_SDANONE,
+} Iic_SdaPins;
+
+typedef struct _Iic_Config
+{
+    Iic_SclPins           sclPin;
+    Iic_SdaPins           sdaPin;
+
+    uint32_t              baudRate;
+    Iic_DeviceType        devType;
+    Iic_AddressMode       addressMode;
+
+    uint16_t              sclTimeout;
+
+//    uint8_t               pinEnabled;
+} Iic_Config;
+
+#endif
+
+#if defined (MK64F12) || defined (FRDMK64F)
+System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config);
+//#elif defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+//	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
+//	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
+//	  defined(OHIBOARD_R1)
+#elif !defined (MK64F12) && !defined (FRDMK64F)
 System_Errors Iic_init (Iic_DeviceHandle dev);
 
 System_Errors Iic_setBaudRate (Iic_DeviceHandle dev, uint32_t br);
 System_Errors Iic_setDeviceType (Iic_DeviceHandle dev, Iic_DeviceType devType);
+#endif
+
 void Iic_pinEnabled (Iic_DeviceHandle dev);
 
 void Iic_start (Iic_DeviceHandle dev);
@@ -88,6 +158,10 @@ extern Iic_DeviceHandle IIC1;
 extern Iic_DeviceHandle IIC0;
 #elif defined(FRDMKL05Z)
 extern Iic_DeviceHandle IIC0;
+#elif defined(MK64F12) || defined(FRDMK64F)
+extern Iic_DeviceHandle IIC0;
+extern Iic_DeviceHandle IIC1;
+extern Iic_DeviceHandle IIC2;
 #endif
 
 #endif /* __I2C_H */

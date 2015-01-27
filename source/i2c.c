@@ -28,10 +28,14 @@
  * @brief I2C functions implementation
  */
 
-
 #include "platforms.h"
 #include "system.h"
 #include "i2c.h"
+
+#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
+	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
+	  defined(OHIBOARD_R1)
 
 #define IIC_TIMEOUT_CLOCK_KHZ  SYSTEM_CLOCK_KHZ/64  
 
@@ -464,4 +468,6 @@ System_Errors Iic_isToggleSclTimeout (Iic_DeviceHandle dev)
     else
         return ERRORS_IIC_NO_SCLTIMEOUT;
 }
+#endif
+
 #endif
