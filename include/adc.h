@@ -4,6 +4,7 @@
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Francesco Piunti <francesco.piunti89@gmail.com>
+ *  Alessio Paolucci <a.paolucci89@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +29,10 @@
  * @file libohiboard/include/adc.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Francesco Piunti <francesco.piunti89@gmail.com>
+ * @author Alessio Paolucci <a.paolucci89@gmail.com>
  * @brief ADC definitions and prototypes.
  */
+
 
 #ifndef __ADC_H
 #define __ADC_H
@@ -42,7 +45,8 @@ typedef enum {
 #if defined (MKL15Z4) ||                                     \
 	defined (OHIBOARD_R1) || defined (MK60DZ10) ||           \
     defined (FRDMKL25Z) ||                                   \
-    defined (MK10DZ10) || defined (MK10D10)
+    defined (MK10DZ10) || defined (MK10D10) ||               \
+    defined (MK64F12) || defined (FRDMK64F)
     
 	ADC_RESOLUTION_16BIT,
 
@@ -177,6 +181,59 @@ typedef enum {
 
     ADC_PINS_INTERNAL,
     
+#elif defined (MK64F12) || defined (FRDMK64F)
+
+    ADC_PINS_PTE0,
+    ADC_PINS_PTE1,
+    ADC_PINS_PTE2,
+    ADC_PINS_PTE3,
+    ADC_PINS_ADC0_DP1,
+    ADC_PINS_ADC0_DM1,
+    ADC_PINS_ADC1_DP1,
+    ADC_PINS_ADC1_DM1,
+    ADC_PINS_ADC0_DP0,
+    ADC_PINS_ADC1_DP3,
+    ADC_PINS_ADC0_DM0,
+    ADC_PINS_ADC1_DM3,
+    ADC_PINS_ADC1_DP0,
+    ADC_PINS_ADC0_DP3,
+    ADC_PINS_ADC1_DM0,
+    ADC_PINS_ADC0_DM3,
+    ADC_PINS_ADC1_SE16,
+    ADC_PINS_ADC0_SE22,
+    ADC_PINS_ADC0_SE16,
+    ADC_PINS_ADC0_SE21,
+    ADC_PINS_ADC1_SE18,
+    ADC_PINS_ADC0_SE23,
+    ADC_PINS_ADC1_SE23,
+    ADC_PINS_PTE24,
+    ADC_PINS_PTE25,
+    ADC_PINS_PTA7,
+    ADC_PINS_PTA8,
+    ADC_PINS_PTA17,
+    ADC_PINS_PTB0,
+    ADC_PINS_PTB1,
+    ADC_PINS_PTB2,
+    ADC_PINS_PTB3,
+    ADC_PINS_PTB4,
+    ADC_PINS_PTB5,
+    ADC_PINS_PTB6,
+    ADC_PINS_PTB7,
+    ADC_PINS_PTB10,
+    ADC_PINS_PTB11,
+    ADC_PINS_PTC0,
+    ADC_PINS_PTC1,
+    ADC_PINS_PTC2,
+    ADC_PINS_PTC8,
+    ADC_PINS_PTC9,
+    ADC_PINS_PTC10,
+    ADC_PINS_PTC11,
+    ADC_PINS_PTD1,
+    ADC_PINS_PTD5,
+    ADC_PINS_PTD6,
+
+    ADC_PINS_INTERNAL,
+
 #endif
 
 } Adc_Pins;
@@ -339,6 +396,45 @@ typedef enum {
 	ADC_CH_VREFL         = 0x1E,
 	ADC_CH_DISABLE       = 0x1F,
 	
+#elif defined (MK64F12) || defined (FRDMK64F)
+
+    ADC_CH_DP0          = 0x00,
+    ADC_CH_DP1          = 0x01,
+    ADC_CH_DP2          = 0X02,
+    ADC_CH_DM2,
+    ADC_CH_DP3          = 0x03,
+    ADC_CH_DM3          = 0x03,
+    ADC_CH_SE4a         = 0x04,
+    ADC_CH_SE5a	        = 0x05,
+    ADC_CH_SE6a	        = 0x06,
+    ADC_CH_SE7a	        = 0x07,
+    ADC_CH_SE4b	        = 0x24,
+    ADC_CH_SE5b	        = 0x25,
+    ADC_CH_SE6b	        = 0x26,
+    ADC_CH_SE7b	        = 0x27,
+    ADC_CH_SE8          = 0x08,
+    ADC_CH_SE9          = 0x09,
+    ADC_CH_SE10	        = 0x0A,
+    ADC_CH_SE11	        = 0x0B,
+    ADC_CH_SE12	        = 0x0C,
+    ADC_CH_SE13	        = 0x0D,
+    ADC_CH_SE14	        = 0x0E,
+    ADC_CH_SE15	        = 0x0F,
+    ADC_CH_SE16	        = 0x10,
+    ADC_CH_SE17         = 0x11,
+    ADC_CH_SE18         = 0x12,
+    ADC_CH_DM0          = 0x13,
+    ADC_CH_DM1          = 0x14,
+    ADC_CH_SE21         = 0x15,
+    ADC_CH_SE22         = 0x16,
+    ADC_CH_SE23         = 0x17,
+
+	ADC_CH_TEMP          = 0x1A,
+	ADC_CH_BANDGAP       = 0x1B,
+	ADC_CH_VREFH         = 0x1D,
+	ADC_CH_VREFL         = 0x1E,
+	ADC_CH_DISABLE       = 0x1F,
+
 #endif
 } Adc_ChannelNumber;
 
@@ -356,6 +452,11 @@ typedef enum {
 	ADC_CHL_A = 0x00,
 	ADC_CHL_B = 0x01,
 
+#elif defined (MK64F12) || defined(FRDMK64F)
+
+	ADC_CHL_A = 0x00,
+	ADC_CHL_B = 0x01,
+
 #elif defined (FRDMKL02Z) || defined(MKL02Z4) || \
       defined (FRDMKL03Z) || defined(MKL03Z4)
 
@@ -367,7 +468,60 @@ typedef enum {
 
 typedef struct Adc_Device* Adc_DeviceHandle;
 
+#if defined(MK64F12) || defined(FRDMK64F)
+
+typedef enum {
+	ADC_BUS_CLOCK,
+	ADC_BUS_CLOCK_DIV2,
+	ADC_ALTERNATE_CLOCK,
+	ADC_ASYNCHRONOUS_CLOCK,
+} Adc_ClockSource;
+
+typedef enum {
+    ADC_SHORT_SAMPLE,
+    ADC_LONG_SAMPLE_2,
+    ADC_LONG_SAMPLE_6,
+    ADC_LONG_SAMPLE_12,
+    ADC_LONG_SAMPLE_20,
+} Adc_SampleLength;
+
+typedef enum {
+    ADC_NORMAL_CONVERTION,
+    ADC_HIGH_SPEED_CONVERTION,
+}Adc_ConvertionSpeed;
+
+typedef enum {
+    ADC_SINGLE_CONVERTION,
+    ADC_CONTINUOUS_CONVERTION,
+}Adc_ContinuousConvertion;
+
+typedef enum {
+	ADC_VREF,
+	ADC_VALT,
+}Adc_VoltReference;
+
+typedef struct _Adc_Config
+{
+    Adc_Pins                 adcPin;
+
+    uint8_t                  clkDiv;
+    Adc_ClockSource          clkSource;
+    Adc_SampleLength         sampleLength;
+    Adc_ConvertionSpeed      covertionSpeed;
+
+    Adc_Resolution           resolution;
+    Adc_Average              average;
+    Adc_ContinuousConvertion contConv;
+    Adc_VoltReference        voltRef;
+} Adc_Config;
+
+System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config);
+
+#else
+
 System_Errors Adc_init (Adc_DeviceHandle dev);
+
+#endif
 
 void Adc_setResolution (Adc_DeviceHandle dev, Adc_Resolution resolution);
 void Adc_setAverage (Adc_DeviceHandle dev, Adc_Average average);
@@ -400,6 +554,15 @@ extern Adc_DeviceHandle ADC1;
 extern Adc_DeviceHandle ADC0;
 extern Adc_DeviceHandle ADC1;
 
+#elif defined (MK64F12) || defined(FRDMK64F)
+
+extern Adc_DeviceHandle ADC0;
+extern Adc_DeviceHandle ADC1;
+
 #endif
 
 #endif /* __ADC_H */
+
+
+
+
