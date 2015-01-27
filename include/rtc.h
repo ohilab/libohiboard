@@ -28,6 +28,8 @@
  * @brief RTC definitions and prototypes.
  */
 
+#ifdef LIBOHIBOARD_UART
+
 #ifndef __RTC_H
 #define __RTC_H
 
@@ -67,3 +69,5 @@ extern Rtc_DeviceHandle RTC0;
 #endif
 
 #endif /* __RTC_H */
+
+#endif

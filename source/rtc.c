@@ -28,6 +28,8 @@
  * @brief RTC functions implementation.
  */
 
+#ifdef LIBOHIBOARD_UART
+
 #include "platforms.h"
 
 #if !defined (FRDMKL02Z) && !defined(MKL02Z4)
@@ -174,5 +176,7 @@ void Rtc_disableSecond (Rtc_DeviceHandle dev)
 #endif
     Interrupt_disable(INTERRUPT_RTC_SECOND);
 }
+
+#endif
 
 #endif
