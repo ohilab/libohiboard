@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Alessio Paolucci <a.paolucci89@gmail.com>
@@ -24,15 +24,16 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/clock_kl25.c
+ * @file libohiboard/include/clock_KL25Z4.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @Clock implementations for FRDMKL25.
+ * @Clock implementations for KL25Z4 and FRDMKL25.
  */
 
 #include "platforms.h"
 #include "clock.h"
 
-#if defined(FRDMKL25Z)
+#if defined (LIBOHIBOARD_KL25Z4)     || \
+	defined (LIBOHIBOARD_FRDMKL25Z)
 
 #define CLOCK_INIT_DIFF                       200000000
 #define CLOCK_MAX_FREQ_MCG                    100000000

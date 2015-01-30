@@ -24,15 +24,16 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/clock_k60d.c
+ * @file libohiboard/source/clock_K60DZ10.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @Clock implementations for OHI_Board.
+ * @Clock implementations for K60DZ10.
  */
 
 #include "platforms.h"
 #include "clock.h"
 
-#if defined(MK60DZ10)
+#if defined (LIBOHIBOARD_K60DZ10) || \
+	defined (LIBOHIBOARD_OHIBOARD_R1)
 
 #define CLOCK_INIT_DIFF                       200000000
 #define CLOCK_MAX_FREQ_MCG                    100000000
@@ -2266,7 +2267,7 @@ System_Errors Clock_Init (Clock_Config *config)
     return error;
 }
 
-#endif
+#endif  // LIBOHIBOARD_K60DZ10
 
 
 

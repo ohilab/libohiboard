@@ -25,7 +25,7 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/clock_k64f.c
+ * @file libohiboard/source/clock_K64F12.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
  * @Clock implementations for FRDMK64.
  */
@@ -34,7 +34,8 @@
 #include "clock.h"
 
 
-#if defined(MK64F12) || defined(FRDMK64F)
+#if defined(LIBOHIBOARD_K64F12)   || \
+	defined(LIBOHIBOARD_FRDMK64F)
 
 #define CLOCK_INIT_DIFF                       200000000
 #define CLOCK_MAX_FREQ_MCG                    120000000
@@ -2532,5 +2533,5 @@ System_Errors Clock_Init (Clock_Config *config)
     return error;
 }
 
-#endif
+#endif // defined(LIBOHIBOARD_K64F12) || defined(LIBOHIBOARD_FRDMK64F)
 

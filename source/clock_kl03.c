@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Alessio Paolucci <a.paolucci89@gmail.com>
@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/clock_kl03.c
+ * @file libohiboard/include/clock_KL03Z4.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
  * @Clock implementations for MKL03Z4.
  */
@@ -32,7 +32,8 @@
 #include "platforms.h"
 #include "clock.h"
 
-#if defined(MKL03Z4)
+#if defined (LIBOHIBOARD_KL03Z4) || \
+	defined (LIBOHIBOARD_FRDMKL03Z)
 
 #define CLOCK_MAX_FREQ_MCG                    48000000
 #define CLOCK_MAX_FREQ_SYS                    48000000
@@ -596,4 +597,4 @@ System_Errors Clock_Init (Clock_Config *config)
      }
 }
 
-#endif
+#endif // defined (LIBOHIBOARD_KL03Z4) || defined (LIBOHIBOARD_FRDMKL03Z)

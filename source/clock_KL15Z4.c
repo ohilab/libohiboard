@@ -25,10 +25,10 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/clock_kl25.c
+ * @file libohiboard/include/clock_KL15Z4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @Clock implementations for FRDMKL25.
+ * @Clock implementations for KL15Z4.
  */
 
 #include "platforms.h"

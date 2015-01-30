@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -32,42 +32,20 @@
 #include "platforms.h"
 #include "clock.h"
 
-#if defined(FRDMK20D50M) || \
-	defined(FRDMKL05Z) || defined(MK60F15) || \
-	defined(FRDMKL02Z) || defined(MKL02Z4) || \
-	defined(MK10DZ10) || defined(MK10D10)  \
+#if defined (LIBOHIBOARD_FRDMKL02Z) || \
+	defined (LIBOHIBOARD_KL02Z4)
 
 uint32_t Clock_getFrequency (Clock_Source source)
 {
     switch (source)
     {
     case CLOCK_BUS:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
-        return 50000000; /* TODO: FIXME: */
-#elif defined (FRDMKL25Z)
-        return 20000000; /* TODO: FIXME: */
-//#elif defined (MKL15Z4)
-//        return 23986176; /* TODO: FIXME: */
-#elif defined (MK10DZ10) || defined (MK10D10) 
-        return 50000000; /* TODO: FIXME: */
-#elif defined (FRDMKL02Z)
-        return 23986176; /* TODO: FIXME: */
-#elif defined (FRDMKL03Z)
+#if defined (FRDMKL02Z)
         return 23986176; /* TODO: FIXME: */
 #endif
         break;
     case CLOCK_SYSTEM:
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
-        return 50000000; /* TODO: FIXME: */
-#elif defined (FRDMKL25Z)
-        return 40000000; /* TODO: FIXME: */
-//#elif defined (MKL15Z4)
-//        return 47972352; /* TODO: FIXME: */
-#elif defined (MK10DZ10) || defined (MK10D10) 
-        return 100000000; /* TODO: FIXME: */
-#elif defined (FRDMKL02Z)
-        return 47972352; /* TODO: FIXME: */
-#elif defined (FRDMKL03Z)
+#if defined (FRDMKL02Z)
         return 47972352; /* TODO: FIXME: */
 #endif    
         break;
