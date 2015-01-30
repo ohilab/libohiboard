@@ -151,7 +151,7 @@ void Iic_resetSclTimeout (Iic_DeviceHandle dev);
 System_Errors Iic_isToggleSclTimeout (Iic_DeviceHandle dev);
 #endif
 
-#if defined(MKL15Z4) || defined(FRDMKL25Z) || defined(MK10D10)
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z) || defined(MK10D10)
 extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
 #elif defined(MK60DZ10)

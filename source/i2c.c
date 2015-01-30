@@ -32,7 +32,7 @@
 #include "system.h"
 #include "i2c.h"
 
-#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
 	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
 	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
 	  defined(OHIBOARD_R1)
@@ -59,7 +59,7 @@ typedef struct Iic_Device {
     uint8_t               pinEnabled;
 } Iic_Device;
 
-#if defined(MKL15Z4) || defined(FRDMKL25Z) || defined(MK10D10)
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z) || defined(MK10D10)
 static Iic_Device iic0 = {
         .regMap           = I2C0_BASE_PTR,
 
@@ -117,7 +117,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     	return ERRORS_HW_NOT_ENABLED;
     
     /* Turn on clock */
-#if defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
     if (regmap == I2C0_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
     else if (regmap == I2C1_BASE_PTR)
@@ -133,7 +133,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev)
     {
         /* TODO: automatically selects the correct value. */
         /* WARNING: Current configurations is static for 100kbps!! */
-#if defined(MKL15Z4)
+#if defined(LIBOHIBOARD_KL15Z4)
         I2C_F_REG(regmap) = (0x00 | 0x1F);
 #elif defined(FRDMKL25Z)
 //        I2C_F_REG(regmap) = (0x40 | 0x16);

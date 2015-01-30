@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "spi.h"
 
-#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
 	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
 	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
 	  defined(OHIBOARD_R1)
@@ -53,7 +53,7 @@ typedef struct Spi_Device {
 	uint8_t               pinEnabled;
 } Spi_Device;
 
-#if defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
 static Spi_Device spi0 = {
     .regMap           = SPI0_BASE_PTR,
     
@@ -114,7 +114,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     	return ERRORS_HW_NOT_ENABLED;
 
     /* Turn on clock */
-#if defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
     if (regmap == SPI0_BASE_PTR)
         SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
     else if (regmap == SPI1_BASE_PTR)
@@ -137,7 +137,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
     /* Select device type */
     if (devType == SPI_MASTER_MODE)
     {
-#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(FRDMKL05Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
         /* Disable all and clear interrutps */
         SPI_C1_REG(regmap) = 0;
         /* Match interrupt disabled, uses separate pins and DMA disabled. */
@@ -151,7 +151,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         /* Set baud rate */
         if (speed == SPI_LOW_SPEED)
         {
-#if defined(MKL15Z4)
+#if defined(LIBOHIBOARD_KL15Z4)
             /* From 24MHz to 375kHz: set prescaler to 2 and divider to 32. */
             SPI_BR_REG(regmap) = 0x10 | 0x04;
 #elif defined (MK10DZ10) || defined(MK10D10)
@@ -168,7 +168,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
         }
         else
         {
-#if defined(MKL15Z4)
+#if defined(LIBOHIBOARD_KL15Z4)
             /* From 24MHz to 12MHz: set prescaler to 1 and divider to 2. */
             SPI_BR_REG(regmap) = 0x00;
 #elif defined(MK10DZ10) || defined(MK10D10)
@@ -181,7 +181,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev)
 #endif
         }
 
-#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)
+#if defined(FRDMKL05Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
         /* Clear match register */
         SPI_M_REG(regmap) = 0;
         /* Enable master mode and SPI module. */
@@ -244,7 +244,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 
-#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)    
+#if defined(FRDMKL05Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
     /* Copy dummy data in D register */
     SPI_D_REG(regmap) = 0xFF;
     /* Wait until slave replay */
@@ -292,7 +292,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
     
-#if defined(FRDMKL05Z) || defined(MKL15Z4) || defined(FRDMKL25Z)    
+#if defined(FRDMKL05Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z)
     /* Wait until SPTEF bit is 1 (transmit buffer is empty) */
     while (!(SPI_S_REG(regmap) & SPI_S_SPTEF_MASK));
     (void) SPI_S_REG(regmap);

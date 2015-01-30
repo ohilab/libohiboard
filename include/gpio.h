@@ -29,7 +29,6 @@
  * @brief GPIO definitions and prototypes.
  */
 
-#ifdef LIBOHIBOARD_GPIO
 
 #ifndef __GPIO_H
 #define __GPIO_H
@@ -65,7 +64,7 @@ typedef enum
 
 #elif defined (OHIBOARD_R1)
 
-#elif defined (MKL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)
 
     GPIO_PINS_PTA0 = 0,
     GPIO_PINS_PTA1,
@@ -506,4 +505,3 @@ Gpio_Level Gpio_get (Gpio_Pins pin);
 
 #endif /* __GPIO_H */
 
-#endif

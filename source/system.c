@@ -54,7 +54,7 @@ System_Errors System_controlDevice (void)
  */
 System_Errors System_initClock (void)
 {
-#if defined(MKL15Z4)
+#if defined(LIBOHIBOARD_KL15Z4)
     int i;
 
     /* Clock prescaler */

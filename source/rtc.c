@@ -30,7 +30,7 @@
 
 #include "platforms.h"
 
-#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
 	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
 	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
 	  defined(OHIBOARD_R1)
@@ -58,7 +58,7 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev)
     Rtc_ClockSource clock = dev->clockSource;
     
     /* Turn on clock */
-#if defined(MKL15Z4) || defined(FRDMKL25Z) || defined(FRDMKL05Z)
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL25Z) || defined(FRDMKL05Z)
     SIM_SCGC6 |= SIM_SCGC6_RTC_MASK;
 #elif defined(MK60DZ10)
 #elif defined(FRDMK20D50M)
@@ -67,7 +67,7 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev)
     switch(clock)
     {
     case RTC_CLKIN:
-#if defined(FRDMKL25Z) || defined(MKL15Z4)
+#if defined(FRDMKL25Z) || defined(LIBOHIBOARD_KL15Z4)
         /* Activate mux for this pin */
         PORTC_PCR1 &= ~PORT_PCR_MUX_MASK;
         PORTC_PCR1 = PORT_PCR_MUX(1);
@@ -80,7 +80,7 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev)
 #endif
         break;
     case RTC_SYSTEM_OSCILLATOR:
-#if defined(FRDMKL25Z) || defined(MKL15Z4)
+#if defined(FRDMKL25Z) || defined(LIBOHIBOARD_KL15Z4)
         /* Select this clock source */
         SIM_SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
         SIM_SOPT1 |= SIM_SOPT1_OSC32KSEL(0);

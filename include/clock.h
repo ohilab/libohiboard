@@ -67,7 +67,8 @@ typedef enum
 	CLOCK_LIRC8M,
 	CLOCK_HIRC,
 	CLOCK_EXT,
-#elif (defined(MK60DZ10) || defined(MK60F15) || defined(MK10DZ10) \
+#elif defined (LIBOHIBOARD_KL15Z4) || \
+	(defined(MK60DZ10) || defined(MK60F15) || defined(MK10DZ10) || defined(MK10D10) \
 	|| defined(OHIBOARD_R1) || defined(FRDMKL25Z) || defined(MK64F12))
 	CLOCK_FEI,
 	CLOCK_FEE,

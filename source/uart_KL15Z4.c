@@ -36,7 +36,7 @@
 #include "interrupt.h"
 #include "clock.h"
 
-#if defined (MKL15Z4)
+#if defined (LIBOHIBOARD_KL15Z4)
 
 #define UART_MAX_PINS                     10
 
@@ -453,6 +453,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-#endif /* defined (MKL15Z4) */
+#endif /* defined (LIBOHIBOARD_KL15Z4) */
 
 #endif /* LIBOHIBOARD_UART */

@@ -96,7 +96,7 @@ typedef enum
     UART_PINS_PTE21,
     UART_PINS_PTE23,
 
-#elif defined (MKL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)
 
     UART_PINS_PTA1,
     UART_PINS_PTA15,
@@ -194,7 +194,7 @@ typedef enum
     UART_PINS_PTE20,
     UART_PINS_PTE22,
     
-#elif defined (MKL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)
     
     UART_PINS_PTA2,
     UART_PINS_PTA14,
@@ -291,7 +291,7 @@ extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
-#elif defined(MKL15Z4)
+#elif defined(LIBOHIBOARD_KL15Z4)
 
 extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;

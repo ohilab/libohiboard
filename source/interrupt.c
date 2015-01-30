@@ -36,14 +36,14 @@
 
 #include "platforms.h"
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+#if defined (FRDMKL25Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL05Z) || \
 	defined (FRDMKL02Z) || defined(MKL02Z4) ||                       \
 	defined (FRDMKL03Z) || defined(MKL03Z4) || defined (MK60DZ10) || \
 	defined (MK10DZ10) || defined(MK10D10)
 
 #include "interrupt.h"
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+#if defined (FRDMKL25Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL05Z) || \
 	defined (FRDMKL02Z) || defined(MKL02Z4) ||                       \
 	defined (FRDMKL03Z) || defined(MKL03Z4)
 
@@ -75,7 +75,7 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+#if defined (FRDMKL25Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL05Z) || \
 	defined (FRDMKL02Z) || defined(MKL02Z4)
     NVIC_ICPR = 1 << (vectorNumber%32);
     NVIC_ISER = 1 << (vectorNumber%32);
@@ -116,7 +116,7 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-#if defined (FRDMKL25Z) || defined(MKL15Z4) || defined(FRDMKL05Z) || \
+#if defined (FRDMKL25Z) || defined(LIBOHIBOARD_KL15Z4) || defined(FRDMKL05Z) || \
 	defined (FRDMKL02Z) || defined(MKL02Z4)
     NVIC_ICER = 1 << (vectorNumber%32);
 #elif defined (FRDMKL03Z) || defined(MKL03Z4) /* FIXME: This kind of use is for KDS! */

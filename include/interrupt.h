@@ -78,7 +78,7 @@ typedef enum {
     INTERRUPT_LPTMR0     = 28,
     INTERRUPT_PORTA      = 30,
     INTERRUPT_PORTD      = 31,
-#elif defined(MKL15Z4)
+#elif defined(LIBOHIBOARD_KL15Z4)
     INTERRUPT_DMA0       = 0,
     INTERRUPT_DMA1       = 1,
     INTERRUPT_DMA2       = 2,

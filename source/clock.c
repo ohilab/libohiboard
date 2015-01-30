@@ -32,7 +32,7 @@
 #include "platforms.h"
 #include "clock.h"
 
-#if defined(MKL15Z4) || defined(FRDMK20D50M) || \
+#if defined(FRDMK20D50M) || \
 	defined(FRDMKL05Z) || defined(MK60F15) || \
 	defined(FRDMKL02Z) || defined(MKL02Z4) || \
 	defined(MK10DZ10) || defined(MK10D10)  \
@@ -46,8 +46,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
         return 50000000; /* TODO: FIXME: */
 #elif defined (FRDMKL25Z)
         return 20000000; /* TODO: FIXME: */
-#elif defined (MKL15Z4)
-        return 23986176; /* TODO: FIXME: */
+//#elif defined (MKL15Z4)
+//        return 23986176; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
         return 50000000; /* TODO: FIXME: */
 #elif defined (FRDMKL02Z)
@@ -61,8 +61,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
         return 50000000; /* TODO: FIXME: */
 #elif defined (FRDMKL25Z)
         return 40000000; /* TODO: FIXME: */
-#elif defined (MKL15Z4)
-        return 47972352; /* TODO: FIXME: */
+//#elif defined (MKL15Z4)
+//        return 47972352; /* TODO: FIXME: */
 #elif defined (MK10DZ10) || defined (MK10D10) 
         return 100000000; /* TODO: FIXME: */
 #elif defined (FRDMKL02Z)

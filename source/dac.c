@@ -56,7 +56,7 @@ typedef struct Dac_Device
     
 #elif defined (FRDMKL25Z)
 
-#elif defined (MKL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)
 
 #elif defined (MK10DZ10) || defined (MK10D10)
 

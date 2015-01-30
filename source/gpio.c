@@ -32,7 +32,7 @@
 #include "gpio.h"
 #include "platforms.h"
 
-#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+#if defined(LIBOHIBOARD_KL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
 	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
 	  defined(MK60DZ10) || defined(MK60F15) || defined(MKL03Z4) || defined(FRDMKL03Z) || \
 	  defined(OHIBOARD_R1)
@@ -59,7 +59,7 @@ typedef enum
     
 #elif defined (OHIBOARD_R1)
 
-#elif defined (FRDMKL25Z) || defined (MKL15Z4)
+#elif defined (FRDMKL25Z) || defined (LIBOHIBOARD_KL15Z4)
     
     GPIO_PORTS_A,
     GPIO_PORTS_B,
@@ -289,7 +289,7 @@ static Gpio_PinDevice Gpio_availablePins[] =
     {GPIO_PORTS_C,30},
     {GPIO_PORTS_C,31},
 
-#elif defined (MKL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)
         
     {GPIO_PORTS_A,0},
     {GPIO_PORTS_A,1},
@@ -438,7 +438,7 @@ static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
     case GPIO_PORTS_B:
         *port = PTB_BASE_PTR;
         break;
-#if defined (MKL15Z4) ||                                     \
+#if defined (LIBOHIBOARD_KL15Z4) ||                                     \
 	defined (OHIBOARD_R1) || defined (MK60DZ10) ||           \
     defined (FRDMKL25Z)  ||                                  \
     defined (MK10DZ10) || defined (MK10D10)
@@ -497,7 +497,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         gpioPort   = PTE_BASE_PTR;
         break;
 
-#elif defined (FRDMKL25Z) || defined (MKL15Z4)
+#elif defined (FRDMKL25Z) || defined (LIBOHIBOARD_KL15Z4)
         
     case GPIO_PORTS_A:
         SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
