@@ -547,7 +547,7 @@ int8_t stringFindFirstOf (const char* string, char find, uint8_t size)
     {
         if (*string == '\0') break;
 
-        if (*string == find) return ;
+        if (*string == find) return position;
 
         string++;
         position++;
