@@ -29,7 +29,7 @@
  * @brief FTM definitions and prototypes.
  */
 
-//#ifdef LIBOHIBOARD_FTM
+#ifdef LIBOHIBOARD_FTM
 
 #ifndef __FTM_H
 #define __FTM_H
@@ -407,4 +407,4 @@ void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled
 
 #endif /* __FTM_H */
 
-//#endif /* LIBOHIBOARD_FTM */
+#endif /* LIBOHIBOARD_FTM */
