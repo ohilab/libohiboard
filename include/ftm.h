@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -29,7 +29,7 @@
  * @brief FTM definitions and prototypes.
  */
 
-#ifdef LIBOHIBOARD_FTM
+//#ifdef LIBOHIBOARD_FTM
 
 #ifndef __FTM_H
 #define __FTM_H
@@ -55,126 +55,16 @@ typedef struct Ftm_Device* Ftm_DeviceHandle;
 #define FTM_CONFIG_PWM_POLARITY_HIGH     0x00
 #define FTM_CONFIG_PWM_POLARITY_LOW      0x02
 
-#if defined(MK60DZ10)
-
-#define FTM_MAX_CHANNEL                  8
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-    FTM_CHANNELS_CH6,
-    FTM_CHANNELS_CH7,
-} Ftm_Channels;
-
-
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
-
-extern Ftm_DeviceHandle FTM0;
-extern Ftm_DeviceHandle FTM1;
-extern Ftm_DeviceHandle FTM2;
-
-#elif defined (OHIBOARD_R1)
-
-/* Da definire in base all'ohiboard!! */
-
-#define FTM_MAX_CHANNEL                  8
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-    FTM_CHANNELS_CH6,
-    FTM_CHANNELS_CH7,
-} Ftm_Channels;
-
-
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
-
-extern Ftm_DeviceHandle FTM0;
-extern Ftm_DeviceHandle FTM1;
-extern Ftm_DeviceHandle FTM2;
-
-#elif defined (FRDMKL25Z)
+#if defined (LIBOHIBOARD_KL15Z4)
 
 #define FTM_MAX_CHANNEL   6
 
 typedef enum
 {
-    //FTM_PINS_PTA0, Not connected on FRDM-KL25
+    FTM_PINS_PTA0,
     FTM_PINS_PTA1,
     FTM_PINS_PTA2,
-    //FTM_PINS_PTA3, Not connected on FRDM-KL25
+    FTM_PINS_PTA3,
     FTM_PINS_PTA4,
     FTM_PINS_PTA5,
     FTM_PINS_PTA12,
@@ -186,27 +76,27 @@ typedef enum
     FTM_PINS_PTB3,
     FTM_PINS_PTB18,
     FTM_PINS_PTB19,
-    
+
     FTM_PINS_PTC1,
     FTM_PINS_PTC2,
     FTM_PINS_PTC3,
     FTM_PINS_PTC4,
     FTM_PINS_PTC8,
     FTM_PINS_PTC9,
-    
+
     FTM_PINS_PTD0,
     FTM_PINS_PTD1,
     FTM_PINS_PTD2,
     FTM_PINS_PTD3,
     FTM_PINS_PTD4,
     FTM_PINS_PTD5,
-    
+
     FTM_PINS_PTE20,
     FTM_PINS_PTE21,
     FTM_PINS_PTE22,
     FTM_PINS_PTE23,
-    //FTM_PINS_PTE24, Not connected on FRDM-KL25
-    //FTM_PINS_PTE25, Not connected on FRDM-KL25
+    FTM_PINS_PTE24,
+    FTM_PINS_PTE25,
     FTM_PINS_PTE29,
     FTM_PINS_PTE30,
     FTM_PINS_PTE31,
@@ -232,7 +122,83 @@ extern Ftm_DeviceHandle FTM0;
 extern Ftm_DeviceHandle FTM1;
 extern Ftm_DeviceHandle FTM2;
 
-#elif defined(MK10D10)
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+	defined (LIBOHIBOARD_FRDMKL25Z)
+
+/* FIXME: Enable the KL25 into device on .c file! */
+
+#define FTM_MAX_CHANNEL   6
+
+typedef enum
+{
+#if defined (LIBOHIBOARD_KL25Z4)
+    FTM_PINS_PTA0,
+#endif
+    FTM_PINS_PTA1,
+    FTM_PINS_PTA2,
+#if defined (LIBOHIBOARD_KL25Z4)
+    FTM_PINS_PTA3,
+#endif
+    FTM_PINS_PTA4,
+    FTM_PINS_PTA5,
+    FTM_PINS_PTA12,
+    FTM_PINS_PTA13,
+
+    FTM_PINS_PTB0,
+    FTM_PINS_PTB1,
+    FTM_PINS_PTB2,
+    FTM_PINS_PTB3,
+    FTM_PINS_PTB18,
+    FTM_PINS_PTB19,
+
+    FTM_PINS_PTC1,
+    FTM_PINS_PTC2,
+    FTM_PINS_PTC3,
+    FTM_PINS_PTC4,
+    FTM_PINS_PTC8,
+    FTM_PINS_PTC9,
+
+    FTM_PINS_PTD0,
+    FTM_PINS_PTD1,
+    FTM_PINS_PTD2,
+    FTM_PINS_PTD3,
+    FTM_PINS_PTD4,
+    FTM_PINS_PTD5,
+
+    FTM_PINS_PTE20,
+    FTM_PINS_PTE21,
+    FTM_PINS_PTE22,
+    FTM_PINS_PTE23,
+#if defined (LIBOHIBOARD_KL25Z4)
+    FTM_PINS_PTE24,
+    FTM_PINS_PTE25,
+#endif
+    FTM_PINS_PTE29,
+    FTM_PINS_PTE30,
+    FTM_PINS_PTE31,
+
+    FTM_PINS_STOP,
+} Ftm_Pins;
+
+typedef enum
+{
+    FTM_CHANNELS_CH0,
+    FTM_CHANNELS_CH1,
+    FTM_CHANNELS_CH2,
+    FTM_CHANNELS_CH3,
+    FTM_CHANNELS_CH4,
+    FTM_CHANNELS_CH5,
+} Ftm_Channels;
+
+void Ftm_isrFtm0 (void);
+void Ftm_isrFtm1 (void);
+void Ftm_isrFtm2 (void);
+
+extern Ftm_DeviceHandle FTM0;
+extern Ftm_DeviceHandle FTM1;
+extern Ftm_DeviceHandle FTM2;
+
+#elif defined(LIBOHIBOARD_K10D10)
 
 #define FTM_MAX_CHANNEL                  8
 
@@ -292,7 +258,63 @@ extern Ftm_DeviceHandle FTM0;
 extern Ftm_DeviceHandle FTM1;
 extern Ftm_DeviceHandle FTM2;
 
-#elif defined(MK64F12)
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+	  defined (LIBOHIBOARD_OHIBOARD_R1)
+
+#define FTM_MAX_CHANNEL                  8
+
+typedef enum
+{
+    FTM_PINS_PTA0,
+    FTM_PINS_PTA1,
+    FTM_PINS_PTA2,
+    FTM_PINS_PTA3,
+    FTM_PINS_PTA4,
+    FTM_PINS_PTA5,
+    FTM_PINS_PTA12,
+    FTM_PINS_PTA13,
+
+    FTM_PINS_PTB0,
+    FTM_PINS_PTB1,
+    FTM_PINS_PTB18,
+    FTM_PINS_PTB19,
+
+    FTM_PINS_PTC1,
+    FTM_PINS_PTC2,
+    FTM_PINS_PTC3,
+    FTM_PINS_PTC4,
+
+    FTM_PINS_PTD4,
+    FTM_PINS_PTD5,
+    FTM_PINS_PTD6,
+    FTM_PINS_PTD7,
+
+    FTM_PINS_STOP,
+} Ftm_Pins;
+
+typedef enum
+{
+    FTM_CHANNELS_CH0,
+    FTM_CHANNELS_CH1,
+    FTM_CHANNELS_CH2,
+    FTM_CHANNELS_CH3,
+    FTM_CHANNELS_CH4,
+    FTM_CHANNELS_CH5,
+    FTM_CHANNELS_CH6,
+    FTM_CHANNELS_CH7,
+} Ftm_Channels;
+
+
+void Ftm_isrFtm0 (void);
+void Ftm_isrFtm1 (void);
+void Ftm_isrFtm2 (void);
+
+extern Ftm_DeviceHandle FTM0;
+extern Ftm_DeviceHandle FTM1;
+extern Ftm_DeviceHandle FTM2;
+
+#elif defined (LIBOHIBOARD_K64F12)     || \
+	  defined (LIBOHIBOARD_FRDMK64F)
 
 #define FTM_MAX_CHANNEL                  8
 
@@ -385,4 +407,4 @@ void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled
 
 #endif /* __FTM_H */
 
-#endif /* LIBOHIBOARD_FTM */
+//#endif /* LIBOHIBOARD_FTM */
