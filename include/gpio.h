@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -28,7 +28,6 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief GPIO definitions and prototypes.
  */
-
 
 #ifndef __GPIO_H
 #define __GPIO_H
@@ -60,9 +59,65 @@ typedef enum
 
 typedef enum
 {
-#if defined (MK60DZ10)
+#if defined (LIBOHIBOARD_KL02Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL02Z)
 
-#elif defined (OHIBOARD_R1)
+    GPIO_PINS_PTA0,
+    GPIO_PINS_PTA1,
+    GPIO_PINS_PTA2,
+    GPIO_PINS_PTA3,
+    GPIO_PINS_PTA4,
+    GPIO_PINS_PTA5,
+    GPIO_PINS_PTA6,
+    GPIO_PINS_PTA7,
+    GPIO_PINS_PTA8,
+    GPIO_PINS_PTA9,
+    GPIO_PINS_PTA10,
+    GPIO_PINS_PTA11,
+    GPIO_PINS_PTA12,
+    GPIO_PINS_PTA13,
+
+    GPIO_PINS_PTB0,
+    GPIO_PINS_PTB1,
+    GPIO_PINS_PTB2,
+    GPIO_PINS_PTB3,
+    GPIO_PINS_PTB4,
+    GPIO_PINS_PTB5,
+    GPIO_PINS_PTB6,
+    GPIO_PINS_PTB7,
+    GPIO_PINS_PTB8,
+    GPIO_PINS_PTB9,
+    GPIO_PINS_PTB10,
+    GPIO_PINS_PTB11,
+    GPIO_PINS_PTB12,
+    GPIO_PINS_PTB13,
+
+#elif defined (LIBOHIBOARD_KL03Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL03Z)
+
+    GPIO_PINS_PTA0,
+    GPIO_PINS_PTA1,
+    GPIO_PINS_PTA2,
+    GPIO_PINS_PTA3,
+    GPIO_PINS_PTA4,
+    GPIO_PINS_PTA5,
+    GPIO_PINS_PTA6,
+    GPIO_PINS_PTA7,
+    GPIO_PINS_PTA8,
+    GPIO_PINS_PTA9,
+    GPIO_PINS_PTA12,
+
+    GPIO_PINS_PTB0,
+    GPIO_PINS_PTB1,
+    GPIO_PINS_PTB2,
+    GPIO_PINS_PTB3,
+    GPIO_PINS_PTB4,
+    GPIO_PINS_PTB5,
+    GPIO_PINS_PTB6,
+    GPIO_PINS_PTB7,
+    GPIO_PINS_PTB10,
+    GPIO_PINS_PTB11,
+    GPIO_PINS_PTB13,
 
 #elif defined (LIBOHIBOARD_KL15Z4)
 
@@ -141,7 +196,8 @@ typedef enum
     GPIO_PINS_PTE30,
     GPIO_PINS_PTE31,
     
-#elif defined (FRDMKL25Z)
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+	  defined (LIBOHIBOARD_FRDMKL25Z)
 
     GPIO_PINS_PTA0 = 0,
     GPIO_PINS_PTA1,
@@ -214,11 +270,11 @@ typedef enum
     GPIO_PINS_PTE30,
     GPIO_PINS_PTE31,
 
-#elif defined (MK10DZ10)
+#elif defined (LIBOHIBOARD_K10DZ10)
     
     GPIO_PINS_NONE,
     
-#elif defined (MK10D10)
+#elif defined (LIBOHIBOARD_K10D10)
 
     GPIO_PINS_PTA0 = 0,
     GPIO_PINS_PTA1,
@@ -328,66 +384,12 @@ typedef enum
     GPIO_PINS_PTE26,
     GPIO_PINS_PTE27,
     GPIO_PINS_PTE28,
-    
-#elif defined (FRDMKL02Z) || defined (MKL02Z4)
-    
-    GPIO_PINS_PTA0,
-    GPIO_PINS_PTA1,
-    GPIO_PINS_PTA2,
-    GPIO_PINS_PTA3,
-    GPIO_PINS_PTA4,
-    GPIO_PINS_PTA5,
-    GPIO_PINS_PTA6,
-    GPIO_PINS_PTA7,
-    GPIO_PINS_PTA8,
-    GPIO_PINS_PTA9,
-    GPIO_PINS_PTA10,
-    GPIO_PINS_PTA11,
-    GPIO_PINS_PTA12,
-    GPIO_PINS_PTA13,
-    
-    GPIO_PINS_PTB0,
-    GPIO_PINS_PTB1,
-    GPIO_PINS_PTB2,
-    GPIO_PINS_PTB3,
-    GPIO_PINS_PTB4,
-    GPIO_PINS_PTB5,
-    GPIO_PINS_PTB6,
-    GPIO_PINS_PTB7,
-    GPIO_PINS_PTB8,
-    GPIO_PINS_PTB9,
-    GPIO_PINS_PTB10,
-    GPIO_PINS_PTB11,
-    GPIO_PINS_PTB12,
-    GPIO_PINS_PTB13,
 
-#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+      defined (LIBOHIBOARD_OHIBOARD_R1)
 
-    GPIO_PINS_PTA0,
-    GPIO_PINS_PTA1,
-    GPIO_PINS_PTA2,
-    GPIO_PINS_PTA3,
-    GPIO_PINS_PTA4,
-    GPIO_PINS_PTA5,
-    GPIO_PINS_PTA6,
-    GPIO_PINS_PTA7,
-    GPIO_PINS_PTA8,
-    GPIO_PINS_PTA9,
-    GPIO_PINS_PTA12,
-
-    GPIO_PINS_PTB0,
-    GPIO_PINS_PTB1,
-    GPIO_PINS_PTB2,
-    GPIO_PINS_PTB3,
-    GPIO_PINS_PTB4,
-    GPIO_PINS_PTB5,
-    GPIO_PINS_PTB6,
-    GPIO_PINS_PTB7,
-    GPIO_PINS_PTB10,
-    GPIO_PINS_PTB11,
-    GPIO_PINS_PTB13,
-
-#elif defined (FRDMKL64F) || defined (MK64F12)
+#elif defined (LIBOHIBOARD_K64F12)     || \
+	  defined (LIBOHIBOARD_FRDMK64F)
 
     GPIO_PINS_PTA0 = 0,
     GPIO_PINS_PTA1,
@@ -492,7 +494,6 @@ typedef enum
     
 #endif
 } Gpio_Pins;
-
 
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);

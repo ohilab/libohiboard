@@ -1,7 +1,8 @@
-/* Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +24,13 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/gpio_K64F12.c
- * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @brief GPIO implementations for K64F12 and FRDMK64.
+ * @file libohiboard/source/gpio_K60DZ10.c
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief GPIO implementations for K60DZ10 and OHIBOARD-R1.
  */
 
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
+#if defined (LIBOHIBOARD_K60DZ10) || \
+    defined (LIBOHIBOARD_OHIBOARD_R1)
 
 #include "gpio.h"
 #include "platforms.h"
@@ -51,112 +52,7 @@ typedef struct _Gpio_PinDevice
 
 static Gpio_PinDevice Gpio_availablePins[] =
 {
-	    {GPIO_PORTS_A,0},
-	    {GPIO_PORTS_A,1},
-	    {GPIO_PORTS_A,2},
-	    {GPIO_PORTS_A,3},
-	    {GPIO_PORTS_A,4},
-	    {GPIO_PORTS_A,5},
-	    {GPIO_PORTS_A,6},
-	    {GPIO_PORTS_A,7},
-	    {GPIO_PORTS_A,8},
-	    {GPIO_PORTS_A,9},
-	    {GPIO_PORTS_A,10},
-	    {GPIO_PORTS_A,11},
-	    {GPIO_PORTS_A,12},
-	    {GPIO_PORTS_A,13},
-	    {GPIO_PORTS_A,14},
-	    {GPIO_PORTS_A,15},
-	    {GPIO_PORTS_A,16},
-	    {GPIO_PORTS_A,17},
-	    {GPIO_PORTS_A,18},
-	    {GPIO_PORTS_A,19},
-	    {GPIO_PORTS_A,24},
-	    {GPIO_PORTS_A,25},
-	    {GPIO_PORTS_A,26},
-	    {GPIO_PORTS_A,27},
-	    {GPIO_PORTS_A,28},
-	    {GPIO_PORTS_A,29},
-
-	    {GPIO_PORTS_B,0},
-	    {GPIO_PORTS_B,1},
-	    {GPIO_PORTS_B,2},
-	    {GPIO_PORTS_B,3},
-	    {GPIO_PORTS_B,4},
-	    {GPIO_PORTS_B,5},
-	    {GPIO_PORTS_B,6},
-	    {GPIO_PORTS_B,7},
-	    {GPIO_PORTS_B,8},
-	    {GPIO_PORTS_B,9},
-	    {GPIO_PORTS_B,10},
-	    {GPIO_PORTS_B,11},
-	    {GPIO_PORTS_B,12},
-	    {GPIO_PORTS_B,13},
-	    {GPIO_PORTS_B,16},
-	    {GPIO_PORTS_B,17},
-	    {GPIO_PORTS_B,18},
-	    {GPIO_PORTS_B,19},
-	    {GPIO_PORTS_B,20},
-	    {GPIO_PORTS_B,21},
-	    {GPIO_PORTS_B,22},
-	    {GPIO_PORTS_B,23},
-
-	    {GPIO_PORTS_C,0},
-	    {GPIO_PORTS_C,1},
-	    {GPIO_PORTS_C,2},
-	    {GPIO_PORTS_C,3},
-	    {GPIO_PORTS_C,4},
-	    {GPIO_PORTS_C,5},
-	    {GPIO_PORTS_C,6},
-	    {GPIO_PORTS_C,7},
-	    {GPIO_PORTS_C,8},
-	    {GPIO_PORTS_C,9},
-	    {GPIO_PORTS_C,10},
-	    {GPIO_PORTS_C,11},
-	    {GPIO_PORTS_C,12},
-	    {GPIO_PORTS_C,13},
-	    {GPIO_PORTS_C,14},
-	    {GPIO_PORTS_C,15},
-	    {GPIO_PORTS_C,16},
-	    {GPIO_PORTS_C,17},
-	    {GPIO_PORTS_C,18},
-	    {GPIO_PORTS_C,19},
-
-	    {GPIO_PORTS_D,0},
-	    {GPIO_PORTS_D,1},
-	    {GPIO_PORTS_D,2},
-	    {GPIO_PORTS_D,3},
-	    {GPIO_PORTS_D,4},
-	    {GPIO_PORTS_D,5},
-	    {GPIO_PORTS_D,6},
-	    {GPIO_PORTS_D,7},
-	    {GPIO_PORTS_D,8},
-	    {GPIO_PORTS_D,9},
-	    {GPIO_PORTS_D,10},
-	    {GPIO_PORTS_D,11},
-	    {GPIO_PORTS_D,12},
-	    {GPIO_PORTS_D,13},
-	    {GPIO_PORTS_D,14},
-	    {GPIO_PORTS_D,15},
-
-	    {GPIO_PORTS_E,0},
-	    {GPIO_PORTS_E,1},
-	    {GPIO_PORTS_E,2},
-	    {GPIO_PORTS_E,3},
-	    {GPIO_PORTS_E,4},
-	    {GPIO_PORTS_E,5},
-	    {GPIO_PORTS_E,6},
-	    {GPIO_PORTS_E,7},
-	    {GPIO_PORTS_E,8},
-	    {GPIO_PORTS_E,9},
-	    {GPIO_PORTS_E,10},
-	    {GPIO_PORTS_E,11},
-	    {GPIO_PORTS_E,12},
-	    {GPIO_PORTS_E,24},
-	    {GPIO_PORTS_E,25},
-	    {GPIO_PORTS_E,26},
-	    {GPIO_PORTS_E,27},
-	    {GPIO_PORTS_E,28},
+        /* FIXME: Add pins */
 };
 
 static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
@@ -299,4 +195,4 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->PDIR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
+#endif /* LIBOHIBOARD_K60DZ10 || LIBOHIBOARD_OHIBOARD_R1 */
