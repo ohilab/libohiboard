@@ -51,25 +51,28 @@ typedef enum
 	CLOCK_INTERNAL,
 	CLOCK_EXTERNAL,
 	CLOCK_CRYSTAL,
-#if defined(MK64F12)
+#if defined (LIBOHIBOARD_K64F12)     || \
+	defined (LIBOHIBOARD_FRDMK64F)
 	CLOCK_CRYSTAL_32K,
 	CLOCK_INTERNAL_48M
-#endif
-#if defined(MK60F15)
-	CLOCK_CRYSTAL_32K
 #endif
 } Clock_Origin;
 
 typedef enum
 {
-#if (defined(MKL03Z4) || defined(FRDMKL03))
+#if defined (LIBOHIBOARD_KL03Z4) || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
 	CLOCK_LIRC2M,
 	CLOCK_LIRC8M,
 	CLOCK_HIRC,
 	CLOCK_EXT,
-#elif defined (LIBOHIBOARD_KL15Z4) || \
-	(defined(MK60DZ10) || defined(MK60F15) || defined(MK10DZ10) || defined(MK10D10) \
-	|| defined(OHIBOARD_R1) || defined(FRDMKL25Z) || defined(MK64F12))
+#elif defined (LIBOHIBOARD_KL15Z4)     || \
+      defined (LIBOHIBOARD_KL25Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL25Z) || \
+	  defined (LIBOHIBOARD_K60DZ10)    || \
+	  defined (LIBOHIBOARD_K64F12)     || \
+	  defined (LIBOHIBOARD_FRDMK64F)   || \
+	  defined (LIBOHIBOARD_OHIBOARD_R1)
 	CLOCK_FEI,
 	CLOCK_FEE,
 	CLOCK_FBI,
@@ -101,8 +104,13 @@ uint32_t Clock_getFrequency (Clock_Source source);
 
 Clock_State Clock_getCurrentState(); 
 
-#if (defined(MK60DZ10) || defined(MK60F15) || defined(MK64F12))
+#if defined (LIBOHIBOARD_K60DZ10)    || \
+    defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)   || \
+	defined (LIBOHIBOARD_OHIBOARD_R1)
+
 uint8_t Clock_getCoreDivider();
+
 #endif
 
 #endif /* __CLOCK_H */
