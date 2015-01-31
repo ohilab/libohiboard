@@ -1,18 +1,18 @@
-/* Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
- * 
+/* Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Alessio Paolucci <a.paolucci89@gmail.com>
- * 
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,19 +23,19 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/interrupt_K64F12.c
- * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @brief Interrupt implementations for K64F12 and FRDMK64.
+ * @file libohiboard/source/interrupt_K60DZ10.c
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief Interrupt implementations for K60DZ10 and OHIBOARD-R1.
  */
 
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
+#if defined (LIBOHIBOARD_K60DZ10) || \
+    defined (LIBOHIBOARD_OHIBOARD_R1)
 
 #include "platforms.h"
 #include "interrupt.h"
 
 #define NVIC_NUM_CORE_VECTORS           16
-#define NVIC_NUM_MCU_VECTORS            86
+#define NVIC_NUM_MCU_VECTORS            95
 #define NVIC_NUM_VECTORS                NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
@@ -95,8 +95,4 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
     return ERRORS_NO_ERROR;
 }
 
-#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
-
-
-
-
+#endif /* LIBOHIBOARD_K60DZ10 || LIBOHIBOARD_OHIBOARD_R1 */
