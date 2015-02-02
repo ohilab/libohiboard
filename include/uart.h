@@ -5,6 +5,7 @@
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ *  Alessio Paolucci <a.paolucci89@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +31,7 @@
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
+ * @author ALessio Paolucci <a.paolucci89@gmail.com>
  * @brief UART definitions and prototypes.
  */
 
@@ -55,8 +57,18 @@ typedef enum {
 } Uart_DataBits;
 
 typedef enum {
+#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
+	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
+	  defined(MK60DZ10) || defined(MK60F15) || defined(MK64F12) || defined(FRDMK64F) || \
+	  defined(OHIBOARD_R1)
     UART_CLOCKSOURCE_BUS,
     UART_CLOCKSOURCE_SYSTEM,
+#elif defined(MKL03Z4) || defined(FRDMKL03Z)
+    UART_CLOCKSOURCE_IRC48,
+    UART_CLOCKSOURCE_IRC8,
+    UART_CLOCKSOURCE_IRC2,
+    UART_CLOCKSOURCE_EXT,
+#endif
 } Uart_ClockSource;
 
 
@@ -321,6 +333,11 @@ typedef struct _Uart_Config
     Uart_ParityMode parity;
     
     uint32_t baudrate;
+
+#if defined (FRDMKL03Z) || defined (MKL03Z4)
+    uint8_t oversampling; /* 4 to 32 */
+    uint32_t extClk;      /* external frequency or crystal value if clockSource = UART_CLOCKSOURCE_EXT */
+#endif
 
 } Uart_Config;
 

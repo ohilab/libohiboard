@@ -26,6 +26,7 @@
 /**
  * @file libohiboard/source/uart_KL03Z4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Alessio Paolucci <a.paolucci89@gmail.com>
  * @brief UART implementations.
  */
 
@@ -103,9 +104,78 @@ static Uart_Device uart0 = {
 };
 Uart_DeviceHandle UART0 = &uart0;
 
-static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
+static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, Uart_ClockSource clockSource, uint32_t baudrate,
+		                            uint8_t oversampling, uint32_t extClk)
 {
+	Clock_State MCGstate = Clock_getCurrentState();
+	uint8_t osr = oversampling - 1;
+	uint16_t sbr = 0;
+	uint32_t sourceClk = 0;
+	uint8_t fcrdiv;
+	uint8_t lircdiv;
+	uint32_t tempReg;
 
+	switch (clockSource)
+	{
+	case UART_CLOCKSOURCE_IRC48:
+		sourceClk = 48000000;
+		tempReg = SIM_SOPT2;
+		tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
+		tempReg |= SIM_SOPT2_LPUART0SRC(1);
+		SIM_SOPT2 = tempReg;
+		break;
+	case UART_CLOCKSOURCE_IRC8:
+		if (MCGstate == CLOCK_LIRC2M)
+		{
+			return error = ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG;
+		}
+		else
+		{
+			MCG_C2 |= MCG_C2_IRCS_MASK;
+			fcrdiv = pow(2,((MCG_SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT));
+			lircdiv = pow(2,((MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT));
+			sourceClk = (8000000/fcrdiv)/lircdiv;
+			tempReg = SIM_SOPT2;
+			tmepReg &=~ ~SIM_SOPT2_LPUART0SRC_MASK;
+			tempReg |= SIM_SOPT2_LPUART0SRC(3);
+			SIM_SOPT2 = tempReg;
+		}
+		break;
+	case UART_CLOCKSOURCE_IRC2:
+		if (MCGstate == CLOCK_LIRC8M)
+		{
+			return ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG;
+		}
+		else
+		{
+			MCG_C2 &= ~MCG_C2_IRCS_MASK;
+			fcrdiv = pow(2,((MCG_SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT));
+			lircdiv = pow(2,((MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT));
+			sourceClk = (2000000/fcrdiv)/lircdiv;
+			tempReg = SIM_SOPT2;
+			tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
+			tempReg |= SIM_SOPT2_LPUART0SRC(3);
+			SIM_SOPT2 = tempReg;
+		}
+		break;
+	case UART_CLOCKSOURCE_EXT:
+		sourceClk = extClk;
+		tempReg = SIM_SOPT2;
+		tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
+		tempReg |= SIM_SOPT2_LPUART0SRC(2);
+		SIM_SOPT2 = tempReg;
+		break;
+	}
+
+    /* Calculate baud settings */
+    sbr = (uint16_t)((sourceClk)/(baudrate * oversampling));
+
+    /* Save off the current value of the LPUART_BAUD register except for the OSR and the SBR field */
+    tempReg = LPUART0_BAUD & ~(LPUART_BAUD_OSR_MASK | LPUART_BAUD_SBR_MASK);
+
+    LPUART0_BAUD = tempReg | (LPUART_BAUD_OSR(osr) | LPUART_BAUD_SBR(sbr));
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
@@ -180,7 +250,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
 
     // TODO!!
 //    dev->clockSource = config->clockSource;
-    Uart_setBaudrate(dev,config->baudrate);
+    Uart_setBaudrate(dev, config->clockSource, config->baudrate, config->oversampling, config->extClk);
 
     /* Enable receiver and transmitter */
     LPUART_CTRL_REG(dev->regMap) |= (LPUART_CTRL_TE_MASK | LPUART_CTRL_RE_MASK | 0);
