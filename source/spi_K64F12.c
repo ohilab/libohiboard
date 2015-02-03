@@ -23,17 +23,20 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/spi_k64f.c
+ * @file libohiboard/source/spi_K644F12.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @spi implementations for FRDMK64.
+ * @brief SPI implementations for FRDMK64.
  */
+
+#ifdef LIBOHIBOARD_SPI
 
 #include "platforms.h"
 #include "utility.h"
 #include "spi.h"
 #include "clock.h"
 
-#if defined (MK64F12) || defined (FRDMK64F)
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
 
 #define SPI_MAX_PINS           12
 
@@ -262,8 +265,8 @@ static Spi_Device spi2 = {
 };
 Spi_DeviceHandle SPI2 = &spi2;
 
-uint8_t pbrDiv[] = {2, 3, 5, 7};
-uint16_t brDiv[] = {
+static uint8_t  Spi_pbrDiv[] = {2, 3, 5, 7};
+static uint16_t Spi_brDiv[] = {
 		/*00*/     2, /*01*/     4, /*02*/     6, /*03*/     8,
 		/*04*/    16, /*05*/    32, /*06*/    64, /*07*/   128,
 		/*08*/   256, /*09*/   512, /*10*/  1024, /*11*/  2048,
@@ -347,9 +350,6 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     uint8_t index = 0;
 
     if (dev->devInitialized) return error = ERRORS_SPI_DEVICE_JUST_INIT;
-
-//    if (config->pinEnabled == IIC_PIN_DISABLED)
-//    	return ERRORS_HW_NOT_ENABLED;
 
     /* Turn on clock */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
@@ -455,7 +455,7 @@ System_Errors setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     	{
     		for(k = 0; k < 16; k++)
     		{
-    			spiClk = ((busClk/pbrDiv[j])*((1+i)/brDiv[k]));
+    			spiClk = ((busClk/Spi_pbrDiv[j])*((1+i)/Spi_brDiv[k]));
     			if(speed < spiClk)
     			{
     				if((spiClk - speed) < diff)
@@ -563,4 +563,6 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 	return ERRORS_NO_ERROR;
 }
 
-#endif
+#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
+
+#endif /* LIBOHIBOARD_SPI */
