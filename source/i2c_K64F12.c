@@ -23,17 +23,20 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/i2c_k64f.c
+ * @file libohiboard/source/i2c_K64F12.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @i2c implementations for FRDMK64.
+ * @brief I2C implementations for K64F12 and FRDMK64F.
  */
+
+#ifdef LIBOHIBOARD_IIC
+
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
 
 #include "platforms.h"
 #include "system.h"
 #include "i2c.h"
 #include "clock.h"
-
-#if defined (MK64F12) || defined (FRDMK64F)
 
 #define IIC_MAX_PINS           9
 
@@ -168,7 +171,7 @@ static Iic_Device iic2 = {
 Iic_DeviceHandle IIC2 = &iic2;
 
 /* See Table 50-41 I2C Divider and Hold Values */
-uint16_t sclDivTab[] = {
+static uint16_t Iic_sclDivTab[] = {
     /* 00 */   20, /* 01 */   22, /* 02 */   24, /* 03 */   26,
     /* 04 */   28, /* 05 */   30, /* 06 */   34, /* 07 */   40,
     /* 08 */   28, /* 09 */   32, /* 0A */   36, /* 0B */   40,
@@ -243,8 +246,8 @@ static int setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 
     busClk = Clock_getFrequency(CLOCK_BUS);
 
-    for (icr = 0; icr < sizeof(sclDivTab) / sizeof(sclDivTab[0]); icr++) {
-        i2cClk = busClk / sclDivTab[icr];
+    for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++) {
+        i2cClk = busClk / Iic_sclDivTab[icr];
         if (i2cClk > speed) {
             i2cClk /= 2;
             if (i2cClk > speed) {
@@ -265,7 +268,7 @@ static int setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
     }
 
     icr = bestIcr;
-    i2cClk = busClk / sclDivTab[bestIcr];
+    i2cClk = busClk / Iic_sclDivTab[bestIcr];
     if (i2cClk > speed) {
         i2cClk /= 2;
         if (i2cClk > speed) {
@@ -285,7 +288,7 @@ static int setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
     tempReg |= (I2C_F_MULT(mul) | I2C_F_ICR(icr));
     I2C_F_REG(regmap) = tempReg;
 
-    slt = sclDivTab[icr] / 2 + 1;
+    slt = Iic_sclDivTab[icr] / 2 + 1;
 
 //    I2C_SLTH_REG(regmap) = slt >> 8;
 //    I2C_SLTL_REG(regmap) = slt;
@@ -304,9 +307,6 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
     I2C_MemMapPtr regmap = dev->regMap;
     Iic_DeviceType devType = config->devType;
     uint32_t baudrate = config->baudRate;
-
-//    if (config->pinEnabled == IIC_PIN_DISABLED)
-//    	return ERRORS_HW_NOT_ENABLED;
 
     /* Turn on clock */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
@@ -572,4 +572,6 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
     return ERRORS_IIC_RX_OK;
 }
 
-#endif
+#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
+
+#endif /* LIBOHIBOARD_IIC */

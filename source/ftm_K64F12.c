@@ -610,6 +610,6 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     return ERRORS_FTM_OK;
 }
  
-#endif
+#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
 
 #endif // LIBOHIBOARD_FTM

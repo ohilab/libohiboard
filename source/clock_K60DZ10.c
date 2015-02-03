@@ -2,7 +2,7 @@
  * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
- *  Alessio Paolucci <m.giammarini@warcomeb.it>
+ *  Alessio Paolucci <a.paolucci89@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 /**
  * @file libohiboard/source/clock_K60DZ10.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @Clock implementations for K60DZ10.
+ * @brief Clock implementations for K60DZ10 and OHIBOARD-R1.
  */
 
 #include "platforms.h"
