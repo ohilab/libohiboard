@@ -1,8 +1,9 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Alessio Paolucci <a.paolucci89@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,12 +33,13 @@
 
 #ifdef LIBOHIBOARD_UART
 
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
+
 #include "uart.h"
 
 #include "interrupt.h"
 #include "clock.h"
-
-#if defined (FRDMKL03Z) || defined (MKL03Z4)
 
 #define UART_MAX_PINS                     4
 
@@ -61,6 +63,7 @@ typedef struct Uart_Device
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
+static uint8_t Uart_div[] = {1, 2, 4, 8, 16, 32, 64, 128};
 
 static Uart_Device uart0 = {
         .regMap           = LPUART0_BASE_PTR,
@@ -104,8 +107,11 @@ static Uart_Device uart0 = {
 };
 Uart_DeviceHandle UART0 = &uart0;
 
-static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, Uart_ClockSource clockSource, uint32_t baudrate,
-		                            uint8_t oversampling, uint32_t extClk)
+static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev,
+                                       Uart_ClockSource clockSource,
+                                       uint32_t baudrate,
+		                               uint8_t  oversampling,
+		                               uint32_t externalClock)
 {
 	Clock_State MCGstate = Clock_getCurrentState();
 	uint8_t osr = oversampling - 1;
@@ -132,11 +138,11 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, Uart_ClockSource c
 		else
 		{
 			MCG_C2 |= MCG_C2_IRCS_MASK;
-			fcrdiv = pow(2,((MCG_SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT));
-			lircdiv = pow(2,((MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT));
+            fcrdiv = Uart_div[(MCG_SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT];
+            lircdiv = Uart_div[(MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT];
 			sourceClk = (8000000/fcrdiv)/lircdiv;
 			tempReg = SIM_SOPT2;
-			tmepReg &=~ ~SIM_SOPT2_LPUART0SRC_MASK;
+			tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
 			tempReg |= SIM_SOPT2_LPUART0SRC(3);
 			SIM_SOPT2 = tempReg;
 		}
@@ -149,8 +155,8 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, Uart_ClockSource c
 		else
 		{
 			MCG_C2 &= ~MCG_C2_IRCS_MASK;
-			fcrdiv = pow(2,((MCG_SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT));
-			lircdiv = pow(2,((MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT));
+            fcrdiv = Uart_div[(MCG_SC & MCG_SC_FCRDIV_MASK) >> MCG_SC_FCRDIV_SHIFT];
+            lircdiv = Uart_div[(MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT];
 			sourceClk = (2000000/fcrdiv)/lircdiv;
 			tempReg = SIM_SOPT2;
 			tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
@@ -159,7 +165,7 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, Uart_ClockSource c
 		}
 		break;
 	case UART_CLOCKSOURCE_EXT:
-		sourceClk = extClk;
+		sourceClk = externalClock;
 		tempReg = SIM_SOPT2;
 		tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
 		tempReg |= SIM_SOPT2_LPUART0SRC(2);
@@ -322,6 +328,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-#endif /* defined (FRDMKL03Z) || defined (MKL03Z4) */
+#endif /* LIBOHIBOARD_KL03Z4 || LIBOHIBOARD_FRDMKL03Z */
 
 #endif /* LIBOHIBOARD_UART */

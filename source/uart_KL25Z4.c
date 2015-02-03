@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -28,17 +28,18 @@
  * @file libohiboard/source/uart_KL25Z4.c
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief UART implementations.
+ * @brief UART implementations for KL25Z4 and FRDMKL25Z.
  */
 
 #ifdef LIBOHIBOARD_UART
+
+#if defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 
 #include "uart.h"
 
 #include "interrupt.h"
 #include "clock.h"
-
-#if defined (FRDMKL25Z) || defined (MKL25Z4)
 
 #define UART_MAX_PINS                     10
 
@@ -455,6 +456,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-#endif /* defined (FRDMKL25Z) || defined (MKL25Z4) */
+#endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */
 
 #endif /* LIBOHIBOARD_UART */

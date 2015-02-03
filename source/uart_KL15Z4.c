@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -26,17 +26,17 @@
 /**
  * @file libohiboard/source/uart_KL15Z4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief UART implementations.
+ * @brief UART implementations for KL15Z4.
  */
 
-#ifdef LIBOHIBOARD_UART
+//#ifdef LIBOHIBOARD_UART
+
+#if defined (LIBOHIBOARD_KL15Z4)
 
 #include "uart.h"
 
 #include "interrupt.h"
 #include "clock.h"
-
-#if defined (LIBOHIBOARD_KL15Z4)
 
 #define UART_MAX_PINS                     10
 
@@ -453,6 +453,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-#endif /* defined (LIBOHIBOARD_KL15Z4) */
+#endif /* LIBOHIBOARD_KL15Z4 */
 
-#endif /* LIBOHIBOARD_UART */
+//#endif /* LIBOHIBOARD_UART */

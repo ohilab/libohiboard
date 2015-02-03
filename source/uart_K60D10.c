@@ -38,7 +38,8 @@
 #include "interrupt.h"
 #include "clock.h"
 
-#if defined (MK60DZ10) || defined (OHIBOARD_R1)
+#if defined (LIBOHIBOARD_K60DZ10) || \
+    defined (LIBOHIBOARD_OHIBOARD_R1)
 
 #define UART_MAX_PINS                     10
 
@@ -222,6 +223,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-#endif /* defined (MK60DZ10) || defined (OHIBOARD_R1) */
+#endif /* LIBOHIBOARD_K60DZ10 || LIBOHIBOARD_OHIBOARD_R1 */
 
 #endif /* LIBOHIBOARD_UART */

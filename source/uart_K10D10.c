@@ -35,12 +35,13 @@
 
 #ifdef LIBOHIBOARD_UART
 
+#if defined (LIBOHIBOARD_K10D10) || \
+    defined (LIBOHIBOARD_K10DZ10)
+
 #include "uart.h"
 
 #include "interrupt.h"
 #include "clock.h"
-
-#if defined (MK10DZ10) || defined (MK10D10)
 
 #define UART_MAX_PINS                     10
 
@@ -268,16 +269,6 @@ static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     uint8_t temp;
     uint32_t clockHz;
 
-//    switch (dev->clockSource)
-//    {
-//    case UART_CLOCKSOURCE_BUS:
-//        clockHz = Clock_getFrequency(CLOCK_BUS);
-//        break;
-//    case UART_CLOCKSOURCE_SYSTEM:
-//        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
-//        break;
-//    }
-
     if ((dev == UART0) || (dev == UART1))
     {
         clockHz = Clock_getFrequency(CLOCK_SYSTEM);
@@ -456,6 +447,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-#endif /* defined (MK10DZ10) || defined (MK10D10) */
+#endif /* LIBOHIBOARD_K10D10 || LIBOHIBOARD_K10DZ10 */
 
 #endif /* LIBOHIBOARD_UART */

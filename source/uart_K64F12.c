@@ -23,21 +23,22 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/uart_k64f.c
+ * @file libohiboard/source/uart_K64F12.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @uart implementations for FRDMK64.
+ * @brief UART implementations for K64F12 and FRDMK64.
  */
+
+#ifdef LIBOHIBOARD_UART
+
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
 
 #include "uart.h"
 
 #include "interrupt.h"
 #include "clock.h"
 
-#if defined(MK64F12) || defined(FRDMK64F)
-
 #define UART_MAX_PINS                     12
-
-static const char Uart_hexDigits[] = "0123456789ABCDEF";
 
 typedef struct Uart_Device
 {
@@ -332,44 +333,6 @@ uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
         return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);  
 }
 
-/* Next functions yet defined in clock.h
- *
- */
-//void Uart_sendString (Uart_DeviceHandle dev, const char* text)
-//{
-//    if (text)
-//    {
-//        while (*text)
-//        {
-//            Uart_putChar(dev, *text++);
-//        }
-//    }
-//}
-//
-//void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length)
-//{
-//    if (data)
-//    {
-//        while (length--)
-//        {
-//            Uart_putChar(dev, *data++);
-//        }
-//    }
-//}
-//
-//void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length)
-//{
-//    if (data)
-//    {
-//        while (length--)
-//        {
-//            uint8_t value = *data++;
-//            Uart_putChar(dev, Uart_hexDigits[(value >> 4) & 0x0F]);
-//            Uart_putChar(dev, Uart_hexDigits[(value >> 0) & 0x0F]);
-//        }
-//    }
-//}
-
 System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config)
 {
     if (dev->devInitialized) return ERRORS_UART_DEVICE_JUST_INIT;
@@ -391,29 +354,29 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     UART_CFIFO_REG(dev->regMap) |= UART_CFIFO_RXFLUSH_MASK | UART_CFIFO_TXFLUSH_MASK;
 
     /* FIXME: Configure the UART just for 8-bit mode */
-        switch (config->dataBits)
-        {
-        case UART_DATABITS_EIGHT:
-            UART_C1_REG(dev->regMap) &= ~(UART_C1_M_MASK);
-            break;
-        case UART_DATABITS_NINE:
-            /* FIXME: UART_C1_REG(dev->regMap) |= UART_C1_M_MASK; */
-        	break;
-        }    
+    switch (config->dataBits)
+    {
+    case UART_DATABITS_EIGHT:
+        UART_C1_REG(dev->regMap) &= ~(UART_C1_M_MASK);
+        break;
+    case UART_DATABITS_NINE:
+        /* FIXME: UART_C1_REG(dev->regMap) |= UART_C1_M_MASK; */
+        break;
+    }
 
     /* Set parity type */
-        switch (config->parity)
-        {
-        case UART_PARITY_NONE:
-            UART_C1_REG(dev->regMap) &= ~(UART_C1_PE_MASK | UART_C1_PT_MASK);
-            break;
-        case UART_PARITY_ODD:
-            UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | UART_C1_PT_MASK | 0;
-            break;
-        case UART_PARITY_EVEN:
-            UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | 0;
-            break;
-        }    
+    switch (config->parity)
+    {
+    case UART_PARITY_NONE:
+        UART_C1_REG(dev->regMap) &= ~(UART_C1_PE_MASK | UART_C1_PT_MASK);
+        break;
+    case UART_PARITY_ODD:
+        UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | UART_C1_PT_MASK | 0;
+        break;
+    case UART_PARITY_EVEN:
+        UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | 0;
+        break;
+    }
 
     dev->clockSource = config->clockSource;
     Uart_setBaudrate(dev,config->baudrate);
@@ -477,4 +440,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;    
 }
 
-#endif
+#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
+
+#endif /* LIBOHIBOARD_UART */

@@ -1,12 +1,12 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
  *  Alessio Paolucci <a.paolucci89@gmail.com>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -31,7 +31,7 @@
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
- * @author ALessio Paolucci <a.paolucci89@gmail.com>
+ * @author Alessio Paolucci <a.paolucci89@gmail.com>
  * @brief UART definitions and prototypes.
  */
 
@@ -57,45 +57,43 @@ typedef enum {
 } Uart_DataBits;
 
 typedef enum {
-#if defined(MKL15Z4) || defined(FRDMK20D50M) || defined(FRDMKL05Z) || defined(MK60F15) || \
-	  defined(FRDMKL02Z) || defined(MKL02Z4) || defined(MK10DZ10) || defined(MK10D10) || \
-	  defined(MK60DZ10) || defined(MK60F15) || defined(MK64F12) || defined(FRDMK64F) || \
-	  defined(OHIBOARD_R1)
+#if defined (LIBOHIBOARD_KL15Z4)     || \
+    defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+    defined (LIBOHIBOARD_K10DZ10)    || \
+    defined (LIBOHIBOARD_K10D10)     || \
+    defined (LIBOHIBOARD_K60DZ10)    || \
+    defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
+
     UART_CLOCKSOURCE_BUS,
     UART_CLOCKSOURCE_SYSTEM,
-#elif defined(MKL03Z4) || defined(FRDMKL03Z)
+
+#elif defined (LIBOHIBOARD_KL03Z4)   || \
+      defined (LIBOHIBOARD_FRDMKL03Z)
+
     UART_CLOCKSOURCE_IRC48,
     UART_CLOCKSOURCE_IRC8,
     UART_CLOCKSOURCE_IRC2,
     UART_CLOCKSOURCE_EXT,
+
 #endif
 } Uart_ClockSource;
 
 
 typedef enum
 {
-#if defined (MK60DZ10)
     
-#elif defined (OHIBOARD_R1)
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
+
+    UART_PINS_PTA4,
+
+    UART_PINS_PTB1R,
+    UART_PINS_PTB2R,
+    UART_PINS_PTB4,
     
-#elif defined (FRDMKL25Z)
-
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-//    UART_PINS_PTA18, // Connected to crystal
-
-    UART_PINS_PTB16,
-
-    UART_PINS_PTC3,
-    
-    UART_PINS_PTD2,
-    UART_PINS_PTD4,
-    UART_PINS_PTD6,
-    
-    UART_PINS_PTE1,
-    UART_PINS_PTE21,
-    UART_PINS_PTE23,
-
 #elif defined (LIBOHIBOARD_KL15Z4)
 
     UART_PINS_PTA1,
@@ -114,8 +112,27 @@ typedef enum
     UART_PINS_PTE17,
     UART_PINS_PTE21,
     UART_PINS_PTE23,
+
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL25Z)
+
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+    UART_PINS_PTA18,
+    UART_PINS_PTB16,
+
+    UART_PINS_PTC3,
     
-#elif defined (MK10DZ10) || defined (MK10D10)
+    UART_PINS_PTD2,
+    UART_PINS_PTD4,
+    UART_PINS_PTD6,
+    
+    UART_PINS_PTE1,
+    UART_PINS_PTE21,
+    UART_PINS_PTE23,
+
+    
+#if defined (LIBOHIBOARD_K10D10)
 
     UART_PINS_PTA1,
     UART_PINS_PTA15,
@@ -137,15 +154,8 @@ typedef enum
     UART_PINS_PTE17,
     UART_PINS_PTE25,
 
-#elif defined (FRDMKL03Z) || defined (MKL03Z4)
-
-    UART_PINS_PTA4,
-
-    UART_PINS_PTB1R,
-    UART_PINS_PTB2R,
-    UART_PINS_PTB4,
-
-#elif defined (MK64F12) || defined (FRDMK64F)
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
     
     UART_PINS_PTA1,
     UART_PINS_PTA15,
@@ -172,30 +182,17 @@ typedef enum
 
 typedef enum
 {
-#if defined (MK60DZ10)
-    
-#elif defined (OHIBOARD_R1)
-    
-#elif defined (FRDMKL25Z)
-    
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-//    UART_PINS_PTA19, // Connected to crystal
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
 
-    UART_PINS_PTB17,
+    UART_PINS_PTA3,
 
-    UART_PINS_PTC4,
-    
-    UART_PINS_PTD3,
-    UART_PINS_PTD5,
-    UART_PINS_PTD7,
-    
-    UART_PINS_PTE0,
-    UART_PINS_PTE20,
-    UART_PINS_PTE22,
-    
+    UART_PINS_PTB1T,
+    UART_PINS_PTB2T,
+    UART_PINS_PTB3,
+
 #elif defined (LIBOHIBOARD_KL15Z4)
-    
+
     UART_PINS_PTA2,
     UART_PINS_PTA14,
     UART_PINS_PTA19,
@@ -213,7 +210,26 @@ typedef enum
     UART_PINS_PTE20,
     UART_PINS_PTE22,
     
-#elif defined (MK10DZ10) || defined (MK10D10)
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL25Z)
+    
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+    UART_PINS_PTA19,
+
+    UART_PINS_PTB17,
+
+    UART_PINS_PTC4,
+    
+    UART_PINS_PTD3,
+    UART_PINS_PTD5,
+    UART_PINS_PTD7,
+    
+    UART_PINS_PTE0,
+    UART_PINS_PTE20,
+    UART_PINS_PTE22,
+    
+#if defined (LIBOHIBOARD_K10D10)
 
     UART_PINS_PTA2,
     UART_PINS_PTA14,
@@ -235,7 +251,8 @@ typedef enum
     UART_PINS_PTE16,
     UART_PINS_PTE24,
     
-#elif defined (MK64F12) || defined (FRDMK64F)
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
     
     UART_PINS_PTA2,
     UART_PINS_PTA14,
@@ -258,14 +275,6 @@ typedef enum
     UART_PINS_PTE9,
     UART_PINS_PTE24,
 
-#elif defined (FRDMKL03Z) || defined (MKL03Z4)
-
-    UART_PINS_PTA3,
-
-    UART_PINS_PTB1T,
-    UART_PINS_PTB2T,
-    UART_PINS_PTB3,
-
 #endif
 
     UART_PINS_TXNONE,
@@ -274,22 +283,11 @@ typedef enum
 
 typedef struct Uart_Device* Uart_DeviceHandle;
 
-#if defined (MK60DZ10)
-    
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
-extern Uart_DeviceHandle UART3;
-extern Uart_DeviceHandle UART4;
-extern Uart_DeviceHandle UART5;
 
-#elif defined (OHIBOARD_R1)
-    
-#elif defined (FRDMKL25Z)
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
 
 extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
 
 #elif defined(LIBOHIBOARD_KL15Z4)
 
@@ -297,7 +295,14 @@ extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
 extern Uart_DeviceHandle UART2;
 
-#elif defined (MK10DZ10) || defined (MK10D10)
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL25Z)
+
+extern Uart_DeviceHandle UART0;
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+
+#elif defined (LIBOHIBOARD_K10D10)
 
 extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
@@ -306,11 +311,18 @@ extern Uart_DeviceHandle UART3;
 extern Uart_DeviceHandle UART4;
 extern Uart_DeviceHandle UART5;
 
-#elif defined (FRDMKL03Z) || defined (MKL03Z4)
+#if defined (LIBOHIBOARD_K60DZ10) || \
+    defined (LIBOHIBOARD_OHIBOARD_R1)
 
 extern Uart_DeviceHandle UART0;
+extern Uart_DeviceHandle UART1;
+extern Uart_DeviceHandle UART2;
+extern Uart_DeviceHandle UART3;
+extern Uart_DeviceHandle UART4;
+extern Uart_DeviceHandle UART5;
 
-#elif defined (MK64F12)
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
 
 extern Uart_DeviceHandle UART0;
 extern Uart_DeviceHandle UART1;
@@ -334,9 +346,12 @@ typedef struct _Uart_Config
     
     uint32_t baudrate;
 
-#if defined (FRDMKL03Z) || defined (MKL03Z4)
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
+
     uint8_t oversampling; /* 4 to 32 */
     uint32_t extClk;      /* external frequency or crystal value if clockSource = UART_CLOCKSOURCE_EXT */
+
 #endif
 
 } Uart_Config;
@@ -358,4 +373,4 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
 
 #endif /* __UART_H */
 
-#endif
+#endif /* LIBOHIBOARD_UART */
