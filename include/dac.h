@@ -31,7 +31,7 @@
  * @brief DAC definitions and prototypes.
  */
 
-//#ifdef LIBOHIBOARD_DAC
+#ifdef LIBOHIBOARD_DAC
 
 #ifndef __DAC_H
 #define __DAC_H
@@ -67,14 +67,16 @@ typedef enum
 
 typedef struct Dac_Device* Dac_DeviceHandle;
 
-#if defined (MK10DZ10) || defined (MK10D10)
+#if defined (LIBOHIBOARD_K10D10)
 
 extern Dac_DeviceHandle DAC0;
 extern Dac_DeviceHandle DAC1;
 
-#endif
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+      defined (LIBOHIBOARD_OHIBOARD_R1)
 
-#if defined (MK64F12) || defined (FRDMK64F)
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
 
 extern Dac_DeviceHandle DAC0;
 extern Dac_DeviceHandle DAC1;
@@ -98,4 +100,4 @@ System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
 
 #endif /* __DAC_H */
 
-//#endif /* LIBOHIBOARD_DAC */
+#endif /* LIBOHIBOARD_DAC */

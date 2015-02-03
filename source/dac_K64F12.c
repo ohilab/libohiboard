@@ -1,9 +1,8 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *
- * Alessio Paolucci <a.paolucci89@gmail.com>
+ *   Alessio Paolucci <a.paolucci89@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +24,19 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/dac.h
+ * @file libohiboard/source/dac_K64F12.h
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @brief DAC implementations.
+ * @brief DAC implementations for K64F12 and FRDMK64F.
  */
 
-#include "dac.h"
+#ifdef LIBOHIBOARD_DAC
 
-#include "interrupt.h"
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
+
+#include "platforms.h"
+#include "utility.h"
+#include "dac.h"
 #include "clock.h"
 
 typedef struct Dac_Device
@@ -129,4 +133,6 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     return ERRORS_NO_ERROR;
 }
 
+#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
 
+#endif /* LIBOHIBOARD_DAC */
