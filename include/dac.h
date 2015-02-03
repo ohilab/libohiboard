@@ -31,7 +31,7 @@
  * @brief DAC definitions and prototypes.
  */
 
-#ifdef LIBOHIBOARD_DAC
+//#ifdef LIBOHIBOARD_DAC
 
 #ifndef __DAC_H
 #define __DAC_H
@@ -74,6 +74,13 @@ extern Dac_DeviceHandle DAC1;
 
 #endif
 
+#if defined (MK64F12) || defined (FRDMK64F)
+
+extern Dac_DeviceHandle DAC0;
+extern Dac_DeviceHandle DAC1;
+
+#endif
+
 typedef struct _Dac_Config
 {
     Dac_VoltageRef ref;
@@ -91,4 +98,4 @@ System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
 
 #endif /* __DAC_H */
 
-#endif /* LIBOHIBOARD_DAC */
+//#endif /* LIBOHIBOARD_DAC */
