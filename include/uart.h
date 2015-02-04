@@ -132,7 +132,7 @@ typedef enum
     UART_PINS_PTE23,
 
     
-#if defined (LIBOHIBOARD_K10D10)
+#elif defined (LIBOHIBOARD_K10D10)
 
     UART_PINS_PTA1,
     UART_PINS_PTA15,
@@ -154,8 +154,8 @@ typedef enum
     UART_PINS_PTE17,
     UART_PINS_PTE25,
 
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
     
     UART_PINS_PTA1,
     UART_PINS_PTA15,
@@ -229,7 +229,7 @@ typedef enum
     UART_PINS_PTE20,
     UART_PINS_PTE22,
     
-#if defined (LIBOHIBOARD_K10D10)
+#elif defined (LIBOHIBOARD_K10D10)
 
     UART_PINS_PTA2,
     UART_PINS_PTA14,
@@ -251,8 +251,8 @@ typedef enum
     UART_PINS_PTE16,
     UART_PINS_PTE24,
     
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
     
     UART_PINS_PTA2,
     UART_PINS_PTA14,
@@ -311,7 +311,7 @@ extern Uart_DeviceHandle UART3;
 extern Uart_DeviceHandle UART4;
 extern Uart_DeviceHandle UART5;
 
-#if defined (LIBOHIBOARD_K60DZ10) || \
+#elif defined (LIBOHIBOARD_K60DZ10) || \
     defined (LIBOHIBOARD_OHIBOARD_R1)
 
 extern Uart_DeviceHandle UART0;

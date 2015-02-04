@@ -29,7 +29,7 @@
  * @brief UART implementations for KL15Z4.
  */
 
-//#ifdef LIBOHIBOARD_UART
+#ifdef LIBOHIBOARD_UART
 
 #if defined (LIBOHIBOARD_KL15Z4)
 
@@ -455,4 +455,4 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
 
 #endif /* LIBOHIBOARD_KL15Z4 */
 
-//#endif /* LIBOHIBOARD_UART */
+#endif /* LIBOHIBOARD_UART */
