@@ -189,8 +189,6 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config);
 
-void Iic_pinEnabled (Iic_DeviceHandle dev);
-
 void Iic_start (Iic_DeviceHandle dev);
 void Iic_stop (Iic_DeviceHandle dev);
 
