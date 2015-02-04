@@ -60,6 +60,13 @@ typedef enum
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
 
+    IIC_PINS_PTA3C,
+    IIC_PINS_PTA4C,
+    IIC_PINS_PTA8,
+
+    IIC_PINS_PTB0,
+    IIC_PINS_PTB3,
+
 #elif defined (LIBOHIBOARD_KL15Z4)
 
     IIC_PINS_PTA3,
@@ -142,6 +149,13 @@ typedef enum
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
+
+    IIC_PINS_PTA3D,
+    IIC_PINS_PTA4D,
+    IIC_PINS_PTA9,
+
+    IIC_PINS_PTB1,
+    IIC_PINS_PTB4,
 
 #elif defined (LIBOHIBOARD_KL15Z4)
 
