@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -68,7 +68,8 @@ typedef enum
 	CLOCK_EXT,
 #elif defined (LIBOHIBOARD_KL15Z4)     || \
       defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z) || \
+      defined (LIBOHIBOARD_FRDMKL25Z)  || \
+      defined (LIBOHIBOARD_K10D10)     || \
 	  defined (LIBOHIBOARD_K60DZ10)    || \
 	  defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)   || \
@@ -104,7 +105,8 @@ uint32_t Clock_getFrequency (Clock_Source source);
 
 Clock_State Clock_getCurrentState(); 
 
-#if defined (LIBOHIBOARD_K60DZ10)    || \
+#if defined (LIBOHIBOARD_K10D10)     || \
+    defined (LIBOHIBOARD_K60DZ10)    || \
     defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)   || \
 	defined (LIBOHIBOARD_OHIBOARD_R1)
