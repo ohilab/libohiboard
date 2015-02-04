@@ -226,14 +226,14 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
 }
 
 /*
- * brief setting icr parameter of I2C_F register for generate the desired baudrate
+ * @brief Setting icr parameter of I2C_F register for generate the desired baudrate
  *
  * Thank for this function at https://github.com/laswick/kinetis/blob/master/phase2_embedded_c/i2c.c
  */
-static int setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
+static System_Errors setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 {
-	I2C_MemMapPtr regmap = dev->regMap;
-	uint32_t tempReg = 0;
+    I2C_MemMapPtr regmap = dev->regMap;
+    uint32_t tempReg = 0;
 
     uint32_t busClk;
     uint32_t i2cClk;
@@ -246,41 +246,49 @@ static int setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 
     busClk = Clock_getFrequency(CLOCK_BUS);
 
-    for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++) {
+    for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++)
+    {
         i2cClk = busClk / Iic_sclDivTab[icr];
-        if (i2cClk > speed) {
+        if (i2cClk > speed)
+        {
             i2cClk /= 2;
-            if (i2cClk > speed) {
+            if (i2cClk > speed)
+            {
                 i2cClk /= 2;
-                if (i2cClk > speed) {
+                if (i2cClk > speed)
                     continue;
-                }
             }
         }
         error = speed - i2cClk;
-        if (error < bestError) {
+        if (error < bestError)
+        {
             bestError = error;
             bestIcr = icr;
         }
     }
-    if (bestIcr == 0xFF) {
-        return FALSE;
+
+    if (bestIcr == 0xFF)
+    {
+        return ERRORS_IIC_WRONG_BAUDRATE;
     }
 
     icr = bestIcr;
     i2cClk = busClk / Iic_sclDivTab[bestIcr];
-    if (i2cClk > speed) {
+    if (i2cClk > speed)
+    {
         i2cClk /= 2;
-        if (i2cClk > speed) {
+        if (i2cClk > speed)
+        {
             mul = 2;
         }
-        else {
+        else
+        {
             mul = 1;
         }
     }
     else
     {
-    	mul = 0;
+        mul = 0;
     }
 
     tempReg = I2C_F_REG(regmap);
@@ -290,10 +298,7 @@ static int setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 
     slt = Iic_sclDivTab[icr] / 2 + 1;
 
-//    I2C_SLTH_REG(regmap) = slt >> 8;
-//    I2C_SLTL_REG(regmap) = slt;
-
-    return TRUE;
+    return ERRORS_NO_ERROR;
 }
 
 /**
@@ -321,7 +326,10 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
     {
-    	setBaudrate(dev, config->baudRate);
+        errors = setBaudrate(dev, config->baudRate);
+
+        if (errors != ERRORS_NO_ERROR)
+            return errors;
 
         /* enable IIC */
         I2C_C1_REG(regmap) = I2C_C1_IICEN_MASK;
