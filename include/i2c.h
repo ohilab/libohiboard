@@ -90,6 +90,30 @@ typedef enum
     IIC_PINS_PTE1,
     IIC_PINS_PTE24,
 
+#elif defined (LIBOHIBOARD_K10D10)
+
+    IIC_PINS_PTB0,
+    IIC_PINS_PTB2,
+
+    IIC_PINS_PTC10,
+
+    IIC_PINS_PTD8,
+
+    IIC_PINS_PTE1,
+    IIC_PINS_PTE19,
+
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+	  defined (LIBOHIBOARD_OHIBOARD_R1)
+
+    IIC_PINS_PTB0,
+    IIC_PINS_PTB2,
+
+    IIC_PINS_PTC10,
+
+    IIC_PINS_PTD8,
+
+    IIC_PINS_PTE1,
+
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
@@ -148,6 +172,30 @@ typedef enum
 
     IIC_PINS_PTE0,
     IIC_PINS_PTE25,
+
+#elif defined (LIBOHIBOARD_K10D10)
+
+    IIC_PINS_PTB1,
+    IIC_PINS_PTB3,
+
+    IIC_PINS_PTC11,
+
+    IIC_PINS_PTD9,
+
+    IIC_PINS_PTE0,
+    IIC_PINS_PTE18,
+
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+      defined (LIBOHIBOARD_OHIBOARD_R1)
+
+    IIC_PINS_PTB1,
+    IIC_PINS_PTB3,
+
+    IIC_PINS_PTC11,
+
+    IIC_PINS_PTD9,
+
+    IIC_PINS_PTE0,
 
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
@@ -216,6 +264,12 @@ extern Iic_DeviceHandle IIC1;
 
 #elif defined (LIBOHIBOARD_KL25Z4) || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
+
+extern Iic_DeviceHandle IIC0;
+extern Iic_DeviceHandle IIC1;
+
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+      defined (LIBOHIBOARD_OHIBOARD_R1)
 
 extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
