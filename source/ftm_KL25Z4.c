@@ -297,7 +297,7 @@ void Ftm_isrFtm2 (void)
 
 static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
 {
-    uint32_t clock = Clock_getFrequency(CLOCK_BUS);
+    uint32_t clock = Clock_getFrequency(CLOCK_SYSTEM);
     uint8_t prescaler = (clock / timerFrequency) / 65536;
 
     if (prescaler > 64)
@@ -320,7 +320,7 @@ static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
 
 static uint16_t Ftm_computeModulo (uint32_t timerFrequency, Ftm_Prescaler prescaler)
 {
-    uint32_t clock = Clock_getFrequency(CLOCK_BUS);
+    uint32_t clock = Clock_getFrequency(CLOCK_SYSTEM);
     uint32_t modulo;
 
     switch (prescaler)
