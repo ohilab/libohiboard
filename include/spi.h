@@ -182,14 +182,13 @@ typedef struct _Spi_Config
     Spi_ClockPolarity     sckPolarity;
     Spi_ClockPhase        sckPhase;
 
-//    uint8_t               pinEnabled;
 } Spi_Config;
 
 #endif
 
 #if defined (MK64F12) || defined (FRDMK64F)
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config);
-System_Errors setBaudrate(Spi_DeviceHandle dev, uint32_t speed);
+System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed);
 #else
 System_Errors Spi_init (Spi_DeviceHandle dev);
 #endif

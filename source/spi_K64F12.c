@@ -403,7 +403,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     		SPI_CTAR_REG(regmap,index) = (((config->frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
     	}
 
-    	error = setBaudrate(dev, config->baudrate);
+    	error = Spi_setBaudrate(dev, config->baudrate);
     }
     else if (devType == SPI_SLAVE_MODE)
     {
@@ -431,7 +431,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     return error;
 }
 
-System_Errors setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
+System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
 {
 	SPI_MemMapPtr regmap = dev->regMap;
 	uint32_t tempReg = 0;
