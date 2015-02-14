@@ -125,6 +125,7 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev,
 	{
 	case UART_CLOCKSOURCE_IRC48:
 		sourceClk = 48000000;
+		MCG_MC |= MCG_MC_HIRCEN_MASK;
 		tempReg = SIM_SOPT2;
 		tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
 		tempReg |= SIM_SOPT2_LPUART0SRC(1);
@@ -133,7 +134,7 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev,
 	case UART_CLOCKSOURCE_IRC8:
 		if (MCGstate == CLOCK_LIRC2M)
 		{
-			return error = ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG;
+			return ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG;
 		}
 		else
 		{
@@ -142,7 +143,7 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev,
             lircdiv = Uart_div[(MCG_MC & MCG_MC_LIRC_DIV2_MASK) >> MCG_MC_LIRC_DIV2_SHIFT];
 			sourceClk = (8000000/fcrdiv)/lircdiv;
 			tempReg = SIM_SOPT2;
-			tmepReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
+			tempReg &= ~SIM_SOPT2_LPUART0SRC_MASK;
 			tempReg |= SIM_SOPT2_LPUART0SRC(3);
 			SIM_SOPT2 = tempReg;
 		}
@@ -175,6 +176,10 @@ static System_Errors Uart_setBaudrate (Uart_DeviceHandle dev,
 
     /* Calculate baud settings */
     sbr = (uint16_t)((sourceClk)/(baudrate * oversampling));
+    if(sbr == 0)
+    {
+        return ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW;
+    }
 
     /* Save off the current value of the LPUART_BAUD register except for the OSR and the SBR field */
     tempReg = LPUART0_BAUD & ~(LPUART_BAUD_OSR_MASK | LPUART_BAUD_SBR_MASK);
