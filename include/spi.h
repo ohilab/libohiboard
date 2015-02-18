@@ -95,6 +95,17 @@ typedef enum
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
+    SPI_PINS_PTA14,
+
+    SPI_PINS_PTB10,
+
+    SPI_PINS_PTC4,
+
+    SPI_PINS_PTD0,
+    SPI_PINS_PTD4,
+
+    SPI_PINS_PTE4,
+
 #elif defined (LIBOHIBOARD_K10D10)
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
@@ -161,6 +172,23 @@ typedef enum
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
+    SPI_PINS_PTA16O,
+    SPI_PINS_PTA17O,
+
+    SPI_PINS_PTB16O,
+    SPI_PINS_PTB17O,
+
+    SPI_PINS_PTC6O,
+    SPI_PINS_PTC7O,
+
+    SPI_PINS_PTD2O,
+    SPI_PINS_PTD3O,
+    SPI_PINS_PTD6O,
+    SPI_PINS_PTD7O,
+
+    SPI_PINS_PTE1O,
+    SPI_PINS_PTE3O,
+
 #elif defined (LIBOHIBOARD_K10D10)
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
@@ -215,6 +243,23 @@ typedef enum
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
+    SPI_PINS_PTA16I,
+    SPI_PINS_PTA17I,
+
+    SPI_PINS_PTB16I,
+    SPI_PINS_PTB17I,
+
+    SPI_PINS_PTC6I,
+    SPI_PINS_PTC7I,
+
+    SPI_PINS_PTD2I,
+    SPI_PINS_PTD3I,
+    SPI_PINS_PTD6I,
+    SPI_PINS_PTD7I,
+
+    SPI_PINS_PTE1I,
+    SPI_PINS_PTE3I,
+
 #elif defined (LIBOHIBOARD_K10D10)
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
@@ -262,6 +307,17 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
+
+    SPI_PINS_PTA15,
+
+    SPI_PINS_PTB11,
+
+    SPI_PINS_PTC5,
+
+    SPI_PINS_PTD1,
+    SPI_PINS_PTD5,
+
+    SPI_PINS_PTE2,
 
 #elif defined (LIBOHIBOARD_K10D10)
 
@@ -337,6 +393,9 @@ extern Spi_DeviceHandle SPI1;
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
+
+extern Spi_DeviceHandle SPI0;
+extern Spi_DeviceHandle SPI1;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
