@@ -485,7 +485,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     else
         sckphase = 1;
 
-    if (config->frameSize > 2)
+    if (config->frameSize > 3)
         frameSize =  config->frameSize;
 
     /* Select device type */

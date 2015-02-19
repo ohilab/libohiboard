@@ -63,6 +63,8 @@ typedef struct Spi_Device {
     uint8_t sinPinsMux[SPI_MAX_PINS];
     uint8_t sckPinsMux[SPI_MAX_PINS];
 
+    uint8_t index;
+
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Spi_Device;
 
@@ -86,30 +88,30 @@ static Spi_Device spi0 = {
                          SPI_PINS_PTD15,
     },
     .pcsPinsPtr       = {&PORTA_PCR14,
-    		             &PORTC_PCR0,
-    		             &PORTC_PCR1,
-    		             &PORTC_PCR2,
-    		             &PORTC_PCR3,
-    		             &PORTC_PCR4,
-    		             &PORTD_PCR0,
-    		             &PORTD_PCR4,
-    		             &PORTD_PCR5,
-    		             &PORTD_PCR6,
-    		             &PORTD_PCR11,
-    		             &PORTD_PCR15,
+                         &PORTC_PCR0,
+                         &PORTC_PCR1,
+                         &PORTC_PCR2,
+                         &PORTC_PCR3,
+                         &PORTC_PCR4,
+                         &PORTD_PCR0,
+                         &PORTD_PCR4,
+                         &PORTD_PCR5,
+                         &PORTD_PCR6,
+                         &PORTD_PCR11,
+                         &PORTD_PCR15,
     },
     .pcsPinsMux       = {2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
     },
     .soutPins         = {SPI_PINS_PTA16,
                          SPI_PINS_PTC6,
@@ -132,8 +134,8 @@ static Spi_Device spi0 = {
                          &PORTD_PCR3,
     },
     .sinPinsMux       = {2,
-    		             2,
-    		             2,
+                         2,
+                         2,
     },
     .sckPins          = {SPI_PINS_PTA15,
                          SPI_PINS_PTC5,
@@ -144,9 +146,11 @@ static Spi_Device spi0 = {
                          &PORTD_PCR1,
     },
     .sckPinsMux       = {2,
-    		             2,
-    		             2,
+                         2,
+                         2,
     },
+
+    .index            = 2,
 
     .devInitialized   = 0,
 };
@@ -166,18 +170,18 @@ static Spi_Device spi1 = {
                          SPI_PINS_PTE6,
     },
     .pcsPinsPtr       = {&PORTB_PCR9,
-    		             &PORTB_PCR10,
-    		             &PORTE_PCR0,
-    		             &PORTE_PCR4,
-    		             &PORTE_PCR5,
-    		             &PORTE_PCR6,
+                         &PORTB_PCR10,
+                         &PORTE_PCR0,
+                         &PORTE_PCR4,
+                         &PORTE_PCR5,
+                         &PORTE_PCR6,
     },
     .pcsPinsMux       = {2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
-    		             2,
+                         2,
+                         2,
+                         2,
+                         2,
+                         2,
     },
     .soutPins         = {SPI_PINS_PTB16,
                          SPI_PINS_PTE1,
@@ -197,8 +201,8 @@ static Spi_Device spi1 = {
                          &PORTE_PCR3,
     },
     .sinPinsMux       = {2,
-    		             7,
-    		             2,
+                         7,
+                         2,
     },
     .sckPins          = {SPI_PINS_PTB11,
                          SPI_PINS_PTE2,
@@ -207,8 +211,10 @@ static Spi_Device spi1 = {
                          &PORTE_PCR2,
     },
     .sckPinsMux       = {2,
-    		             2,
+                         2,
     },
+
+    .index            = 2,
 
     .devInitialized   = 0,
 };
@@ -225,12 +231,12 @@ static Spi_Device spi2 = {
                          SPI_PINS_PTD15,
     },
     .pcsPinsPtr       = {&PORTB_PCR20,
-    		             &PORTD_PCR11,
-    		             &PORTD_PCR15,
+                         &PORTD_PCR11,
+                         &PORTD_PCR15,
     },
     .pcsPinsMux       = {2,
-    		             2,
-    		             2,
+                         2,
+                         2,
     },
     .soutPins         = {SPI_PINS_PTB22,
                          SPI_PINS_PTD13,
@@ -248,7 +254,7 @@ static Spi_Device spi2 = {
                          &PORTD_PCR14,
     },
     .sinPinsMux       = {2,
-    		             2,
+                         2,
     },
     .sckPins          = {SPI_PINS_PTB21,
                          SPI_PINS_PTD12,
@@ -257,21 +263,84 @@ static Spi_Device spi2 = {
                          &PORTD_PCR12,
     },
     .sckPinsMux       = {2,
-    		             2,
+                         2,
     },
 
-    .devInitialized   = 0,
+    .index            = 2,
 
+    .devInitialized   = 0,
 };
 Spi_DeviceHandle SPI2 = &spi2;
 
 static uint8_t  Spi_pbrDiv[] = {2, 3, 5, 7};
 static uint16_t Spi_brDiv[] = {
-		/*00*/     2, /*01*/     4, /*02*/     6, /*03*/     8,
-		/*04*/    16, /*05*/    32, /*06*/    64, /*07*/   128,
-		/*08*/   256, /*09*/   512, /*10*/  1024, /*11*/  2048,
-		/*12*/  4096, /*13*/  8192, /*14*/ 16384, /*15*/ 32768,
+        /*00*/     2, /*01*/     4, /*02*/     6, /*03*/     8,
+        /*04*/    16, /*05*/    32, /*06*/    64, /*07*/   128,
+        /*08*/   256, /*09*/   512, /*10*/  1024, /*11*/  2048,
+        /*12*/  4096, /*13*/  8192, /*14*/ 16384, /*15*/ 32768,
 };
+
+System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
+{
+    SPI_MemMapPtr regmap = dev->regMap;
+    uint32_t tempReg = 0;
+
+    uint32_t busClk;
+    uint32_t spiClk;
+    uint32_t diff = 0xFFFF;
+    uint32_t maxDiff = 0xFFFF;
+    uint8_t dbr = 0;
+    uint8_t pbr = 0;
+    uint8_t br = 0;
+    uint8_t i = 0;
+    uint8_t j = 0;
+    uint8_t k = 0;
+    uint8_t index = 0;
+
+    busClk = Clock_getFrequency(CLOCK_BUS);
+    for(i = 0; i < 2; i++)
+    {
+        for(j = 0; j < 4; j++)
+        {
+            for(k = 0; k < 16; k++)
+            {
+                spiClk = ((busClk/Spi_pbrDiv[j])*((1+i)/Spi_brDiv[k]));
+                if(speed < spiClk)
+                {
+                    if((spiClk - speed) < diff)
+                    {
+                        diff = spiClk - speed;
+                        dbr = i;
+                        pbr = j;
+                        br = k;
+                    }
+                }
+                else
+                {
+                    if((speed - spiClk) < diff)
+                    {
+                        diff = speed - spiClk;
+                        dbr = i;
+                        pbr = j;
+                        br = k;
+                    }
+                }
+            }
+        }
+    }
+
+    if(diff == maxDiff) return ERRORS_SPI_BAUDRATE_NOT_FOUND;
+
+    for (index = 0; index < dev->index; index++)
+    {
+        tempReg = SPI_CTAR_REG(regmap, index);
+        tempReg &= ~(SPI_CTAR_DBR_MASK | SPI_CTAR_PBR_MASK | SPI_CTAR_BR_MASK);
+        tempReg |= ((dbr << SPI_CTAR_DBR_SHIFT) | SPI_CTAR_PBR(pbr) | SPI_CTAR_BR(br));
+        SPI_CTAR_REG(regmap, index) = tempReg;
+    }
+
+    return ERRORS_NO_ERROR;
+}
 
 static System_Errors Spi_setPcsPin(Spi_DeviceHandle dev, Spi_PcsPins pcsPin)
 {
@@ -339,7 +408,7 @@ static System_Errors Spi_setSckPin(Spi_DeviceHandle dev, Spi_PcsPins sckPin)
 
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 {
-	SPI_MemMapPtr regmap = dev->regMap;
+    SPI_MemMapPtr regmap = dev->regMap;
     Spi_DeviceType devType = config->devType;
     uint32_t baudrate = config->baudrate;
     uint32_t tempReg = 0;
@@ -347,9 +416,13 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 
     uint8_t sckpol = 0;
     uint8_t sckphase = 0;
+
+    uint8_t frameSize = 8;
+
     uint8_t index = 0;
 
     if (dev->devInitialized) return error = ERRORS_SPI_DEVICE_JUST_INIT;
+
 
     /* Turn on clock */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
@@ -376,157 +449,92 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
         Spi_setSckPin(dev, config->sckPin);
 
     /* Common CTARn parameters definition */
-	if(config->sckPolarity == SPI_SCK_INACTIVE_STATE_LOW)
-		sckpol = 0;
-	else
-		sckpol = 1;
-	if(config->sckPhase == SPI_SCK_LEADING_EDGE_DATA_CAPTURED)
-		sckphase = 0;
-	else
-		sckphase = 1;
+    if(config->sckPolarity == SPI_SCK_INACTIVE_STATE_LOW)
+        sckpol = 0;
+    else
+        sckpol = 1;
+    if(config->sckPhase == SPI_SCK_LEADING_EDGE_DATA_CAPTURED)
+        sckphase = 0;
+    else
+        sckphase = 1;
+
+    if (config->frameSize > 3)
+        frameSize =  config->frameSize;
 
     /* Select device type */
     if (devType == SPI_MASTER_MODE)
     {
-    	if (config->continuousSck == SPI_CONTINUOUS_SCK)
-    	{
-    		SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_PCSIS(0xF)| 0);
-    	}
-    	else
-    	{
-    		SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(0xF) | 0);
-    	}
+        if (config->continuousSck == SPI_CONTINUOUS_SCK)
+        {
+            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(0xF)| 0);
+        }
+        else
+        {
+            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_PCSIS(0xF) | 0);
+        }
 
 
-    	for(index = 0; index < 5; index++)
-    	{
-    		SPI_CTAR_REG(regmap,index) = (((config->frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
-    	}
+        for(index = 0; index < dev->index; index++)
+        {
+            SPI_CTAR_REG(regmap,index) = (((frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
+        }
 
-    	error = Spi_setBaudrate(dev, config->baudrate);
+        error = Spi_setBaudrate(dev, config->baudrate);
     }
     else if (devType == SPI_SLAVE_MODE)
     {
-    	if (config->continuousSck == SPI_CONTINUOUS_SCK)
-    	{
-    		SPI_MCR_REG(regmap) = (SPI_MCR_PCSIS(0xF)| 0);
-    	}
-    	else
-    	{
-    		SPI_MCR_REG(regmap) = (SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(0xF) | 0);
-    	}
+        if (config->continuousSck == SPI_CONTINUOUS_SCK)
+        {
+            SPI_MCR_REG(regmap) = (SPI_MCR_CONT_SCKE_MASK  | SPI_MCR_PCSIS(0xF)| 0);
+        }
+        else
+        {
+            SPI_MCR_REG(regmap) = (SPI_MCR_PCSIS(0xF) | 0);
+        }
 
-
-    	for(index = 0; index < 5; index++)
-    	{
-    		SPI_CTAR_SLAVE_REG(regmap,index) = (((config->frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
-    	}
+        for(index = 0; index < (dev->index-1); index++)
+        {
+            SPI_CTAR_SLAVE_REG(regmap,index) = (((frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
+        }
     }
     else
     {
-    	return error = ERRORS_PARAM_VALUE;
+        return ERRORS_PARAM_VALUE;
     }
 
     dev->devInitialized = 1;
     return error;
 }
 
-System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
-{
-	SPI_MemMapPtr regmap = dev->regMap;
-	uint32_t tempReg = 0;
-
-	uint32_t busClk;
-    uint32_t spiClk;
-    uint32_t diff = 0xFFFF;
-    uint32_t maxDiff = 0xFFFF;
-    uint8_t dbr = 0;
-    uint8_t pbr = 0;
-    uint8_t br = 0;
-    uint8_t i = 0;
-    uint8_t j = 0;
-    uint8_t k = 0;
-    uint8_t index = 0;
-
-    busClk = Clock_getFrequency(CLOCK_BUS);
-    for(i = 0; i < 2; i++)
-    {
-    	for(j = 0; j < 4; j++)
-    	{
-    		for(k = 0; k < 16; k++)
-    		{
-    			spiClk = ((busClk/Spi_pbrDiv[j])*((1+i)/Spi_brDiv[k]));
-    			if(speed < spiClk)
-    			{
-    				if((spiClk - speed) < diff)
-    				{
-    					diff = spiClk - speed;
-    					dbr = i;
-    					pbr = j;
-    					br = k;
-    				}
-    			}
-    			else
-    			{
-    				if((speed - spiClk) < diff)
-    				{
-    					diff = speed - spiClk;
-    					dbr = i;
-    					pbr = j;
-    					br = k;
-    				}
-    			}
-    		}
-    	}
-    }
-
-    if(diff == maxDiff) return ERRORS_SPI_BAUDRATE_NOT_FOUND;
-
-    for (index = 0; index < 6; index++)
-    {
-        tempReg = SPI_CTAR_REG(regmap, index);
-        tempReg &= ~(SPI_CTAR_DBR_MASK | SPI_CTAR_PBR_MASK | SPI_CTAR_BR_MASK);
-        tempReg |= ((dbr << SPI_CTAR_DBR_SHIFT) | SPI_CTAR_PBR(pbr) | SPI_CTAR_BR(br));
-        SPI_CTAR_REG(regmap, index) = tempReg;
-    }
-
-    return ERRORS_NO_ERROR;
-}
 
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 
-	//wait till TX FIFO is Empty.
-	while((SPI_SR_REG(regmap) & SPI_SR_TFFF_MASK) != SPI_SR_TFFF_MASK);
+    // Wait till TX FIFO is Empty.
+    while((SPI_SR_REG(regmap) & SPI_SR_TFFF_MASK) != SPI_SR_TFFF_MASK);
 
-	// Transmit Byte on SPI
-//	SPI_PUSHR_REG(regmap) = //SPI_PUSHR_CONT_MASK |
-//			//SPI_PUSHR_CTAS_MASK |
-//			SPI_PUSHR_PCS(1);
+    SPI_PUSHR_REG(regmap) = 0x0000;
 
-//	SPI_PUSHR_REG(regmap) |= 0xFFFF;
-	SPI_PUSHR_REG(regmap) = 0x0000;
-//
-	SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
 
-//	//--> Wait till transmit complete
-	while (((SPI_SR_REG(regmap) & SPI_SR_TCF_MASK)) != SPI_SR_TCF_MASK);
-//
-//	//--> Clear Transmit Flag.
-	SPI_SR_REG(regmap) |= SPI_SR_TFFF_MASK;
+    // Wait till transmit complete
+    while (((SPI_SR_REG(regmap) & SPI_SR_TCF_MASK)) != SPI_SR_TCF_MASK);
 
-	SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
+    // Clear Transmit Flag.
+    SPI_SR_REG(regmap) |= SPI_SR_TFFF_MASK;
 
-	//wait till RX_FIFO is not empty
-	while((SPI_SR_REG(regmap) & SPI_SR_RFDF_MASK) != SPI_SR_RFDF_MASK);
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
 
-	*data = SPI_POPR_REG(regmap) & 0x000000FF;
+    // wait till RX_FIFO is not empty
+    while((SPI_SR_REG(regmap) & SPI_SR_RFDF_MASK) != SPI_SR_RFDF_MASK);
 
-	//-->Clear the RX FIFO Drain Flag
-	SPI_SR_REG(regmap) |= SPI_SR_RFDF_MASK;
+    *data = SPI_POPR_REG(regmap) & 0x000000FF;
 
-	return ERRORS_NO_ERROR;
+    // Clear the RX FIFO Drain Flag
+    SPI_SR_REG(regmap) |= SPI_SR_RFDF_MASK;
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
@@ -535,32 +543,24 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 
     uint16_t x = 0;
 
-	//wait till TX FIFO is Empty.
-	while((SPI_SR_REG(regmap)  & SPI_SR_TFFF_MASK) != 0x2000000U);
+    // Wait till TX FIFO is Empty.
+    while((SPI_SR_REG(regmap)  & SPI_SR_TFFF_MASK) != 0x2000000U);
 
-	// Transmit Byte on SPI
-//	SPI_PUSHR_REG(regmap) = //SPI_PUSHR_CONT_MASK |
-//			//SPI_PUSHR_CTAS_MASK |
-//			SPI_PUSHR_PCS(1);
+    // Transmit Byte on SPI
 
-//	SPI_PUSHR_REG(regmap) |= data;
+    SPI_PUSHR_REG(regmap) = data;
 
-	SPI_PUSHR_REG(regmap) = data;
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
 
-	SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
+    // Wait till transmit complete
+    while (((SPI_SR_REG(regmap) & SPI_SR_TCF_MASK)) != SPI_SR_TCF_MASK) ;
 
-//	for (x = 0; x < 4; x++)
-//	{
-		//--> Wait till transmit complete
-		while (((SPI_SR_REG(regmap) & SPI_SR_TCF_MASK)) != SPI_SR_TCF_MASK) ;
+    // Clear Transmit Flag.
+    SPI_SR_REG(regmap) |= SPI_SR_TCF_MASK;
 
-		//--> Clear Transmit Flag.
-//		SPI_SR_REG(regmap) |= SPI_SR_TFFF_MASK;
-		SPI_SR_REG(regmap) |= SPI_SR_TCF_MASK;
+    (void)SPI_POPR_REG(regmap);
 
-		(void)SPI_POPR_REG(regmap);
-//	}
-	return ERRORS_NO_ERROR;
+    return ERRORS_NO_ERROR;
 }
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */

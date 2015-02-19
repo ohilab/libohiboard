@@ -35,7 +35,7 @@
  * @brief SPI definitions and prototypes
  */
 
-//#ifdef LIBOHIBOARD_SPI
+#ifdef LIBOHIBOARD_SPI
 
 #ifndef __SPI_H
 #define __SPI_H
@@ -613,4 +613,4 @@ extern Spi_DeviceHandle SPI2;
 
 #endif /* __SPI_H */
 
-//#endif /* LIBOHIBOARD_SPI */
+#endif /* LIBOHIBOARD_SPI */

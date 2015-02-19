@@ -28,16 +28,15 @@
  * @brief SPI implementations for K60DZ10 and OHIBOARD-R1.
  */
 
-//#ifdef LIBOHIBOARD_SPI
+#ifdef LIBOHIBOARD_SPI
 
 #include "platforms.h"
 #include "utility.h"
 #include "spi.h"
 #include "clock.h"
 
-//#if defined (LIBOHIBOARD_K60DZ10) || \
-//    defined (LIBOHIBOARD_OHIBOARD_R1)
-
+#if defined (LIBOHIBOARD_K60DZ10) || \
+    defined (LIBOHIBOARD_OHIBOARD_R1)
 
 #define SPI_MAX_PINS           12
 
@@ -64,6 +63,8 @@ typedef struct Spi_Device {
     uint8_t soutPinsMux[SPI_MAX_PINS];
     uint8_t sinPinsMux[SPI_MAX_PINS];
     uint8_t sckPinsMux[SPI_MAX_PINS];
+
+    uint8_t index;
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Spi_Device;
@@ -451,7 +452,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     uint8_t sckpol = 0;
     uint8_t sckphase = 0;
 
-    uint8_t frameSize = 7;
+    uint8_t frameSize = 8;
 
     uint8_t index = 0;
 
@@ -493,7 +494,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     else
         sckphase = 1;
 
-    if (config->frameSize > 2)
+    if (config->frameSize > 3)
         frameSize =  config->frameSize;
 
     /* Select device type */
@@ -597,6 +598,6 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     return ERRORS_NO_ERROR;
 }
 
-//#endif /* LIBOHIBOARD_K60DZ10 || LIBOHIBOARD_OHIBOARD_R1 */
-//
-//#endif /* LIBOHIBOARD_SPI */
+#endif /* LIBOHIBOARD_K60DZ10 || LIBOHIBOARD_OHIBOARD_R1 */
+
+#endif /* LIBOHIBOARD_SPI */
