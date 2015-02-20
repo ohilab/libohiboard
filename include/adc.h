@@ -108,6 +108,15 @@ typedef enum {
 #elif defined (LIBOHIBOARD_FRDMKL03Z) || \
 	  defined (LIBOHIBOARD_KL03Z4)
 
+    ADC_PINS_PTA0,
+    ADC_PINS_PTA8,
+    ADC_PINS_PTA9,
+    ADC_PINS_PTA12,
+
+    ADC_PINS_PTB0,
+    ADC_PINS_PTB1,
+    ADC_PINS_PTB5,
+
     ADC_PINS_INTERNAL,
 
 #elif defined(LIBOHIBOARD_KL15Z4)
@@ -295,11 +304,19 @@ typedef enum {
 #elif defined (LIBOHIBOARD_FRDMKL03Z) || \
 	  defined (LIBOHIBOARD_KL03Z4)
 
-	ADC_CH_TEMP          = 0x1A,
-	ADC_CH_BANDGAP       = 0x1B,
-	ADC_CH_VREFH         = 0x1D,
-	ADC_CH_VREFL         = 0x1E,
-	ADC_CH_DISABLE       = 0x1F,
+    ADC_CH_SE0     = 0x00,
+    ADC_CH_SE1     = 0x01,
+    ADC_CH_SE2     = 0x02,
+    ADC_CH_SE3     = 0x03,
+    ADC_CH_SE8     = 0x08,
+    ADC_CH_SE9     = 0x09,
+    ADC_CH_SE15    = 0x0F,
+
+	ADC_CH_TEMP    = 0x1A,
+	ADC_CH_BANDGAP = 0x1B,
+	ADC_CH_VREFH   = 0x1D,
+	ADC_CH_VREFL   = 0x1E,
+	ADC_CH_DISABLE = 0x1F,
 
 #elif defined(LIBOHIBOARD_KL15Z4)
 
@@ -484,9 +501,14 @@ typedef enum {
 } Adc_ChannelNumber;
 
 typedef enum {
-#if defined (LIBOHIBOARD_KL25Z4)     || \
-	defined (LIBOHIBOARD_FRDMKL25Z)  || \
-    defined (LIBOHIBOARD_KL15Z4)
+#if defined (LIBOHIBOARD_FRDMKL03Z) || \
+    defined (LIBOHIBOARD_KL03Z4)
+
+    ADC_CHL_A = 0x00,
+
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+	  defined (LIBOHIBOARD_FRDMKL25Z)  || \
+      defined (LIBOHIBOARD_KL15Z4)
 
 	ADC_CHL_A = 0x00,
     ADC_CHL_B = 0x01,
