@@ -29,7 +29,7 @@
  * @brief RTC definitions and prototypes.
  */
 
-//#ifdef LIBOHIBOARD_RTC
+#ifdef LIBOHIBOARD_RTC
 
 #include "platforms.h"
 
@@ -67,7 +67,12 @@ void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 void Rtc_enableSecond (Rtc_DeviceHandle dev);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
-#if defined(LIBOHIBOARD_KL15Z4)
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
+
+extern Rtc_DeviceHandle RTC0;
+
+#elif defined(LIBOHIBOARD_KL15Z4)
 
 extern Rtc_DeviceHandle RTC0;
 
@@ -75,4 +80,4 @@ extern Rtc_DeviceHandle RTC0;
 
 #endif /* __RTC_H */
 
-//#endif /* LIBOHIBOARD_RTC */
+#endif /* LIBOHIBOARD_RTC */

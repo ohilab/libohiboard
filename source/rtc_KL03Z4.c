@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2015 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -24,9 +24,9 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/rtc_KL15Z4.c
+ * @file libohiboard/source/rtc_KL03Z4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief RTC implementations for KL15Z4.
+ * @brief RTC implementations for KL03Z4 and FRDMKL03Z.
  */
 
 #ifdef LIBOHIBOARD_RTC
@@ -35,7 +35,8 @@
 #include "rtc.h"
 #include "clock.h"
 
-#if defined (LIBOHIBOARD_KL15Z4)
+#if defined (LIBOHIBOARD_KL03Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL03Z)
 
 typedef struct Rtc_Device {
     RTC_MemMapPtr regMap;
@@ -65,8 +66,8 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config)
     {
     case RTC_CLKIN:
         /* Activate mux for this pin */
-        PORTC_PCR1 &= ~PORT_PCR_MUX_MASK;
-        PORTC_PCR1 = PORT_PCR_MUX(1);
+        PORTA_PCR5 &= ~PORT_PCR_MUX_MASK;
+        PORTA_PCR5 = PORT_PCR_MUX(1);
         /* Select this clock source */
         SIM_SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
         SIM_SOPT1 |= SIM_SOPT1_OSC32KSEL(2);
@@ -144,6 +145,6 @@ void Rtc_disableSecond (Rtc_DeviceHandle dev)
     Interrupt_disable(INTERRUPT_RTC_SECOND);
 }
 
-#endif /* LIBOHIBOARD_KL15Z4 */
+#endif /* LIBOHIBOARD_KL03Z4 || LIBOHIBOARD_FRDMKL03Z */
 
 #endif /* LIBOHIBOARD_RTC */

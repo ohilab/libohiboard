@@ -558,6 +558,6 @@ System_Errors Iic_isToggleSclTimeout (Iic_DeviceHandle dev)
 }
 #endif
 
-#endif /* LIBOHIBOARD_KL15Z4 */
+#endif /* LIBOHIBOARD_KL03Z4 || LIBOHIBOARD_FRDMKL03Z */
 
 #endif /* LIBOHIBOARD_IIC */
