@@ -41,9 +41,13 @@
 
 #if defined (FRDMKL25Z)
 #define SYSTEM_CLOCK_KHZ 20000
-#elif defined (MKL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)
 #define SYSTEM_CLOCK_KHZ 24000
-#elif defined (MK10DZ10)
+#elif defined (FRDMKL02Z)
+#define SYSTEM_CLOCK_KHZ 24000
+#elif defined (FRDMKL03Z)
+#define SYSTEM_CLOCK_KHZ 24000
+#elif defined (MK10DZ10)|| defined(MK10D10)
 #define SYSTEM_CLOCK_KHZ 50000
 #elif defined (MK60DZ10)
 #define SYSTEM_CLOCK_KHZ 48000

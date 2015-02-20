@@ -1,0 +1,103 @@
+/******************************************************************************
+ * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * 
+ * Authors:
+ *  Francesco Piunti <francesco.piunti89@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ******************************************************************************/
+
+/**
+ * @file libohiboard/include/dac.h
+ * @author Francesco Piunti <francesco.piunti89@gmail.com>
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief DAC definitions and prototypes.
+ */
+
+#ifdef LIBOHIBOARD_DAC
+
+#ifndef __DAC_H
+#define __DAC_H
+
+#include "platforms.h"
+#include "errors.h"
+#include "types.h"
+
+typedef enum {
+    DAC_VOLTAGEREF_VDDA,
+    DAC_VOLTAGEREF_VOUT
+} Dac_VoltageRef;
+
+typedef enum 
+{
+    DAC_TRIGGER_HARDWARE,
+    DAC_TRIGGER_SOFTWARE
+} Dac_TriggerSelect;
+
+typedef enum 
+{
+    DAC_POWERMODE_LOW,
+    DAC_POWERMODE_HIGH
+} Dac_PowerMode;
+
+typedef enum 
+{
+    DAC_BUFFERMODE_OFF,
+    DAC_BUFFERMODE_NORMAL,
+    DAC_BUFFERMODE_SWING,
+    DAC_BUFFERMODE_ONETIME
+} Dac_BufferMode;
+
+typedef struct Dac_Device* Dac_DeviceHandle;
+
+#if defined (LIBOHIBOARD_K10D10)
+
+extern Dac_DeviceHandle DAC0;
+extern Dac_DeviceHandle DAC1;
+
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+      defined (LIBOHIBOARD_OHIBOARD_R1)
+
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
+
+extern Dac_DeviceHandle DAC0;
+extern Dac_DeviceHandle DAC1;
+
+#endif
+
+typedef struct _Dac_Config
+{
+    Dac_VoltageRef ref;
+    
+    Dac_PowerMode powerMode;
+    
+    Dac_TriggerSelect trigger;
+    Dac_BufferMode buffer;
+
+} Dac_Config;
+
+System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config);
+
+System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
+
+#endif /* __DAC_H */
+
+#endif /* LIBOHIBOARD_DAC */
