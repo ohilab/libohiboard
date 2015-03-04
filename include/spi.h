@@ -132,7 +132,7 @@ typedef enum
     SPI_PINS_PTE4,
     SPI_PINS_PTE5,
     SPI_PINS_PTE6,
-    SPI_PINS_PTE16
+    SPI_PINS_PTE16,
 
 #elif defined (LIBOHIBOARD_OHIBOARD_R1)
 
