@@ -340,13 +340,6 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     /* Enable the clock to the selected UART */ 
     *dev->simScgcPtr |= dev->simScgcBitEnable;
     
-    /* Config the port controller */
-    if (config->rxPin != UART_PINS_RXNONE)
-        Uart_setRxPin(dev, config->rxPin);
-    
-    if (config->txPin != UART_PINS_TXNONE)
-        Uart_setTxPin(dev, config->txPin);
-    
     /* Make sure that the transmitter and receiver are disabled while we change settings. */
         UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
     
@@ -385,6 +378,14 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 
     dev->devInitialized = 1;
+
+    /* Config the port controller */
+    if (config->rxPin != UART_PINS_RXNONE)
+        Uart_setRxPin(dev, config->rxPin);
+
+    if (config->txPin != UART_PINS_TXNONE)
+        Uart_setTxPin(dev, config->txPin);
+
     return ERRORS_NO_ERROR;
 }
 
