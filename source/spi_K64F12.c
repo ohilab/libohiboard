@@ -286,9 +286,13 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     uint32_t tempReg = 0;
 
     uint32_t busClk;
-    uint32_t spiClk;
-    uint32_t diff = 0xFFFF;
-    uint32_t maxDiff = 0xFFFF;
+    float spiClk;
+	float PBRDIV;
+	float BRDIV;
+	float temporary1;
+	float temporary2;
+    uint32_t diff = 0xFFFFFFFF;
+    uint32_t maxDiff = 0xFFFFFFFF;
     uint8_t dbr = 0;
     uint8_t pbr = 0;
     uint8_t br = 0;
@@ -302,9 +306,13 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     {
         for(j = 0; j < 4; j++)
         {
+			PBRDIV = (float)Spi_pbrDiv[j];
+			temporary1 = (float)(busClk/PBRDIV);
             for(k = 0; k < 16; k++)
             {
-                spiClk = ((busClk/Spi_pbrDiv[j])*((1+i)/Spi_brDiv[k]));
+                BRDIV = (float)Spi_brDiv[k];
+    			temporary2 = (float)((1+i)/BRDIV);
+                spiClk = temporary1*temporary2;
                 if(speed < spiClk)
                 {
                     if((spiClk - speed) < diff)
