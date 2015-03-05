@@ -12674,8 +12674,8 @@ typedef struct SIM_MemMap {
 #define SIM_SCGC6_DMAMUX_SHIFT                   1
 #define SIM_SCGC6_FLEXCAN0_MASK                  0x10u
 #define SIM_SCGC6_FLEXCAN0_SHIFT                 4
-#define SIM_SCGC6_DSPI0_MASK                     0x1000u
-#define SIM_SCGC6_DSPI0_SHIFT                    12
+#define SIM_SCGC6_SPI0_MASK                      0x1000u
+#define SIM_SCGC6_SPI0_SHIFT                     12
 #define SIM_SCGC6_SPI1_MASK                      0x2000u
 #define SIM_SCGC6_SPI1_SHIFT                     13
 #define SIM_SCGC6_I2S_MASK                       0x8000u
