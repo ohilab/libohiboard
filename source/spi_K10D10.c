@@ -380,6 +380,9 @@ static System_Errors Spi_setPcsPin(Spi_DeviceHandle dev, Spi_PcsPins pcsPin)
 {
     uint8_t devPinIndex;
 
+    if (dev->devInitialized == 0)
+        return ERRORS_SPI_DEVICE_NOT_INIT;
+
     for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
     {
         if (dev->pcsPins[devPinIndex] == pcsPin)
@@ -395,6 +398,9 @@ static System_Errors Spi_setPcsPin(Spi_DeviceHandle dev, Spi_PcsPins pcsPin)
 static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
 {
     uint8_t devPinIndex;
+
+    if (dev->devInitialized == 0)
+        return ERRORS_SPI_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
     {
@@ -412,6 +418,9 @@ static System_Errors Spi_setSinPin(Spi_DeviceHandle dev, Spi_PcsPins sinPin)
 {
     uint8_t devPinIndex;
 
+    if (dev->devInitialized == 0)
+        return ERRORS_SPI_DEVICE_NOT_INIT;
+
     for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
     {
         if (dev->sinPins[devPinIndex] == sinPin)
@@ -427,6 +436,9 @@ static System_Errors Spi_setSinPin(Spi_DeviceHandle dev, Spi_PcsPins sinPin)
 static System_Errors Spi_setSckPin(Spi_DeviceHandle dev, Spi_PcsPins sckPin)
 {
     uint8_t devPinIndex;
+
+    if (dev->devInitialized == 0)
+        return ERRORS_SPI_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
     {
@@ -460,27 +472,6 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 
     /* Turn on clock */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
-
-    /* Config the port controller */
-    if (config->pcs0Pin != SPI_PINS_PCSNONE)
-        Spi_setPcsPin(dev, config->pcs0Pin);
-    if (config->pcs1Pin != SPI_PINS_PCSNONE)
-        Spi_setPcsPin(dev, config->pcs1Pin);
-    if (config->pcs2Pin != SPI_PINS_PCSNONE)
-        Spi_setPcsPin(dev, config->pcs2Pin);
-    if (config->pcs3Pin != SPI_PINS_PCSNONE)
-        Spi_setPcsPin(dev, config->pcs3Pin);
-    if (config->pcs4Pin != SPI_PINS_PCSNONE)
-        Spi_setPcsPin(dev, config->pcs4Pin);
-
-    if (config->soutPin != SPI_PINS_SOUTNONE)
-        Spi_setSoutPin(dev, config->soutPin);
-
-    if (config->sinPin != SPI_PINS_SINNONE)
-        Spi_setSinPin(dev, config->sinPin);
-
-    if (config->sckPin != SPI_PINS_SCKNONE)
-        Spi_setSckPin(dev, config->sckPin);
 
     /* Common CTARn parameters definition */
     if(config->sckPolarity == SPI_SCK_INACTIVE_STATE_LOW)
@@ -538,6 +529,28 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     }
 
     dev->devInitialized = 1;
+
+    /* Config the port controller */
+    if (config->pcs0Pin != SPI_PINS_PCSNONE)
+        Spi_setPcsPin(dev, config->pcs0Pin);
+    if (config->pcs1Pin != SPI_PINS_PCSNONE)
+        Spi_setPcsPin(dev, config->pcs1Pin);
+    if (config->pcs2Pin != SPI_PINS_PCSNONE)
+        Spi_setPcsPin(dev, config->pcs2Pin);
+    if (config->pcs3Pin != SPI_PINS_PCSNONE)
+        Spi_setPcsPin(dev, config->pcs3Pin);
+    if (config->pcs4Pin != SPI_PINS_PCSNONE)
+        Spi_setPcsPin(dev, config->pcs4Pin);
+
+    if (config->soutPin != SPI_PINS_SOUTNONE)
+        Spi_setSoutPin(dev, config->soutPin);
+
+    if (config->sinPin != SPI_PINS_SINNONE)
+        Spi_setSinPin(dev, config->sinPin);
+
+    if (config->sckPin != SPI_PINS_SCKNONE)
+        Spi_setSckPin(dev, config->sckPin);
+
     return error;
 }
 
