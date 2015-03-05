@@ -137,6 +137,9 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
 {
     uint8_t devPinIndex;
 
+    if (dev->devInitialized == 0)
+        return ERRORS_IIC_DEVICE_NOT_INIT;
+
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
         if (dev->sclPins[devPinIndex] == sclPin)
@@ -152,6 +155,9 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
 static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
 {
     uint8_t devPinIndex;
+
+    if (dev->devInitialized == 0)
+        return ERRORS_IIC_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
@@ -258,13 +264,6 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
     /* Turn on clock */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
-    /* Config the port controller */
-    if (config->sclPin != IIC_PINS_SCLNONE)
-        Iic_setSclPin(dev, config->sclPin);
-
-    if (config->sdaPin != IIC_PINS_SDANONE)
-        Iic_setSdaPin(dev, config->sdaPin);
-
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
     {
@@ -285,6 +284,13 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
     Iic_firstRead = 1;
 
     dev->devInitialized = 1;
+
+    /* Config the port controller */
+    if (config->sclPin != IIC_PINS_SCLNONE)
+        Iic_setSclPin(dev, config->sclPin);
+
+    if (config->sdaPin != IIC_PINS_SDANONE)
+        Iic_setSdaPin(dev, config->sdaPin);
 
     return ERRORS_NO_ERROR;
 }
