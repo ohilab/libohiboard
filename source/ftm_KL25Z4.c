@@ -336,7 +336,6 @@ static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
 
 static uint16_t Ftm_computeModulo (uint32_t timerFrequency, Ftm_Prescaler prescaler)
 {
-
     uint32_t clock;
     uint32_t modulo;
 

@@ -312,8 +312,24 @@ void Ftm_isrFtm2 (void)
 
 static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
 {
-    uint32_t clock = Clock_getFrequency(CLOCK_SYSTEM);
-    uint8_t prescaler = (clock / timerFrequency) / 65536;
+    uint32_t clock;
+    uint8_t prescaler;
+
+    switch(Clock_getCurrentState())
+    {
+    case CLOCK_FBE:
+    case CLOCK_FBI:
+    case CLOCK_FEI:
+    case CLOCK_FEE:
+        clock = Clock_getFrequency(CLOCK_SYSTEM);
+        break;
+
+    case CLOCK_PBE:
+    case CLOCK_PEE:
+        clock = Clock_getFrequency(CLOCK_SYSTEM)/2;
+        break;
+    }
+    prescaler = (clock / timerFrequency) / 65536;
 
     if (prescaler > 64)
         return FTM_PRESCALER_128;
@@ -335,8 +351,24 @@ static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
 
 static uint16_t Ftm_computeModulo (uint32_t timerFrequency, Ftm_Prescaler prescaler)
 {
-    uint32_t clock = Clock_getFrequency(CLOCK_SYSTEM);
+    uint32_t clock;
     uint32_t modulo;
+
+    switch(Clock_getCurrentState())
+    {
+    case CLOCK_FBE:
+    case CLOCK_FBI:
+    case CLOCK_FEI:
+    case CLOCK_FEE:
+        clock = Clock_getFrequency(CLOCK_SYSTEM);
+        break;
+
+    case CLOCK_PBE:
+    case CLOCK_PEE:
+        clock = Clock_getFrequency(CLOCK_SYSTEM)/2;
+        break;
+    }
+
 
     switch (prescaler)
     {
