@@ -212,7 +212,7 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
  *
  * Thank for this function at https://github.com/laswick/kinetis/blob/master/phase2_embedded_c/i2c.c
  */
-static System_Errors setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
+static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 {
     I2C_MemMapPtr regmap = dev->regMap;
     uint32_t tempReg = 0;
@@ -273,13 +273,9 @@ static System_Errors setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
         mul = 0;
     }
 
-    tempReg = I2C_F_REG(regmap);
-    tempReg &= ~(I2C_F_MULT_MASK | I2C_F_ICR_MASK);
-    tempReg |= (I2C_F_MULT(mul) | I2C_F_ICR(icr));
-    I2C_F_REG(regmap) = tempReg;
+	I2C_F_REG(regmap) = I2C_F_MULT(mul) | I2C_F_ICR(icr);
 
-    slt = Iic_sclDivTab[icr] / 2 + 1;
-
+//    slt = Iic_sclDivTab[icr] / 2 + 1;
     return ERRORS_NO_ERROR;
 }
 
@@ -303,7 +299,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
     /* Select device type */
     if (devType == IIC_MASTER_MODE)
     {
-        errors = setBaudrate(dev, config->baudRate);
+        errors = Iic_setBaudrate(dev, config->baudRate);
 
         if (errors != ERRORS_NO_ERROR)
             return errors;
