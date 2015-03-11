@@ -352,6 +352,12 @@ typedef struct _Uart_Config
     uint8_t oversampling; /* 4 to 32 */
     uint32_t extClk;      /* external frequency or crystal value if clockSource = UART_CLOCKSOURCE_EXT */
 
+#elif defined(LIBOHIBOARD_KL15Z4)      || \
+      defined (LIBOHIBOARD_KL25Z4)     || \
+	  defined (LIBOHIBOARD_FRDMKL25Z)
+
+    uint8_t oversampling; /* 4 to 32 */
+
 #endif
 
 } Uart_Config;

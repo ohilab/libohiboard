@@ -159,32 +159,26 @@ static Uart_Device uart2 = {
 
         .rxPins           = {UART_PINS_PTD2,
                              UART_PINS_PTD4,
-                             UART_PINS_PTE17,
                              UART_PINS_PTE23,
         },
         .rxPinsPtr        = {&PORTD_PCR2,
                              &PORTD_PCR4,
-                             &PORTE_PCR17,
                              &PORTE_PCR23,
         },
         .rxPinsMux        = {3,
-                             3,
                              3,
                              4,
         },
 
         .txPins           = {UART_PINS_PTD3,
                              UART_PINS_PTD5,
-                             UART_PINS_PTE16,
                              UART_PINS_PTE22,
         },
         .txPinsPtr        = {&PORTD_PCR3,
                              &PORTD_PCR5,
-                             &PORTE_PCR16,
                              &PORTE_PCR22,
         },
         .txPinsMux        = {3,
-                             3,
                              3,
                              4,
         },
@@ -193,40 +187,67 @@ static Uart_Device uart2 = {
 };
 Uart_DeviceHandle UART2 = &uart2;
 
-static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
+static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
 {
     register uint16_t sbr;
-    uint8_t temp;
+    uint32_t temp;
     uint32_t clockHz;
+	uint8_t osr;
 
-    switch (dev->clockSource)
-    {
-    case UART_CLOCKSOURCE_BUS:
-        clockHz = Clock_getFrequency(CLOCK_BUS);
-        break;
-    case UART_CLOCKSOURCE_SYSTEM:
-        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
-        break;
-    }
+	if (oversampling < 4)
+		oversampling = 4;
 
-    if (dev == UART0)
-    {
-        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
-    }
+	osr = oversampling - 1;
 
-    /* Calculate baud settings */
-    sbr = (uint16_t)((clockHz)/(baudrate * 16));
+//    switch (dev->clockSource)
+//    {
+//    case UART_CLOCKSOURCE_BUS:
+//        clockHz = Clock_getFrequency(CLOCK_BUS);
+//        break;
+//    case UART_CLOCKSOURCE_SYSTEM:
+//        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+//        break;
+//    }
 
     /* Save off the current value of the UARTx_BDH except for the SBR field */
     if (dev == UART0)
     {
-        temp = UART0_BDH_REG(dev->regMap0) & ~(UART0_BDH_SBR(0x1F));
+    	SIM_SOPT2 &= ~(SIM_SOPT2_UART0SRC_MASK);
+		SIM_SOPT2 |= SIM_SOPT2_UART0SRC(1);
+
+		switch(Clock_getCurrentState())
+		{
+		case CLOCK_FBE:
+		case CLOCK_FBI:
+		case CLOCK_FEI:
+		case CLOCK_FEE:
+			clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+			break;
+
+		case CLOCK_PBE:
+		case CLOCK_PEE:
+			clockHz = Clock_getFrequency(CLOCK_SYSTEM)/2;
+			break;
+		}
+
+	    /* Calculate baud settings */
+	    sbr = (uint16_t)((clockHz)/(baudrate * oversampling));
+
+		temp = UART0_C4_REG(dev->regMap0) & ~(UART0_C4_OSR_MASK);
+		UART0_C4_REG(dev->regMap0) = temp | UART0_C4_OSR(osr);
+
+		temp = UART0_BDH_REG(dev->regMap0) & ~(UART0_BDH_SBR(0x1F));
 
         UART0_BDH_REG(dev->regMap0) = temp |  UART0_BDH_SBR(((sbr & 0x1F00) >> 8));
         UART0_BDL_REG(dev->regMap0) = (uint8_t)(sbr & UART0_BDL_SBR_MASK);
     }
     else
     {
+		clockHz = Clock_getFrequency(CLOCK_BUS);
+
+        /* Calculate baud settings */
+        sbr = (uint16_t)((clockHz)/(baudrate * 16));
+
 
         temp = UART_BDH_REG(dev->regMap) & ~(UART_BDH_SBR(0x1F));
 
@@ -380,13 +401,17 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     }
 
     dev->clockSource = config->clockSource;
-    Uart_setBaudrate(dev,config->baudrate);
+    Uart_setBaudrate(dev,config->baudrate,config->oversampling);
 
     /* Enable receiver and transmitter */
     if (dev == UART0)
+    {
         UART0_C2_REG(dev->regMap0) |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+    }
     else
-        UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+    {
+    	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+    }
 
     dev->devInitialized = 1;
 
