@@ -143,6 +143,8 @@
 #include "platforms/MKL03Z4.h"
 #elif defined(LIBOHIBOARD_KL15Z4)
 #include "platforms/MKL15Z4.h"
+#elif defined(LIBOHIBOARD_KL25Z4)
+#include "platforms/MKL25Z4.h"
 #elif defined(LIBOHIBOARD_K64F12)
 #include "platforms/MK64F12.h"
 #elif defined(LIBOHIBOARD_FRDMKL02Z)
