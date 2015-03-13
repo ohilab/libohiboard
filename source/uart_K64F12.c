@@ -260,14 +260,13 @@ static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     uint8_t temp;
     uint32_t clockHz;
     
-    switch (dev->clockSource)
+    if ((dev == UART0) || (dev == UART1))
     {
-    case UART_CLOCKSOURCE_BUS:
-        clockHz = Clock_getFrequency(CLOCK_BUS);
-        break;
-    case UART_CLOCKSOURCE_SYSTEM:
         clockHz = Clock_getFrequency(CLOCK_SYSTEM);
-        break;
+    }
+    else
+    {
+        clockHz = Clock_getFrequency(CLOCK_BUS);
     }
     
     /* Calculate baud settings */

@@ -63,13 +63,199 @@ typedef struct Uart_Device
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
+static Uart_Device uart0 = {
+        .regMap           = UART0_BASE_PTR,
 
-/* TODO: ADD DEVICE! */
+        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcBitEnable = SIM_SCGC4_UART0_MASK,
 
+        .rxPins           = {UART_PINS_PTA1,
+                             UART_PINS_PTA15,
+                             UART_PINS_PTB16,
+                             UART_PINS_PTD6,
+        },
+        .rxPinsPtr        = {&PORTA_PCR1,
+                             &PORTA_PCR15,
+                             &PORTB_PCR16,
+                             &PORTD_PCR6,
+        },
+        .rxPinsMux        = {2,
+                             3,
+                             3,
+                             3,
+        },
+
+        .txPins           = {UART_PINS_PTA2,
+                             UART_PINS_PTA14,
+                             UART_PINS_PTB17,
+                             UART_PINS_PTD7,
+        },
+        .txPinsPtr        = {&PORTA_PCR2,
+                             &PORTA_PCR14,
+                             &PORTB_PCR17,
+                             &PORTD_PCR7,
+        },
+        .txPinsMux        = {2,
+                             3,
+                             3,
+                             3,
+        },
+
+        .devInitialized = 0,
+};
+Uart_DeviceHandle UART0 = &uart0;
+
+static Uart_Device uart1 = {
+        .regMap           = UART1_BASE_PTR,
+
+        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcBitEnable = SIM_SCGC4_UART1_MASK,
+
+        .rxPins           = {UART_PINS_PTE1,
+                             UART_PINS_PTC3,
+        },
+        .rxPinsPtr        = {&PORTE_PCR1,
+                             &PORTC_PCR3,
+        },
+        .rxPinsMux        = {3,
+                             3,
+        },
+
+        .txPins           = {UART_PINS_PTE0,
+                             UART_PINS_PTC4,
+        },
+        .txPinsPtr        = {&PORTE_PCR0,
+                             &PORTC_PCR4,
+        },
+        .txPinsMux        = {3,
+                             3,
+        },
+
+        .devInitialized = 0,
+};
+Uart_DeviceHandle UART1 = &uart1;
+
+static Uart_Device uart2 = {
+        .regMap           = UART2_BASE_PTR,
+
+        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcBitEnable = SIM_SCGC4_UART2_MASK,
+
+        .rxPins           = {UART_PINS_PTD2,
+        },
+        .rxPinsPtr        = {&PORTD_PCR2,
+        },
+        .rxPinsMux        = {3,
+        },
+
+        .txPins           = {UART_PINS_PTD3,
+        },
+        .txPinsPtr        = {&PORTD_PCR3,
+        },
+        .txPinsMux        = {3,
+        },
+
+        .devInitialized = 0,
+};
+Uart_DeviceHandle UART2 = &uart2;
+
+static Uart_Device uart3 = {
+        .regMap           = UART3_BASE_PTR,
+
+        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcBitEnable = SIM_SCGC4_UART3_MASK,
+
+        .rxPins           = {UART_PINS_PTE5,
+                             UART_PINS_PTB10,
+                             UART_PINS_PTC16,
+        },
+        .rxPinsPtr        = {&PORTE_PCR5,
+                             &PORTB_PCR10,
+                             &PORTC_PCR16,
+        },
+        .rxPinsMux        = {3,
+                             3,
+                             3,
+        },
+
+        .txPins           = {UART_PINS_PTE4,
+                             UART_PINS_PTB11,
+                             UART_PINS_PTC17,
+        },
+        .txPinsPtr        = {&PORTE_PCR4,
+                             &PORTB_PCR11,
+                             &PORTC_PCR17,
+        },
+        .txPinsMux        = {3,
+                             3,
+                             3,
+        },
+
+        .devInitialized = 0,
+};
+Uart_DeviceHandle UART3 = &uart3;
+
+static Uart_Device uart4 = {
+        .regMap           = UART4_BASE_PTR,
+
+        .simScgcPtr       = &SIM_SCGC1,
+        .simScgcBitEnable = SIM_SCGC1_UART4_MASK,
+
+        .rxPins           = {UART_PINS_PTE25,
+                             UART_PINS_PTC14,
+        },
+        .rxPinsPtr        = {&PORTE_PCR25,
+                             &PORTC_PCR14,
+        },
+        .rxPinsMux        = {3,
+                             3,
+        },
+
+        .txPins           = {UART_PINS_PTE24,
+                             UART_PINS_PTC15,
+        },
+        .txPinsPtr        = {&PORTE_PCR24,
+                             &PORTC_PCR15,
+        },
+        .txPinsMux        = {3,
+                             3,
+        },
+
+        .devInitialized = 0,
+};
+Uart_DeviceHandle UART4 = &uart4;
 
 static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 {
-    /* TODO: Copy from K10! Pay attention to get clock source! */
+    register uint16_t sbr, brfa;    //BaudRateFineAdjust
+    uint8_t temp;
+    uint32_t clockHz;
+
+    if ((dev == UART0) || (dev == UART1))
+    {
+        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+    }
+    else
+    {
+        clockHz = Clock_getFrequency(CLOCK_BUS);
+    }
+
+    /* Calculate baud settings */
+    sbr = (uint16_t)((clockHz)/(baudrate * 16));
+
+    /* Save off the current value of the UARTx_BDH except for the SBR field */
+    temp = UART_BDH_REG(dev->regMap) & ~(UART_BDH_SBR(0x1F));
+
+    UART_BDH_REG(dev->regMap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
+    UART_BDL_REG(dev->regMap) = (uint8_t)(sbr & UART_BDL_SBR_MASK);
+
+    /* Determine if a fractional divider is needed to get closer to the baud rate */
+    brfa = (((clockHz * 32)/(baudrate * 16)) - (sbr * 32));
+
+    /* Save off the current value of the UARTx_C4 register except for the BRFA field */
+    temp = UART_C4_REG(dev->regMap) & ~(UART_C4_BRFA(0x1F));
+
+    UART_C4_REG(dev->regMap) = temp | UART_C4_BRFA(brfa);
 }
 
 /**
