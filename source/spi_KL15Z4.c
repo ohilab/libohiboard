@@ -274,8 +274,9 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     {
         for(j = 0; j < 9; j++)
         {
-        	temporary1 = (float)((i+1) * Spi_prDiv[j]);
-            spiClk = (float)(busClk/temporary1);
+//        	temporary1 = (float)((i+1) * Spi_prDiv[j]);
+//            spiClk = (float)(busClk/temporary1);
+        	spiClk = (busClk * (1U+i) / Spi_prDiv[j]);
             if(speed < spiClk)
             {
                 if((spiClk - speed) < diff)
