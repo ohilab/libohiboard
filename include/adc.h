@@ -288,6 +288,8 @@ typedef enum {
 
 #endif
 
+    ADC_PINS_NONE,
+
 } Adc_Pins;
 
 typedef enum {
