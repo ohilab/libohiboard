@@ -319,7 +319,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
         break;
     }
 
-    Adc_enablePin (dev, config->adcPin);
+//    Adc_enablePin (dev, config->adcPin);
 
     dev->devInitialized = 1;
 

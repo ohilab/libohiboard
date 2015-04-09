@@ -571,6 +571,8 @@ typedef enum
     GPIO_PINS_PTE28,
     
 #endif
+
+    GPIO_PINS_NONE,
 } Gpio_Pins;
 
 
