@@ -257,7 +257,7 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     SPI_MemMapPtr regmap = dev->regMap;
     uint32_t tempReg = 0;
 
-    uint32_t busClk;
+    uint32_t clock;
     float spiClk;
 	float temporary1;
     uint32_t diff = 0xFFFFFFFF;
@@ -268,14 +268,17 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     uint8_t i = 0;
     uint8_t j = 0;
 
+    if (dev == SPI0)
+        clock = Clock_getFrequency(CLOCK_BUS);
+    else
+        clock = Clock_getFrequency(CLOCK_SYSTEM); /* TODO: Is it true?? */
 
-    busClk = Clock_getFrequency(CLOCK_BUS);
     for(i = 0; i < 8; i++)
     {
         for(j = 0; j < 9; j++)
         {
         	temporary1 = (float)((i+1) * Spi_prDiv[j]);
-            spiClk = (float)(busClk/temporary1);
+            spiClk = (float)(clock/temporary1);
             if(speed < spiClk)
             {
                 if((spiClk - speed) < diff)
@@ -456,7 +459,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
     SPI_MemMapPtr regmap = dev->regMap;
 
     /* Copy dummy data in D register */
-    SPI_D_REG(regmap) = 0xFF;
+    SPI_D_REG(regmap) = 0x00;
     /* Wait until slave replay */
     while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Save data register */
