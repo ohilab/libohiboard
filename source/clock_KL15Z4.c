@@ -2013,10 +2013,26 @@ System_Errors Clock_Init (Clock_Config *config)
                         f = foutMcg;
                         error = ERRORS_NO_ERROR;
                     }
+                    else if(foutMcg == (fext/fll_r)*732)
+                    {
+                        stateOutTmp = CLOCK_FEE;
+                        dmx32Tmp = 1;
+                        drstDrsTmp = 0;
+                        f = foutMcg;
+                        error = ERRORS_NO_ERROR;
+                    }
                     else if(foutMcg == (fext/fll_r)*1280)
                     {
                         stateOutTmp = CLOCK_FEE;
                         dmx32Tmp = 0;
+                        drstDrsTmp = 1;
+                        f = foutMcg;
+                        error = ERRORS_NO_ERROR;
+                    }
+                    else if(foutMcg == (fext/fll_r)*1464)
+                    {
+                        stateOutTmp = CLOCK_FEE;
+                        dmx32Tmp = 1;
                         drstDrsTmp = 1;
                         f = foutMcg;
                         error = ERRORS_NO_ERROR;
