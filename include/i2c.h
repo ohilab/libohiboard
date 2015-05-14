@@ -28,6 +28,8 @@
  * @brief I2C definitions and prototypes
  */
 
+#ifdef LIBOHIBOARD_IIC
+
 #ifndef __I2C_H
 #define __I2C_H
 
@@ -298,3 +300,5 @@ extern Iic_DeviceHandle IIC2;
 #endif
 
 #endif /* __I2C_H */
+
+#endif /* LIBOHIBOARD_IIC */

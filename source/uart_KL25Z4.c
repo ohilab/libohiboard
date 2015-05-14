@@ -61,8 +61,16 @@ typedef struct Uart_Device
 
     Uart_ClockSource clockSource;
 
+    void (*isr)(void);                     /**< The function pointer for ISR. */
+    void (*callback)(void);      /**< The function pointer for user callback. */
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
+
+void Uart_isrUart0 (void);
+void Uart_isrUart1 (void);
+void Uart_isrUart2 (void);
 
 static Uart_Device uart0 = {
         .regMap0          = UART0_BASE_PTR,
@@ -109,6 +117,9 @@ static Uart_Device uart0 = {
                              4,
         },
 
+        .isr              = Uart_isrUart0,
+        .isrNumber        = INTERRUPT_UART0,
+
         .devInitialized = 0,
 };
 Uart_DeviceHandle UART0 = &uart0;
@@ -145,6 +156,9 @@ static Uart_Device uart1 = {
                              3,
                              3,
         },
+
+        .isr              = Uart_isrUart1,
+        .isrNumber        = INTERRUPT_UART1,
 
         .devInitialized = 0,
 };
@@ -183,9 +197,43 @@ static Uart_Device uart2 = {
                              4,
         },
 
+        .isr              = Uart_isrUart2,
+        .isrNumber        = INTERRUPT_UART2,
+
         .devInitialized = 0,
 };
 Uart_DeviceHandle UART2 = &uart2;
+
+static void Uart_callbackInterrupt (Uart_DeviceHandle dev)
+{
+    dev->callback();
+    /* FIXME: Enable just RX interrupt */
+    if (dev == UART0)
+    {
+        (void)UART0_S1_REG(dev->regMap0);
+        (void)UART0_D_REG(dev->regMap0);
+    }
+    else
+    {
+        (void)UART_S1_REG(dev->regMap);
+        (void)UART_D_REG(dev->regMap);
+    }
+}
+
+void Uart_isrUart0 (void)
+{
+    Uart_callbackInterrupt(UART0);
+}
+
+void Uart_isrUart1 (void)
+{
+    Uart_callbackInterrupt(UART1);
+}
+
+void Uart_isrUart2 (void)
+{
+    Uart_callbackInterrupt(UART2);
+}
 
 static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
 {
@@ -402,6 +450,24 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
 
     dev->clockSource = config->clockSource;
     Uart_setBaudrate(dev,config->baudrate,config->oversampling);
+
+
+    /* If call back exist save it */
+    if (callback)
+    {
+        dev->callback = callback;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* FIXME: Enable just RX interrupt */
+        if (dev == UART0)
+        {
+            UART0_C2_REG(dev->regMap0) |= UART0_C2_RIE_MASK;
+        }
+        else
+        {
+            UART_C2_REG(dev->regMap) |= UART_C2_RIE_MASK;
+        }
+    }
 
     /* Enable receiver and transmitter */
     if (dev == UART0)
