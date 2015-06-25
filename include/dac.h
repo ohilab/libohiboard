@@ -75,6 +75,11 @@ extern Dac_DeviceHandle DAC1;
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
+#elif defined (LIBOHIBOARD_KL25Z4)  || \
+      defined (LIBOHIBOARD_FRDMKL25Z)
+
+extern Dac_DeviceHandle DAC0;
+
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
@@ -93,6 +98,8 @@ typedef struct _Dac_Config
     Dac_BufferMode buffer;
 
 } Dac_Config;
+
+
 
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config);
 
