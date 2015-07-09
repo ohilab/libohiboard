@@ -70,6 +70,10 @@
 
 #include "timeday.h"
 
+#include"MOD_BUS.h"
+
+#include"var_mapping.h"
+
 void test();
 
 #endif /* __LIBOHIBOARD_H */

@@ -524,6 +524,29 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     }
 }
 
+void FTM_Reset_Cont(Ftm_DeviceHandle dev){
+	TPM_CNT_REG(dev->regMap) = 0;
+
+}
+
+void FTM_Interrupt_start(Ftm_DeviceHandle dev){
+
+	//disable interrupt
+	TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
+	//set to zero cont
+	TPM_CNT_REG(dev->regMap) = 0;
+	//enable interrupt
+	TPM_SC_REG(dev->regMap) |=TPM_SC_TOIE_MASK;
+}
+
+void FTM_Interrupt_stop(Ftm_DeviceHandle dev){
+	//disable interrupt
+	TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
+}
+
+
+
+
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled)
 {
     uint8_t devPinIndex;

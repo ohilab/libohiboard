@@ -99,7 +99,8 @@ typedef enum _System_Errors
     ERRORS_MCG_JUST_INIT,
     ERRORS_MCG_NOT_INIT,
     ERRORS_MCG_ERRATA_DIVIDER,
-    ERRORS_MCG_48M_REF //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
+    ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
+    ERRORS_UART_PARITY  //parity error occured
 
 } System_Errors;
 

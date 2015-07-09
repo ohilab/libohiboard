@@ -397,6 +397,8 @@ typedef struct _Uart_Config
 
     uint8_t oversampling; /* 4 to 32 */
 
+    uint8_t stop_bit;
+
 #endif
 
 } Uart_Config;

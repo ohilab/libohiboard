@@ -402,6 +402,11 @@ typedef struct Ftm_Config
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
 
+void FTM_Reset_Cont(Ftm_DeviceHandle dev);
+//valid only in free mode
+void FTM_Interrupt_start(Ftm_DeviceHandle dev);
+void FTM_Interrupt_stop(Ftm_DeviceHandle dev);
+
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
 void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
 
