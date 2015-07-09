@@ -404,7 +404,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     }
 
     dev->clockSource = config->clockSource;
-    Uart_setBaudrate(dev,config->baudrate,4);
+    Uart_setBaudrate(dev,config->baudrate,config->oversampling);
 
     /* Enable receiver and transmitter */
     if (dev == UART0)

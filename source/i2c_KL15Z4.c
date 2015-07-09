@@ -519,12 +519,14 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
         uint8_t *data, uint8_t length, Iic_StopMode stopRequest)
 {
     uint8_t i;
+    System_Errors errors;
 
     Iic_start(dev);
 
     /* Write address */
     I2C_D_REG(dev->regMap) = address;
-    if (Iic_waitTxTransfer(dev) == ERRORS_IIC_TX_TIMEOUT)
+    errors = Iic_waitTxTransfer(dev);
+    if (errors == ERRORS_IIC_TX_TIMEOUT)
     {
         Iic_stop(dev);
         return ERRORS_IIC_TX_ERROR;
