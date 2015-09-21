@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -69,10 +69,6 @@
 #include "rtc.h"
 
 #include "timeday.h"
-
-#include"MOD_BUS.h"
-
-#include"var_mapping.h"
 
 void test();
 
