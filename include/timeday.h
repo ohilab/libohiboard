@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -51,6 +51,7 @@ typedef struct
 
 typedef struct
 {
+    uint8_t  wday;
     uint8_t  day;
     uint8_t  month;
     uint16_t year;
@@ -59,5 +60,9 @@ typedef struct
 typedef uint32_t Time_UnixTime;
 
 Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time);
+
+void Time_unixtimeToTime (Time_UnixTime unix, Time_DateType* date, Time_TimeType* time);
+void Time_unixtimeToString (Time_UnixTime unix, char * dateString);
+
 
 #endif /* __TIMEDAY_H */
