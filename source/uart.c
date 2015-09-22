@@ -50,6 +50,19 @@ void Uart_sendString (Uart_DeviceHandle dev, const char* text)
     }
 }
 
+void Uart_sendStringln (Uart_DeviceHandle dev, const char* text)
+{
+    if (text)
+    {
+        while (*text)
+        {
+            Uart_putChar(dev, *text++);
+        }
+        Uart_putChar(dev, '\r');
+        Uart_putChar(dev, '\n');
+    }
+}
+
 void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length)
 {
     if (data)
