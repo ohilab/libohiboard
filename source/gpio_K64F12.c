@@ -263,6 +263,10 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
     {
         gpioPort->PDDR |= GPIO_PIN(Gpio_availablePins[pin].pinNumber);
     }
+    else if(options & GPIO_PINS_INPUT)
+	{
+        gpioPort->PDDR &= ~GPIO_PIN(Gpio_availablePins[pin].pinNumber);
+	}
 
     return ERRORS_NO_ERROR;
 }
