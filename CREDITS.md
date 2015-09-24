@@ -2,10 +2,11 @@ Credits
 =======
 
 * Edoardo Bezzeccheri
+* Matteo Civale
 * Marco Contigiani
 * Marco Giammarini
 * Nicola Orlandini
-* Niccolò Paolinelli
+* Niccolo Paolinelli
 * Alessio Paolucci
 * Francesco Piunti
 

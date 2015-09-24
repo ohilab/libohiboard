@@ -2,6 +2,7 @@
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +26,7 @@
 /**
  * @file libohiboard/source/ftm_K25Z4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief Ftm implementations for KL25Z4 and FRDM-KL25Z.
  */
 
@@ -524,28 +526,26 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     }
 }
 
-void FTM_Reset_Cont(Ftm_DeviceHandle dev){
+void Ftm_resetCounter (Ftm_DeviceHandle dev)
+{
 	TPM_CNT_REG(dev->regMap) = 0;
-
 }
 
-void FTM_Interrupt_start(Ftm_DeviceHandle dev){
-
-	//disable interrupt
+void Ftm_startInterrupt (Ftm_DeviceHandle dev)
+{
+	/* disable interrupt */
 	TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
-	//set to zero cont
+	/* set to zero cont */
 	TPM_CNT_REG(dev->regMap) = 0;
-	//enable interrupt
+	/* enable interrupt */
 	TPM_SC_REG(dev->regMap) |=TPM_SC_TOIE_MASK;
 }
 
-void FTM_Interrupt_stop(Ftm_DeviceHandle dev){
-	//disable interrupt
+void Ftm_stopInterrupt (Ftm_DeviceHandle dev)
+{
+	/* disable interrupt */
 	TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
 }
-
-
-
 
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled)
 {

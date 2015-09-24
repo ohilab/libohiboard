@@ -3,6 +3,7 @@
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/include/ftm.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief FTM definitions and prototypes.
  */
 
@@ -402,10 +404,11 @@ typedef struct Ftm_Config
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
 
-void FTM_Reset_Cont(Ftm_DeviceHandle dev);
-//valid only in free mode
-void FTM_Interrupt_start(Ftm_DeviceHandle dev);
-void FTM_Interrupt_stop(Ftm_DeviceHandle dev);
+void Ftm_resetCounter (Ftm_DeviceHandle dev);
+
+/* Valid only in free counter mode */
+void Ftm_startInterrupt (Ftm_DeviceHandle dev);
+void Ftm_stopInterrupt (Ftm_DeviceHandle dev);
 
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
 void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);

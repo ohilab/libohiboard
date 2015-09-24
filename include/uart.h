@@ -6,6 +6,7 @@
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
  *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +33,7 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
+ * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief UART definitions and prototypes.
  */
 
@@ -55,6 +57,11 @@ typedef enum {
     UART_DATABITS_NINE,
     UART_DATABITS_TEN,
 } Uart_DataBits;
+
+typedef enum {
+    UART_STOPBITS_ONE,
+    UART_STOPBITS_TWO,
+} Uart_StopBits;
 
 typedef enum {
 #if defined (LIBOHIBOARD_KL15Z4)     || \
@@ -382,6 +389,7 @@ typedef struct _Uart_Config
     
     Uart_DataBits dataBits;
     Uart_ParityMode parity;
+    Uart_StopBits stop;
     
     uint32_t baudrate;
 
@@ -396,8 +404,6 @@ typedef struct _Uart_Config
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
     uint8_t oversampling; /* 4 to 32 */
-
-    uint8_t stop_bit;
 
 #endif
 
