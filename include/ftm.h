@@ -49,6 +49,13 @@ typedef enum
     FTM_MODE_FREE
 } Ftm_Mode;
 
+typedef enum
+{
+	FTM_CONFIGINPUTCAPTURE_RISING_EDGE,
+	FTM_CONFIGINPUTCAPTURE_FALLING_EDGE,
+	FTM_CONFIGINPUTCAPTURE_BOTH_EDGE,
+} Ftm_ConfigInputCapture;
+
 typedef struct Ftm_Device* Ftm_DeviceHandle;
 
 /* Configuration bits */
@@ -56,6 +63,11 @@ typedef struct Ftm_Device* Ftm_DeviceHandle;
 #define FTM_CONFIG_PWM_CENTER_ALIGNED    0x01
 #define FTM_CONFIG_PWM_POLARITY_HIGH     0x00
 #define FTM_CONFIG_PWM_POLARITY_LOW      0x02
+
+/* Configuration bits for Input Capture mode */
+#define FTM_CONFIG_INPUT_RISING_EDGE	 0x04
+#define FTM_CONFIG_INPUT_FALLING_EDGE	 0x08
+#define FTM_CONFIG_INPUT_BOTH_EDGES		 0x10
 
 #if defined (LIBOHIBOARD_KL15Z4)
 
@@ -410,8 +422,15 @@ void Ftm_resetCounter (Ftm_DeviceHandle dev);
 void Ftm_startInterrupt (Ftm_DeviceHandle dev);
 void Ftm_stopInterrupt (Ftm_DeviceHandle dev);
 
+void Ftm_startCount(Ftm_DeviceHandle dev);
+void Ftm_stopCount(Ftm_DeviceHandle dev);
+
+/* Set PWM */
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
 void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
+
+/* Set Input Capture */
+System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin);
 
 #endif /* __FTM_H */
 
