@@ -4,6 +4,7 @@
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Matteo Civale <matteo.civale@gmail.com>
+ *  Simone Giacomucci <simone.giacomucci@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +29,7 @@
  * @file libohiboard/include/ftm.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Matteo Civale <matteo.civale@gmail.com>
+ * @author Simone Giacomucci <simone.giacomucci@gmail.com>
  * @brief FTM definitions and prototypes.
  */
 
@@ -419,8 +421,8 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
 void Ftm_resetCounter (Ftm_DeviceHandle dev);
 
 /* Valid only in free counter mode */
-void Ftm_startInterrupt (Ftm_DeviceHandle dev);
-void Ftm_stopInterrupt (Ftm_DeviceHandle dev);
+void Ftm_enableInterrupt (Ftm_DeviceHandle dev);
+void Ftm_disableInterrupt (Ftm_DeviceHandle dev);
 
 void Ftm_startCount(Ftm_DeviceHandle dev);
 void Ftm_stopCount(Ftm_DeviceHandle dev);
@@ -431,6 +433,12 @@ void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled
 
 /* Set Input Capture */
 System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin);
+
+/* Channel function */
+void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel);
 
 #endif /* __FTM_H */
 

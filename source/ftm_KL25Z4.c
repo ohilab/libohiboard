@@ -267,6 +267,7 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     switch (dev->mode)
     {
     case FTM_MODE_INPUT_CAPTURE:
+        dev->callback();
         break;
     case FTM_MODE_OUTPUT_COMPARE:
         break;
@@ -572,7 +573,7 @@ void Ftm_resetCounter (Ftm_DeviceHandle dev)
 	TPM_CNT_REG(dev->regMap) = 0;
 }
 
-void Ftm_startInterrupt (Ftm_DeviceHandle dev)
+void Ftm_enableInterrupt (Ftm_DeviceHandle dev)
 {
 	/* disable interrupt */
 	TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
@@ -582,7 +583,7 @@ void Ftm_startInterrupt (Ftm_DeviceHandle dev)
 	TPM_SC_REG(dev->regMap) |=TPM_SC_TOIE_MASK;
 }
 
-void Ftm_stopInterrupt (Ftm_DeviceHandle dev)
+void Ftm_disableInterrupt (Ftm_DeviceHandle dev)
 {
 	/* disable interrupt */
 	TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
@@ -665,6 +666,17 @@ void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
         *regCSCPtr &= ~TPM_CnSC_CHIE_MASK;
     }
 }
+
+void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
+
+    if (regCSCPtr)
+    {
+        *regCSCPtr |= TPM_CnSC_CHF_MASK;
+    }
+}
+
 
 uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel)
 {
