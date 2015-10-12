@@ -51,13 +51,6 @@ typedef enum
     FTM_MODE_FREE
 } Ftm_Mode;
 
-typedef enum
-{
-	FTM_CONFIGINPUTCAPTURE_RISING_EDGE,
-	FTM_CONFIGINPUTCAPTURE_FALLING_EDGE,
-	FTM_CONFIGINPUTCAPTURE_BOTH_EDGE,
-} Ftm_ConfigInputCapture;
-
 typedef struct Ftm_Device* Ftm_DeviceHandle;
 
 /* Configuration bits */
@@ -204,6 +197,8 @@ typedef enum
     FTM_CHANNELS_CH3,
     FTM_CHANNELS_CH4,
     FTM_CHANNELS_CH5,
+
+    FTM_CHANNELS_NONE,
 } Ftm_Channels;
 
 void Ftm_isrFtm0 (void);
@@ -432,11 +427,12 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
 void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
 
 /* Set Input Capture */
-System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin);
+System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t configurations);
 
 /* Channel function */
 void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
 void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
 void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
 uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel);
 

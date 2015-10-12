@@ -502,7 +502,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
             if (pin == FTM_PINS_STOP)
                 break;
 
-            Ftm_addInputCapturePin(dev,pin);
+            Ftm_addInputCapturePin(dev,pin,dev->configurationBits);
         }
 
         TPM_SC_REG(dev->regMap) = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
@@ -667,6 +667,20 @@ void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
     }
 }
 
+bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
+
+    if (regCSCPtr && (*regCSCPtr & TPM_CnSC_CHF_MASK))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
 void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
 {
     volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
@@ -684,11 +698,11 @@ uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel)
 
     if (regCVPtr)
     {
-        return *regCVPtr;
+        return (uint16_t) *regCVPtr;
     }
 }
 
-System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin)
+System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t configurations)
 {
     uint8_t devPinIndex;
 
@@ -713,7 +727,7 @@ System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin)
     /* Select the right register */
     regCSCPtr = Ftm_getCnSCRegister(dev,dev->channel[devPinIndex]);
 
-    /* Enable channel and set PWM value */
+    /* Enable channel */
     if (regCSCPtr)
     {
         /* Input capture mode */
@@ -722,11 +736,11 @@ System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin)
 
     	*regCSCPtr &= ~(TPM_CnSC_ELSA_MASK | TPM_CnSC_ELSB_MASK);
 
-        if (dev->configurationBits & FTM_CONFIG_INPUT_RISING_EDGE)
+        if (configurations & FTM_CONFIG_INPUT_RISING_EDGE)
         {
             *regCSCPtr |= TPM_CnSC_ELSA_MASK;
         }
-        else if (dev->configurationBits & FTM_CONFIG_INPUT_FALLING_EDGE)
+        else if (configurations & FTM_CONFIG_INPUT_FALLING_EDGE)
         {
             *regCSCPtr |= TPM_CnSC_ELSB_MASK;
         }
