@@ -556,3 +556,42 @@ int8_t stringFindFirstOf (const char* string, char find, uint8_t size)
     }
     return -1;
 }
+
+uint8_t u32td (uint8_t *dString, uint32_t number)
+{
+    uint32_t scale = 1000000000;
+    char pad = 0;
+    uint8_t charCount = 0;
+
+    if (number == 0)
+    {
+        *dString = '0';
+        dString++;
+        *dString = '\0';
+        charCount++;
+        return charCount;
+    }
+
+    for (; scale; scale /= 10)
+    {
+        if (number >= scale)
+        {
+            *dString = hexDigits[number / scale];
+            dString++;
+            charCount++;
+            number %= scale;
+            pad = '0';
+        }
+        else
+        {
+            if (pad)
+            {
+                *dString = pad;
+                dString++;
+                charCount++;
+            }
+        }
+    }
+    *dString = '\0';
+    return charCount;
+}

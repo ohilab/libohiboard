@@ -447,6 +447,11 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
+uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
+{
+    return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK);
+}
+
 #endif /* LIBOHIBOARD_K10D10 || LIBOHIBOARD_K10DZ10 */
 
 #endif /* LIBOHIBOARD_UART */

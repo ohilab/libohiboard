@@ -38,6 +38,8 @@
 
 #if defined (LIBOHIBOARD_K10D10)
 
+#define ADC_MAX_PINS  52
+
 typedef struct Adc_Device {
     ADC_MemMapPtr regMap;
 
@@ -455,7 +457,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     	break;
     }
 
-    /*setting single or continuous convertion*/
+    /*setting single or continuous conversion*/
     switch (config->contConv)
     {
     case ADC_SINGLE_CONVERTION:
@@ -528,7 +530,9 @@ void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
 
     for (devPinIndex = 0; devPinIndex < ADC_MAX_PINS; ++devPinIndex)
     {
-        if (dev->pins[devPinIndex] == pin)
+        if (dev->pins[devPinIndex] == ADC_PINS_NONE) break;
+
+    	if (dev->pins[devPinIndex] == pin)
         {
             *(dev->pinsPtr[devPinIndex]) =
                 PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);

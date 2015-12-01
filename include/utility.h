@@ -63,6 +63,8 @@ uint8_t i16td (uint8_t *dString, int16_t number);
 System_Errors strtf (const uint8_t* fString, float* result);
 System_Errors ftstr (float value, uint8_t* fString, uint8_t precision);
 
+uint8_t u32td (uint8_t *dString, uint32_t number);
+
 void fti (float number, uint8_t precision, int16_t* integerPart, uint16_t* decimalPart);
 void ftu (float number, uint8_t precision, uint16_t* integerPart, uint16_t* decimalPart);
 
