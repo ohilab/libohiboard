@@ -102,6 +102,10 @@ typedef enum _System_Errors
     ERRORS_MCG_ERRATA_DIVIDER,
     ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
 
+    ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
+    ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
+    ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
+
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
     ERRORS_ETHERNET_SMI_TIMEOUT     /**< Error during communication with PHY. */
