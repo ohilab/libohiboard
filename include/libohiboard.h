@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -64,6 +64,10 @@
 
 #ifdef LIBOHIBOARD_DAC
 #include "dac.h"
+#endif
+
+#ifdef LIBOHIBOARD_ETHERNET
+#include "ethernet.h"
 #endif
 
 #include "rtc.h"

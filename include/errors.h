@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -36,11 +36,11 @@
 
 typedef enum _System_Errors
 {
-	ERRORS_NO_ERROR,                        /**< There is no error. */
-	ERRORS_PARAM_VALUE,                     /**< Invalid value. */
-	ERRORS_EXT_OSC_NOT_SELECT,              /**< External oscillator not selected. */
+	ERRORS_NO_ERROR,                                  /**< There is no error. */
+	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
+	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
 	
-	ERRORS_HW_NOT_ENABLED,                  /**< Hardware pin of the device was not enabled. */
+	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
 	
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
 	
@@ -52,6 +52,7 @@ typedef enum _System_Errors
     ERRORS_UART_NO_PIN_FOUND,
     ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG,
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
+    ERRORS_UART_PARITY,                            /**< Parity error occured. */
 	
 	ERRORS_IIC_TX_OK,
 	ERRORS_IIC_TX_ERROR,
@@ -100,8 +101,10 @@ typedef enum _System_Errors
     ERRORS_MCG_NOT_INIT,
     ERRORS_MCG_ERRATA_DIVIDER,
     ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
-    ERRORS_UART_PARITY  //parity error occured
 
+    ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
+    ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
+    ERRORS_ETHERNET_SMI_TIMEOUT     /**< Error during communication with PHY. */
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
