@@ -27,7 +27,7 @@
  * @file libohiboard/include/ethernet.h
  * @author Simone Giacomucci <simone.giacomucci@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Ethernet HAç definitions and prototypes.
+ * @brief Ethernet HAL definitions and prototypes.
  */
 
 #ifdef LIBOHIBOARD_ETHERNET
@@ -323,6 +323,16 @@ typedef struct _Ethernet_RmiiConfig
 /**
  * TODO: description...
  */
+typedef struct _Ethernet_PtpConfig
+{
+    bool isSlaveEnabled;                      /**< Master or slave PTP timer. */
+    uint32_t clockIncease;       /**< Timer increase value each clock period. */
+    uint32_t period;          /**< Timer period for generate interrupt event. */
+} Ethernet_PtpConfig;
+
+/**
+ * TODO: description...
+ */
 typedef struct _Ethernet_Config
 {
     Ethernet_Mode mode;
@@ -335,9 +345,7 @@ typedef struct _Ethernet_Config
 
     Ethernet_RmiiConfig rmii;            /**< RMII/MII configuration section. */
 
-    bool isPtpSlaveEnabled;                   /**< Master or slave PTP timer. */
-    uint32_t ptpClockIncease;    /**< Timer increase value each clock period. */
-    uint32_t ptpPeriod;       /**< Timer period for generate interrupt event. */
+    Ethernet_PtpConfig ptp;                   /**< PTP configuration section. */
 
     uint32_t internalSpeed;               /**< Operating speed of PHY device. */
 

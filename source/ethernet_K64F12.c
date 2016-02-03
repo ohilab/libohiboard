@@ -452,23 +452,23 @@ static void Ethernet_initFifo (Ethernet_DeviceHandle dev, Ethernet_FifoConfig* c
     }
 }
 
-static void Ethernet_initPtpTimer (Ethernet_DeviceHandle dev)
+static void Ethernet_initPtpTimer (Ethernet_DeviceHandle dev, Ethernet_PtpConfig* config)
 {
     /* Restart 1588 timer */
     ENET_ATCR_REG(dev->regMap) |= ENET_ATCR_RESTART_MASK;
 
     /* Init 1588 timer */
     /* Set increase value for PTP timer */
-    ENET_ATINC_REG(dev->regMap) |= ENET_ATINC_INC(ptpConfig->clockIncease);
+    ENET_ATINC_REG(dev->regMap) |= ENET_ATINC_INC(config->clockIncease);
     /* Set wrap time for PTP timer */
-    ENET_ATPER_REG(dev->regMap) = ptpConfig->period;
+    ENET_ATPER_REG(dev->regMap) = config->period;
 
     /* Set periodical event and the event signal output assertion */
     ENET_ATCR_REG(dev->regMap) |= ENET_ATCR_PEREN_MASK;
     ENET_ATCR_REG(dev->regMap) |= ENET_ATCR_PINPER_MASK;
 
     /* Set PTP timer slave/master mode */
-    if(ptpConfig->isSlaveEnabled)
+    if(config->isSlaveEnabled)
         ENET_ATCR_REG(dev->regMap) |= ENET_ATCR_SLAVE_MASK;
     else
         ENET_ATCR_REG(dev->regMap) &=~ ENET_ATCR_SLAVE_MASK;
@@ -532,11 +532,11 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     if (config->mode == ETHERNET_MODE_1588)
     {
         SIM_SOPT2 |= SIM_SOPT2_TIMESRC(2); /* OSCERCLK selected */
-        Ethernet_initPtpTimer(dev);
+        Ethernet_initPtpTimer(dev,&(config->ptp));
     }
 
     /* Interrupt Enabling Section */
-    if (!(config->isPtpSlaveEnabled))
+    if (!(config->ptp.isSlaveEnabled))
     {
         /* Enable Timestamp Ptp Interrupt. */
         ENET_EIMR_REG(dev->regMap) |= ENET_EIMR_TS_TIMER_MASK;
