@@ -94,10 +94,6 @@ typedef struct Ethernet_Device
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Ethernet_Device;
 
-void Ethernet_isrEnet0Rx (void);
-void Ethernet_isrEnet0Tx (void);
-void Ethernet_isrEnet0Ts (void);
-
 static Ethernet_Device enet0 = {
     .regMap           = ENET_BASE_PTR,
 

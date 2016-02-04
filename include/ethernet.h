@@ -128,13 +128,14 @@
 
 typedef struct Ethernet_Device* Ethernet_DeviceHandle;
 
-typedef enum
-{
 #if defined (LIBOHIBOARD_K60DZ10) || \
     defined (LIBOHIBOARD_OHIBOARD_R1)
 
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
+
+typedef enum
+{
 
     ETHERNET_PINS_PTA5,
     ETHERNET_PINS_PTA12,
@@ -153,8 +154,15 @@ typedef enum
     ETHERNET_PINS_PTC18,
     ETHERNET_PINS_PTC19,
 
-#endif
 } Ethernet_Pins;
+
+void Ethernet_isrEnet0Rx (void);
+void Ethernet_isrEnet0Tx (void);
+void Ethernet_isrEnet0Ts (void);
+
+extern Ethernet_DeviceHandle ENET0;
+
+#endif
 
 /**
  *
