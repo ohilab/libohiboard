@@ -46,6 +46,20 @@ typedef struct _Pit_Config
 
 } Pit_Config;
 
+#if defined (LIBOHIBOARD_K60DZ10) || \
+    defined (LIBOHIBOARD_OHIBOARD_R1)
+
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
+
+void Pit_isrPit0 (void);
+void Pit_isrPit1 (void);
+void Pit_isrPit2 (void);
+void Pit_isrPit3 (void);
+
+extern Pit_DeviceHandle PIT0;
+
+#endif
 
 /**
  * TODO: description...

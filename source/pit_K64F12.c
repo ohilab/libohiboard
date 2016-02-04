@@ -98,6 +98,30 @@ static Pit_Device pit0 = {
 };
 Pit_DeviceHandle PIT0 = &pit0;
 
+void Pit_isrPit0 (void)
+{
+    PIT_TFLG_REG(PIT0->regMap,0) |= PIT_TFLG_TIF_MASK;
+    PIT0->callback[0]();
+}
+
+void Pit_isrPit1 (void)
+{
+    PIT_TFLG_REG(PIT0->regMap,1) |= PIT_TFLG_TIF_MASK;
+    PIT0->callback[1]();
+}
+
+void Pit_isrPit2 (void)
+{
+    PIT_TFLG_REG(PIT0->regMap,2) |= PIT_TFLG_TIF_MASK;
+    PIT0->callback[2]();
+}
+
+void Pit_isrPit3 (void)
+{
+    PIT_TFLG_REG(PIT0->regMap,3) |= PIT_TFLG_TIF_MASK;
+    PIT0->callback[3]();
+}
+
 System_Errors Pit_init (Pit_DeviceHandle dev)
 {
     /* Enable the clock to the selected PIT */
@@ -111,8 +135,8 @@ System_Errors Pit_init (Pit_DeviceHandle dev)
 
 System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* config)
 {
-    uint32_t currentBusPeriod = 1000000000/Clock_getFrequency(CLOCK_BUS);//[ns]
-    uint32_t requestPeriod = 1000000000/config->frequency; //[ns]
+    float currentBusPeriod = (float) 1000000000/Clock_getFrequency(CLOCK_BUS);//[ns]
+    float requestPeriod = (float) 1000000000/config->frequency; //[ns]
     uint32_t regValue;
 
     if (config->number > (PIT_MAX_NUMBER - 1))
@@ -121,7 +145,7 @@ System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* conf
     /* Clear status */
     dev->isInitialized[config->number] = FALSE;
 
-    regValue = requestPeriod/currentBusPeriod;
+    regValue = (uint32_t) requestPeriod/currentBusPeriod;
     if (regValue == 0)
         return ERRORS_PIT_WRONG_VALUE;
 
@@ -142,26 +166,26 @@ System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* conf
 
 System_Errors Pit_start (Pit_DeviceHandle dev, uint8_t number)
 {
-    if (config->number > (PIT_MAX_NUMBER - 1))
+    if (number > (PIT_MAX_NUMBER - 1))
         return ERRORS_PIT_NOT_EXIST;
 
     if (!dev->isInitialized[number])
         return ERRORS_PIT_NOT_INITIALIZED;
 
-    PIT_TCTRL_REG(dev->regMap,config->number) |= PIT_TCTRL_TEN_MASK;
+    PIT_TCTRL_REG(dev->regMap,number) |= PIT_TCTRL_TEN_MASK;
     return ERRORS_NO_ERROR;
 
 }
 
 System_Errors Pit_stop (Pit_DeviceHandle dev, uint8_t number)
 {
-    if (config->number > (PIT_MAX_NUMBER - 1))
+    if (number > (PIT_MAX_NUMBER - 1))
         return ERRORS_PIT_NOT_EXIST;
 
     if (!dev->isInitialized[number])
         return ERRORS_PIT_NOT_INITIALIZED;
 
-    PIT_TCTRL_REG(dev->regMap,config->number) &= ~PIT_TCTRL_TEN_MASK;
+    PIT_TCTRL_REG(dev->regMap,number) &= ~PIT_TCTRL_TEN_MASK;
     return ERRORS_NO_ERROR;
 }
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
