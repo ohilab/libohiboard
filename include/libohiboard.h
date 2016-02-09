@@ -60,11 +60,17 @@
 #include "uart.h"
 #endif
 
+#ifdef LIBOHIBOARD_IIC
 #include "i2c.h"
+#endif
 
+#ifdef LIBOHIBOARD_SPI
 #include "spi.h"
+#endif
 
+#ifdef LIBOHIBOARD_ADC
 #include "adc.h"
+#endif
 
 #ifdef LIBOHIBOARD_DAC
 #include "dac.h"
@@ -74,7 +80,9 @@
 #include "ethernet.h"
 #endif
 
+#ifdef LIBOHIBOARD_RTC
 #include "rtc.h"
+#endif
 
 #include "timeday.h"
 
