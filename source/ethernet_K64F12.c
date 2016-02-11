@@ -226,7 +226,7 @@ static void Ethernet_initBufferDescriptors (Ethernet_DeviceHandle dev)
     for(rxBdIndex = 0; rxBdIndex < dev->bd->rxBdNumber; rxBdIndex++)
     {
         /* TODO: Implement swapping for different endian system */
-        rxBdTmp->buffer = (uint8_t *)((uint32_t)&dev->bd->rxBuffer[rxBdIndex * dev->bd->rxBufferSizeAlign]);
+        rxBdTmp->buffer = (uint8_t *)LONGSWAP((uint32_t)&dev->bd->rxBuffer[rxBdIndex * dev->bd->rxBufferSizeAlign]);
         rxBdTmp->length = 0; /* Initialize data length */
 
         /* The last buffer descriptor should be set with the wrap flag */
@@ -244,7 +244,7 @@ static void Ethernet_initBufferDescriptors (Ethernet_DeviceHandle dev)
     for(txBdIndex = 0; txBdIndex < dev->bd->txBdNumber; txBdIndex++)
     {
         /* TODO: Implement swapping for different ENDIAN system */
-        txBdTmp->buffer = (uint8_t *)((uint32_t)&dev->bd->txBuffer[txBdIndex * dev->bd->txBufferSizeAlign]);
+        txBdTmp->buffer = (uint8_t *)LONGSWAP((uint32_t)&dev->bd->txBuffer[txBdIndex * dev->bd->txBufferSizeAlign]);
         txBdTmp->length = 0; /* Set data length*/
 
         /* The last buffer descriptor should be set with the wrap flag */
@@ -559,9 +559,10 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     /* Enable Ethernet Module */
     ENET_ECR_REG(dev->regMap) |= ENET_ECR_ETHEREN_MASK;
 
-    /* TODO: Support for different ENDIAN system */
     /* Buffer descriptor byte swapping for little-endian system and endianness configurable IP */
+#ifndef ETHERNET_BIGENDIAN
     ENET_ECR_REG(dev->regMap) |= ENET_ECR_DBSWP_MASK;
+#endif
 
     /* Enable Rx Buffer Descriptor. Must be done after enabling Ethernet Module */
     ENET_RDAR_REG(dev->regMap) |= ENET_RDAR_RDAR_MASK;
