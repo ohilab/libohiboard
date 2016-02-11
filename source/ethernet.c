@@ -81,4 +81,92 @@ void Ethernet_clearTxBufferDescriptorAfterSend (volatile Ethernet_BufferDescript
     bd->controlExtend1 = 0;
 }
 
+bool Ethernet_hasRxBufferDescriptorErrors (volatile Ethernet_BufferDescriptor *bd)
+{
+    if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_OVERRUN ||
+            bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LENGTH_VIOLATION ||
+            bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_NO_OCTECT ||
+            bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_CRC ||
+            bd->controlExtend1 & ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_COLLISION)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+bool Ethernet_hasNextRxBufferDescriptor(volatile Ethernet_BufferDescriptor *bd)
+{
+    if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_WRAP)
+    {
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
+
+bool Ethernet_hasNextTxBufferDescriptor(volatile Ethernet_BufferDescriptor *bd)
+{
+    if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_WRAP)
+    {
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
+
+bool Ethernet_isRxFrameTruncated (volatile Ethernet_BufferDescriptor *bd)
+{
+  if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_TRUNC)
+  {
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+bool Ethernet_isTxBufferDescriptorReady (volatile Ethernet_BufferDescriptor *bd)
+{
+  if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_READY)
+  {
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+bool Ethernet_isRxBufferDescriptorEmpty (volatile Ethernet_BufferDescriptor *bd)
+{
+  if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY)
+  {
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+bool Ethernet_isLastRxBufferDescriptor (volatile Ethernet_BufferDescriptor *bd)
+{
+  if(bd->control & ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LAST)
+  {
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
 #endif /* LIBOHIBOARD_ETHERNET */
