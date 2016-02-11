@@ -476,7 +476,7 @@ static void Ethernet_initPtpTimer (Ethernet_DeviceHandle dev, Ethernet_PtpConfig
 System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
 {
     uint8_t clockCycleMdioNo; /* Number of Clock Cycles for MDIO Holding time */
-    uint32_t timeout;
+    uint32_t timeout = 0;
 
     /* Enable the clock to the selected ENET */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
@@ -510,11 +510,13 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
 
     /* Set hold time for MDIO */
     clockCycleMdioNo = (uint8_t) 10/(1000000000/Clock_getFrequency(CLOCK_BUS));
+    /*TODO: Find the exact frequency source for the calculation of Clock cycle (System Clock or Bus Clock?)*/
     ENET_MSCR_REG(dev->regMap) |= ENET_MSCR_HOLDTIME(clockCycleMdioNo);
 
     /* Set register for MDC frequency */
     ENET_MSCR_REG(dev->regMap) |=
             ENET_MSCR_MII_SPEED((config->internalSpeed/(2*ETHERNET_MDC_FREQUENCY))-1);
+    /*TODO: Find the exact frequency source for the calculation of MII_SPEED (System Clock, Bus Clock or Local Transceiver Clock?)*/
 
     /* init FIFO */
     Ethernet_initFifo(dev,&(config->fifo));
@@ -543,9 +545,7 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     if (config->callbackRxIsr)
     {
         dev->callbackRx = config->callbackRxIsr;
-        /* Enable interrupt RX */
-        Interrupt_enable(dev->isrRxNumber);
-        ENET_EIMR_REG(dev->regMap) |= ENET_EIMR_RXF_MASK;
+        /* Enable interrupt RX after PHY initialization */
     }
 
     if (config->callbackTxIsr)
@@ -569,6 +569,38 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     dev->devInitialized = 1;
 
     return ERRORS_NO_ERROR;
+}
+
+void Ethernet_disableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source)
+{
+    switch(source)
+    {
+    case ETHERNET_INTERRUPT_SOURCE_RX:
+        Interrupt_disable(dev->isrRxNumber);
+        ENET_EIMR_REG(dev->regMap) &= ~ENET_EIMR_RXF_MASK;
+        break;
+    case ETHERNET_INTERRUPT_SOURCE_TX:
+        Interrupt_disable(dev->isrTxNumber);
+        ENET_EIMR_REG(dev->regMap) &= ~ENET_EIMR_TXB_MASK;
+        break;
+        //TODO: Handle Timestamp Inerrupt case.
+    }
+}
+
+void Ethernet_enableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source)
+{
+    switch(source)
+    {
+    case ETHERNET_INTERRUPT_SOURCE_RX:
+        Interrupt_enable(dev->isrRxNumber);
+        ENET_EIMR_REG(dev->regMap) |= ENET_EIMR_RXF_MASK;
+        break;
+    case ETHERNET_INTERRUPT_SOURCE_TX:
+        Interrupt_enable(dev->isrTxNumber);
+        ENET_EIMR_REG(dev->regMap) |= ENET_EIMR_TXB_MASK;
+        break;
+        //TODO: Handle Timestamp Interrupt case.
+    }
 }
 
 void Ethernet_updateStatus (Ethernet_DeviceHandle dev)
