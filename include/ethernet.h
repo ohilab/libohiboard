@@ -39,6 +39,16 @@
 #include "errors.h"
 #include "types.h"
 
+/* Macro defines for handling Different Endian Systems*/
+#if ETHERNET_BIGENDIAN
+#define SHORTSWAP(x)                     __REV16(x)
+#define LONGSWAP(x)                      __REV(x)
+#else
+#define SHORTSWAP(x)                      (x)
+#define LONGSWAP(x)                       (x)
+#endif
+
+
 /* RX Acceleration Configuration flags */
 #define ETHERNET_RXACCEL_CONFIG_ENABLE_PADDLE_REMOVAL              0x01 /**< Enable Padding Removal For Short IP Frames. */
 #define ETHERNET_RXACCEL_CONFIG_WRONG_IPV4_FRAME_DISCARD           0x02 /**< Enable Discard Of Frames With Wrong IPv4 Header Checksum. */
@@ -70,6 +80,58 @@
 #define ETHERNET_MACCONFIG_SMI_PREAMBLE_DISABLE                    0x08000U /* Enable SMI preamble*/
 #define ETHERNET_MACCONFIG_MAC_ENHANCED_ENABLE                     0x10000U /* Enable enhanced MAC feature (IEEE 1588 feature/enhanced buff descriptor)*/
 
+#if ETHERNET_BIGENDIAN
+/* Receive Buffer Descriptor Control Status flags */
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_BROADCAST              0x8000U  /* Broadcast */
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MULTICAST              0x4000U  /* Multicast*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LENGTH_VIOLATION       0x2000U  /* Receive length violation*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_NO_OCTECT              0x1000U  /* Receive non-octet aligned frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_CRC                    0x0400U  /* Receive CRC error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_OVERRUN                0x0200U  /* Receive FIFO overrun*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_TRUNC                  0x0100U  /* Frame is truncated */
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY                  0x0080U  /* Empty bit*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN1          0x0040U  /* Receive software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_WRAP                   0x0020U  /* Update buffer descriptor*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN2          0x0010U  /* Receive software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LAST                   0x0008U  /* Last BD in the frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MISS                   0x0001U  /* Receive for promiscuous mode*/
+
+/* Receive Buffer Descriptor Control Extend 0 flags */
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV4                  0x0100U  /* IPv4 frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV6                  0x0200U  /* IPv6 frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_VLAN                  0x0400U  /* VLAN*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_PROTO_CHECKSUM_ERR    0x1000U  /* Protocol checksum error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IP_HDR_CHECKSUM_ERR   0x2000U  /* IP header checksum error*/
+
+/* Receive Buffer Descriptor Control Extend 1 flags */
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_UNICAST               0x0001U  /* Unicast frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_COLLISION             0x0002U  /* BD collision*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_PHY_ERROR             0x0004U  /* PHY error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_MAC_ERROR             0x0080U  /* Mac error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_INTERRUPT             0x8000U  /* BD interrupt*/
+
+/*! @brief Defines the control status region of the transmit buffer descriptor.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_READY                  0x0080U  /*  Ready bit*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN1          0x0040U  /*  Transmit software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_WRAP                   0x0020U  /*  Wrap buffer descriptor*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN2          0x0010U  /*  Transmit software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_LAST                   0x0008U  /*  Last BD in the frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_TRANSMIT_CRC           0x0004U  /*  Receive for transmit CRC*/
+
+/*! @brief Defines the control extended region1 of the transmit buffer descriptor.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_ERROR                 0x0080U  /*  Transmit error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_UNDERFLOW_ERROR       0x0020U  /*  Underflow error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_EXCESS_COLLISION_ERR  0x0010U  /*  Excess collision error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_FRAME_ERROR           0x0008U  /*  Frame error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_LATE_COLLISION_ERR    0x0004U  /*  Late collision error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_OVERFLOW_ERR          0x0002U  /*  Overflow error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_TIMESTAMP_ERROR       0x0001U  /*  Timestamp error*/
+
+/*! @brief Defines the control extended region2 of the transmit buffer descriptor.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_INTERRUPT             0x0040U  /* Transmit interrupt*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_TIMESTAMP             0x0020U  /* Transmit timestamp flag */
+
+#else
 /* Receive Buffer Descriptor Control Status flags */
 #define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY                 0x8000U /* Empty bit.*/
 #define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN1         0x4000U /* Receive software owner.*/
@@ -119,6 +181,7 @@
 /* Transmit Buffer Descriptor Control Extend 1 flags */
 #define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_INTERRUPT            0x4000U /* Transmit interrupt.*/
 #define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_TIMESTAMP            0x2000U /* Transmit timestamp flag.*/
+#endif
 
 /** The MII configuration status.
  *  1 if the MII has been configured.
@@ -178,6 +241,26 @@ void static inline Ethernet_activeTxBufferDescriptor()
  *
  * See pag. 1262 of K64 Sub-Family Reference Manual for more info.
  */
+#ifdef ETHERNET_BIGENDIAN
+typedef struct Ethernet_BufferDescriptor
+{
+    uint16_t  control;          /*!< Buffer descriptor control   */
+    uint16_t   length;          /*!< Buffer descriptor data length*/
+    uint8_t   *buffer;          /*!< Data buffer pointer*/
+    uint16_t  controlExtend1;   /*!< Extend buffer descriptor control1*/
+    uint16_t  controlExtend0;   /*!< Extend buffer descriptor control0*/
+    uint8_t   headerLength;     /*!< Header length*/
+    uint8_t   protocalTyte;     /*!< Protocol type*/
+    uint16_t  payloadCheckSum;  /*!< Internal payload checksum*/
+    uint16_t  controlExtend2;   /*!< Extend buffer descriptor control2*/
+    uint16_t  reserved0;
+    uint32_t  timestamp;        /*!< Timestamp pointer*/
+    uint16_t  reserved1;
+    uint16_t  reserved2;
+    uint16_t  reserved3;
+    uint16_t  reserved4;
+} Ethernet_BufferDescriptor;
+#else
 typedef struct Ethernet_BufferDescriptor
 {
     uint16_t length;                       /**< Buffer descriptor data length. */
@@ -196,7 +279,7 @@ typedef struct Ethernet_BufferDescriptor
     uint16_t reserved3;
     uint16_t reserved4;
 } Ethernet_BufferDescriptor;
-
+#endif
 /**
  *
  */
