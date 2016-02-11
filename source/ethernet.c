@@ -40,7 +40,10 @@
 
 uint8_t* Ethernet_getBufferDescriptorData (volatile Ethernet_BufferDescriptor* bd)
 {
-  return bd->buffer;
+  uint32_t buffer;
+  buffer = (uint32_t)(bd->buffer);
+
+  return (uint8_t *)LONGSWAP(buffer);
 }
 
 void Ethernet_clearRxBufferDescriptorAfterHandled (volatile Ethernet_BufferDescriptor* bd)
@@ -57,7 +60,7 @@ void Ethernet_setTxBufferDescriptorBeforeSend (
         bool isTxCrcEnable,
         bool isLast)
 {
-    bd->length = dataLength; /* Set data length*/
+    bd->length = SHORTSWAP(dataLength); /* Set data length*/
     if(isLast)
     {
         bd->control |= ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_LAST;
