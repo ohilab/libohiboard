@@ -129,8 +129,7 @@ typedef enum {
     INTERRUPT_PORTA      = 30,
     INTERRUPT_PORTD      = 31,
 
-#elif defined (LIBOHIBOARD_K10D10) || \
-      defined(LIBOHIBOARD_K10D10)
+#elif defined (LIBOHIBOARD_K10D10)
 
     INTERRUPT_DMA0       = 0,
     INTERRUPT_DMA1       = 1,
@@ -153,6 +152,31 @@ typedef enum {
     INTERRUPT_FTM2       = 64,
     INTERRUPT_RTC_ALARM  = 66,
     INTERRUPT_RTC_SECOND = 67,
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+    INTERRUPT_DMA0       = 0,
+    INTERRUPT_DMA1       = 1,
+    INTERRUPT_DMA2       = 2,
+    INTERRUPT_DMA3       = 3,
+    INTERRUPT_DMA4       = 4,
+    INTERRUPT_DMA5       = 5,
+    INTERRUPT_DMA6       = 6,
+    INTERRUPT_DMA7       = 7,
+    INTERRUPT_DMA8       = 8,
+    INTERRUPT_DMA9       = 9,
+    INTERRUPT_DMA10      = 10,
+    INTERRUPT_DMA11      = 11,
+    INTERRUPT_DMA12      = 12,
+    INTERRUPT_DMA13      = 13,
+    INTERRUPT_DMA14      = 14,
+    INTERRUPT_DMA15      = 15,
+	INTERRUTP_DMAERROR   = 16,
+    INTERRUPT_FTM0       = 42,
+    INTERRUPT_FTM1       = 43,
+    INTERRUPT_FTM2       = 44,
+    INTERRUPT_RTC_ALARM  = 46,
+    INTERRUPT_RTC_SECOND = 47,
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
 	  defined (LIBOHIBOARD_OHIBOARD_R1)

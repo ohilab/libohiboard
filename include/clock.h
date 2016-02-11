@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -70,6 +70,7 @@ typedef enum
       defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)  || \
       defined (LIBOHIBOARD_K10D10)     || \
+	  defined (LIBOHIBOARD_K12D5)      || \
 	  defined (LIBOHIBOARD_K60DZ10)    || \
 	  defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)   || \
@@ -106,6 +107,7 @@ uint32_t Clock_getFrequency (Clock_Source source);
 Clock_State Clock_getCurrentState(); 
 
 #if defined (LIBOHIBOARD_K10D10)     || \
+    defined (LIBOHIBOARD_K12D5)      || \
     defined (LIBOHIBOARD_K60DZ10)    || \
     defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)   || \
