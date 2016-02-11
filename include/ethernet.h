@@ -162,6 +162,16 @@ void Ethernet_isrEnet0Ts (void);
 
 extern Ethernet_DeviceHandle ENET0;
 
+void static inline Ethernet_activeRxBufferDescriptor()
+{
+  ENET_RDAR |= ENET_RDAR_RDAR_MASK;
+}
+
+void static inline Ethernet_activeTxBufferDescriptor()
+{
+  ENET_TDAR |= ENET_TDAR_TDAR_MASK;
+}
+
 #endif
 
 /**
@@ -219,6 +229,13 @@ typedef struct Ethernet_BufferDescriptors
     uint32_t rxBufferSizeAlign; /**< The aligned receive transmit buffer size.*/
 } Ethernet_BufferDescriptors;
 
+typedef enum
+{
+  ETHERNET_INTERRUPT_SOURCE_TX,
+  ETHERNET_INTERRUPT_SOURCE_RX,
+  ETHERNET_INTERRUPT_SOURCE_TS,
+} Ethernet_InterruptSource;
+
 /**
  * TODO: description...
  */
@@ -253,7 +270,7 @@ typedef enum
  */
 typedef struct _Ethernet_MacConfig
 {
-    uint8_t macAddress[6]; /**< MAC Physical Address. First byte in the array
+    uint8_t *macAddress; /**< MAC Physical Address. First byte in the array
                                     is Least Significant Byte in MAC Address. */
     Ethernet_MacOperatingMode mode;                  /**< MAC Operating Mode. */
     uint32_t control;                  /**< MAC Configuration & Control Bits. */
@@ -371,6 +388,9 @@ typedef struct _Ethernet_Config
  */
 System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config);
 
+void Ethernet_disableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source);
+void Ethernet_enableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source);
+
 void Ethernet_updateStatus (Ethernet_DeviceHandle dev);
 
 /**
@@ -399,6 +419,13 @@ void Ethernet_setTxBufferDescriptorBeforeSend (
         bool isTxCrcEnable,
         bool isLast);
 
+bool Ethernet_hasRxBufferDescriptorErrors (volatile Ethernet_BufferDescriptor *bd);
+bool Ethernet_hasNextRxBufferDescriptor(volatile Ethernet_BufferDescriptor *bd);
+bool Ethernet_hasNextTxBufferDescriptor(volatile Ethernet_BufferDescriptor *bd);
+bool Ethernet_isRxFrameTruncated (volatile Ethernet_BufferDescriptor *bd);
+bool Ethernet_isTxBufferDescriptorReady (volatile Ethernet_BufferDescriptor *bd);
+bool Ethernet_isRxBufferDescriptorEmpty (volatile Ethernet_BufferDescriptor *bd);
+bool Ethernet_isLastRxBufferDescriptor (volatile Ethernet_BufferDescriptor *bd);
 #endif /* __ETHERNET_HAL_H */
 
 #endif /* LIBOHIBOARD_ETHERNET */
