@@ -39,7 +39,7 @@
 #include "errors.h"
 #include "types.h"
 
-/* Macro defines for handling Different Endian Systems*/
+/* Macro defines for handling different Endian systems*/
 #if ETHERNET_BIGENDIAN
 #define SHORTSWAP(x)                     __REV16(x)
 #define LONGSWAP(x)                      __REV(x)
@@ -62,125 +62,125 @@
 #define ETHERNET_TXACCEL_CONFIG_PROTO_CHECKSUM_ENABLED             0x10 /**< If set inserts automatically a checksum of a known protocol */
 
 /* MAC Configuration flags*/
-#define ETHERNET_MACCONFIG_STOP_MODE_ENABLE                        0x00001U /* ENET Stop mode enable*/
-#define ETHERNET_MACCONFIG_DEBUG_MODE_ENABLE                       0x00002U /* Enable MAC to enter hardware freeze when enter debug mode*/
-#define ETHERNET_MACCONFIG_PAYLOAD_CHECK_ENABLE                    0x00004U /* ENET receive payload length check enable*/
-#define ETHERNET_MACCONFIG_RX_FLOW_CONTROL_ENABLE                  0x00008U /* Enable ENET flow control*/
-#define ETHERNET_MACCONFIG_RX_CRC_FWD_ENABLE                       0x00010U /* Received frame CRC is stripped from the frame*/
-#define ETHERNET_MACCONFIG_RX_PAUSE_FWD_ENABLE                     0x00020U /* Pause frames are forwarded to the user application*/
-#define ETHERNET_MACCONFIG_RX_PAD_MOVE_ENABLE                      0x00040U /* Padding is removed from received frames*/
-#define ETHERNET_MACCONFIG_RX_BC_REJECT_ENABLE                     0x00080U /* Broadcast frame reject*/
-#define ETHERNET_MACCONFIG_RX_PROMISCUOUS_ENABLE                   0x00100U /* Promiscuous mode enabled*/
-#define ETHERNET_MACCONFIG_TX_CRC_FWD_ENABLE                       0x00200U /* Enable transmit frame with the CRC from application*/
-#define ETHERNET_MACCONFIG_MAC_ADDR_INSERT                         0x00400U /* Enable MAC address insert*/
-#define ETHERNET_MACCONFIG_TX_ACCEL_ENABLE                         0x00800U /* Transmit accelerator enable*/
-#define ETHERNET_MACCONFIG_RX_ACCEL_ENABLE                         0x01000U /* Transmit accelerator enable*/
-#define ETHERNET_MACCONFIG_STORE_AND_FWD_ENABLE                    0x02000U /* Switcher to enable store and forward*/
-#define ETHERNET_MACCONFIG_MAC_MIB_ENABLE                          0x04000U /* Disable MIB module*/
-#define ETHERNET_MACCONFIG_SMI_PREAMBLE_DISABLE                    0x08000U /* Enable SMI preamble*/
-#define ETHERNET_MACCONFIG_MAC_ENHANCED_ENABLE                     0x10000U /* Enable enhanced MAC feature (IEEE 1588 feature/enhanced buff descriptor)*/
+#define ETHERNET_MACCONFIG_STOP_MODE_ENABLE                        0x00001U /**< ENET Stop mode enable*/
+#define ETHERNET_MACCONFIG_DEBUG_MODE_ENABLE                       0x00002U /**< Enable MAC to enter hardware freeze when enter debug mode*/
+#define ETHERNET_MACCONFIG_PAYLOAD_CHECK_ENABLE                    0x00004U /**< ENET receive payload length check enable*/
+#define ETHERNET_MACCONFIG_RX_FLOW_CONTROL_ENABLE                  0x00008U /**< Enable ENET flow control*/
+#define ETHERNET_MACCONFIG_RX_CRC_FWD_ENABLE                       0x00010U /**< Received frame CRC is stripped from the frame*/
+#define ETHERNET_MACCONFIG_RX_PAUSE_FWD_ENABLE                     0x00020U /**< Pause frames are forwarded to the user application*/
+#define ETHERNET_MACCONFIG_RX_PAD_MOVE_ENABLE                      0x00040U /**< Padding is removed from received frames*/
+#define ETHERNET_MACCONFIG_RX_BC_REJECT_ENABLE                     0x00080U /**< Broadcast frame reject*/
+#define ETHERNET_MACCONFIG_RX_PROMISCUOUS_ENABLE                   0x00100U /**< Promiscuous mode enabled*/
+#define ETHERNET_MACCONFIG_TX_CRC_FWD_ENABLE                       0x00200U /**< Enable transmit frame with the CRC from application*/
+#define ETHERNET_MACCONFIG_MAC_ADDR_INSERT                         0x00400U /**< Enable MAC address insert*/
+#define ETHERNET_MACCONFIG_TX_ACCEL_ENABLE                         0x00800U /**< Transmit accelerator enable*/
+#define ETHERNET_MACCONFIG_RX_ACCEL_ENABLE                         0x01000U /**< Transmit accelerator enable*/
+#define ETHERNET_MACCONFIG_STORE_AND_FWD_ENABLE                    0x02000U /**< Switcher to enable store and forward*/
+#define ETHERNET_MACCONFIG_MAC_MIB_ENABLE                          0x04000U /**< Disable MIB module*/
+#define ETHERNET_MACCONFIG_SMI_PREAMBLE_DISABLE                    0x08000U /**< Enable SMI preamble*/
+#define ETHERNET_MACCONFIG_MAC_ENHANCED_ENABLE                     0x10000U /**< Enable enhanced MAC feature (IEEE 1588 feature/enhanced buff descriptor)*/
 
 #if ETHERNET_BIGENDIAN
 /* Receive Buffer Descriptor Control Status flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_BROADCAST              0x8000U  /* Broadcast */
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MULTICAST              0x4000U  /* Multicast*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LENGTH_VIOLATION       0x2000U  /* Receive length violation*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_NO_OCTECT              0x1000U  /* Receive non-octet aligned frame*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_CRC                    0x0400U  /* Receive CRC error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_OVERRUN                0x0200U  /* Receive FIFO overrun*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_TRUNC                  0x0100U  /* Frame is truncated */
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY                  0x0080U  /* Empty bit*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN1          0x0040U  /* Receive software owner*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_WRAP                   0x0020U  /* Update buffer descriptor*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN2          0x0010U  /* Receive software owner*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LAST                   0x0008U  /* Last BD in the frame*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MISS                   0x0001U  /* Receive for promiscuous mode*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_BROADCAST              0x8000U  /**< Broadcast */
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MULTICAST              0x4000U  /**< Multicast*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LENGTH_VIOLATION       0x2000U  /**< Receive length violation*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_NO_OCTECT              0x1000U  /**< Receive non-octet aligned frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_CRC                    0x0400U  /**< Receive CRC error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_OVERRUN                0x0200U  /**< Receive FIFO overrun*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_TRUNC                  0x0100U  /**< Frame is truncated */
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY                  0x0080U  /**< Empty bit*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN1          0x0040U  /**< Receive software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_WRAP                   0x0020U  /**< Update buffer descriptor*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN2          0x0010U  /**< Receive software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LAST                   0x0008U  /**< Last BD in the frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MISS                   0x0001U  /**< Receive for promiscuous mode*/
 
 /* Receive Buffer Descriptor Control Extend 0 flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV4                  0x0100U  /* IPv4 frame*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV6                  0x0200U  /* IPv6 frame*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_VLAN                  0x0400U  /* VLAN*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_PROTO_CHECKSUM_ERR    0x1000U  /* Protocol checksum error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IP_HDR_CHECKSUM_ERR   0x2000U  /* IP header checksum error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV4                  0x0100U  /**< IPv4 frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV6                  0x0200U  /**< IPv6 frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_VLAN                  0x0400U  /**< VLAN*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_PROTO_CHECKSUM_ERR    0x1000U  /**< Protocol checksum error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IP_HDR_CHECKSUM_ERR   0x2000U  /**< IP header checksum error*/
 
 /* Receive Buffer Descriptor Control Extend 1 flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_UNICAST               0x0001U  /* Unicast frame*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_COLLISION             0x0002U  /* BD collision*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_PHY_ERROR             0x0004U  /* PHY error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_MAC_ERROR             0x0080U  /* Mac error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_INTERRUPT             0x8000U  /* BD interrupt*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_UNICAST               0x0001U  /**< Unicast frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_COLLISION             0x0002U  /**< BD collision*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_PHY_ERROR             0x0004U  /**< PHY error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_MAC_ERROR             0x0080U  /**< Mac error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_INTERRUPT             0x8000U  /**< BD interrupt*/
 
 /*! @brief Defines the control status region of the transmit buffer descriptor.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_READY                  0x0080U  /*  Ready bit*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN1          0x0040U  /*  Transmit software owner*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_WRAP                   0x0020U  /*  Wrap buffer descriptor*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN2          0x0010U  /*  Transmit software owner*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_LAST                   0x0008U  /*  Last BD in the frame*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_TRANSMIT_CRC           0x0004U  /*  Receive for transmit CRC*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_READY                  0x0080U  /**<  Ready bit*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN1          0x0040U  /**<  Transmit software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_WRAP                   0x0020U  /**<  Wrap buffer descriptor*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN2          0x0010U  /**<  Transmit software owner*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_LAST                   0x0008U  /**<  Last BD in the frame*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_TRANSMIT_CRC           0x0004U  /**<  Receive for transmit CRC*/
 
 /*! @brief Defines the control extended region1 of the transmit buffer descriptor.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_ERROR                 0x0080U  /*  Transmit error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_UNDERFLOW_ERROR       0x0020U  /*  Underflow error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_EXCESS_COLLISION_ERR  0x0010U  /*  Excess collision error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_FRAME_ERROR           0x0008U  /*  Frame error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_LATE_COLLISION_ERR    0x0004U  /*  Late collision error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_OVERFLOW_ERR          0x0002U  /*  Overflow error*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_TIMESTAMP_ERROR       0x0001U  /*  Timestamp error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_ERROR                 0x0080U  /**<  Transmit error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_UNDERFLOW_ERROR       0x0020U  /**<  Underflow error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_EXCESS_COLLISION_ERR  0x0010U  /**<  Excess collision error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_FRAME_ERROR           0x0008U  /**<  Frame error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_LATE_COLLISION_ERR    0x0004U  /**<  Late collision error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_OVERFLOW_ERR          0x0002U  /**<  Overflow error*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_TIMESTAMP_ERROR       0x0001U  /**<  Timestamp error*/
 
 /*! @brief Defines the control extended region2 of the transmit buffer descriptor.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_INTERRUPT             0x0040U  /* Transmit interrupt*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_TIMESTAMP             0x0020U  /* Transmit timestamp flag */
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_INTERRUPT             0x0040U  /**< Transmit interrupt*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_TIMESTAMP             0x0020U  /**< Transmit timestamp flag */
 
 #else
 /* Receive Buffer Descriptor Control Status flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY                 0x8000U /* Empty bit.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN1         0x4000U /* Receive software owner.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_WRAP                  0x2000U /* Update buffer descriptor.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN2         0x1000U /* Receive software owner.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LAST                  0x0800U /* Last Buffer Descriptor in the frame.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MISS                  0x0100U /* Receive for promiscuous mode.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_BROADCAST             0x0080U /* Broadcast.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MULTICAST             0x0040U /* Multicast.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LENGTH_VIOLATION      0x0020U /* Receive length violation.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_NO_OCTECT             0x0010U /* Receive non-octet aligned frame.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_CRC                   0x0004U /* Receive CRC error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_OVERRUN               0x0002U /* Receive FIFO overrun.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_TRUNC                 0x0001U /* Frame is truncated.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_EMPTY                 0x8000U /**< Empty bit.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN1         0x4000U /**< Receive software owner.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_WRAP                  0x2000U /**< Update buffer descriptor.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_SOFTWARE_OWN2         0x1000U /**< Receive software owner.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LAST                  0x0800U /**< Last Buffer Descriptor in the frame.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MISS                  0x0100U /**< Receive for promiscuous mode.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_BROADCAST             0x0080U /**< Broadcast.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_MULTICAST             0x0040U /**< Multicast.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_LENGTH_VIOLATION      0x0020U /**< Receive length violation.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_NO_OCTECT             0x0010U /**< Receive non-octet aligned frame.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_CRC                   0x0004U /**< Receive CRC error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_OVERRUN               0x0002U /**< Receive FIFO overrun.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_RX_TRUNC                 0x0001U /**< Frame is truncated.*/
 
 /* Receive Buffer Descriptor Control Extend 0 flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV4                 0x0001U /* Ipv4 frame.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV6                 0x0002U /* Ipv6 frame.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_VLAN                 0x0004U /* VLAN.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_PROTO_CHECKSUM_ERR   0x0010U /* Protocol checksum error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IP_HDR_CHECKSUM_ERR  0x0020U /* IP header checksum error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV4                 0x0001U /**< Ipv4 frame.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IPV6                 0x0002U /**< Ipv6 frame.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_VLAN                 0x0004U /**< VLAN.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_PROTO_CHECKSUM_ERR   0x0010U /**< Protocol checksum error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_RX_IP_HDR_CHECKSUM_ERR  0x0020U /**< IP header checksum error.*/
 
 /* Receive Buffer Descriptor Control Extend 1 flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_INTERRUPT            0x0080U /* Buffer Descriptor interrupt.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_UNICAST              0x0100U /* Unicast frame.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_COLLISION            0x0200U /* Buffer Descriptor collision.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_PHY_ERROR            0x0400U /* PHY error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_MAC_ERROR            0x8000U /* Mac error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_INTERRUPT            0x0080U /**< Buffer Descriptor interrupt.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_UNICAST              0x0100U /**< Unicast frame.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_COLLISION            0x0200U /**< Buffer Descriptor collision.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_PHY_ERROR            0x0400U /**< PHY error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_RX_MAC_ERROR            0x8000U /**< Mac error.*/
 
 /* Transmit Buffer Descriptor Control Status flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_READY                 0x8000U /* Ready bit.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN1         0x4000U /* Transmit software owner.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_WRAP                  0x2000U /* Wrap buffer descriptor.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN2         0x1000U /* Transmit software owner.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_LAST                  0x0800U /* Last BD in the frame.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_TRANSMIT_CRC          0x0400U /* Receive for transmit CRC.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_READY                 0x8000U /**< Ready bit.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN1         0x4000U /**< Transmit software owner.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_WRAP                  0x2000U /**< Wrap buffer descriptor.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_SOFTWARE_OWN2         0x1000U /**< Transmit software owner.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_LAST                  0x0800U /**< Last BD in the frame.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CONTROL_TX_TRANSMIT_CRC          0x0400U /**< Receive for transmit CRC.*/
 
 /* Transmit Buffer Descriptor Control Extend 0 flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_ERROR                0x8000U /* Transmit error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_UNDERFLOW_ERROR      0x2000U /* Underflow error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_EXCESS_COLLISION_ERR 0x1000U /* Excess collision error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_FRAME_ERROR          0x0800U /* Frame error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_LATE_COLLISION_ERR   0x0400U /* Late collision error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_OVERFLOW_ERR         0x0200U /* Overflow error.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_TIMESTAMP_ERROR      0x0100U /* Timestamp error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_ERROR                0x8000U /**< Transmit error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_UNDERFLOW_ERROR      0x2000U /**< Underflow error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_EXCESS_COLLISION_ERR 0x1000U /**< Excess collision error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_FRAME_ERROR          0x0800U /**< Frame error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_LATE_COLLISION_ERR   0x0400U /**< Late collision error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_OVERFLOW_ERR         0x0200U /**< Overflow error.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT0_TX_TIMESTAMP_ERROR      0x0100U /**< Timestamp error.*/
 
 /* Transmit Buffer Descriptor Control Extend 1 flags */
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_INTERRUPT            0x4000U /* Transmit interrupt.*/
-#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_TIMESTAMP            0x2000U /* Transmit timestamp flag.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_INTERRUPT            0x4000U /**< Transmit interrupt.*/
+#define ETHERNET_BUFFERDESCRIPTOR_CTRLEXT1_TX_TIMESTAMP            0x2000U /**< Transmit timestamp flag.*/
 #endif
 
 /** The MII configuration status.
@@ -225,11 +225,19 @@ void Ethernet_isrEnet0Ts (void);
 
 extern Ethernet_DeviceHandle ENET0;
 
+/**
+ *  Active receiving buffer descriptors. These function should be called after handled receiving buffer descriptor on a
+ *  packet receiving event.
+ */
 void static inline Ethernet_activeRxBufferDescriptor()
 {
   ENET_RDAR |= ENET_RDAR_RDAR_MASK;
 }
 
+/**
+ *  Active transmitting buffer descriptors. These function should be called after that transmitting buffer descriptors
+ *  flags are set and data is ready to be sent.
+ */
 void static inline Ethernet_activeTxBufferDescriptor()
 {
   ENET_TDAR |= ENET_TDAR_TDAR_MASK;
@@ -238,8 +246,8 @@ void static inline Ethernet_activeTxBufferDescriptor()
 #endif
 
 /**
- *
- * See pag. 1262 of K64 Sub-Family Reference Manual for more info.
+ *  Defines the ethernet buffer descriptor structure.
+ *  See pag. 1262 of K64 Sub-Family Reference Manual for more info.
  */
 #ifdef ETHERNET_BIGENDIAN
 typedef struct Ethernet_BufferDescriptor
@@ -280,8 +288,10 @@ typedef struct Ethernet_BufferDescriptor
     uint16_t reserved4;
 } Ethernet_BufferDescriptor;
 #endif
+
 /**
- *
+ *  Defines the structure used to handle transmitting and receiving buffer descriptors
+ *  and some useful related parameters at HAL level.
  */
 typedef struct Ethernet_BufferDescriptors
 {
@@ -312,6 +322,9 @@ typedef struct Ethernet_BufferDescriptors
     uint32_t rxBufferSizeAlign; /**< The aligned receive transmit buffer size.*/
 } Ethernet_BufferDescriptors;
 
+/**
+ *  Defines the different ethernet interrupt sources
+ */
 typedef enum
 {
   ETHERNET_INTERRUPT_SOURCE_TX,
@@ -320,7 +333,7 @@ typedef enum
 } Ethernet_InterruptSource;
 
 /**
- * TODO: description...
+ *  Defines MAC controller operating modes.
  */
 typedef enum
 {
@@ -329,7 +342,7 @@ typedef enum
 } Ethernet_MacOperatingMode;
 
 /**
- * TODO: description...
+ *  Defines Ethernet modes.
  */
 typedef enum
 {
@@ -338,7 +351,7 @@ typedef enum
 } Ethernet_Mode;
 
 /**
- * TODO: description...
+ *  Defines Serial Management Interface (SMI) operations which can be mainly read or write.
  */
 typedef enum
 {
@@ -349,7 +362,7 @@ typedef enum
 } Ethernet_Smi;
 
 /**
- * TODO: description...
+ *  Defines MAC controller configuration structure.
  */
 typedef struct _Ethernet_MacConfig
 {
@@ -375,7 +388,7 @@ typedef struct _Ethernet_MacConfig
 } Ethernet_MacConfig;
 
 /**
- * TODO: description...
+ *   Defines FIFO configuration structure.
  */
 typedef struct _Ethernet_FifoConfig
 {
@@ -417,7 +430,7 @@ typedef struct _Ethernet_FifoConfig
 } Ethernet_FifoConfig;
 
 /**
- * TODO: description...
+ * Defines Reduced Media Independent Interface (RMII) configuration structure
  */
 typedef struct _Ethernet_RmiiConfig
 {
@@ -429,7 +442,7 @@ typedef struct _Ethernet_RmiiConfig
 } Ethernet_RmiiConfig;
 
 /**
- * TODO: description...
+ * Defines Precision Time Protocol (PTP) configuration structure
  */
 typedef struct _Ethernet_PtpConfig
 {
@@ -439,7 +452,7 @@ typedef struct _Ethernet_PtpConfig
 } Ethernet_PtpConfig;
 
 /**
- * TODO: description...
+ * Defines low level Ethernet configuration structure
  */
 typedef struct _Ethernet_Config
 {
@@ -464,50 +477,156 @@ typedef struct _Ethernet_Config
 } Ethernet_Config;
 
 /**
- * TODO: description...
+ * The low level Ethernet initialization function for Kinetis Devices.
  *
  * @param[in] dev    The ethernet device
- * @param[in] config TODO
+ * @param[in] config The configuration structure used to set Ethernet parameters
  */
 System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config);
 
+/**
+ *  Disables selected ethernet interrupt source.
+ *
+ *  @param[in] The ethernet device
+ *  @param[in] The selected interrupt source
+ */
 void Ethernet_disableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source);
+
+/**
+ *  Enables selected ethernet interrupt source.
+ *
+ *  @param[in] The ethernet device
+ *  @param[in] The selected interrupt source
+ */
 void Ethernet_enableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source);
 
 void Ethernet_updateStatus (Ethernet_DeviceHandle dev);
 
 /**
- * TODO: description
+ *  Function used to communicate with the PHY device through Serial Management Interface (SMI).
  *
  * @param[in] dev         The ethernet device
- * @param[in] phyAddress  TODO
- * @param[in] phyRegister TODO
- * @param[in] smi         TODO
- * @param[in] data        TODO
+ * @param[in] phyAddress  The address of the PHY device
+ * @param[in] phyRegister The PHY device register with which communicate
+ * @param[in] smi         The operation to do with the SMI which can be read or write.
+ * @param[in] data        In read mode is the variable where to save data from selected PHY register.
+ *                        In write mode is the data to write into selected PHY register.
+ * @return                ERRORS_NO_ERROR if operation was successful.
+ *                        ERRORS_SMI_TIMEOUT if the operation has taken too much time.
  */
 System_Errors Ethernet_smiOperation (Ethernet_DeviceHandle dev,
                                      uint32_t phyAddress,
                                      uint32_t phyRegister,
                                      Ethernet_Smi smi,
                                      uint32_t* data);
-
 /** Common functions **/
+
+/**
+ *   Gets the buffer address from the current buffer descriptor.
+ *
+ *   @param[out] bd The current buffer descriptor
+ *   @return        Payload buffer address of the buffer descriptor
+ */
+
 uint8_t* Ethernet_getBufferDescriptorData (volatile Ethernet_BufferDescriptor* bd);
+
+/**
+ *  Clears current receiving buffer descriptor flags after receiving data and passed it to the upper level.
+ *
+ *  @param[in] bd The current receiving buffer descriptor
+ */
 void Ethernet_clearRxBufferDescriptorAfterHandled (volatile Ethernet_BufferDescriptor* bd);
+
+/**
+ *  Clears current transmitting buffer descriptor flags after sent data to lower level.
+ *
+ *  @param[in] bd The current transmitting buffer descriptor
+ */
 void Ethernet_clearTxBufferDescriptorAfterSend (volatile Ethernet_BufferDescriptor* bd);
+
+/**
+ *  Sets transmitting buffer descriptor control flags before sending the packet.
+ *
+ *  @param[in] bd               The current transmitting buffer descriptor
+ *  @param[in] dataLength       The length in byte of current data to transmit
+ *  @param[in] isTxTsConfigured The flag to configure Timestamp in buffer descriptor
+ *  @param[in] isTxCrcEnable    The flag to transmit CRC sequence after the data byte.
+ *                              - True the transmit controller transmits the CRC sequence after the data byte.
+ *                              - False the transmit buffer descriptor does not transmit the CRC sequence after the data byte.
+ *  @param[in] isLast           The flag used to check if the current buffer descriptor is the last one.
+ */
 void Ethernet_setTxBufferDescriptorBeforeSend (
         volatile Ethernet_BufferDescriptor* bd,
         uint16_t dataLength,
         bool isTxTsConfigured,
         bool isTxCrcEnable,
         bool isLast);
-
+/**
+ *  Checks if the current received data has Physical Layer errors. These errors are eventually
+ *  indicated through buffer decriptor flags.
+ *
+ *  @param[in] bd The current receiving buffer descriptor
+ *  @return       -True if there are Physical Layer errors.
+ *                -False if there are not Physical Layer errors.
+ */
 bool Ethernet_hasRxBufferDescriptorErrors (volatile Ethernet_BufferDescriptor *bd);
+
+/**
+ *  Checks if the current receiving buffer descriptor has his successive in the contiguous memory
+ *  location or in the receiving buffer descriptors' base address.
+ *
+ *  @param[in] bd The current receiving buffer descriptor
+ *  @return       -True if next receiving buffer descriptor is in a contiguous memory location
+ *                -False if next receiving buffer descriptor is in receiving buffer descriptor base address
+ */
 bool Ethernet_hasNextRxBufferDescriptor(volatile Ethernet_BufferDescriptor *bd);
+
+/**
+ *  Checks if the current transmitting buffer descriptor has his successive in the contiguous memory
+ *  location or in the transmitting buffer descriptors' base address.
+ *
+ *  @param[in] bd The current transmitting buffer descriptor
+ *  @return       -True if next transmitting buffer descriptor is in a contiguous memory location
+ *                -False if next transmitting buffer descriptor is in transmitting buffer descriptor base address
+ */
 bool Ethernet_hasNextTxBufferDescriptor(volatile Ethernet_BufferDescriptor *bd);
+
+/**
+ *  Checks if current receiving buffer descriptor has truncated frame data.
+ *
+ *  @param[in] bd The current receiving buffer descriptor
+ *  @return       -True received data is truncated
+ *                -False received data is not truncated
+ */
 bool Ethernet_isRxFrameTruncated (volatile Ethernet_BufferDescriptor *bd);
+
+/**
+ *  Checks if the current transmitting buffer descriptor is ready to be transmitted.
+ *
+ *  @param[in] bd The current transmitting buffer descriptor
+ *  @return       -True the current transmitting buffer descriptor data is ready to be
+ *                 transmitted
+ *                 -False the current transmitting buffer descriptor data is not ready to be
+ *                 transmitted
+ */
 bool Ethernet_isTxBufferDescriptorReady (volatile Ethernet_BufferDescriptor *bd);
+
+/**
+ *  Checks if the current receiving buffer descriptor data buffer is filled with data.
+ *
+ *  @param[in] bd The current receiving buffer descriptor
+ *  @return       -True the current receiving buffer descriptor is empty
+ *                -False the current receiving buffer descriptor is filled with data
+ */
 bool Ethernet_isRxBufferDescriptorEmpty (volatile Ethernet_BufferDescriptor *bd);
+
+/**
+ *  Check if the current receiving buffer descriptor is the last one.
+ *
+ *  @param[in] bd The current receiving buffer descriptor
+ *  @return       -True the current receiving buffer descriptor is the last one
+ *                -False the current receiving buffer descriptor is not the last one
+ */
 bool Ethernet_isLastRxBufferDescriptor (volatile Ethernet_BufferDescriptor *bd);
 #endif /* __ETHERNET_HAL_H */
 
