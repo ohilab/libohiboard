@@ -201,7 +201,7 @@ void Ethernet_isrEnet0Ts (void)
     {
         ENET_EIR_REG(ENET0->regMap) |= ENET_EIR_TS_TIMER_MASK;
 
-        /* TODO: Increase Ptp timer second counter */
+        /* TODO: Increase Ptp timer counter */
         if(ENET0->callbackTs)
         {
             ENET0->callbackTs();
@@ -225,7 +225,6 @@ static void Ethernet_initBufferDescriptors (Ethernet_DeviceHandle dev)
     rxBdTmp = dev->bd->rx;
     for(rxBdIndex = 0; rxBdIndex < dev->bd->rxBdNumber; rxBdIndex++)
     {
-        /* TODO: Implement swapping for different endian system */
         rxBdTmp->buffer = (uint8_t *)LONGSWAP((uint32_t)&dev->bd->rxBuffer[rxBdIndex * dev->bd->rxBufferSizeAlign]);
         rxBdTmp->length = 0; /* Initialize data length */
 
@@ -243,7 +242,6 @@ static void Ethernet_initBufferDescriptors (Ethernet_DeviceHandle dev)
     txBdTmp = dev->bd->tx;
     for(txBdIndex = 0; txBdIndex < dev->bd->txBdNumber; txBdIndex++)
     {
-        /* TODO: Implement swapping for different ENDIAN system */
         txBdTmp->buffer = (uint8_t *)LONGSWAP((uint32_t)&dev->bd->txBuffer[txBdIndex * dev->bd->txBufferSizeAlign]);
         txBdTmp->length = 0; /* Set data length*/
 
@@ -364,7 +362,7 @@ static void Ethernet_initMac (Ethernet_DeviceHandle dev, Ethernet_MacConfig* con
                  (config->macAddress[1]<<16) |
                  (config->macAddress[2]<<8)  |
                  (config->macAddress[3]);
-    ENET_PALR_REG(dev->regMap) |= macAddress; /* FIXME: |= is ok? */
+    ENET_PALR_REG(dev->regMap) = macAddress;
     macAddress = 0;
     macAddress = (config->macAddress[4] << 24) | (config->macAddress[5] << 16);
     ENET_PAUR_REG(dev->regMap) |= macAddress;
@@ -514,9 +512,9 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     ENET_MSCR_REG(dev->regMap) |= ENET_MSCR_HOLDTIME(clockCycleMdioNo);
 
     /* Set register for MDC frequency */
+    /*TODO: Find the exact frequency source for the calculation of MII_SPEED (System Clock, Bus Clock or Local Transceiver Clock?)*/
     ENET_MSCR_REG(dev->regMap) |=
             ENET_MSCR_MII_SPEED((config->internalSpeed/(2*ETHERNET_MDC_FREQUENCY))-1);
-    /*TODO: Find the exact frequency source for the calculation of MII_SPEED (System Clock, Bus Clock or Local Transceiver Clock?)*/
 
     /* init FIFO */
     Ethernet_initFifo(dev,&(config->fifo));
@@ -545,7 +543,7 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     if (config->callbackRxIsr)
     {
         dev->callbackRx = config->callbackRxIsr;
-        /* Enable interrupt RX after PHY initialization */
+        /* Enable RX interrupt after PHY initialization */
     }
 
     if (config->callbackTxIsr)
