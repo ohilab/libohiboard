@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2012-2015 A. C. Open Hardware Ideas Lab
+Copyright (c) 2012-2016 A. C. Open Hardware Ideas Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

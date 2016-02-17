@@ -78,6 +78,7 @@
 
 #ifdef LIBOHIBOARD_ETHERNET
 #include "ethernet.h"
+#include "ethernet-interface.h"
 #endif
 
 #ifdef LIBOHIBOARD_RTC

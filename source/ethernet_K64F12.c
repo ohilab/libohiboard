@@ -619,15 +619,15 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
     return ERRORS_NO_ERROR;
 }
 
-void Ethernet_disableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source)
+void Ethernet_disableInterrupt (Ethernet_DeviceHandle dev, Ethernet_Interrupt source)
 {
-    switch(source)
+    switch (source)
     {
-    case ETHERNET_INTERRUPT_SOURCE_RX:
+    case ETHERNET_INTERRUPT_RX:
         Interrupt_disable(dev->isrRxNumber);
         ENET_EIMR_REG(dev->regMap) &= ~ENET_EIMR_RXF_MASK;
         break;
-    case ETHERNET_INTERRUPT_SOURCE_TX:
+    case ETHERNET_INTERRUPT_TX:
         Interrupt_disable(dev->isrTxNumber);
         ENET_EIMR_REG(dev->regMap) &= ~ENET_EIMR_TXB_MASK;
         break;
@@ -635,15 +635,15 @@ void Ethernet_disableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSour
     }
 }
 
-void Ethernet_enableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source)
+void Ethernet_enableInterrupt (Ethernet_DeviceHandle dev, Ethernet_Interrupt source)
 {
-    switch(source)
+    switch (source)
     {
-    case ETHERNET_INTERRUPT_SOURCE_RX:
+    case ETHERNET_INTERRUPT_RX:
         Interrupt_enable(dev->isrRxNumber);
         ENET_EIMR_REG(dev->regMap) |= ENET_EIMR_RXF_MASK;
         break;
-    case ETHERNET_INTERRUPT_SOURCE_TX:
+    case ETHERNET_INTERRUPT_TX:
         Interrupt_enable(dev->isrTxNumber);
         ENET_EIMR_REG(dev->regMap) |= ENET_EIMR_TXB_MASK;
         break;

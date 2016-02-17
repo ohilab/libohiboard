@@ -327,10 +327,10 @@ typedef struct Ethernet_BufferDescriptors
  */
 typedef enum
 {
-  ETHERNET_INTERRUPT_SOURCE_TX,
-  ETHERNET_INTERRUPT_SOURCE_RX,
-  ETHERNET_INTERRUPT_SOURCE_TS,
-} Ethernet_InterruptSource;
+  ETHERNET_INTERRUPT_TX,
+  ETHERNET_INTERRUPT_RX,
+  ETHERNET_INTERRUPT_TS,
+} Ethernet_Interrupt;
 
 /**
  *  Defines MAC controller operating modes.
@@ -487,18 +487,18 @@ System_Errors Ethernet_init (Ethernet_DeviceHandle dev, Ethernet_Config *config)
 /**
  *  Disables selected ethernet interrupt source.
  *
- *  @param[in] The ethernet device
- *  @param[in] The selected interrupt source
+ *  @param[in] dev    The ethernet device
+ *  @param[in] source The selected interrupt source
  */
-void Ethernet_disableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source);
+void Ethernet_disableInterrupt (Ethernet_DeviceHandle dev, Ethernet_Interrupt source);
 
 /**
  *  Enables selected ethernet interrupt source.
  *
- *  @param[in] The ethernet device
- *  @param[in] The selected interrupt source
+ *  @param[in] dev    The ethernet device
+ *  @param[in] source The selected interrupt source
  */
-void Ethernet_enableInterrupt(Ethernet_DeviceHandle dev, Ethernet_InterruptSource source);
+void Ethernet_enableInterrupt (Ethernet_DeviceHandle dev, Ethernet_Interrupt source);
 
 void Ethernet_updateStatus (Ethernet_DeviceHandle dev);
 

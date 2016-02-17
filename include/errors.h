@@ -108,7 +108,13 @@ typedef enum _System_Errors
 
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
-    ERRORS_ETHERNET_SMI_TIMEOUT     /**< Error during communication with PHY. */
+    ERRORS_ETHERNET_SMI_TIMEOUT,    /**< Error during communication with PHY. */
+    ERRORS_ETHERNETIF_WRONG_DEVICE,                 /**< Wrong device number. */
+    ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL,
+    ERRORS_ETHERNETIF_RX_FRAME_TRUNCATED,
+    ERRORS_ETHERNETIF_RX_GENERIC_ERROR,
+    ERRORS_ETHERNETIF_RX_SMALL_BUFFERDESCRIPTOR_NUMBER,
+    ERRORS_ETHERNETIF_TX_BUFFERDESCRIPTOR_FULL
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
