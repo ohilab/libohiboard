@@ -157,6 +157,11 @@ static Ethernet_Device enet0 = {
 };
 Ethernet_DeviceHandle ENET0 = &enet0;
 
+/**
+ *  Initializes the correct multiplexing of microcontroller ethernet pins.
+ *
+ *  @param[in] dev The ethernet device
+ */
 static void Ethernet_initPins (Ethernet_DeviceHandle dev)
 {
     uint8_t devPinIndex;
@@ -167,10 +172,15 @@ static void Ethernet_initPins (Ethernet_DeviceHandle dev)
         PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);
     }
 
-    /* Setting pull-up mode for PTB0 alias MDIO. MDIO is a signal of MII interface that is bidirectional.*/
+    /* Setting pull-up mode for PTB0 alias MDIO. MDIO is a signal of MII
+     * interface that is bidirectional.*/
     PORTB_PCR0 |= (PORT_PCR_ODE_MASK|PORT_PCR_PE_MASK|PORT_PCR_PS_MASK);
 }
 
+/**
+ *  The function called on receiving packet interrupt occurrence. It cleans
+ *  the related interrupt flags and calls the upper level callback function.
+ */
 void Ethernet_isrEnet0Rx (void)
 {
     while (((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_RXB_MASK) != 0) ||
@@ -182,19 +192,29 @@ void Ethernet_isrEnet0Rx (void)
     }
 }
 
+/**
+ *  The function called on transmitting packet interrupt occurrence. It cleans
+ *  the related interrupt flags and calls the upper level callback function.
+ */
 void Ethernet_isrEnet0Tx (void)
 {
     while (((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXB_MASK) != 0) ||
            ((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXF_MASK) != 0))
     {
         ENET_EIR_REG(ENET0->regMap) |= ENET_EIR_TXB_MASK;
-        ENET_EIR_REG(ENET0->regMap) |= (ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXF_MASK);
+        ENET_EIR_REG(ENET0->regMap) |=
+                (ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXF_MASK);
         ENET0->callbackTx();
     }
 
     ENET_TDAR_REG(ENET0->regMap) |= ENET_TDAR_TDAR_MASK;
 }
 
+/**
+ *  The function called on time-stamp timer timeout interrupt occurrence.
+ *  It cleans the related interrupt flags and calls the upper level callback
+ *  function.
+ */
 void Ethernet_isrEnet0Ts (void)
 {
     if ((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TS_TIMER_MASK) != 0)
@@ -209,6 +229,11 @@ void Ethernet_isrEnet0Ts (void)
     }
 }
 
+/**
+ *  Initializes the buffer decriptors.
+ *
+ *  @param[in] dev The ethernet device
+ */
 static void Ethernet_initBufferDescriptors (Ethernet_DeviceHandle dev)
 {
     uint32_t rxBdIndex;
@@ -255,6 +280,12 @@ static void Ethernet_initBufferDescriptors (Ethernet_DeviceHandle dev)
     }
 }
 
+/**
+ *  Intializes the MAC controller.
+ *
+ *  @param[in] dev    The ethernet device
+ *  @param[in] config The MAC controller configuration structure
+ */
 static void Ethernet_initMac (Ethernet_DeviceHandle dev, Ethernet_MacConfig* config)
 {
     uint32_t macAddress;
@@ -368,6 +399,12 @@ static void Ethernet_initMac (Ethernet_DeviceHandle dev, Ethernet_MacConfig* con
     ENET_PAUR_REG(dev->regMap) |= macAddress;
 }
 
+/**
+ *  Initializes the Reduced Media Independent Interface (RMII).
+ *
+ *  @param[in] dev    The ethernet device
+ *  @param[in] config The RMII configuration structure
+ */
 static void Ethernet_initRmii (Ethernet_DeviceHandle dev, Ethernet_RmiiConfig* config)
 {
     ENET_RCR_REG(dev->regMap) |= ENET_RCR_MII_MODE_MASK; /* This bit has always to be set */
@@ -413,6 +450,12 @@ static void Ethernet_initRmii (Ethernet_DeviceHandle dev, Ethernet_RmiiConfig* c
     }
 }
 
+/**
+ *  Initializes the FIFO.
+ *
+ *  @param[in] dev    The ethernet device
+ *  @param[in] config The FIFO configuration structure
+ */
 static void Ethernet_initFifo (Ethernet_DeviceHandle dev, Ethernet_FifoConfig* config)
 {
     if (config)
@@ -446,6 +489,12 @@ static void Ethernet_initFifo (Ethernet_DeviceHandle dev, Ethernet_FifoConfig* c
     }
 }
 
+/**
+ *  Initialize the Precision Time Protocol (PTP) timer.
+ *
+ *  @param[in] dev    The ethernet device
+ *  @param[in] config The PTP configuration structure
+ */
 static void Ethernet_initPtpTimer (Ethernet_DeviceHandle dev, Ethernet_PtpConfig* config)
 {
     /* Restart 1588 timer */
