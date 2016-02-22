@@ -35,6 +35,11 @@
 #if defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)
 
+/*!
+ * @addtogroup Ethernet_K64F12 Ethernet Device of K64F12
+ * @{
+ */
+
 #include "platforms.h"
 
 #include "ethernet.h"
@@ -389,13 +394,14 @@ static void Ethernet_initMac (Ethernet_DeviceHandle dev, Ethernet_MacConfig* con
     }
 
     /* Set MAC Address */
-    macAddress = (config->macAddress[0]<<24) |
-                 (config->macAddress[1]<<16) |
-                 (config->macAddress[2]<<8)  |
-                 (config->macAddress[3]);
+    macAddress = (config->macAddress.addrByte.addr[0] << 24) |
+                 (config->macAddress.addrByte.addr[1] << 16) |
+                 (config->macAddress.addrByte.addr[2] << 8)  |
+                 (config->macAddress.addrByte.addr[3]);
     ENET_PALR_REG(dev->regMap) = macAddress;
     macAddress = 0;
-    macAddress = (config->macAddress[4] << 24) | (config->macAddress[5] << 16);
+    macAddress = (config->macAddress.addrByte.addr[4] << 24) |
+                 (config->macAddress.addrByte.addr[5] << 16);
     ENET_PAUR_REG(dev->regMap) |= macAddress;
 }
 
@@ -706,6 +712,10 @@ System_Errors Ethernet_smiOperation (Ethernet_DeviceHandle dev,
     ENET_EIR_REG(dev->regMap) |= ENET_EIR_MII_MASK;
     return ERRORS_ETHERNET_OK;
 }
+
+/*!
+ * @}
+ */ /* end of group Ethernet_K64F12 */
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
 

@@ -63,6 +63,26 @@ void EthernetInterface_txInterruptHandler ();
 void EthernetInterface_rxInterruptHandler ();
 
 /**
+ *  Defines the structure used to handle multiple buffer descriptors.
+ */
+typedef struct _EthernetInterface_BufferDescriptorHandler
+{
+    volatile Ethernet_BufferDescriptor *rxBdBasePtr;     /**< Receive buffer descriptor base address pointer.*/
+    volatile Ethernet_BufferDescriptor *rxBdCurrPtr;     /**< Current receive buffer descriptor pointer.*/
+    volatile Ethernet_BufferDescriptor *rxBdToCleanPtr;  /**< Receive buffer descriptor to be cleaned.*/
+    volatile Ethernet_BufferDescriptor *txBdBasePtr;     /**< Transmit buffer descriptor base address pointer.*/
+    volatile Ethernet_BufferDescriptor *txBdCurrPtr;     /**< Current transmit buffer descriptor pointer.*/
+    volatile Ethernet_BufferDescriptor *txBdToCleanPtr;  /**< Last cleaned transmit buffer descriptor pointer.*/
+
+    uint32_t rxBuffSizeAlign;                            /**< Receive buffer size alignment.*/
+    uint32_t txBuffSizeAlign;                            /**< Transmit buffer size alignment.*/
+
+    bool isRxBufferDescriptorFull;                       /**< Indicates if Rx buffer descriptor is full.*/
+    bool isTxBufferDescriptorFull;                       /**< Indicates if Tx buffer descriptor is full.*/
+
+} EthernetInterface_BufferDescriptorHandler;
+
+/**
  *  Defines the main mid-low level ethernet interface structure.
  */
 typedef struct EthernetInterface_Device
@@ -206,7 +226,9 @@ static void EthernetInterface_clearTxBufferDescriptor(EthernetInterface_DeviceHa
     }
 }
 
-System_Errors EthernetInterface_init (EthernetInterface_DeviceHandle dev)
+System_Errors EthernetInterface_init (EthernetInterface_DeviceHandle dev,
+        void (*receiveDataCallback) (EthernetInterface_DeviceHandle dev, EthernetInterface_BufferData *buffer),
+        Ethernet_MacAddress address)
 {
     /* Choose right device */
     switch (dev->devNumber)
@@ -221,6 +243,11 @@ System_Errors EthernetInterface_init (EthernetInterface_DeviceHandle dev)
     /* Init buffer descriptor */
     EthernetInterface_initBufferDescriptor(dev);
     dev->config.bd = &dev->bd;
+
+    if (address.addrs != 0U)
+        dev->config.mac.macAddress = address;
+    else
+        return ERRORS_ETHERNETIF_NO_MAC_ADDRESS;
 
     Ethernet_init(dev->dev,&dev->config);
 
@@ -240,6 +267,9 @@ System_Errors EthernetInterface_init (EthernetInterface_DeviceHandle dev)
 
     dev->bdHandler.rxBuffSizeAlign = dev->bd.rxBufferSizeAlign;
     dev->bdHandler.txBuffSizeAlign = dev->bd.txBufferSizeAlign;
+
+    if (receiveDataCallback)
+        dev->receiveDataCallback = receiveDataCallback;
 
     return ERRORS_NO_ERROR;
 }
@@ -377,6 +407,24 @@ System_Errors EthernetInterface_sendData(EthernetInterface_DeviceHandle dev,
     return ERRORS_NO_ERROR;
 }
 
+uint32_t EthernetInterface_getBufferDescriptorSize(EthernetInterface_DeviceHandle dev,
+                                                   uint8_t type)
+{
+    if (type == 0)
+        return dev->bdHandler.rxBuffSizeAlign;
+    else
+        return dev->bdHandler.txBuffSizeAlign;
+}
+
+uint8_t* EthernetInterface_getCurrentBuffer(EthernetInterface_DeviceHandle dev,
+                                            uint8_t type)
+{
+    if (type == 0)
+        return dev->bdHandler.rxBdCurrPtr->buffer;
+    else
+        return dev->bdHandler.txBdCurrPtr->buffer;
+}
+
 void EthernetInterface_rxInterruptHandler ()
 {
     EthernetInterface_ReceiveData(ENETIF0);
@@ -405,6 +453,12 @@ void EthernetInterface_disableTxInterrupt (EthernetInterface_DeviceHandle dev)
 void EthernetInterface_enableTxInterrupt (EthernetInterface_DeviceHandle dev)
 {
     Ethernet_enableInterrupt(dev->dev, ETHERNET_INTERRUPT_RX);
+}
+
+void EthernetInterface_computeMacAddress (EthernetInterface_DeviceHandle dev,
+                                          Ethernet_MacAddress* macAddress)
+{
+    macAddress->addrs = 0x0000020000000000;
 }
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */

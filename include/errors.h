@@ -110,6 +110,7 @@ typedef enum _System_Errors
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
     ERRORS_ETHERNET_SMI_TIMEOUT,    /**< Error during communication with PHY. */
     ERRORS_ETHERNETIF_WRONG_DEVICE,                 /**< Wrong device number. */
+    ERRORS_ETHERNETIF_NO_MAC_ADDRESS,         /**< No MAC address configured. */
     ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL,
     ERRORS_ETHERNETIF_RX_FRAME_TRUNCATED,
     ERRORS_ETHERNETIF_RX_GENERIC_ERROR,

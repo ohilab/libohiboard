@@ -48,6 +48,42 @@
 #define LONGSWAP(x)                       (x)
 #endif
 
+/**
+ *
+ */
+typedef union
+{
+    uint64_t addrs;
+
+    struct
+    {
+        uint8_t addr[6];
+        uint8_t notused1;
+        uint8_t notused2;
+    } addrByte;
+
+} Ethernet_MacAddress;
+
+#if LIBOHIBOARD_ETHERNET_BIGENDIAN
+/** Set a MAC address given by the six byte-parts. */
+#define ETHERNET_MAC_ADDR(macaddr, a,b,c,d,e,f)             \
+        (macaddr)->addrs = ((uint64_t)((a) & 0xFF) << 40) | \
+                           ((uint64_t)((b) & 0xFF) << 32) | \
+                           ((uint64_t)((c) & 0xFF) << 24) | \
+                           ((uint64_t)((d) & 0xFF) << 16) | \
+                           ((uint64_t)((e) & 0xFF) << 8)  | \
+                            (uint64_t)((f) & 0xFF)
+#else
+/** Set a MAC address given by the six byte-parts. */
+#define ETHERNET_MAC_ADDR(macaddr, a,b,c,d,e,f)             \
+        (macaddr)->addrs = ((uint64_t)((f) & 0xFF) << 40) | \
+                           ((uint64_t)((e) & 0xFF) << 32) | \
+                           ((uint64_t)((d) & 0xFF) << 24) | \
+                           ((uint64_t)((c) & 0xFF) << 16) | \
+						   ((uint64_t)((b) & 0xFF) << 8)  | \
+						    (uint64_t)((a) & 0xFF)
+#endif
+
 
 /* RX Acceleration Configuration flags */
 #define ETHERNET_RXACCEL_CONFIG_ENABLE_PADDLE_REMOVAL              0x01 /**< Enable Padding Removal For Short IP Frames. */
@@ -366,8 +402,7 @@ typedef enum
  */
 typedef struct _Ethernet_MacConfig
 {
-    uint8_t *macAddress; /**< MAC Physical Address. First byte in the array
-                                    is Least Significant Byte in MAC Address. */
+    Ethernet_MacAddress macAddress;               /**< MAC Physical Address.  */
     Ethernet_MacOperatingMode mode;                  /**< MAC Operating Mode. */
     uint32_t control;                  /**< MAC Configuration & Control Bits. */
 

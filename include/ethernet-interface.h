@@ -63,33 +63,18 @@ typedef struct _EthernetInterface_BufferData
 } EthernetInterface_BufferData;
 
 /**
- *  Defines the structure used to handle multiple buffer descriptors.
- */
-typedef struct _EthernetInterface_BufferDescriptorHandler
-{
-    volatile Ethernet_BufferDescriptor *rxBdBasePtr;     /**< Receive buffer descriptor base address pointer.*/
-    volatile Ethernet_BufferDescriptor *rxBdCurrPtr;     /**< Current receive buffer descriptor pointer.*/
-    volatile Ethernet_BufferDescriptor *rxBdToCleanPtr;  /**< Receive buffer descriptor to be cleaned.*/
-    volatile Ethernet_BufferDescriptor *txBdBasePtr;     /**< Transmit buffer descriptor base address pointer.*/
-    volatile Ethernet_BufferDescriptor *txBdCurrPtr;     /**< Current transmit buffer descriptor pointer.*/
-    volatile Ethernet_BufferDescriptor *txBdToCleanPtr;  /**< Last cleaned transmit buffer descriptor pointer.*/
-
-    uint32_t rxBuffSizeAlign;                            /**< Receive buffer size alignment.*/
-    uint32_t txBuffSizeAlign;                            /**< Transmit buffer size alignment.*/
-
-    bool isRxBufferDescriptorFull;                       /**< Indicates if Rx buffer descriptor is full.*/
-    bool isTxBufferDescriptorFull;                       /**< Indicates if Tx buffer descriptor is full.*/
-
-} EthernetInterface_BufferDescriptorHandler;
-
-/**
  *  Initialize the mid-low level ethernet interface.
  *
  *  @param[in] dev The main mid-low level ethernet interface handle
+ *  @param[in] receiveDataCallback The callback of upper level to manage
+ *             the received data.
+ *  @param[in] address The MAC adrress of the device.
  *
  *  @return An error if the initialization went wrong.
  */
-System_Errors EthernetInterface_init(EthernetInterface_DeviceHandle dev);
+System_Errors EthernetInterface_init(EthernetInterface_DeviceHandle dev,
+        void (*receiveDataCallback) (EthernetInterface_DeviceHandle dev, EthernetInterface_BufferData *buffer),
+        Ethernet_MacAddress address);
 
 /**
  *  Takes data to send from upper level, handles transmitting buffer
@@ -129,6 +114,37 @@ void EthernetInterface_disableTxInterrupt (EthernetInterface_DeviceHandle dev);
  */
 void EthernetInterface_enableTxInterrupt (EthernetInterface_DeviceHandle dev);
 
+/**
+ * This function compute a semi-unique, local, mac address for the
+ * ethernet device.
+ *
+ * @param[in] dev The main mid-low level ethernet interface handle
+ * @param[out] macAddress The semi-unique mac address for the ethernet device.
+ */
+void EthernetInterface_computeMacAddress (EthernetInterface_DeviceHandle dev,
+                                          Ethernet_MacAddress* macAddress);
+
+/**
+ * TODO
+ *
+ * @param[in] dev  The main mid-low level ethernet interface
+ * @param[in] type Set 0 for RX buffer, otherwise for TX.
+ *
+ * @return The size of request buffer descriptor.
+ */
+uint32_t EthernetInterface_getBufferDescriptorSize(EthernetInterface_DeviceHandle dev,
+                                                   uint8_t type);
+
+/**
+ * TODO
+ *
+ * @param[in] dev  The main mid-low level ethernet interface
+ * @param[in] type Set 0 for RX buffer, otherwise for TX.
+ *
+ * @return The pointer to the buffer of request buffer descriptor.
+ */
+uint8_t* EthernetInterface_getCurrentBuffer(EthernetInterface_DeviceHandle dev,
+                                            uint8_t type);
 
 #endif /* __ETHERNET_INTERFACE_H */
 
