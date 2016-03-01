@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -52,21 +52,38 @@
 #include "ftm.h"
 #endif
 
+#ifdef LIBOHIBOARD_PIT
+#include "pit.h"
+#endif
+
 #ifdef LIBOHIBOARD_UART
 #include "uart.h"
 #endif
 
+#ifdef LIBOHIBOARD_IIC
 #include "i2c.h"
+#endif
 
+#ifdef LIBOHIBOARD_SPI
 #include "spi.h"
+#endif
 
+#ifdef LIBOHIBOARD_ADC
 #include "adc.h"
+#endif
 
 #ifdef LIBOHIBOARD_DAC
 #include "dac.h"
 #endif
 
+#ifdef LIBOHIBOARD_ETHERNET
+#include "ethernet.h"
+#include "ethernet-interface.h"
+#endif
+
+#ifdef LIBOHIBOARD_RTC
 #include "rtc.h"
+#endif
 
 #include "timeday.h"
 

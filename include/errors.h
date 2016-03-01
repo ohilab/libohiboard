@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -36,11 +36,11 @@
 
 typedef enum _System_Errors
 {
-	ERRORS_NO_ERROR,                        /**< There is no error. */
-	ERRORS_PARAM_VALUE,                     /**< Invalid value. */
-	ERRORS_EXT_OSC_NOT_SELECT,              /**< External oscillator not selected. */
+	ERRORS_NO_ERROR,                                  /**< There is no error. */
+	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
+	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
 	
-	ERRORS_HW_NOT_ENABLED,                  /**< Hardware pin of the device was not enabled. */
+	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
 	
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
 	
@@ -52,6 +52,7 @@ typedef enum _System_Errors
     ERRORS_UART_NO_PIN_FOUND,
     ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG,
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
+    ERRORS_UART_PARITY,                            /**< Parity error occured. */
 	
 	ERRORS_IIC_TX_OK,
 	ERRORS_IIC_TX_ERROR,
@@ -100,66 +101,24 @@ typedef enum _System_Errors
     ERRORS_MCG_NOT_INIT,
     ERRORS_MCG_ERRATA_DIVIDER,
     ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
-    ERRORS_UART_PARITY  //parity error occured
 
+    ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
+    ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
+    ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
+
+    ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
+    ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
+    ERRORS_ETHERNET_SMI_TIMEOUT,    /**< Error during communication with PHY. */
+    ERRORS_ETHERNETIF_WRONG_DEVICE,                 /**< Wrong device number. */
+    ERRORS_ETHERNETIF_NO_MAC_ADDRESS,         /**< No MAC address configured. */
+    ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL,
+    ERRORS_ETHERNETIF_RX_FRAME_TRUNCATED,
+    ERRORS_ETHERNETIF_RX_GENERIC_ERROR,
+    ERRORS_ETHERNETIF_RX_SMALL_BUFFERDESCRIPTOR_NUMBER,
+    ERRORS_ETHERNETIF_TX_BUFFERDESCRIPTOR_FULL
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
 #define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
-
-#define ERR_OK                          0x00U /* OK */
-#define ERR_SPEED                       0x01U /* This device does not work in the active speed mode. */
-#define ERR_RANGE                       0x02U /* Parameter out of range. */
-#define ERR_VALUE                       0x03U /* Parameter of incorrect value. */
-#define ERR_OVERFLOW                    0x04U /* Timer overflow. */
-#define ERR_MATH                        0x05U /* Overflow during evaluation. */
-#define ERR_ENABLED                     0x06U /* Device is enabled. */
-#define ERR_DISABLED                    0x07U /* Device is disabled. */
-#define ERR_BUSY                        0x08U /* Device is busy. */
-#define ERR_NOTAVAIL                    0x09U /* Requested value or method not available. */
-#define ERR_RXEMPTY                     0x0AU /* No data in receiver. */
-#define ERR_TXFULL                      0x0BU /* Transmitter is full. */
-#define ERR_BUSOFF                      0x0CU /* Bus not available. */
-#define ERR_OVERRUN                     0x0DU /* Overrun error is detected. */
-#define ERR_FRAMING                     0x0EU /* Framing error is detected. */
-#define ERR_PARITY                      0x0FU /* Parity error is detected. */
-#define ERR_NOISE                       0x10U /* Noise error is detected. */
-#define ERR_IDLE                        0x11U /* Idle error is detected. */
-#define ERR_FAULT                       0x12U /* Fault error is detected. */
-#define ERR_BREAK                       0x13U /* Break char is received during communication. */
-#define ERR_CRC                         0x14U /* CRC error is detected. */
-#define ERR_ARBITR                      0x15U /* A node losts arbitration. This error occurs if two nodes start transmission at the same time. */
-#define ERR_PROTECT                     0x16U /* Protection error is detected. */
-#define ERR_UNDERFLOW                   0x17U /* Underflow error is detected. */
-#define ERR_UNDERRUN                    0x18U /* Underrun error is detected. */
-#define ERR_COMMON                      0x19U /* Common error of a device. */
-#define ERR_LINSYNC                     0x1AU /* LIN synchronization error is detected. */
-#define ERR_FAILED                      0x1BU /* Requested functionality or process failed. */
-#define ERR_QFULL                       0x1CU /* Queue is full. */
-#define ERR_PARAM_MASK                  0x80U /* Invalid mask. */
-#define ERR_PARAM_MODE                  0x81U /* Invalid mode. */
-#define ERR_PARAM_INDEX                 0x82U /* Invalid index. */
-#define ERR_PARAM_DATA                  0x83U /* Invalid data. */
-#define ERR_PARAM_SIZE                  0x84U /* Invalid size. */
-#define ERR_PARAM_VALUE                 0x85U /* Invalid value. */
-#define ERR_PARAM_RANGE                 0x86U /* Invalid parameter's range or parameters' combination. */
-#define ERR_PARAM_LOW_VALUE             0x87U /* Invalid value (LOW part). */
-#define ERR_PARAM_HIGH_VALUE            0x88U /* Invalid value (HIGH part). */
-#define ERR_PARAM_ADDRESS               0x89U /* Invalid address. */
-#define ERR_PARAM_PARITY                0x8AU /* Invalid parity. */
-#define ERR_PARAM_WIDTH                 0x8BU /* Invalid width. */
-#define ERR_PARAM_LENGTH                0x8CU /* Invalid length. */
-#define ERR_PARAM_ADDRESS_TYPE          0x8DU /* Invalid address type. */
-#define ERR_PARAM_COMMAND_TYPE          0x8EU /* Invalid command type. */
-#define ERR_PARAM_COMMAND               0x8FU /* Invalid command. */
-#define ERR_PARAM_RECIPIENT             0x90U /* Invalid recipient. */
-#define ERR_PARAM_BUFFER_COUNT          0x91U /* Invalid buffer count. */
-#define ERR_PARAM_ID                    0x92U /* Invalid ID. */
-#define ERR_PARAM_GROUP                 0x93U /* Invalid group. */
-#define ERR_PARAM_CHIP_SELECT           0x94U /* Invalid chip select. */
-#define ERR_PARAM_ATTRIBUTE_SET         0x95U /* Invalid set of attributes. */
-#define ERR_PARAM_SAMPLE_COUNT          0x96U /* Invalid sample count. */
-#define ERR_PARAM_CONDITION             0x97U /* Invalid condition. */
-#define ERR_PARAM_TICKS                 0x98U /* Invalid ticks parameter. */
 
 #endif /* __ERRORS_H */
