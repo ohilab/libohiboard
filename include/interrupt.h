@@ -177,6 +177,10 @@ typedef enum {
     INTERRUPT_FTM2       = 44,
     INTERRUPT_RTC_ALARM  = 46,
     INTERRUPT_RTC_SECOND = 47,
+    INTERRUPT_PIT0       = 48,
+    INTERRUPT_PIT1       = 49,
+    INTERRUPT_PIT2       = 50,
+    INTERRUPT_PIT3       = 51,
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
 	  defined (LIBOHIBOARD_OHIBOARD_R1)
