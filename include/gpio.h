@@ -1,8 +1,9 @@
 /******************************************************************************
- * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <m.civale@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/include/gpio.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale <m.civale@gmail.com>
  * @brief GPIO definitions and prototypes.
  */
 
@@ -575,6 +577,13 @@ typedef enum
     GPIO_PINS_NONE,
 } Gpio_Pins;
 
+typedef enum
+{
+    GPIO_EVENT_WHEN_0     = 0x8,
+    GPIO_EVENT_ON_RISING  = 0x9,
+    GPIO_EVENT_ON_FALLING = 0xA,
+    GPIO_EVENT_WHEN_1     = 0xB,
+} Gpio_EventType;
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
 
@@ -583,6 +592,14 @@ void Gpio_clear (Gpio_Pins pin);
 void Gpio_toggle (Gpio_Pins pin);
 
 Gpio_Level Gpio_get (Gpio_Pins pin);
+
+#if defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
+
+System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event);
+System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
+
+#endif
 
 #endif /* __GPIO_H */
 
