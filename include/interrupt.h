@@ -207,6 +207,7 @@ typedef enum {
     INTERRUPT_PIT1         = 49,
     INTERRUPT_PIT2         = 50,
     INTERRUPT_PIT3         = 51,
+    INTERRUPT_PDB          = 52,
     INTERRUPT_PORTA		   = 59,
     INTERRUPT_PORTB		   = 60,
     INTERRUPT_PORTC		   = 61,

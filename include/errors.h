@@ -106,6 +106,9 @@ typedef enum _System_Errors
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
 
+    ERROR_PTB_DEVICE_WRONG,                  /**< Device triggered not exist. */
+    ERROR_PTB_DEVICE_NOT_INIT,
+
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
     ERRORS_ETHERNET_SMI_TIMEOUT,    /**< Error during communication with PHY. */
