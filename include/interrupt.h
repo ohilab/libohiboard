@@ -4,6 +4,7 @@
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Marco Contigiani <m.contigiani86@gmail.com>
  *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Matteo Civale <m.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +30,7 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Marco Contigiani <m.contigiani86@gmail.com>
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
+ * @author Matteo Civale <m.civale@gmail.com>
  * @brief Interrupt definitions.
  */
 
@@ -224,6 +226,9 @@ typedef enum {
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
 System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);
+
+System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber,
+                                     uint8_t priority);
 
 #endif /* __INTERRUPT_H */
 

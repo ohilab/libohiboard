@@ -1,7 +1,8 @@
-/* Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Matteo Civale <m.civale@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +26,7 @@
 /**
  * @file libohiboard/source/interrupt_K64F12.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
+ * @author Matteo Civale <m.civale@gmail.com>
  * @brief Interrupt implementations for K64F12 and FRDMK64.
  */
 
@@ -37,6 +39,7 @@
 #define NVIC_NUM_CORE_VECTORS           16
 #define NVIC_NUM_MCU_VECTORS            86
 #define NVIC_NUM_VECTORS                NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
+#define NVIC_MAX_PRIORITY               15
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 {
@@ -91,6 +94,16 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
         NVICICER2 = 1 << (vectorNumber%32);
         break;
     }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber, uint8_t priority)
+{
+    if (priority > NVIC_MAX_PRIORITY) return ERRORS_IRQ_PRIORITY_LEVEL_WRONG;
+
+    /* Set interrupt priority note priority 0 is the higher priority level*/
+    NVIC_IP_REG(NVIC_BASE_PTR,vectorNumber) = (priority<<4) & 0xFF;
 
     return ERRORS_NO_ERROR;
 }

@@ -43,6 +43,7 @@ typedef enum _System_Errors
 	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
 	
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
+	ERRORS_IRQ_PRIORITY_LEVEL_WRONG,
 	
 	ERRORS_GPIO_WRONG_PORT,
 	ERRORS_GPIO_WRONG_CONFIG,
