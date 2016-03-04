@@ -36,6 +36,10 @@
 #include "errors.h"
 #include "types.h"
 
+#define SET_BIT(n)                  (1<<n)&0xFF
+#define SHIFT_LEFT(X,n)             X<<n
+#define SHIFT_RIGHT(X,n)            X>>n
+
 #define IS_DIGIT(c)                 ((c <= '9') && (c >= '0'))
 #define IS_LOWERLETTER(c)           ((c <= 'z') && (c >= 'a'))
 #define IS_UPPERLETTER(c)           ((c <= 'Z') && (c >= 'A'))

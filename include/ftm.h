@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -47,6 +47,12 @@ typedef enum
     FTM_MODE_INPUT_CAPTURE,
     FTM_MODE_QUADRATURE_DECODE,
     FTM_MODE_OUTPUT_COMPARE,
+
+#if defined (LIBOHIBOARD_FRDMK64F) || \
+    defined (LIBOHIBOARD_K64F12)
+    FTM_MODE_COMBINE,
+#endif
+
     FTM_MODE_PWM,
     FTM_MODE_FREE
 } Ftm_Mode;
@@ -328,6 +334,7 @@ extern Ftm_DeviceHandle FTM2;
 	  defined (LIBOHIBOARD_FRDMK64F)
 
 #define FTM_MAX_CHANNEL                  8
+#define FTM_MAX_FAULT_CHANNEL            4
 
 typedef enum
 {
@@ -372,6 +379,29 @@ typedef enum
 
 typedef enum
 {
+    FTM_FAULTPINS_PTA18,
+    FTM_FAULTPINS_PTA19,
+
+    FTM_FAULTPINS_PTB2,
+    FTM_FAULTPINS_PTB3,
+    FTM_FAULTPINS_PTB4,
+    FTM_FAULTPINS_PTB5,
+    FTM_FAULTPINS_PTB10,
+    FTM_FAULTPINS_PTB11,
+
+    FTM_FAULTPINS_PTC9,
+    FTM_FAULTPINS_PTC12,
+
+    FTM_FAULTPINS_PTD6,
+    FTM_FAULTPINS_PTD7,
+    FTM_FAULTPINS_PTD12,
+
+    FTM_FAULTPINS_STOP,
+} Ftm_FaultPins;
+
+
+typedef enum
+{
     FTM_CHANNELS_CH0,
     FTM_CHANNELS_CH1,
     FTM_CHANNELS_CH2,
@@ -383,15 +413,111 @@ typedef enum
 } Ftm_Channels;
 
 
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
-void Ftm_isrFtm3 (void);
+typedef enum
+{
+    FTM_TRIGGER_CH0  = 4,
+    FTM_TRIGGER_CH1  = 5,
+    FTM_TRIGGER_CH2  = 0,
+    FTM_TRIGGER_CH3  = 1,
+    FTM_TRIGGER_CH4  = 2,
+    FTM_TRIGGER_CH5  = 3,
+    FTM_TRIGGER_NOCH = 6,
 
-extern Ftm_DeviceHandle FTM0;
-extern Ftm_DeviceHandle FTM1;
-extern Ftm_DeviceHandle FTM2;
-extern Ftm_DeviceHandle FTM3;
+} Ftm_TriggerChannel;
+
+typedef enum
+{
+    FTM_FAULTCHANNELS_0    = 0,
+    FTM_FAULTCHANNELS_1    = 1,
+    FTM_FAULTCHANNELS_2    = 2,
+    FTM_FAULTCHANNELS_3    = 3,
+    FTM_FAULTCHANNELS_NONE = 4,
+
+} Ftm_FaultChannels;
+
+typedef enum
+{
+    FTM_FAULTMODE_DISABLE     = 0,
+    FTM_FAULTMODE_ONLYEVEN    = 1,
+    FTM_FAULTMODE_MANUALCLEAR = 2,
+    FTM_FAULTMODE_AUTOCLEAR   = 3,
+
+} Ftm_FaultMode;
+
+typedef enum
+{
+    FTM_FAULTPOLARITY_HIGH = 0,
+    FTM_FAULTPOLARITY_LOW  = 1,
+
+} Ftm_FaultPolarity;
+
+/**
+ * Synchronization Type (see RM at page 972)
+ */
+typedef enum
+{
+    FTM_SYNCEVENT_COUNT_MIN   = 0x01,
+    FTM_SYNCEVENT_COUNT_MAX   = 0x02,
+    FTM_SYNCEVENT_RE_INIT     = 0x04,
+    FTM_SYNCEVENT_OUTPUT_MASK = 0x08,
+    FTM_SYNCEVENT_TRIG0       = 0x10,
+    FTM_SYNCEVENT_TRIG1       = 0x20,
+    FTM_SYNCEVENT_TRIG2       = 0x40,
+} Ftm_SyncEvent;
+
+void FTM0_IRQHandler (void);
+void FTM1_IRQHandler (void);
+void FTM2_IRQHandler (void);
+void FTM3_IRQHandler (void);
+
+extern Ftm_DeviceHandle OB_FTM0;
+extern Ftm_DeviceHandle OB_FTM1;
+extern Ftm_DeviceHandle OB_FTM2;
+extern Ftm_DeviceHandle OB_FTM3;
+
+typedef enum
+{
+    FTM_COMBINECHANNELALIGN_NEGATIVE = 0,
+    FTM_COMBINECHANNELALIGN_POSITIVE = 1,
+} Ftm_CombineChannelAlign;
+
+typedef enum
+{
+    FTM_COMBINECHANNELPAIR_0_1 = 0,
+    FTM_COMBINECHANNELPAIR_2_3 = 1,
+    FTM_COMBINECHANNELPAIR_4_5 = 2,
+    FTM_COMBINECHANNELPAIR_6_7 = 3,
+} Ftm_CombineChannelPair;
+
+typedef enum
+{
+    FTM_COMBINERELOAD_NONE    = 0,
+    FTM_COMBINERELOAD_CH_LOW  = 1,
+    FTM_COMBINERELOAD_CH_HIGH = 2,
+    FTM_COMBINERELOAD_BOTH    = 3,
+} Ftm_CombineReload;
+
+typedef struct _Ftm_CombineChannelConfig
+{
+    Ftm_CombineChannelPair pair;
+    Ftm_CombineChannelAlign align;
+
+    Ftm_CombineReload reload;
+
+    bool enableDeadTime;
+    bool enableSynchronization;
+    bool enableComplementary;
+    bool enableFaultInterrupt;
+
+} Ftm_CombineChannelConfig;
+
+typedef struct _Ftm_FaultConfig
+{
+    Ftm_FaultPins pin;
+    bool enableFilter;
+    Ftm_FaultPolarity polarity;
+
+} Ftm_FaultConfig;
 
 #endif
 
@@ -408,7 +534,26 @@ typedef struct Ftm_Config
     uint16_t duty[FTM_MAX_CHANNEL + 1];
     
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
+
+#if defined (LIBOHIBOARD_FRDMK64F) || \
+    defined (LIBOHIBOARD_K64F12)
+
+    /* Fault configurations */
+    Ftm_FaultConfig fault[FTM_MAX_FAULT_CHANNEL];
+    uint8_t faultFilterValue;
+    Ftm_FaultMode faultMode;
+    bool interruptEnableFault;
+
+    Ftm_TriggerChannel triggerChannel;
+    bool enableInitTrigger;
+    Ftm_SyncEvent syncEvent;
     
+    /* For Combine mode */
+    Ftm_CombineChannelConfig channelPair[FTM_MAX_CHANNEL>>1];
+    uint32_t deadTime;  /**< Only valid in combine or complementary mode [ns] */
+    bool symmetrical;
+#endif
+
 } Ftm_Config;
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
@@ -435,6 +580,8 @@ void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
 bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
 void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
 uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel);
+
+uint8_t Ftm_ResetFault (Ftm_DeviceHandle dev);
 
 #endif /* __FTM_H */
 
