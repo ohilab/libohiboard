@@ -72,6 +72,10 @@ typedef struct Dac_Device* Dac_DeviceHandle;
 extern Dac_DeviceHandle DAC0;
 extern Dac_DeviceHandle DAC1;
 
+#elif defined (LIBOHIBOARD_K12D5)
+
+extern Dac_DeviceHandle OB_DAC0;
+
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
