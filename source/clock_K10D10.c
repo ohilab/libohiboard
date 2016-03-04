@@ -31,11 +31,13 @@
  * @Clock implementations for K10D10.
  */
 
-#if defined (LIBOHIBOARD_K10D10)
+#if defined (LIBOHIBOARD_K10D10) || \
+    defined (LIBOHIBOARD_K12D5)
 
 #include "platforms.h"
 #include "clock.h"
 
+#if defined (LIBOHIBOARD_K10D10)
 
 #define CLOCK_INIT_DIFF                       200000000
 #define CLOCK_MAX_FREQ_MCG                    100000000
@@ -79,6 +81,53 @@
 #define CLOCK_INTERNAL_FREQ_FAST_OUT_6        125000
 #define CLOCK_INTERNAL_FREQ_FAST_OUT_7        31250
 #define CLOCK_EXTERNAL_32KHZ_REFERENCE		  32768
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+#define CLOCK_INIT_DIFF                       100000000
+#define CLOCK_MAX_FREQ_MCG                    50000000
+#define CLOCK_MAX_FREQ_SYS                    50000000
+#define CLOCK_MAX_FREQ_EXT                    50000000
+#define CLOCK_MAX_FREQ_BUS                    50000000
+#define CLOCK_MAX_FREQ_FLEXBUS                25000000
+#define CLOCK_MAX_FREQ_FLASH                  25000000
+#define CLOCK_FREQ_INTERNAL_SLOW              32000
+#define CLOCK_FREQ_INTERNAL_FAST              4000000
+#define CLOCK_MIN_FREQ_RANGE0_OSC_IN          30000
+#define CLOCK_MAX_FREQ_RANGE0_OSC_IN          40000
+#define CLOCK_MIN_FREQ_RANGE1_OSC_IN          3000000
+#define CLOCK_MAX_FREQ_RANGE1_OSC_IN          8000000
+#define CLOCK_MIN_FREQ_RANGE2_OSC_IN          8000000
+#define CLOCK_MAX_FREQ_RANGE2_OSC_IN          32000000
+#define CLOCK_MIN_FREQ_FLL_IN                 31250
+#define CLOCK_MAX_FREQ_FLL_IN                 39062.5
+#define CLOCK_MIN_FREQ_RANGE0_FLL_OUT         20000000
+#define CLOCK_MAX_FREQ_RANGE0_FLL_OUT         25000000
+#define CLOCK_CENTER_FREQ_RANGE0_FLL_OUT      24000000
+#define CLOCK_MIN_FREQ_RANGE1_FLL_OUT         40000000
+#define CLOCK_MAX_FREQ_RANGE1_FLL_OUT         50000000
+#define CLOCK_CENTER_FREQ_RANGE1_FLL_OUT      48000000
+#define CLOCK_MIN_FREQ_RANGE2_FLL_OUT         60000000
+#define CLOCK_MAX_FREQ_RANGE2_FLL_OUT         75000000
+#define CLOCK_CENTER_FREQ_RANGE2_FLL_OUT      72000000
+#define CLOCK_MIN_FREQ_RANGE3_FLL_OUT         80000000
+#define CLOCK_MAX_FREQ_RANGE3_FLL_OUT         100000000
+#define CLOCK_CENTER_FREQ_RANGE3_FLL_OUT      96000000
+//#define CLOCK_MIN_FREQ_PLL_OUT                48000000 /* ?? What is the limit ? */
+#define CLOCK_MAX_FREQ_PLL_OUT                50000000
+#define CLOCK_MIN_FREQ_PLL_IN                 2000000
+#define CLOCK_MAX_FREQ_PLL_IN                 4000000
+#define CLOCK_INTERNAL_FREQ_SLOW_OUT          32000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_1        4000000 /* Selected by [FCRDIV] */
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_2        2000000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_3        1000000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_4        500000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_5        250000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_6        125000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_7        31250
+#define CLOCK_EXTERNAL_32KHZ_REFERENCE        32768
+
+#endif
 
 typedef struct Clock_Device
 {
@@ -160,7 +209,7 @@ static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     
     //Now in CLOCK_FEE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 &= ~(SIM_SOPT2_PLLFLLSEL_MASK);
     
     range0Tmp = ((MCG_C2_REG(regmap) & MCG_C2_RANGE0_MASK) >> MCG_C2_RANGE0_SHIFT);
@@ -239,7 +288,7 @@ static uint32_t Clock_fee2fei (uint8_t dmx32, uint8_t drstDrs)
     
     //Now in CLOCK_FEI
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 &= ~(SIM_SOPT2_PLLFLLSEL_MASK);
     
     dmx32Tmp = ((MCG_C4_REG(regmap) & MCG_C4_DMX32_MASK) >> MCG_C4_DMX32_SHIFT);
@@ -296,7 +345,7 @@ static uint32_t Clock_fei2fbi (uint8_t ircs, uint8_t fcrdiv)
     
     //Now on CLOCK_FBI
     
-    MCG_C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG_C1_REG(regmap) |= MCG_C1_IRCLKEN_MASK;
     
     if(ircs == 1)
     {
@@ -338,7 +387,7 @@ static uint32_t Clock_fbi2fei (uint8_t dmx32, uint8_t drstDrs)
     
     //Now in CLOCK_FEI 
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 &= ~(SIM_SOPT2_PLLFLLSEL_MASK);
     
     dmx32Tmp = ((MCG_C4_REG(regmap) & MCG_C4_DMX32_MASK) >> MCG_C4_DMX32_SHIFT);
@@ -400,7 +449,7 @@ static uint32_t Clock_fei2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     
     //Now in CLOCK_FBE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -436,7 +485,7 @@ static uint32_t Clock_fbe2fei (uint8_t dmx32, uint8_t drstDrs)
     
     //Now in CLOCK_FEI 
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 &= ~(SIM_SOPT2_PLLFLLSEL_MASK);
     
     dmx32Tmp = ((MCG_C4_REG(regmap) & MCG_C4_DMX32_MASK) >> MCG_C4_DMX32_SHIFT);
@@ -492,7 +541,7 @@ static uint32_t Clock_fee2fbi (uint8_t ircs, uint8_t fcrdiv)
     
     //Now in CLOCK_FBI
     
-    MCG_C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG_C1_REG(regmap) |= MCG_C1_IRCLKEN_MASK;
     
     
     if(ircs == 1)
@@ -556,7 +605,7 @@ static uint32_t Clock_fbi2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     
     //Now in CLOCK_FEE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 &= ~(SIM_SOPT2_PLLFLLSEL_MASK);
     
     range0Tmp = ((MCG_C2_REG(regmap) & MCG_C2_RANGE0_MASK) >> MCG_C2_RANGE0_SHIFT);
@@ -641,7 +690,7 @@ static uint32_t Clock_fee2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     
     //Now in CLOCK_FBE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -697,7 +746,7 @@ static uint32_t Clock_fbe2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     
     //Now in CLOCK_FEE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 &= ~(SIM_SOPT2_PLLFLLSEL_MASK);
     
     range0Tmp = ((MCG_C2_REG(regmap) & MCG_C2_RANGE0_MASK) >> MCG_C2_RANGE0_SHIFT);
@@ -784,7 +833,7 @@ static uint32_t Clock_fbi2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     
     //Now in CLOCK_FBE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -864,7 +913,7 @@ static uint32_t Clock_fbe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
     
     //Now in CLOCK_PBE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -909,7 +958,7 @@ static uint32_t Clock_pbe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     
     //Now in CLOCK_FBE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -964,7 +1013,7 @@ static uint32_t Clock_pbe2pee (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
     
     //Now in CLOCK_PEE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
     
     prdivTmp = ((MCG_C5_REG(regmap) & MCG_C5_PRDIV0_MASK) >> MCG_C5_PRDIV0_SHIFT);
@@ -1027,7 +1076,7 @@ static uint32_t Clock_pee2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 
     //Now in CLOCK_PBE
     
-    MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+    MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -1058,7 +1107,7 @@ static uint32_t Clock_fbi2blpi (uint8_t ircs, uint8_t fcrdiv)
     
     //Now in CLOCK_BLPI
     
-    MCG_C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG_C1_REG(regmap) |= MCG_C1_IRCLKEN_MASK;
     
     if(ircs == 1)
     {
@@ -1094,7 +1143,7 @@ static uint32_t Clock_blpi2fbi (uint8_t ircs, uint8_t fcrdiv)
     
     //Now in CLOCK_FBI
     
-    MCG_C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG_C1_REG(regmap) |= MCG_C1_IRCLKEN_MASK;
     
     
     if(ircs == 1)
@@ -1122,7 +1171,7 @@ static uint32_t Clock_fbe2blpe (uint32_t fext)
     
     //Now in CLOCK_BLPE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -1162,7 +1211,7 @@ static uint32_t Clock_blpe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     
     //Now in CLOCK_FBE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -1188,7 +1237,7 @@ static uint32_t Clock_pbe2blpe (uint32_t fext)
     
     //Now in CLOCK_BLPE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -1225,7 +1274,7 @@ static uint32_t Clock_blpe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
     
     //Now in CLOCK_PBE
     
-	MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+	MCG_C1_REG(regmap) &= ~(MCG_C1_IRCLKEN_MASK);
     
     return foutMcg = fext;
 }
@@ -1724,7 +1773,9 @@ uint32_t Clock_getFrequency (Clock_Source source)
 
 	cpuDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT);
 	busDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV2_MASK) >> SIM_CLKDIV1_OUTDIV2_SHIFT);
+#if defined (LIBOHIBOARD_K10D10)
 	flexbusDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV3_MASK) >> SIM_CLKDIV1_OUTDIV3_SHIFT);
+#endif
 	flashDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT);
 
 	if (Clock_device.devInitialized == 1)
@@ -1739,6 +1790,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
 		    	return Clock_device.foutMcg/(flexbusDiv + 1);
 		    case CLOCK_FLASH:
 		    	return Clock_device.foutMcg/(flashDiv + 1);
+		    default:
+		        return 0;
 		}
 	}
 
@@ -1770,15 +1823,25 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 	{
 		return ERRORS_MCG_ERRATA_DIVIDER;
 	}
-	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) || (mcgFreq / flexbusDivider > CLOCK_MAX_FREQ_FLEXBUS) || (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
+	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) ||
+	        (mcgFreq / flexbusDivider > CLOCK_MAX_FREQ_FLEXBUS) ||
+	        (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
 	{
 		return ERRORS_MCG_OUT_OF_RANGE;
 	}
 	else
 	{
 	    tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
+#if defined (LIBOHIBOARD_K10D10)
 	    tempReg &= ~(SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV3_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
-	    tempReg |= (SIM_CLKDIV1_OUTDIV2(busDivider-1) | SIM_CLKDIV1_OUTDIV3(flexbusDivider-1) | SIM_CLKDIV1_OUTDIV4(flashDivider-1));
+	    tempReg |= (SIM_CLKDIV1_OUTDIV2(busDivider-1)     |
+	                SIM_CLKDIV1_OUTDIV3(flexbusDivider-1) |
+	                SIM_CLKDIV1_OUTDIV4(flashDivider-1));
+#elif defined (LIBOHIBOARD_K12D5)
+        tempReg &= ~(SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
+        tempReg |= (SIM_CLKDIV1_OUTDIV2(busDivider-1)     |
+                    SIM_CLKDIV1_OUTDIV4(flashDivider-1));
+#endif
 	    SIM_CLKDIV1_REG(SIM_BASE_PTR) = tempReg;
 	    return ERRORS_NO_ERROR;
 	}
@@ -2009,7 +2072,8 @@ System_Errors Clock_Init (Clock_Config *config)
                     f = fext;
                     error = ERRORS_NO_ERROR;
                 }
-                else if((foutMcg < (CLOCK_MIN_FREQ_RANGE0_FLL_OUT)) || (((CLOCK_MAX_FREQ_RANGE0_FLL_OUT) < foutMcg) && (foutMcg < (CLOCK_MIN_FREQ_RANGE1_FLL_OUT))) || (foutMcg > (CLOCK_MAX_FREQ_PLL_OUT)))
+                else if((foutMcg < (CLOCK_MIN_FREQ_RANGE0_FLL_OUT)) || (((CLOCK_MAX_FREQ_RANGE0_FLL_OUT) < foutMcg) &&
+                        (foutMcg < (CLOCK_MIN_FREQ_RANGE1_FLL_OUT))) || (foutMcg > (CLOCK_MAX_FREQ_PLL_OUT)))
                 {
                     error = ERRORS_MCG_OUT_OF_RANGE;
                     continue;
@@ -2100,7 +2164,8 @@ System_Errors Clock_Init (Clock_Config *config)
             }
             else if(source == CLOCK_INTERNAL)
             {
-                if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*640)-((CLOCK_FREQ_INTERNAL_SLOW*640)/100))) && (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*640)+((CLOCK_FREQ_INTERNAL_SLOW*640)/100))))
+                if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*640)-((CLOCK_FREQ_INTERNAL_SLOW*640)/100))) &&
+                   (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*640)+((CLOCK_FREQ_INTERNAL_SLOW*640)/100))))
                 {
                 	stateOutTmp = CLOCK_FEI;
                     dmx32Tmp = 0;
@@ -2108,7 +2173,8 @@ System_Errors Clock_Init (Clock_Config *config)
                     f = CLOCK_FREQ_INTERNAL_SLOW*640; //F = 640
                     error = ERRORS_NO_ERROR;
                 }
-                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*1280)-((CLOCK_FREQ_INTERNAL_SLOW*1280)/100))) && (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*1280)+((CLOCK_FREQ_INTERNAL_SLOW*1280)/100))))
+                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*1280)-((CLOCK_FREQ_INTERNAL_SLOW*1280)/100))) &&
+                        (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*1280)+((CLOCK_FREQ_INTERNAL_SLOW*1280)/100))))
                 {
                 	stateOutTmp = CLOCK_FEI;
                     dmx32Tmp = 0;
@@ -2116,7 +2182,8 @@ System_Errors Clock_Init (Clock_Config *config)
                     f = CLOCK_FREQ_INTERNAL_SLOW*1280; //F = 1280
                     error = ERRORS_NO_ERROR;
                 }
-                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*1920)-((CLOCK_FREQ_INTERNAL_SLOW*1920)/100))) && (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*1920)+((CLOCK_FREQ_INTERNAL_SLOW*1920)/100))))
+                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*1920)-((CLOCK_FREQ_INTERNAL_SLOW*1920)/100))) &&
+                        (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*1920)+((CLOCK_FREQ_INTERNAL_SLOW*1920)/100))))
                 {
                 	stateOutTmp = CLOCK_FEI;
                     dmx32Tmp = 0;
@@ -2124,7 +2191,8 @@ System_Errors Clock_Init (Clock_Config *config)
                     f = CLOCK_FREQ_INTERNAL_SLOW*1920; //F = 1920
                     error = ERRORS_NO_ERROR;
                 }
-                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*2560)-((CLOCK_FREQ_INTERNAL_SLOW*2560)/100))) && (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*2560)+((CLOCK_FREQ_INTERNAL_SLOW*2560)/100))))
+                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW*2560)-((CLOCK_FREQ_INTERNAL_SLOW*2560)/100))) &&
+                        (foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW*2560)+((CLOCK_FREQ_INTERNAL_SLOW*2560)/100))))
                 {
                 	stateOutTmp = CLOCK_FEI;
                     dmx32Tmp = 0;
@@ -2132,14 +2200,16 @@ System_Errors Clock_Init (Clock_Config *config)
                     f = CLOCK_FREQ_INTERNAL_SLOW*2560; //F = 2560
                     error = ERRORS_NO_ERROR;
                 }
-                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW)-((CLOCK_FREQ_INTERNAL_SLOW)/100))) && ((foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW)+((CLOCK_FREQ_INTERNAL_SLOW)/100)))))
+                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_SLOW)-((CLOCK_FREQ_INTERNAL_SLOW)/100))) &&
+                       ((foutMcg <= ((CLOCK_FREQ_INTERNAL_SLOW)+((CLOCK_FREQ_INTERNAL_SLOW)/100)))))
                 {
                 	stateOutTmp = CLOCK_BLPI;
                     ircsTmp = 0;
                     f = CLOCK_FREQ_INTERNAL_SLOW;
                     error = ERRORS_NO_ERROR;
                 }
-                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_FAST/2)-((CLOCK_FREQ_INTERNAL_FAST/2)/100))) && ((foutMcg <= ((CLOCK_FREQ_INTERNAL_FAST/2)+((CLOCK_FREQ_INTERNAL_FAST/2)/100)))))
+                else if((foutMcg >= ((CLOCK_FREQ_INTERNAL_FAST/2)-((CLOCK_FREQ_INTERNAL_FAST/2)/100))) &&
+                       ((foutMcg <= ((CLOCK_FREQ_INTERNAL_FAST/2)+((CLOCK_FREQ_INTERNAL_FAST/2)/100)))))
                 {
                 	stateOutTmp = CLOCK_BLPI;
                     ircsTmp = 1;
@@ -2242,8 +2312,19 @@ System_Errors Clock_Init (Clock_Config *config)
     }
     /* select system_clock divider and bus_clock divider */
     tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
-    tempReg &= ~(SIM_CLKDIV1_OUTDIV1_MASK | SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV3_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
-    tempReg |= (SIM_CLKDIV1_OUTDIV1(outdiv1-1) | SIM_CLKDIV1_OUTDIV2(outdiv2-1) | SIM_CLKDIV1_OUTDIV3(outdiv3-1) | SIM_CLKDIV1_OUTDIV4(outdiv4-1));
+#if defined (LIBOHIBOARD_K10D10)
+    tempReg &= ~(SIM_CLKDIV1_OUTDIV1_MASK | SIM_CLKDIV1_OUTDIV2_MASK |
+                 SIM_CLKDIV1_OUTDIV3_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
+    tempReg |= (SIM_CLKDIV1_OUTDIV1(outdiv1-1) |
+                SIM_CLKDIV1_OUTDIV2(outdiv2-1) |
+                SIM_CLKDIV1_OUTDIV3(outdiv3-1) |
+                SIM_CLKDIV1_OUTDIV4(outdiv4-1));
+#elif defined (LIBOHIBOARD_K12D5)
+    tempReg &= ~(SIM_CLKDIV1_OUTDIV1_MASK | SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
+    tempReg |= (SIM_CLKDIV1_OUTDIV1(outdiv1-1) |
+                SIM_CLKDIV1_OUTDIV2(outdiv2-1) |
+                SIM_CLKDIV1_OUTDIV4(outdiv4-1));
+#endif
     SIM_CLKDIV1_REG(SIM_BASE_PTR) = tempReg;
 
 

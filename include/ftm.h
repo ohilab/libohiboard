@@ -275,6 +275,63 @@ extern Ftm_DeviceHandle FTM0;
 extern Ftm_DeviceHandle FTM1;
 extern Ftm_DeviceHandle FTM2;
 
+#elif defined(LIBOHIBOARD_K12D5)
+
+#define FTM_MAX_CHANNEL                  8
+
+typedef enum
+{
+    FTM_PINS_PTA0,
+    FTM_PINS_PTA1,
+    FTM_PINS_PTA2,
+    FTM_PINS_PTA3,
+    FTM_PINS_PTA4,
+    FTM_PINS_PTA5,
+    FTM_PINS_PTA12,
+    FTM_PINS_PTA13,
+
+    FTM_PINS_PTB0,
+    FTM_PINS_PTB1,
+    FTM_PINS_PTB12,
+    FTM_PINS_PTB13,
+    FTM_PINS_PTB18,
+    FTM_PINS_PTB19,
+
+    FTM_PINS_PTC1,
+    FTM_PINS_PTC2,
+    FTM_PINS_PTC3,
+    FTM_PINS_PTC4,
+    FTM_PINS_PTC5,
+
+    FTM_PINS_PTD4,
+    FTM_PINS_PTD5,
+    FTM_PINS_PTD6,
+    FTM_PINS_PTD7,
+
+    FTM_PINS_STOP,
+} Ftm_Pins;
+
+typedef enum
+{
+    FTM_CHANNELS_CH0,
+    FTM_CHANNELS_CH1,
+    FTM_CHANNELS_CH2,
+    FTM_CHANNELS_CH3,
+    FTM_CHANNELS_CH4,
+    FTM_CHANNELS_CH5,
+    FTM_CHANNELS_CH6,
+    FTM_CHANNELS_CH7,
+} Ftm_Channels;
+
+
+void FTM0_IRQHandler (void);
+void FTM1_IRQHandler (void);
+void FTM2_IRQHandler (void);
+
+extern Ftm_DeviceHandle OB_FTM0;
+extern Ftm_DeviceHandle OB_FTM1;
+extern Ftm_DeviceHandle OB_FTM2;
+
 #elif defined (LIBOHIBOARD_K60DZ10) || \
 	  defined (LIBOHIBOARD_OHIBOARD_R1)
 
