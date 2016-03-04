@@ -318,9 +318,9 @@ typedef enum
 } Ftm_Channels;
 
 
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
+void FTM0_IRQHandler (void);
+void FTM1_IRQHandler (void);
+void FTM2_IRQHandler (void);
 
 extern Ftm_DeviceHandle OB_FTM0;
 extern Ftm_DeviceHandle OB_FTM1;

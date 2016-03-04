@@ -157,7 +157,7 @@ static Ftm_Device ftm0 = {
                              FTM_CHANNELS_CH7,
         },
 
-        .isr              = Ftm_isrFtm0,
+        .isr              = FTM0_IRQHandler,
         .isrNumber        = INTERRUPT_FTM0,
 
         .devInitialized   = 0,
@@ -199,7 +199,7 @@ static Ftm_Device ftm1 = {
                              FTM_CHANNELS_CH1,
         },
 
-        .isr              = Ftm_isrFtm1,
+        .isr              = FTM1_IRQHandler,
         .isrNumber        = INTERRUPT_FTM1,
 
         .devInitialized   = 0,
@@ -225,7 +225,7 @@ static Ftm_Device ftm2 = {
                              FTM_CHANNELS_CH1,
         },
 
-        .isr              = Ftm_isrFtm2,
+        .isr              = FTM2_IRQHandler,
         .isrNumber        = INTERRUPT_FTM2,
 
         .devInitialized   = 0,
@@ -255,17 +255,17 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     }
 }
 
-void Ftm_isrFtm0 (void)
+void FTM0_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM0);
 }
 
-void Ftm_isrFtm1 (void)
+void FTM1_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM1);
 }
 
-void Ftm_isrFtm2 (void)
+void FTM2_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM2);
 }
@@ -493,7 +493,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
             Ftm_addPwmPin(dev,pin,config->duty[configPinIndex]);
         }
 
-        FTM_SC_REG(dev->regMap) = FTM_SC_CLKS(1) | FTM_SC_PS(prescaler) | 0;
+        FTM_SC_REG(dev->regMap) |= FTM_SC_CLKS(1) | FTM_SC_PS(prescaler) | 0;
 
         break;
     case FTM_MODE_FREE:
@@ -506,7 +506,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
 
         FTM_CNTIN_REG(dev->regMap) = FTM_CNTIN_INIT(config->initCounter);
         FTM_MOD_REG(dev->regMap) = modulo - 1;
-        FTM_SC_REG(dev->regMap) = FTM_SC_TOIE_MASK | FTM_SC_CLKS(1) |
+        FTM_SC_REG(dev->regMap) |= FTM_SC_TOIE_MASK | FTM_SC_CLKS(1) |
                                   FTM_SC_PS(prescaler) | 0;
         break;
     }
