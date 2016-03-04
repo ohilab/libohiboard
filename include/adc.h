@@ -62,6 +62,11 @@ typedef enum {
 } Adc_Resolution;
 
 typedef enum {
+    ADC_INPUTTYPE_SINGLE_ENDED = 0,
+    ADC_INPUTTYPE_DIFFERENTIAL = 1,
+} Adc_InputType;
+
+typedef enum {
     ADC_AVERAGE_1_SAMPLES,
     ADC_AVERAGE_4_SAMPLES,
     ADC_AVERAGE_8_SAMPLES,
@@ -291,6 +296,8 @@ typedef enum {
     ADC_PINS_NONE,
 
 } Adc_Pins;
+
+#define ADC_MAX_CHANNEL_NUMBER 2
 
 typedef enum {
 
@@ -550,16 +557,35 @@ typedef struct _Adc_Config
     Adc_Average              average;
     Adc_ContinuousConvertion contConv;
     Adc_VoltReference        voltRef;
+
+    bool                     enableHwTrigger;
 } Adc_Config;
 
+typedef struct _Adc_ChannelConfig
+{
+    Adc_InputType            inputType;
+    Adc_ChannelNumber        channel;
 
-System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config);
+} Adc_ChannelConfig;
+
+/**
+ * If use this function in single mode with interrupt enabled, the function
+ * start the conversion in a selected channel and the value will be 0, otherwise
+ * the function wait the end of the conversion.
+ * If use this function in continuous mode, the function start only the
+ * conversion in a selected channel. The returned value will be 0.
+ */
+System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config);
 
 void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin);
 System_Errors Adc_readValue (Adc_DeviceHandle dev, 
                              Adc_ChannelNumber channel, 
-                             uint16_t *value);
+                             uint16_t *value,
+                             Adc_InputType type);
 
+System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
+                                       Adc_ChannelConfig* config,
+                                       uint8_t numChannel);
 
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
 	defined (LIBOHIBOARD_KL02Z4)    || \
@@ -573,12 +599,19 @@ extern Adc_DeviceHandle ADC0;
 
 #elif defined (LIBOHIBOARD_K10DZ10)    || \
 	  defined (LIBOHIBOARD_K10D10)     || \
-	  defined (LIBOHIBOARD_K60DZ10)    || \
-      defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
+	  defined (LIBOHIBOARD_K60DZ10)
 
 extern Adc_DeviceHandle ADC0;
 extern Adc_DeviceHandle ADC1;
+
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
+
+void ADC0_IRQHandler();
+void ADC1_IRQHandler();
+
+extern Adc_DeviceHandle OB_ADC0;
+extern Adc_DeviceHandle OB_ADC1;
 
 #endif
 
