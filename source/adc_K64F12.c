@@ -55,7 +55,7 @@ typedef struct Adc_Device {
     void (*callback)(void);      /**< The function pointer for user callback. */
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
-    Adc_Pins pins[ADC_MAX_PINS];    /**< List of the pin for the FTM channel. */
+    Adc_Pins pins[ADC_MAX_PINS+1];  /**< List of the pin for the ADC channel. */
     volatile uint32_t* pinsPtr[ADC_MAX_PINS];
     Adc_ChannelNumber channelNumber[ADC_MAX_PINS];
     Adc_ChannelMux channelMux[ADC_MAX_PINS];
@@ -98,6 +98,7 @@ static Adc_Device adc0 = {
                           ADC_PINS_PTD1,
                           ADC_PINS_PTD5,
                           ADC_PINS_PTD6,
+                          ADC_PINS_NONE,
 		        },
       .pinsPtr         = {&PORTE_PCR2,
                           &PORTE_PCR3,
@@ -249,6 +250,7 @@ static Adc_Device adc1 = {
                             ADC_PINS_PTC9,
                             ADC_PINS_PTC10,
                             ADC_PINS_PTC11,
+                            ADC_PINS_NONE,
         },
 
         .pinsPtr         = {&PORTE_PCR0,
@@ -406,6 +408,10 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config
     /* Enable the clock to the selected ADC */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
+    /* Disable conversion */
+    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+    ADC_SC1_REG(regmap,1) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+
     /* If call back exist save it */
     if (callback)
     {
@@ -560,6 +566,30 @@ void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
 
     for (devPinIndex = 0; devPinIndex < ADC_MAX_PINS; ++devPinIndex)
     {
+        if (dev->pins[devPinIndex] == ADC_PINS_NONE) break;
+
+        /* Pins haven't PORT register */
+        if ((pin == ADC_PINS_ADC0_DP1) ||
+            (pin == ADC_PINS_ADC0_DM1) ||
+            (pin == ADC_PINS_ADC0_DP0) ||
+            (pin == ADC_PINS_ADC0_DM0) ||
+            (pin == ADC_PINS_ADC0_DP3) ||
+            (pin == ADC_PINS_ADC0_DM3) ||
+            (pin == ADC_PINS_ADC0_SE22) ||
+            (pin == ADC_PINS_ADC0_SE16) ||
+            (pin == ADC_PINS_ADC0_SE21) ||
+            (pin == ADC_PINS_ADC0_SE23) ||
+            (pin == ADC_PINS_ADC1_DP1) ||
+            (pin == ADC_PINS_ADC1_DM1) ||
+            (pin == ADC_PINS_ADC1_DP3) ||
+            (pin == ADC_PINS_ADC1_DM3) ||
+            (pin == ADC_PINS_ADC1_DP0) ||
+            (pin == ADC_PINS_ADC1_DM0) ||
+            (pin == ADC_PINS_ADC1_SE16) ||
+            (pin == ADC_PINS_ADC1_SE18) ||
+            (pin == ADC_PINS_ADC1_SE23))
+            break;
+
         if (dev->pins[devPinIndex] == pin)
         {
             *(dev->pinsPtr[devPinIndex]) =

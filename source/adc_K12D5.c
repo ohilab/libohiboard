@@ -50,7 +50,7 @@ typedef struct Adc_Device {
     void (*callback)(void);      /**< The function pointer for user callback. */
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
-    Adc_Pins pins[ADC_MAX_PINS];    /**< List of the pin for the FTM channel. */
+    Adc_Pins pins[ADC_MAX_PINS+1];  /**< List of the pin for the ADC channel. */
     volatile uint32_t* pinsPtr[ADC_MAX_PINS];
     Adc_ChannelNumber channelNumber[ADC_MAX_PINS];
     Adc_ChannelMux channelMux[ADC_MAX_PINS];
@@ -89,6 +89,7 @@ static Adc_Device adc0 = {
                           ADC_PINS_PTD4,
                           ADC_PINS_PTD7,
                           ADC_PINS_SE23,
+                          ADC_PINS_NONE,
         },
 
         .pinsPtr       = {0,//&ADC_PINS_ADC0_DP0,
@@ -213,11 +214,11 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
 
     if (dev->devInitialized) return ERRORS_ADC_DEVICE_JUST_INIT;
 
-    /* Disable conversion */
-    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
-
     /* Enable the clock to the selected ADC */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
+
+    /* Disable conversion */
+    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
 
     /* If call back exist save it */
     if (callback)
@@ -379,6 +380,13 @@ void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
     for (devPinIndex = 0; devPinIndex < ADC_MAX_PINS; ++devPinIndex)
     {
         if (dev->pins[devPinIndex] == ADC_PINS_NONE) break;
+
+        /* Pins haven't PORT register */
+        if ((pin == ADC_PINS_DP0) ||
+            (pin == ADC_PINS_DP1) ||
+            (pin == ADC_PINS_DP3) ||
+            (pin == ADC_PINS_SE23))
+            break;
 
     	if (dev->pins[devPinIndex] == pin)
         {
