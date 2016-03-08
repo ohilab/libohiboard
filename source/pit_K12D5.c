@@ -58,11 +58,6 @@ typedef struct Pit_Device
     bool isInitialized[PIT_MAX_NUMBER];
 } Pit_Device;
 
-void Pit_isrPit0 (void);
-void Pit_isrPit1 (void);
-void Pit_isrPit2 (void);
-void Pit_isrPit3 (void);
-
 static Pit_Device pit0 = {
     .regMap           = PIT_BASE_PTR,
 
@@ -70,10 +65,10 @@ static Pit_Device pit0 = {
     .simScgcBitEnable = SIM_SCGC6_PIT_MASK,
 
     .isr              = {
-                        Pit_isrPit0,
-                        Pit_isrPit1,
-                        Pit_isrPit2,
-                        Pit_isrPit3
+                        PIT0_IRQHandler,
+                        PIT1_IRQHandler,
+                        PIT2_IRQHandler,
+                        PIT3_IRQHandler
     },
     .isrNumber        = {
                         INTERRUPT_PIT0,
@@ -97,25 +92,25 @@ static Pit_Device pit0 = {
 };
 Pit_DeviceHandle OB_PIT0 = &pit0;
 
-void Pit_isrPit0 (void)
+void PIT0_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,0) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[0]();
 }
 
-void Pit_isrPit1 (void)
+void PIT1_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,1) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[1]();
 }
 
-void Pit_isrPit2 (void)
+void PIT2_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,2) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[2]();
 }
 
-void Pit_isrPit3 (void)
+void PIT3_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,3) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[3]();

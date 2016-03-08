@@ -48,10 +48,10 @@ typedef struct _Pit_Config
 
 #if defined (LIBOHIBOARD_K12D5)
 
-void Pit_isrPit0 (void);
-void Pit_isrPit1 (void);
-void Pit_isrPit2 (void);
-void Pit_isrPit3 (void);
+void PIT0_IRQHandler (void);
+void PIT1_IRQHandler (void);
+void PIT2_IRQHandler (void);
+void PIT3_IRQHandler (void);
 
 extern Pit_DeviceHandle OB_PIT0;
 
