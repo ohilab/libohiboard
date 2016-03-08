@@ -650,10 +650,16 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
                              Adc_ChannelNumber channel, 
                              uint16_t *value,
                              Adc_InputType type);
+System_Errors Adc_readValueFromInterrupt (Adc_DeviceHandle dev, uint16_t *value);
 
 System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
                                        Adc_ChannelConfig* config,
                                        uint8_t numChannel);
+
+/**
+ * See AN4662 for info in calibration process.
+ */
+System_Errors Adc_calibration (Adc_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
 	defined (LIBOHIBOARD_KL02Z4)    || \

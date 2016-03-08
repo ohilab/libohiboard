@@ -34,6 +34,7 @@
 
 #include "platforms.h"
 #include "interrupt.h"
+#include "clock.h"
 #include "adc.h"
 
 #if defined (LIBOHIBOARD_K12D5)
@@ -212,7 +213,8 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     System_Errors errore = ERRORS_NO_ERROR;
     uint8_t clkdiv = 0;
 
-    if (dev->devInitialized) return ERRORS_ADC_DEVICE_JUST_INIT;
+    /* In this way it is not reconfigurable! */
+//    if (dev->devInitialized) return ERRORS_ADC_DEVICE_JUST_INIT;
 
     /* Enable the clock to the selected ADC */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
@@ -229,6 +231,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     }
 
     /*setting clock source and divider*/
+    ADC_CFG1_REG(regmap) &= ~ADC_CFG1_ADIV_MASK;
     switch (config->clkDiv)
     {
     case 1:
@@ -247,6 +250,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     	return errore = ERRORS_ADC_DIVIDER_NOT_FOUND;
     }
 
+    ADC_CFG1_REG(regmap) &= ~ADC_CFG1_ADICLK_MASK;
     switch (config->clkSource)
     {
     case ADC_BUS_CLOCK:
@@ -263,7 +267,8 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     	break;
     }
 
-    /*Setting Sample Time*/
+    /* Setting Sample Time */
+    ADC_CFG1_REG(regmap) &= ~(ADC_CFG1_ADLSMP_MASK | ADC_CFG2_ADLSTS_MASK);
     switch (config->sampleLength)
     {
     case ADC_SHORT_SAMPLE:
@@ -310,6 +315,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     }
 
     /*setting resoluton*/
+    ADC_CFG1_REG(regmap) &= ~ADC_CFG1_MODE_MASK;
     switch (config->resolution)
     {
     case ADC_RESOLUTION_8BIT:
@@ -327,17 +333,19 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
 	}
 
     /* Select voltage reference*/
+    ADC_SC2_REG(regmap) &= ~ADC_SC2_REFSEL_MASK;
     switch (config->voltRef)
     {
     case ADC_VREF:
-    	ADC_SC2_REG(regmap) = ADC_SC2_REFSEL(0);
+    	ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(0);
         break;
     case ADC_VALT:
-    	ADC_SC2_REG(regmap) = ADC_SC2_REFSEL(1);
+    	ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(1);
         break;
     }
 
     /* Select the average */
+    ADC_SC3_REG(regmap) &= ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK);
     switch (config->average)
     {
     case ADC_AVERAGE_1_SAMPLES:
@@ -345,16 +353,16 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     	ADC_SC3_REG(regmap) &= ~ADC_SC3_AVGE_MASK;
         break;
     case ADC_AVERAGE_4_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0);
         break;
     case ADC_AVERAGE_8_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(1);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(1);
         break;
     case ADC_AVERAGE_16_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(2);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(2);
         break;
     case ADC_AVERAGE_32_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
         break;
     }
 
@@ -363,10 +371,9 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config
     else
         ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
 
-    /* Reset calibration flag */
-//    ADC_SC3_REG(regmap) |= ADC_SC3_CALF_MASK;
-//    if (config->doCalibration)
-//        Adc_calibration(dev);
+    /* Calibration flag */
+    if (config->doCalibration)
+        Adc_calibration(dev);
 
     dev->devInitialized = 1;
 
@@ -407,6 +414,8 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
     ADC_MemMapPtr regmap = dev->regMap;
     uint8_t channelIndex;
     Adc_ChannelMux channelMux;
+
+    if (!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
 
     if (channel != ADC_CH_DISABLE)
     {
@@ -467,6 +476,8 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
 {
     uint8_t i;
 
+    if (!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
+
     if (numChannel > ADC_MAX_CHANNEL_NUMBER)
         return ERRORS_ADC_NUMCH_WRONG;
 
@@ -480,6 +491,82 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
                                      ((config[i].inputType << ADC_SC1_DIFF_SHIFT) & ADC_SC1_DIFF_MASK);
     }
     ADC_SC2_REG(dev->regMap) |=ADC_SC2_ADTRG_MASK;
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Adc_readValueFromInterrupt (Adc_DeviceHandle dev, uint16_t *value)
+{
+    *value = (uint16_t) ADC_R_REG(dev->regMap,0);
+}
+
+System_Errors Adc_calibration (Adc_DeviceHandle dev)
+{
+    ADC_MemMapPtr regmap = dev->regMap;
+    uint16_t calibration;
+    uint32_t busClock = Clock_getFrequency(CLOCK_BUS);
+
+    uint32_t regSC3  = ADC_SC3_REG(regmap);
+    uint32_t regSC2  = ADC_SC2_REG(regmap);
+    uint32_t regCFG1 = ADC_CFG1_REG(regmap);
+
+    if (!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
+
+    /* Set registers and clock for a better calibration */
+    ADC_SC3_REG(regmap) &= ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK | ADC_SC3_ADCO_MASK);
+    ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
+
+    ADC_SC2_REG(regmap) &= ~ADC_SC2_REFSEL_MASK;
+    ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(0);
+
+    ADC_CFG1_REG(regmap) &= ~(ADC_CFG1_ADIV_MASK | ADC_CFG1_ADICLK_MASK);
+    if (busClock < 32000000)
+        ADC_CFG1_REG(regmap) |= ADC_CFG1_ADIV(3);
+    else
+        ADC_CFG1_REG(regmap) |= ADC_CFG1_ADIV(3) | ADC_CFG1_ADICLK_MASK;
+
+    /* Start calibration */
+    ADC_SC3_REG(regmap) |= ADC_SC3_CAL_MASK;
+    /* wait calibration ended */
+    while ((ADC_SC1_REG(regmap,0) & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
+    /* Check error */
+    if(ADC_SC3_REG(regmap) & ADC_SC3_CALF_MASK)
+    {
+        /* Restore register */
+        ADC_SC3_REG(regmap) = regSC3;
+        ADC_SC2_REG(regmap) = regSC2;
+        ADC_CFG1_REG(regmap) = regCFG1;
+        return ERRORS_ADC_CALIBRATION;
+    }
+
+    calibration = 0;
+    calibration += ADC_CLP0_REG(regmap);
+    calibration += ADC_CLP1_REG(regmap);
+    calibration += ADC_CLP2_REG(regmap);
+    calibration += ADC_CLP3_REG(regmap);
+    calibration += ADC_CLP4_REG(regmap);
+    calibration += ADC_CLPS_REG(regmap);
+    calibration = (calibration >> 1U) | 0x8000U; // divide by 2
+    ADC_PG_REG(regmap) = calibration;
+
+    calibration = 0;
+    calibration += ADC_CLM0_REG(regmap);
+    calibration += ADC_CLM1_REG(regmap);
+    calibration += ADC_CLM2_REG(regmap);
+    calibration += ADC_CLM3_REG(regmap);
+    calibration += ADC_CLM4_REG(regmap);
+    calibration += ADC_CLMS_REG(regmap);
+    calibration = (calibration >> 1U) | 0x8000U; // divide by 2
+    ADC_MG_REG(regmap) = calibration;
+
+    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+
+    /* Restore register */
+    ADC_SC3_REG(regmap) = regSC3;
+    ADC_SC2_REG(regmap) = regSC2;
+    ADC_CFG1_REG(regmap) = regCFG1;
+
+    dev->devCalibration = 1;
 
     return ERRORS_NO_ERROR;
 }

@@ -82,8 +82,10 @@ typedef enum _System_Errors
     ERRORS_DAC_DEVICE_JUST_INIT,
 
     ERRORS_ADC_DEVICE_JUST_INIT,
+    ERRORS_ADC_DEVICE_NOT_INIT,                  /**< Device not initialized. */
     ERRORS_ADC_DIVIDER_NOT_FOUND,
     ERRORS_ADC_NUMCH_WRONG,
+    ERRORS_ADC_CALIBRATION,        /**< Error during ADC calibration process. */
 	
 	ERRORS_FTM_OK,
 	ERRORS_FTM_CHANNEL_NOT_FOUND,
