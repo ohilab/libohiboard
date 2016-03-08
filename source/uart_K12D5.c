@@ -362,7 +362,7 @@ uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
     return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
 }
 
-System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config)
+System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
 {
     if (dev->devInitialized) return ERRORS_UART_DEVICE_JUST_INIT;
 
@@ -414,6 +414,24 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
 
     if (config->txPin != UART_PINS_TXNONE)
         Uart_setTxPin(dev, config->txPin);
+
+    /* If call back exist save it */
+    if (config->callbackRx)
+    {
+        dev->callbackRx = config->callbackRx;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* Enable RX interrupt */
+        UART_C2_REG(dev->regMap) |= UART_C2_RIE_MASK;
+    }
+    if (config->callbackTx)
+    {
+        dev->callbackTx = config->callbackTx;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* Enable TX interrupt */
+        UART_C2_REG(dev->regMap) |= UART_C2_TIE_MASK;
+    }
 
     return ERRORS_NO_ERROR;
 }

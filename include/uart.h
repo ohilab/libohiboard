@@ -419,12 +419,19 @@ extern Uart_DeviceHandle UART4;
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
-extern Uart_DeviceHandle UART3;
-extern Uart_DeviceHandle UART4;
-extern Uart_DeviceHandle UART5;
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+void UART3_RX_TX_IRQHandler ();
+void UART4_RX_TX_IRQHandler ();
+void UART5_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
+extern Uart_DeviceHandle OB_UART4;
+extern Uart_DeviceHandle OB_UART5;
 
 #endif
 
@@ -441,6 +448,9 @@ typedef struct _Uart_Config
     Uart_StopBits stop;
     
     uint32_t baudrate;
+
+    void (*callbackRx)(void);  /**< Callback Function to handle RX Interrupt.*/
+    void (*callbackTx)(void);  /**< Callback Function to handle TX Interrupt.*/
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -463,7 +473,14 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 
+#if defined (LIBOHIBOARD_K12D5)      || \
+    defined (LIBOHIBOARD_K64F12)     || \
+	defined (LIBOHIBOARD_FRDMK64F)
+System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
+#else
 System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config);
+#endif
+
 System_Errors Uart_close (Uart_DeviceHandle dev);
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
