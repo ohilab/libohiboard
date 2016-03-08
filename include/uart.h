@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -70,6 +70,7 @@ typedef enum {
     defined (LIBOHIBOARD_FRDMKL25Z)  || \
     defined (LIBOHIBOARD_K10DZ10)    || \
     defined (LIBOHIBOARD_K10D10)     || \
+    defined (LIBOHIBOARD_K12D5)      || \
     defined (LIBOHIBOARD_K60DZ10)    || \
     defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)
@@ -160,6 +161,24 @@ typedef enum
     UART_PINS_PTE9,
     UART_PINS_PTE17,
     UART_PINS_PTE25,
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+
+    UART_PINS_PTB10,
+    UART_PINS_PTB16,
+
+    UART_PINS_PTC3,
+    UART_PINS_PTC16,
+
+    UART_PINS_PTD2,
+    UART_PINS_PTD6,
+
+    UART_PINS_PTE1,
+    UART_PINS_PTE5,
+    UART_PINS_PTE17,
 
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
@@ -279,6 +298,24 @@ typedef enum
     UART_PINS_PTE8,
     UART_PINS_PTE16,
     UART_PINS_PTE24,
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+
+    UART_PINS_PTB11,
+    UART_PINS_PTB17,
+
+    UART_PINS_PTC4,
+    UART_PINS_PTC17,
+
+    UART_PINS_PTD3,
+    UART_PINS_PTD7,
+
+    UART_PINS_PTE0,
+    UART_PINS_PTE4,
+    UART_PINS_PTE16,
     
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
@@ -357,6 +394,18 @@ extern Uart_DeviceHandle UART2;
 extern Uart_DeviceHandle UART3;
 extern Uart_DeviceHandle UART4;
 extern Uart_DeviceHandle UART5;
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+void UART3_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
     defined (LIBOHIBOARD_OHIBOARD_R1)
