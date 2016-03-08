@@ -547,6 +547,14 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
+uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
+{
+    if (dev == UART0)
+        return (UART0_S1_REG(dev->regMap) & UART0_S1_TC_MASK)
+    else
+        return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK)
+}
+
 #endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */
 
 #endif /* LIBOHIBOARD_UART */
