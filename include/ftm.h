@@ -604,6 +604,7 @@ typedef struct Ftm_Config
     Ftm_TriggerChannel triggerChannel;
     bool enableInitTrigger;
     Ftm_SyncEvent syncEvent;
+
     
     /* For Combine mode */
     Ftm_CombineChannelConfig channelPair[FTM_MAX_CHANNEL>>1];
@@ -623,6 +624,7 @@ void Ftm_disableInterrupt (Ftm_DeviceHandle dev);
 
 void Ftm_startCount(Ftm_DeviceHandle dev);
 void Ftm_stopCount(Ftm_DeviceHandle dev);
+uint16_t Ftm_getModule(Ftm_DeviceHandle dev);
 
 /* Set PWM */
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);

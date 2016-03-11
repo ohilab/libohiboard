@@ -85,6 +85,10 @@
 #include "rtc.h"
 #endif
 
+#ifdef LIBOHIBOARD_PDB
+#include "pdb.h"
+#endif
+
 #include "timeday.h"
 
 void test();

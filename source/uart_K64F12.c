@@ -473,7 +473,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
     *dev->simScgcPtr |= dev->simScgcBitEnable;
     
     /* Make sure that the transmitter and receiver are disabled while we change settings. */
-        UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+    UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
     
     /* Clear out receive and transmit buffer */
     UART_CFIFO_REG(dev->regMap) |= UART_CFIFO_RXFLUSH_MASK | UART_CFIFO_TXFLUSH_MASK;

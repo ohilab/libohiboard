@@ -116,6 +116,8 @@ System_Errors Pdb_init (Pdb_DeviceHandle dev, void *callback, Pdb_Config *config
     PDB_SC_REG(dev->regMap) |= PDB_SC_TRGSEL(config->triggerType)  | PDB_SC_LDMOD(config->loadingMode) |
                                PDB_SC_PRESCALER(config->prescaler) | PDB_SC_MULT(config->multiplicator) |
                                PDB_SC_LDOK_MASK | PDB_SC_PDBEN_MASK;
+
+    return ERRORS_NO_ERROR;
 }
 
 /* TODO: INTERRUPT! */

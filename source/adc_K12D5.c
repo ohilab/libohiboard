@@ -514,7 +514,7 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev)
 
     /* Set registers and clock for a better calibration */
     ADC_SC3_REG(regmap) &= ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK | ADC_SC3_ADCO_MASK);
-    ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
+    ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3)|ADC_SC3_CAL_MASK;
 
     ADC_SC2_REG(regmap) &= ~ADC_SC2_REFSEL_MASK;
     ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(0);

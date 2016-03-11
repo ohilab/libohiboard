@@ -36,6 +36,7 @@
 #include "system.h"
 #include "interrupt.h"
 #include "adc.h"
+#include "clock.h"
 
 #if defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)
@@ -385,7 +386,7 @@ void ADC0_IRQHandler (void)
 void ADC1_IRQHandler (void)
 {
     OB_ADC1->callback();
-    ADC_R_REG(OB_ADC0->regMap, 0U);
+    ADC_R_REG(OB_ADC1->regMap, 0U);
 
     if (!(ADC_SC3_REG(OB_ADC1->regMap) & ADC_SC3_ADCO_MASK) &&
         !(ADC_SC2_REG(OB_ADC1->regMap) & ADC_SC2_ADTRG_MASK))
@@ -408,17 +409,15 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config
     /* Enable the clock to the selected ADC */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
-    /* Disable conversion */
-    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
-    ADC_SC1_REG(regmap,1) = ADC_SC1_ADCH(ADC_CH_DISABLE);
 
-    /* If call back exist save it */
-    if (callback)
-    {
-        dev->callback = callback;
-        /* Enable interrupt */
-        Interrupt_enable(dev->isrNumber);
-    }
+
+
+
+    /* Da controllare, quando attivo l'hardwere trigger mode, se non metto uno dei
+     * canali ad un valore diverso da 0x1f l'adc settato per ultimo non parte
+     * */
+    ADC_SC1_REG(regmap,0) =ADC_SC1_ADCH(ADC_CH_DISABLE);
+    ADC_SC1_REG(regmap,1) =ADC_SC1_ADCH(ADC_CH_DISABLE);
 
     /*setting clock source and divider*/
     switch (config->clkDiv)
@@ -490,6 +489,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config
     	break;
     }
 
+
     /*setting single or continuous convertion*/
     switch (config->contConv)
     {
@@ -550,12 +550,26 @@ System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config
         break;
     }
 
+
     if (config->enableHwTrigger)
         ADC_SC2_REG(dev->regMap) |= ADC_SC2_ADTRG_MASK;
     else
         ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
 
+
     dev->devInitialized = 1;
+
+    /* Calibration flag */
+	if (config->doCalibration)
+		Adc_calibration(dev);
+
+    /* If call back exist save it */
+    if (callback)
+    {
+	   dev->callback = callback;
+	   /* Enable interrupt */
+	   Interrupt_enable(dev->isrNumber);
+    }
 
 	return ERRORS_NO_ERROR;
 }
@@ -673,18 +687,95 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
     if (numChannel > ADC_MAX_CHANNEL_NUMBER)
         return ERRORS_ADC_NUMCH_WRONG;
 
+
+
     ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
 
     for(i=0;i<numChannel;i++)
     {
-        ADC_SC1_REG(dev->regMap,i) = 0;
-        ADC_SC1_REG(dev->regMap,i) = ADC_SC1_ADCH(config[i].channel) |
+        ADC_SC1_REG(dev->regMap,i) = 0;// ADC_SC1_ADCH(0);
+        ADC_SC1_REG(dev->regMap,i) = ADC_SC1_ADCH(config[i].channel)|
                                      ADC_SC1_AIEN_MASK |
                                      ((config[i].inputType << ADC_SC1_DIFF_SHIFT) & ADC_SC1_DIFF_MASK);
     }
+
     ADC_SC2_REG(dev->regMap) |=ADC_SC2_ADTRG_MASK;
 
+
     return ERRORS_NO_ERROR;
+}
+
+
+
+System_Errors Adc_calibration (Adc_DeviceHandle dev)
+{
+	ADC_MemMapPtr regmap = dev->regMap;
+	    uint16_t calibration;
+	    uint32_t busClock = Clock_getFrequency(CLOCK_BUS);
+
+	    uint32_t regSC3  = ADC_SC3_REG(regmap);
+	    uint32_t regSC2  = ADC_SC2_REG(regmap);
+	    uint32_t regCFG1 = ADC_CFG1_REG(regmap);
+
+	    if (!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
+
+	    /* Set registers and clock for a better calibration */
+	    ADC_SC3_REG(regmap) &= ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK | ADC_SC3_ADCO_MASK);
+	    ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3)|ADC_SC3_CAL_MASK;
+
+	    ADC_SC2_REG(regmap) &= ~ADC_SC2_REFSEL_MASK;
+	    ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(0);
+
+	    ADC_CFG1_REG(regmap) &= ~(ADC_CFG1_ADIV_MASK | ADC_CFG1_ADICLK_MASK);
+	    if (busClock < 32000000)
+	        ADC_CFG1_REG(regmap) |= ADC_CFG1_ADIV(3);
+	    else
+	        ADC_CFG1_REG(regmap) |= ADC_CFG1_ADIV(3) | ADC_CFG1_ADICLK_MASK;
+
+	    /* Start calibration */
+	    ADC_SC3_REG(regmap) |= ADC_SC3_CAL_MASK;
+	    /* wait calibration ended */
+	    while (ADC_SC3_REG(regmap) & ADC_SC3_CAL_MASK){;};
+	    /* Check error */
+	    if(ADC_SC3_REG(regmap) & ADC_SC3_CALF_MASK)
+	    {
+	        /* Restore register */
+	        ADC_SC3_REG(regmap) = regSC3;
+	        ADC_SC2_REG(regmap) = regSC2;
+	        ADC_CFG1_REG(regmap) = regCFG1;
+	        return ERRORS_ADC_CALIBRATION;
+	    }
+
+	    calibration = 0;
+	    calibration += ADC_CLP0_REG(regmap);
+	    calibration += ADC_CLP1_REG(regmap);
+	    calibration += ADC_CLP2_REG(regmap);
+	    calibration += ADC_CLP3_REG(regmap);
+	    calibration += ADC_CLP4_REG(regmap);
+	    calibration += ADC_CLPS_REG(regmap);
+	    calibration = (calibration >> 1U) | 0x8000U; // divide by 2
+	    ADC_PG_REG(regmap) = calibration;
+
+	    calibration = 0;
+	    calibration += ADC_CLM0_REG(regmap);
+	    calibration += ADC_CLM1_REG(regmap);
+	    calibration += ADC_CLM2_REG(regmap);
+	    calibration += ADC_CLM3_REG(regmap);
+	    calibration += ADC_CLM4_REG(regmap);
+	    calibration += ADC_CLMS_REG(regmap);
+	    calibration = (calibration >> 1U) | 0x8000U; // divide by 2
+	    ADC_MG_REG(regmap) = calibration;
+
+	    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+
+	    /* Restore register */
+	    ADC_SC3_REG(regmap) = regSC3;
+	    ADC_SC2_REG(regmap) = regSC2;
+	    ADC_CFG1_REG(regmap) = regCFG1;
+
+	    dev->devCalibration = 1;
+
+	    return ERRORS_NO_ERROR;
 }
 
 #endif // defined (LIBOHIBOARD_K64F12) || defined (LIBOHIBOARD_FRDMK64F)

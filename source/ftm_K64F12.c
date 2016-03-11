@@ -379,6 +379,11 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
         FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
         dev->callback();
         break;
+    case FTM_MODE_COMBINE:
+		dev->callback();
+		/* Reading SC register and clear TOF bit */
+		FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
+		break;
     default:
         assert(0);
         break;
@@ -760,8 +765,13 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
             FTM_CNTIN_REG(dev->regMap) = modulo-1;
         }
 
+
+
         FTM_SC_REG(dev->regMap) |= FTM_SC_CLKS(1) |
                                    FTM_SC_PS(prescaler);
+
+        /* Enables the loading of the MOD, CNTIN, and CV registers with the values of their write buffers*/
+        FTM_PWMLOAD_REG(dev->regMap) |= FTM_PWMLOAD_LDOK_MASK;
 
         /* For all channels set align type loading type and.....*/
         for (channelIndex=0; channelIndex < channelNum; channelIndex++)
@@ -1071,6 +1081,11 @@ uint8_t Ftm_ResetFault (Ftm_DeviceHandle dev)
     FTM_FMS_REG(dev->regMap) &= ~FTM_FMS_FAULTF_MASK;
     return ((FTM_FMS_REG(dev->regMap) & FTM_FMS_FAULTF_MASK) >> FTM_FMS_FAULTIN_SHIFT);
 
+}
+
+uint16_t Ftm_getModule(Ftm_DeviceHandle dev)
+{
+  return  FTM_MOD_REG(dev->regMap)-FTM_CNTIN_REG(dev->regMap)+1;
 }
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
