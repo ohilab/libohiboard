@@ -382,9 +382,13 @@ extern Uart_DeviceHandle UART2;
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
+void UART0_IRQHandler ();
+void UART1_IRQHandler ();
+void UART2_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
@@ -458,7 +462,7 @@ typedef struct _Uart_Config
     uint8_t oversampling; /* 4 to 32 */
     uint32_t extClk;      /* external frequency or crystal value if clockSource = UART_CLOCKSOURCE_EXT */
 
-#elif defined(LIBOHIBOARD_KL15Z4)      || \
+#elif defined (LIBOHIBOARD_KL15Z4)     || \
       defined (LIBOHIBOARD_KL25Z4)     || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
@@ -473,7 +477,9 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 
-#if defined (LIBOHIBOARD_K12D5)      || \
+#if defined (LIBOHIBOARD_KL25Z4)     || \
+	defined (LIBOHIBOARD_FRDMKL25Z)  || \
+	defined (LIBOHIBOARD_K12D5)      || \
     defined (LIBOHIBOARD_K64F12)     || \
 	defined (LIBOHIBOARD_FRDMK64F)
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
