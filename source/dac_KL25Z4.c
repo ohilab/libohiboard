@@ -63,7 +63,7 @@ static Dac_Device dac0 = {
 };
 
 
-Dac_DeviceHandle DAC0 = &dac0;
+Dac_DeviceHandle OB_DAC0 = &dac0;
 
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
@@ -109,7 +109,7 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     else
         DAC_C0_REG(dev->regMap) &= ~DAC_C0_LPEN_MASK;
 
-    /* FIXME:  Just now we disable DMA */
+
 
     dev->bufferMode = config->buffer;
     if (dev->bufferMode == DAC_BUFFERMODE_OFF)
@@ -118,15 +118,51 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     }
     else
     {
-        // FIXME: buffer mode!
+    	DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+
     }
 
-    // Enable module
+    Dac_setInterruptEvent(dev, config->interruptEvent);
+
+    DAC_C1_REG(dev->regMap) |= ((config->dmaEnable<<DAC_C1_DMAEN_SHIFT)&DAC_C1_DMAEN_MASK);
+    DAC_C1_REG(dev->regMap) |= ((config->dmaEnable<<DAC_C1_DACBFMD_SHIFT)&DAC_C1_DACBFMD_MASK);
+
+    // Enable trigger module
+    DAC_C0_REG(dev->regMap)|= ((config->trigger<<DAC_C0_DACTRGSEL_SHIFT)&DAC_C0_DACTRGSEL_MASK);
+
     DAC_C0_REG(dev->regMap) |= DAC_C0_DACEN_MASK;
 
     dev->devInitialized = 1;
     return ERRORS_NO_ERROR;
 }
+
+
+void Dac_setInterruptEvent(Dac_DeviceHandle dev, Dac_InterruptEvent event)
+{
+	switch(event)
+	{
+	        case DAC_POINTER_TOP:
+	    	break;
+	    	  DAC_C0_REG(dev->regMap)|=DAC_C0_DACBTIEN_MASK;
+
+	        case DAC_POINTER_BOTTOM:
+	          DAC_C0_REG(dev->regMap)|=DAC_C0_DACBBIEN_MASK;
+	        break;
+
+	        case DAC_POINTER_BOOTH:
+	        	DAC_C0_REG(dev->regMap)|=DAC_C0_DACBBIEN_MASK|DAC_C0_DACBTIEN_MASK;
+	        break;
+	}
+	return ERRORS_NO_ERROR;
+}
+
+
+System_Errors enableDmaTrigger(Dac_DeviceHandle dev, Dac_InterruptEvent event)
+{
+	Dac_setInterruptEvent(dev,event);
+	return ERRORS_NO_ERROR;
+}
+
 
 #endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */
 
