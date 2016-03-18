@@ -89,6 +89,10 @@
 #include "pdb.h"
 #endif
 
+#ifdef LIBOHIBOARD_DMA
+#include "dma.h"
+#endif
+
 #include "timeday.h"
 
 void test();

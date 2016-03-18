@@ -47,9 +47,17 @@ typedef enum {
 
 typedef enum 
 {
-    DAC_TRIGGER_HARDWARE,
-    DAC_TRIGGER_SOFTWARE
+    DAC_TRIGGER_HARDWARE = 0x00,
+    DAC_TRIGGER_SOFTWARE = 0x01,
+
 } Dac_TriggerSelect;
+
+//typedef enum
+//{
+//
+//}Dac_TriggerSource;
+
+
 
 typedef enum 
 {
@@ -64,6 +72,24 @@ typedef enum
     DAC_BUFFERMODE_SWING,
     DAC_BUFFERMODE_ONETIME
 } Dac_BufferMode;
+
+
+typedef enum
+{
+	DAC_POINTER_NO_EVENT,
+	DAC_POINTER_TOP,
+	DAC_POINTER_BOTTOM,
+	DAC_POINTER_BOOTH
+
+}Dac_InterruptEvent;
+
+typedef enum
+{
+    DAC_BUFFER_MODE_NORMAL  = 0x0,
+	DAC_BUFFER_MODE_OT_SCAN = 0x1,
+
+}Dac_bufferMode;
+
 
 typedef struct Dac_Device* Dac_DeviceHandle;
 
@@ -82,7 +108,7 @@ extern Dac_DeviceHandle OB_DAC0;
 #elif defined (LIBOHIBOARD_KL25Z4)  || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
-extern Dac_DeviceHandle DAC0;
+extern Dac_DeviceHandle OB_DAC0;
 
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
@@ -101,6 +127,11 @@ typedef struct _Dac_Config
     Dac_TriggerSelect trigger;
     Dac_BufferMode buffer;
 
+    bool dmaEnable;
+    Dac_InterruptEvent interruptEvent;
+    Dac_bufferMode bufferMode;
+
+
 } Dac_Config;
 
 
@@ -108,6 +139,8 @@ typedef struct _Dac_Config
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config);
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
+
+System_Errors enableDmaTrigger(Dac_DeviceHandle dev, Dac_InterruptEvent event);
 
 #endif /* __DAC_H */
 
