@@ -64,7 +64,7 @@ typedef enum
 	DAC_BOTTOM_POINTER = 0x0B,
 	DAC_BOOTH_POINTER  = 0x0C,
 
-	ADC_CONV_COMPLETE  = 0x28,
+	ADC0_CONV_COMPLETE  = 0x28,
 
 
 
@@ -114,6 +114,14 @@ typedef enum
 
 } Dma_TransferModeType;
 
+typedef enum
+{
+	DMA_LINK_CH_0 = 0x0,
+	DMA_LINK_CH_1 = 0x1,
+	DMA_LINK_CH_2 = 0x2,
+	DMA_LINK_CH_3 = 0x3
+
+}Dma_LinkCannel;
 
 
 
@@ -127,34 +135,55 @@ typedef struct dma_ConfigType
 	uint32_t sourceAddress;
 	uint32_t destinationAddress;
 
-	/*source and destination for minor cycle*/
+#if defined(LIBOHIBOARD_K64F12)||\
+		defined(LIBOHIBOARD_FRDMK64F)
+
+	/* Source and destination for minor cycle */
 	uint8_t  sourceOff;
 	uint8_t  destinationOff;
 
-	/*source and destination data size*/
+	/* Last source adjustment */
+	long int  lsAdjust;
+
+	/* Last destination adjustment */
+	long int  ldAdjust;
+
+	/* This is for trigger by pit */
+	uint8_t enableTimerTrig;
+
+#elif defined(LIBOHIBOARD_KL25Z4)
+
+	/* Apply destination or source offset */
+
+	bool incrementSource;
+	bool incrementDestination;
+	bool enableAA;
+	uint8_t sourceModulo;
+	uint8_t destinationModulo;
+	Dma_LinkCannel linkCh1;
+	Dma_LinkCannel linkCh2;
+
+#endif
+
+	/* Source and destination data size */
     Dma_DataSizeType sSize;
     Dma_DataSizeType dSize;
 
-    /*number of byte for request*/
+    /* Number of byte for request */
     uint32_t nByteforReq;
 
-    /*counter of major iteration count*/
+    /* Counter of major iteration count */
     uint32_t nOfCycle;
 
-    /* Transfer mode*/
+    /* Transfer mode */
     Dma_TransferModeType transferMode;
 
-	/*this is for trigger by pit*/
-    uint8_t enableTimerTrig;
+
 
     /* Disable channel after transfer complete */
     bool disableAfterComplete;
 
-    /*last source adjustment*/
-    long int  lsAdjust;
 
-    /*last destination adjustment*/
-    long int  ldAdjust;
 
 
     /*Handler of the peripheral that trigger the DMA */

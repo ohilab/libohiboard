@@ -94,23 +94,29 @@ Dma_DeviceHandle OB_DMA0=&dma0;
 
 System_Errors  dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *callback)
 {
-    switch (config->requestSource)
+
+
+	uint8_t channelSource;
+
+	switch (config->requestSource)
     {
 #ifdef LIBOHIBOARD_UART
        case UART3_RECEIVE:
+         channelSource=UART3_RECEIVE;
        break;
 #endif
 
 #ifdef LIBOHIBOARD_UART
        case UART3_TRANSMIT:
-        // enableDmaTrigger((Uart_DeviceHandle) config->pHandler,UART_TDRE_REQEST);
+         enableDmaTrigger((Uart_DeviceHandle) config->pHandler,UART_TDRE_REQEST);
+         channelSource=UART3_TRANSMIT;
        break;
 #endif
 
 #ifdef LIBOHIBOARD_ADC
-       case ADC_CONV_COMPLETE:
-
+       case ADC0_CONV_COMPLETE:
          enableDmaTrigger((Adc_DeviceHandle)config->pHandler);
+         channelSource=ADC_CONV_COMPLETE;
        break;
 #endif
 
@@ -120,6 +126,7 @@ System_Errors  dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
 	   case DAC_BOTTOM_POINTER:
        case DAC_BOOTH_POINTER:
     	 enableDmaTrigger((Dac_DeviceHandle)config->pHandler, config->requestSource);
+    	 channelSource=0x2D;
        break;
 #endif
 
@@ -141,12 +148,20 @@ System_Errors  dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
     /* Configure number of byte for transfer */
     DMA_DSR_BCR_REG(dev->regMap, config->channel)=DMA_DSR_BCR_BCR(config->nByteforReq);
 
-    DMA_DCR_REG(dev->regMap, config->channel)|= DMA_DCR_ERQ_MASK|((config->transferMode<<DMA_DCR_CS_SHIFT)&DMA_DCR_CS_MASK)|  // Enable peripheral request
-    		                                    ((config->disableAfterComplete<<DMA_DCR_D_REQ_SHIFT)&DMA_DCR_D_REQ_MASK)|     // Disable request after transfer complete
-    		                                    DMA_DCR_SSIZE(config->sSize)|         // Set source size
+    DMA_DCR_REG(dev->regMap, config->channel)|= DMA_DCR_ERQ_MASK|  // Enable peripheral request
+    	                                     	DMA_DCR_CS(config->transferMode)| //Set Cycle mode
+												DMA_DCR_D_REQ(config->disableAfterComplete)|// Disable request after transfer complete
+												DMA_DCR_SSIZE(config->sSize)|         // Set source size
 												DMA_DCR_DSIZE(config->dSize)|         // Set destination size
-												DMA_DCR_DINC(config->sourceOff)|      // Set source increment
-												DMA_DCR_DINC(config->destinationOff);//Set destination offset
+												DMA_DCR_DINC(config->incrementSource)|      // Set source increment
+												DMA_DCR_DINC(config->incrementDestination)|//Set destination offset
+                                                DMA_DCR_AA(config->enableAA)| //Enable Auto align
+												DMA_DCR_SMOD(config->sourceModulo)|
+												DMA_DCR_DMOD(config->destinationModulo)|
+												DMA_DCR_LCH1(config->linkCh1)|
+												DMA_DCR_LCH2(config->linkCh2);
+
+
 
 
     //Enable interrupt done generation
@@ -164,7 +179,7 @@ System_Errors  dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
     }
 
     /*Enable dma Channel source request routing on the channel indicate by config.channel */
-    DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(config->requestSource);
+    DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(channelSource);
 
     dev->deviceInit=TRUE;
 
