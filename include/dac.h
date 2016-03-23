@@ -52,13 +52,6 @@ typedef enum
 
 } Dac_TriggerSelect;
 
-//typedef enum
-//{
-//
-//}Dac_TriggerSource;
-
-
-
 typedef enum 
 {
     DAC_POWERMODE_LOW,
@@ -83,12 +76,7 @@ typedef enum
 
 }Dac_InterruptEvent;
 
-typedef enum
-{
-    DAC_BUFFER_MODE_NORMAL  = 0x0,
-	DAC_BUFFER_MODE_OT_SCAN = 0x1,
 
-}Dac_bufferMode;
 
 
 typedef struct Dac_Device* Dac_DeviceHandle;
@@ -129,8 +117,6 @@ typedef struct _Dac_Config
 
     bool dmaEnable;
     Dac_InterruptEvent interruptEvent;
-    Dac_bufferMode bufferMode;
-
 
 } Dac_Config;
 
