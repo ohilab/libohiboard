@@ -1,8 +1,8 @@
 /******************************************************************************
- * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/dma.c
+ * @file libohiboard/source/dma_KL25Z4.c
  * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief DMA configuration and parameter.
  */
@@ -68,12 +68,12 @@ typedef struct Dma_Device
 
 	void (*irqCallback[MAX_DMA_CHANNEL]) (void);
 
-}Dma_Device;
+} Dma_Device;
 
 
 /* Initialize DMA0 */
 
-static Dma_Device dma0={
+static Dma_Device dma0 = {
 
 		.regMap                  = DMA_BASE_PTR,
 		.regMapMux               = DMAMUX0_BASE_PTR,
@@ -87,15 +87,10 @@ static Dma_Device dma0={
 };
 
 
-Dma_DeviceHandle OB_DMA0=&dma0;
+Dma_DeviceHandle OB_DMA0  = &dma0;
 
-
-
-
-System_Errors  dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *callback)
+System_Errors  Dma_init (Dma_DeviceHandle dev, dma_ConfigType* config, void *callback)
 {
-
-
 	uint8_t channelSource;
 
 	switch (config->requestSource)
