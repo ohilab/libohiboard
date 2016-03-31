@@ -39,7 +39,7 @@
 
 #if defined (LIBOHIBOARD_K12D5)
 
-#define ADC_MAX_PINS  22
+#define ADC_MAX_PINS  26
 
 typedef struct Adc_Device {
     ADC_MemMapPtr regMap;

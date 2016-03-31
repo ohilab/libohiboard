@@ -128,7 +128,7 @@ typedef enum _System_Errors
     ERRORS_ETHERNETIF_RX_SMALL_BUFFERDESCRIPTOR_NUMBER,
     ERRORS_ETHERNETIF_TX_BUFFERDESCRIPTOR_FULL,
 
-    ERROR_DMA_OK,
+
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);

@@ -126,7 +126,7 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
 
-System_Errors enableDmaTrigger(Dac_DeviceHandle dev, Dac_InterruptEvent event);
+//System_Errors enableDmaTrigger(Dac_DeviceHandle dev, Dac_InterruptEvent event);
 
 #endif /* __DAC_H */
 
