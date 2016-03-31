@@ -120,7 +120,7 @@ typedef struct dma_ConfigType
 
     Dma_ChannelType channel;
 
-    Dma_RequestSourceType requestSource;
+//    Dma_RequestSourceType requestSource;
 	uint32_t sourceAddress;
 	uint32_t destinationAddress;
 
@@ -194,7 +194,7 @@ extern Dma_DeviceHandle OB_DMA0;
  *                                                                                                           *
  *************************************************************************************************************/
 
-System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *callback);
+System_Errors  Dma_init(Dma_DeviceHandle dev, void* pHandler, Dma_RequestSourceType request, Dma_ChannelType channel, void *callback);
 
 /*************************************************************************************************************
  *                                                                                                           *
@@ -210,7 +210,7 @@ void Dma_disableChannel(Dma_DeviceHandle dev, Dma_ChannelType channel);
  *                                                                                                           *
  *************************************************************************************************************/
 
-void Dma_startChannel(Dma_DeviceHandle dev, Dma_ChannelType channel, uint16_t transfertNumber, dma_ConfigType* config);
+void Dma_startChannel(Dma_DeviceHandle dev, dma_ConfigType* config);
 
 
 #endif

@@ -33,8 +33,6 @@ typedef struct Dma_Device
     DMA_MemMapPtr    regMap;
     DMAMUX_MemMapPtr regMapMux;
 
-    bool deviceInit;
-
     volatile uint32_t *simScgcPtrDMAMUX;
     volatile uint32_t *simScgcPtrDMA;
 
@@ -43,7 +41,7 @@ typedef struct Dma_Device
 
     uint8_t channelSource[MAX_DMA_CHANNEL];
 
-    void (*irqCallback[MAX_DMA_CHANNEL]) (void);
+    void (*irqCallback[MAX_DMA_CHANNEL]) (void);//(void);
 
 }Dma_Device;
 
@@ -61,7 +59,7 @@ static Dma_Device dma0={
 
         .simScgcBitEnableDMAMUX  = SIM_SCGC6_DMAMUX_MASK,
         .simScgcBitEnableDMA     = SIM_SCGC7_DMA_MASK,
-        .deviceInit              = FALSE,
+
 };
 
 
@@ -69,77 +67,56 @@ Dma_DeviceHandle OB_DMA0=&dma0;
 
 
 
-System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *callback)
+System_Errors  Dma_init(Dma_DeviceHandle dev, void* pHandler, Dma_RequestSourceType request, Dma_ChannelType channel, void *callback)
 {
 
-    uint8_t channelSource;
-
-    switch (config->requestSource)
+     switch (request)
     {
+#ifdef LIBOHIBOARD_UART
+
        case DMA_REQ_UART_RECEIVE:
+           dev->channelSource[channel]=Uart_enableDmaTrigger((Uart_DeviceHandle) pHandler, request);
+
        case DMA_REQ_UART_TRANSMIT:
-           dev->channelSource[config->channel]=Uart_enableDmaTrigger((Uart_DeviceHandle) config->pHandler, config->requestSource);
+           dev->channelSource[channel]=Uart_enableDmaTrigger((Uart_DeviceHandle) pHandler, request);
        break;
+
+#endif
+
+#ifdef LIBOHIBOARD_ADC
 
        case DMA_REQ_ADC_CONV_COMPLETE:
+        //TODO: DMA_REQ_ADC_CONV_COMPLETE
         //   channelSource=enableDmaTrigger((Adc_DeviceHandle)config->pHandler, config->requestSource);
        break;
+
+#endif
     }
 
     /* Enable clock for DMAMUX and DMA */
     *dev->simScgcPtrDMAMUX|=dev->simScgcBitEnableDMAMUX;
     *dev->simScgcPtrDMA|=dev->simScgcBitEnableDMA;
-/******************************************************************************/
-    // Enable request signal for channel indicate by channel
-    DMA_ERQ_REG(dev->regMap) = (1<<config->channel)&0xFF;
 
-    // Set memory address for source and destination
-    DMA_SADDR_REG(dev->regMap,config->channel) = (uint32_t)(config->sourceAddress);
-    DMA_DADDR_REG(dev->regMap,config->channel) = (uint32_t)(config->destinationAddress);
+    /* Reset control and status register */
+    DMA_CSR_REG(dev->regMap, channel) = 0;
 
-    // Set an offset for source and destination address
-    DMA_SOFF_REG(dev->regMap,config->channel) = config->sourceOff; // Source address offset of 2 bits per transaction
-    DMA_DOFF_REG(dev->regMap,config->channel) = config->destinationOff; // Destination address offset of 1 bit per transaction
-
-    // Set source and destination data transfer size
-    DMA_ATTR_REG(dev->regMap,config->channel) = DMA_ATTR_SSIZE(config->sSize) | DMA_ATTR_DSIZE(config->dSize);
-
-    // Number of bytes to be transfered in each service request of the channel
-    DMA_NBYTES_MLNO_REG(dev->regMap,config->channel) =config->nByteforReq;
-
-    // Current major iteration count (a single iteration of 5 bytes)
-    DMA_CITER_ELINKNO_REG(dev->regMap,config->channel) = DMA_BITER_ELINKNO_REG(dev->regMap,config->channel) = config->nOfCycle;
-
-    // Adjustment value used to restore the source and destiny address to the initial value
-    DMA_SLAST_REG(dev->regMap,config->channel) = config->lsAdjust;       // Source address adjustment
-    DMA_DLAST_SGA_REG(dev->regMap,config->channel) = config->ldAdjust;   // Destination address adjustment
-
-
-    // Setup control and status register
-    DMA_CSR_REG(dev->regMap,config->channel) = 0;
-
-/***************************************************************************************/
-
-    //Enable interrupt done generation
+    /* Enable interrupt done generation */
     if (callback)
     {
-        Interrupt_enable(INTERRUPT_DMA0+config->channel);
+        Interrupt_enable(INTERRUPT_DMA0+channel);
 
-        /*Enable the generation of interrupt when the major loop is terminated*/
-        DMA_CSR_REG(dev->regMap,config->channel)|= DMA_CSR_INTMAJOR_MASK;
+        /* Enable the generation of interrupt when the major loop is terminated */
+        DMA_CSR_REG(dev->regMap, channel)|= DMA_CSR_INTMAJOR_MASK;
 
-//        /*enable the dma generation interrupt of channel indicated by config.channel*/
-//        dma->INT|=1<<config->channel;
-
-        dev->irqCallback[config->channel]=callback;
+        dev->irqCallback[channel]=callback;
 
     }
 
-//    /*Enable dma Channel source request routing on the channel indicate by config.channel */
-    DMAMUX_CHCFG_REG(dev->regMapMux,config->channel)=0;
-    DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(dev->channelSource[config->channel]);
+    /* Enable dma Channel source request routing on the channel indicate by config.channel */
+    DMAMUX_CHCFG_REG(dev->regMapMux, channel)=0;
+    DMAMUX_CHCFG_REG(dev->regMapMux, channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(dev->channelSource[channel]);
 
-    return ERROR_DMA_OK;
+    return ERRORS_DMA_OK;
 
 }
 
@@ -149,29 +126,172 @@ void Dma_disableChannel(Dma_DeviceHandle dev, Dma_ChannelType channel)
     DMA_ERQ_REG(dev->regMap)&= (~(1<<channel))&0xFF;
 }
 
-void DMA0_IRQHandler(void)
+
+void Dma_startChannel(Dma_DeviceHandle dev, dma_ConfigType* config)
 {
 
+       /* Set memory address for source and destination */
+        DMA_SADDR_REG(dev->regMap,config->channel) = (uint32_t)(config->sourceAddress);
+        DMA_DADDR_REG(dev->regMap,config->channel) = (uint32_t)(config->destinationAddress);
+
+        /* Set an offset for source and destination address */
+        DMA_SOFF_REG(dev->regMap,config->channel) = config->sourceOff; // Source address offset of 2 bits per transaction
+        DMA_DOFF_REG(dev->regMap,config->channel) = config->destinationOff; // Destination address offset of 1 bit per transaction
+
+        /* Set source and destination data transfer size */
+        DMA_ATTR_REG(dev->regMap,config->channel) = DMA_ATTR_SSIZE(config->sSize) | DMA_ATTR_DSIZE(config->dSize);
+
+        /* Number of bytes to be transfered in each service request of the channel */
+        DMA_NBYTES_MLNO_REG(dev->regMap,config->channel) =config->nByteforReq;
+
+        /* Current major iteration count */
+        DMA_CITER_ELINKNO_REG(dev->regMap,config->channel) = DMA_BITER_ELINKNO_REG(dev->regMap,config->channel) = config->nOfCycle;
+
+        /* Adjustment value used to restore the source and destiny address to the initial value */
+        DMA_SLAST_REG(dev->regMap,config->channel) = config->lsAdjust;       // Source address adjustment
+        DMA_DLAST_SGA_REG(dev->regMap,config->channel) = config->ldAdjust;   // Destination address adjustment
+
+        /* Enable request signal for channel indicate by channel */
+        DMA_ERQ_REG(dev->regMap) |= (1<<config->channel)&0xFF;
+
+}
+
+#endif
+#endif
+
+/*
+ *
+ *                                   Interrupt function definition
+ *
+ */
+
+void DMA0_IRQHandler(void)
+{
     OB_DMA0->irqCallback[DMA_CHANNEL_0]();
 
     /*clear interrupt request 0*/
     DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(1);
 }
 
-void Dma_startChannel(Dma_DeviceHandle dev, Dma_ChannelType channel, uint16_t transfertNumber, dma_ConfigType* config)
+void DMA1_IRQHandler(void)
 {
+    OB_DMA0->irqCallback[DMA_CHANNEL_1]();
 
-        // Set memory address for source and destination
-        DMA_DADDR_REG(dev->regMap,config->channel) = (uint32_t)(config->destinationAddress);
-        /* Set number of iteration of major loop */
-        DMA_CITER_ELINKNO_REG(dev->regMap,config->channel) = DMA_BITER_ELINKNO_REG(dev->regMap,config->channel) = config->nOfCycle;
-        /* Enable dma Channel source request routing on the channel indicate by config.channel */
-        DMAMUX_CHCFG_REG(dev->regMapMux,config->channel)=0;
-        DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(dev->channelSource[config->channel]);
-        /* Enable Channel */
-        DMA_ERQ_REG(dev->regMap)|= (1<<config->channel)&0xFF;
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(2);
 }
 
-#endif
-#endif
+void DMA3_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_3]();
 
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(4);
+}
+
+void DMA4_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_4]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(8);
+}
+
+
+void DMA5_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_5]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(16);
+}
+
+
+void DMA6_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_6]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(32);
+}
+
+
+void DMA7_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_7]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(64);
+}
+
+
+void DMA8_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_8]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(128);
+}
+
+
+void DMA9_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_9]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(256);
+}
+
+
+void DMA10_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_10]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(512);
+}
+
+
+void DMA11_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_11]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(1024);
+}
+
+
+void DMA12_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_12]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(2048);
+}
+
+
+void DMA13_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_13]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(4096);
+}
+
+
+void DMA14_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_14]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(8192);
+}
+
+
+void DMA15_IRQHandler(void)
+{
+    OB_DMA0->irqCallback[DMA_CHANNEL_15]();
+
+    /*clear interrupt request 0*/
+    DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(16384);
+}

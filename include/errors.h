@@ -115,7 +115,7 @@ typedef enum _System_Errors
     ERROR_PTB_DEVICE_WRONG,                  /**< Device triggered not exist. */
     ERROR_PTB_DEVICE_NOT_INIT,
 
-	ERROR_DMA_OK, /* Initialization ok */
+	ERRORS_DMA_OK, /* Initialization ok */
 
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
