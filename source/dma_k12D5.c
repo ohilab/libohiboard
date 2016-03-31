@@ -41,6 +41,8 @@ typedef struct Dma_Device
     uint32_t simScgcBitEnableDMAMUX;
     uint32_t simScgcBitEnableDMA;
 
+    uint8_t channelSource[MAX_DMA_CHANNEL];
+
     void (*irqCallback[MAX_DMA_CHANNEL]) (void);
 
 }Dma_Device;
@@ -76,7 +78,7 @@ System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
     {
        case DMA_REQ_UART_RECEIVE:
        case DMA_REQ_UART_TRANSMIT:
-           channelSource=Uart_enableDmaTrigger((Uart_DeviceHandle) config->pHandler, config->requestSource);
+           dev->channelSource[config->channel]=Uart_enableDmaTrigger((Uart_DeviceHandle) config->pHandler, config->requestSource);
        break;
 
        case DMA_REQ_ADC_CONV_COMPLETE:
@@ -87,7 +89,7 @@ System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
     /* Enable clock for DMAMUX and DMA */
     *dev->simScgcPtrDMAMUX|=dev->simScgcBitEnableDMAMUX;
     *dev->simScgcPtrDMA|=dev->simScgcBitEnableDMA;
-
+/******************************************************************************/
     // Enable request signal for channel indicate by channel
     DMA_ERQ_REG(dev->regMap) = (1<<config->channel)&0xFF;
 
@@ -116,7 +118,7 @@ System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
     // Setup control and status register
     DMA_CSR_REG(dev->regMap,config->channel) = 0;
 
-
+/***************************************************************************************/
 
     //Enable interrupt done generation
     if (callback)
@@ -133,9 +135,9 @@ System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
 
     }
 
-    /*Enable dma Channel source request routing on the channel indicate by config.channel */
+//    /*Enable dma Channel source request routing on the channel indicate by config.channel */
     DMAMUX_CHCFG_REG(dev->regMapMux,config->channel)=0;
-    DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(channelSource);
+    DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(dev->channelSource[config->channel]);
 
     return ERROR_DMA_OK;
 
@@ -156,6 +158,19 @@ void DMA0_IRQHandler(void)
     DMA_INT_REG(OB_DMA0->regMap)|=DMA_INT_INT0(1);
 }
 
+void Dma_startChannel(Dma_DeviceHandle dev, Dma_ChannelType channel, uint16_t transfertNumber, dma_ConfigType* config)
+{
+
+        // Set memory address for source and destination
+        DMA_DADDR_REG(dev->regMap,config->channel) = (uint32_t)(config->destinationAddress);
+        /* Set number of iteration of major loop */
+        DMA_CITER_ELINKNO_REG(dev->regMap,config->channel) = DMA_BITER_ELINKNO_REG(dev->regMap,config->channel) = config->nOfCycle;
+        /* Enable dma Channel source request routing on the channel indicate by config.channel */
+        DMAMUX_CHCFG_REG(dev->regMapMux,config->channel)=0;
+        DMAMUX_CHCFG_REG(dev->regMapMux,config->channel) |= DMAMUX_CHCFG_ENBL_MASK | DMAMUX_CHCFG_SOURCE(dev->channelSource[config->channel]);
+        /* Enable Channel */
+        DMA_ERQ_REG(dev->regMap)|= (1<<config->channel)&0xFF;
+}
 
 #endif
 #endif

@@ -660,6 +660,11 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
                                        Adc_ChannelConfig* config,
                                        uint8_t numChannel);
 
+
+System_Errors enableDmaTrigger(Adc_DeviceHandle dev);
+
+
+
 /**
  * See AN4662 for info in calibration process.
  */

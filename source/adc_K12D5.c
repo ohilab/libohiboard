@@ -71,6 +71,9 @@ static Adc_Device adc0 = {
         .pins          = {ADC_PINS_DP0,
                           ADC_PINS_DP1,
                           ADC_PINS_DP3,
+                          ADC_PINS_DP0,
+                          ADC_PINS_DP1,
+                          ADC_PINS_DP3,
                           ADC_PINS_PTE16,
                           ADC_PINS_PTE17,
                           ADC_PINS_PTE18,
@@ -95,6 +98,9 @@ static Adc_Device adc0 = {
 
         .pinsPtr       = {0,//&ADC_PINS_ADC0_DP0,
                           0,//&ADC_PINS_ADC0_DP1,
+                          0,//&ADC_PINS_ADC0_DP3,
+                          0,//&ADC_PINS_ADC0_DM0,
+                          0,//&ADC_PINS_ADC0_DM1,
                           0,//&ADC_PINS_ADC0_DP3,
                           &PORTE_PCR16,
                           &PORTE_PCR17,
@@ -200,11 +206,12 @@ Adc_DeviceHandle OB_ADC0 = &adc0;
 void ADC0_IRQHandler (void)
 {
     OB_ADC0->callback();
-    ADC_R_REG(OB_ADC0->regMap, 0U);
+    //ADC_R_REG(OB_ADC0->regMap, 0U);
+    //ADC_R_REG(OB_ADC0->regMap, 1U);
 
-    if (!(ADC_SC3_REG(OB_ADC0->regMap) & ADC_SC3_ADCO_MASK) &&
-        !(ADC_SC2_REG(OB_ADC0->regMap) & ADC_SC2_ADTRG_MASK))
-        ADC_SC1_REG(OB_ADC0->regMap,0) |= ADC_SC1_ADCH(ADC_CH_DISABLE);
+//    if (!(ADC_SC3_REG(OB_ADC0->regMap) & ADC_SC3_ADCO_MASK) &&
+//        !(ADC_SC2_REG(OB_ADC0->regMap) & ADC_SC2_ADTRG_MASK))
+//        ADC_SC1_REG(OB_ADC0->regMap,0) |= ADC_SC1_ADCH(ADC_CH_DISABLE);
 }
 
 System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config)
@@ -481,7 +488,7 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
     if (numChannel > ADC_MAX_CHANNEL_NUMBER)
         return ERRORS_ADC_NUMCH_WRONG;
 
-    ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
+    //ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
 
     for(i=0;i<numChannel;i++)
     {
@@ -499,6 +506,16 @@ System_Errors Adc_readValueFromInterrupt (Adc_DeviceHandle dev, uint16_t *value)
 {
     *value = (uint16_t) ADC_R_REG(dev->regMap,0);
 }
+
+System_Errors enableDmaTrigger(Adc_DeviceHandle dev)
+{
+    if(!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
+
+    ADC_SC2_REG(dev->regMap)|=ADC_SC2_DMAEN_MASK; //enable dma request
+    ADC_SC3_REG(dev->regMap)=0;//reset all pending status
+}
+
+
 
 System_Errors Adc_calibration (Adc_DeviceHandle dev)
 {

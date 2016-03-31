@@ -46,6 +46,10 @@
 #include "errors.h"
 #include "types.h"
 
+#ifdef LIBOHIBOARD_DMA
+ #include "dma.h"
+#endif
+
 typedef enum {
     UART_PARITY_NONE,
     UART_PARITY_EVEN,
@@ -440,6 +444,7 @@ extern Uart_DeviceHandle OB_UART5;
 #endif
 
 
+
 typedef struct _Uart_Config
 {
     Uart_RxPins rxPin;
@@ -496,6 +501,11 @@ void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendStringln (Uart_DeviceHandle dev, const char* text);
 void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
 void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
+
+#ifdef LIBOHIBOARD_DMA
+uint8_t Uart_enableDmaTrigger(Uart_DeviceHandle dev,Dma_RequestSourceType request);
+uint32_t* Uart_getRxRegisterAddress(Uart_DeviceHandle dev);
+#endif
 
 #endif /* __UART_H */
 

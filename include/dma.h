@@ -204,6 +204,13 @@ System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *call
 
 void Dma_disableChannel(Dma_DeviceHandle dev, Dma_ChannelType channel);
 
+/*************************************************************************************************************
+ *                                                                                                           *
+ *                            This function start pre-configured a DMA Channel                                     *
+ *                                                                                                           *
+ *************************************************************************************************************/
+
+void Dma_startChannel(Dma_DeviceHandle dev, Dma_ChannelType channel, uint16_t transfertNumber, dma_ConfigType* config);
 
 
 #endif

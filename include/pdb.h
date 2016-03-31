@@ -54,10 +54,15 @@
 
 typedef enum
 {
+
+    PDB_DEVICETRIGGERED_ADC0 = 0,
+
+
 #if defined (LIBOHIBOARD_K64F12) || \
     defined (LIBOHIBOARD_FRDMK64F)
 
-    PDB_DEVICETRIGGERED_ADC0 = 0,
+
+
     PDB_DEVICETRIGGERED_ADC1 = 1,
     PDB_DEVICETRIGGERED_DAC0 = 2,
     PDB_DEVICETRIGGERED_DAC1 = 3,
@@ -68,7 +73,8 @@ typedef enum
 typedef enum
 {
 #if defined (LIBOHIBOARD_K64F12) || \
-    defined (LIBOHIBOARD_FRDMK64F)
+    defined (LIBOHIBOARD_FRDMK64F)||\
+	defined(LIBOHIBOARD_K12D5)
 
     PDB_TRIGGERTYPE_EXT    = 0,
     PDB_TRIGGERTYPE_CMP0   = 1,
@@ -122,14 +128,15 @@ typedef struct _Pdb_Config
     uint8_t prescaler;
     uint8_t loadingMode;
     bool enableErrorInterrupt;
-    bool enableContinus;
+    //bool enableContinus;
 
 } Pdb_Config;
 
 typedef struct Pdb_Device* Pdb_DeviceHandle;
 
 #if defined (LIBOHIBOARD_K64F12) || \
-    defined (LIBOHIBOARD_FRDMK64F)
+    defined (LIBOHIBOARD_FRDMK64F)||\
+    defined(LIBOHIBOARD_K12D5)
 
 extern Pdb_DeviceHandle OB_PDB0;
 

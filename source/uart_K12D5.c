@@ -33,6 +33,8 @@
 
 #if defined (LIBOHIBOARD_K12D5)
 
+
+
 #include "uart.h"
 
 #include "interrupt.h"
@@ -61,6 +63,9 @@ typedef struct Uart_Device
     void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
     void (*callbackTx)(void); /**< The function pointer for user Tx callback. */
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
+    uint8_t dmaTransmitCh;
+    uint8_t dmaReceiveCh;
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
@@ -108,6 +113,9 @@ static Uart_Device uart0 = {
         .callbackRx       = 0,
         .callbackTx       = 0,
 
+        .dmaReceiveCh     = 0x2,
+        .dmaTransmitCh    = 0x3,
+
         .devInitialized = 0,
 };
 Uart_DeviceHandle OB_UART0 = &uart0;
@@ -143,6 +151,9 @@ static Uart_Device uart1 = {
         .callbackRx       = 0,
         .callbackTx       = 0,
 
+        .dmaReceiveCh     = 0x4,
+        .dmaTransmitCh    = 0x5,
+
         .devInitialized = 0,
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
@@ -177,6 +188,9 @@ static Uart_Device uart2 = {
         .isrNumber        = INTERRUPT_UART2,
         .callbackRx       = 0,
         .callbackTx       = 0,
+
+        .dmaReceiveCh     = 0x6,
+        .dmaTransmitCh    = 0x7,
 
         .devInitialized = 0,
 };
@@ -218,6 +232,9 @@ static Uart_Device uart3 = {
         .isrNumber        = INTERRUPT_UART3,
         .callbackRx       = 0,
         .callbackTx       = 0,
+
+        .dmaReceiveCh     = 0x8,
+        .dmaTransmitCh    = 0x9,
 
         .devInitialized = 0,
 };
@@ -492,6 +509,41 @@ uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
 {
     return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK);
 }
+
+
+/* Only if defined DMA library*/
+#ifdef LIBOHIBOARD_DMA
+
+uint8_t Uart_enableDmaTrigger(Uart_DeviceHandle dev,Dma_RequestSourceType request)
+{
+
+    switch (request)
+    {
+      case DMA_REQ_UART_TRANSMIT:
+
+        UART_C5_REG(dev->regMap)|=UART_C5_TDMAS_MASK;
+        UART_C2_REG(dev->regMap)|=UART_C2_TIE_MASK;
+        return dev->dmaTransmitCh;
+      break;
+
+      case DMA_REQ_UART_RECEIVE:
+        return dev->dmaReceiveCh;
+      break;
+
+    }
+}
+
+
+
+uint32_t* Uart_getRxRegisterAddress(Uart_DeviceHandle dev)
+{
+  return (uint32_t *)&UART_D_REG(dev->regMap);
+}
+
+
+
+#endif
+
 
 #endif /* LIBOHIBOARD_K12D5 */
 

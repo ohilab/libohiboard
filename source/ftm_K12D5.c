@@ -246,7 +246,7 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     case FTM_MODE_PWM:
     case FTM_MODE_FREE:
         /* Reading SC register and clear TOF bit */
-        FTM_SC_REG(dev->regMap) |= FTM_SC_TOF_MASK;
+        FTM_SC_REG(dev->regMap) &=~FTM_SC_TOF_MASK;
         dev->callback();
         break;
     default:
@@ -273,7 +273,8 @@ void FTM2_IRQHandler (void)
 static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_t timerFrequency)
 {
     uint32_t clock = Clock_getFrequency(CLOCK_BUS);
-    uint8_t prescaler;
+    uint8_t  prescaler;
+
 
     if (dev->mode == FTM_MODE_INPUT_CAPTURE)
         prescaler = (clock / timerFrequency);
@@ -413,6 +414,12 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     /* Enable the clock to the selected FTM */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
+/*rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr*/
+
+   // FTM_SC_REG(dev->regMap)=0;
+    FTM_FMS_REG(dev->regMap)&=~FTM_FMS_WPEN_MASK;
+ //   FTM_MODE_REG(dev->regMap)|=FTM_MODE_FTMEN_MASK;
+/*rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr*/
     /* If call back exist save it */
     if (callback)
     {
@@ -499,10 +506,10 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     case FTM_MODE_FREE:
 
         /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
+        prescaler =Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
 
         /* Compute timer modulo */
-        modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
+        modulo =Ftm_computeModulo(config->timerFrequency,prescaler);
 
         FTM_CNTIN_REG(dev->regMap) = FTM_CNTIN_INIT(config->initCounter);
         FTM_MOD_REG(dev->regMap) = modulo - 1;
@@ -523,6 +530,10 @@ void Ftm_enableInterrupt (Ftm_DeviceHandle dev)
     FTM_SC_REG(dev->regMap) &=~ FTM_SC_TOIE_MASK;
     /* set to zero cont */
     FTM_CNT_REG(dev->regMap) = 0;
+
+    /* Clear pending interrupt*/
+    FTM_SC_REG(dev->regMap) &=~ FTM_SC_TOF_MASK;
+
     /* enable interrupt */
     FTM_SC_REG(dev->regMap) |= FTM_SC_TOIE_MASK;
 }
