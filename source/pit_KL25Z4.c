@@ -1,7 +1,7 @@
 /* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,15 +23,15 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/pit_K64F12.c
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief PIT implementations for K64F12 and FRDMK64F.
+ * @file libohiboard/source/pit_KL25Z4.c
+ * @author Matteo Civale <matteo.civale@gmail.com>
+ * @brief PIT implementations for KL25Z4 and FRDMKL25Z.
  */
 
 #ifdef LIBOHIBOARD_PIT
 
-#if defined (LIBOHIBOARD_KL25Z4)
-
+#if defined (LIBOHIBOARD_KL25Z4) || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 
 #include "platforms.h"
 
@@ -59,10 +59,6 @@ typedef struct Pit_Device
     bool isInitialized[PIT_MAX_NUMBER];
 } Pit_Device;
 
-//void Pit_isrPit0 (void);
-//void Pit_isrPit1 (void);
-//void Pit_isrPit2 (void);
-//void Pit_isrPit3 (void);
 
 static Pit_Device pit0 = {
     .regMap           = PIT_BASE_PTR,
@@ -72,7 +68,6 @@ static Pit_Device pit0 = {
 
     .isr              = {
     		            PIT_IRQHandler
-
     },
     .isrNumber        = {
                         INTERRUPT_PIT,
@@ -87,7 +82,6 @@ static Pit_Device pit0 = {
     },
 };
 Pit_DeviceHandle OB_PIT0 = &pit0;
-
 
 void PIT_IRQHandler (void)
 {
@@ -133,7 +127,7 @@ System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* conf
 
     if (callback)
     {
-    	PIT_TFLG_REG(dev->regMap,config->number)|=PIT_TFLG_TIF_MASK;//reset interrupt
+    	PIT_TFLG_REG(dev->regMap,config->number) |= PIT_TFLG_TIF_MASK; //reset interrupt
     	PIT_TCTRL_REG(dev->regMap,config->number) |= PIT_TCTRL_TIE_MASK;
         dev->callback[config->number] = callback;
         /* Enable interrupt */
@@ -170,6 +164,6 @@ System_Errors Pit_stop (Pit_DeviceHandle dev, uint8_t number)
     PIT_TCTRL_REG(dev->regMap,number) &= ~PIT_TCTRL_TEN_MASK;
     return ERRORS_NO_ERROR;
 }
-#endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
+#endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */
 
 #endif /* LIBOHIBOARD_PIT */

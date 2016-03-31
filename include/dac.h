@@ -66,18 +66,13 @@ typedef enum
     DAC_BUFFERMODE_ONETIME
 } Dac_BufferMode;
 
-
 typedef enum
 {
-	DAC_POINTER_NO_EVENT,
-	DAC_POINTER_TOP,
-	DAC_POINTER_BOTTOM,
-	DAC_POINTER_BOOTH
-
+	DAC_INTERRUPTEVENT_NO_EVENT,
+	DAC_INTERRUPTEVENT_TOP,
+	DAC_INTERRUPTEVENT_BOTTOM,
+	DAC_INTERRUPTEVENT_BOOTH
 }Dac_InterruptEvent;
-
-
-
 
 typedef struct Dac_Device* Dac_DeviceHandle;
 
@@ -119,8 +114,6 @@ typedef struct _Dac_Config
     Dac_InterruptEvent interruptEvent;
 
 } Dac_Config;
-
-
 
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config);
 

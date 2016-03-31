@@ -3,6 +3,7 @@
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +27,13 @@
 /**
  * @file libohiboard/source/uart_K12D5.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief UART implementations.
  */
 
 #ifdef LIBOHIBOARD_UART
 
 #if defined (LIBOHIBOARD_K12D5)
-
-
 
 #include "uart.h"
 
@@ -510,40 +510,31 @@ uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
     return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK);
 }
 
-
 /* Only if defined DMA library*/
 #ifdef LIBOHIBOARD_DMA
 
-uint8_t Uart_enableDmaTrigger(Uart_DeviceHandle dev,Dma_RequestSourceType request)
+uint8_t Uart_enableDmaTrigger (Uart_DeviceHandle dev, Dma_RequestSource request)
 {
-
     switch (request)
     {
-      case DMA_REQ_UART_TRANSMIT:
-
-        UART_C5_REG(dev->regMap)|=UART_C5_TDMAS_MASK;
-        UART_C2_REG(dev->regMap)|=UART_C2_TIE_MASK;
+    case DMA_REQ_UART_TRANSMIT:
+        UART_C5_REG(dev->regMap) |= UART_C5_TDMAS_MASK;
+        UART_C2_REG(dev->regMap) |= UART_C2_TIE_MASK;
         return dev->dmaTransmitCh;
-      break;
+        break;
 
-      case DMA_REQ_UART_RECEIVE:
+    case DMA_REQ_UART_RECEIVE:
         return dev->dmaReceiveCh;
-      break;
-
+        break;
     }
 }
 
-
-
-uint32_t* Uart_getRxRegisterAddress(Uart_DeviceHandle dev)
+uint32_t* Uart_getRxRegisterAddress (Uart_DeviceHandle dev)
 {
   return (uint32_t *)&UART_D_REG(dev->regMap);
 }
 
-
-
-#endif
-
+#endif /* LIBOHIBOARD_DMA */
 
 #endif /* LIBOHIBOARD_K12D5 */
 

@@ -46,15 +46,14 @@ typedef struct _Pit_Config
 
 } Pit_Config;
 
-
-#if defined (LIBOHIBOARD_KL25Z4)
+#if defined (LIBOHIBOARD_KL25Z4)   || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 
 void PIT_IRQHandler (void);
+
 extern Pit_DeviceHandle OB_PIT0;
 
-#endif
-
-#if defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5)
 
 void PIT0_IRQHandler (void);
 void PIT1_IRQHandler (void);

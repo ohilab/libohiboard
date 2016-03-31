@@ -660,8 +660,7 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
                                        Adc_ChannelConfig* config,
                                        uint8_t numChannel);
 
-
-System_Errors enableDmaTrigger(Adc_DeviceHandle dev);
+System_Errors Adc_enableDmaTrigger (Adc_DeviceHandle dev);
 
 
 

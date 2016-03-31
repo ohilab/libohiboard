@@ -41,7 +41,6 @@
 #include "clock.h"
 #include "interrupt.h"
 
-// DICHIARAZIONE DEL TIPO DAC_DEVICE 
 typedef struct Dac_Device
 {
     DAC_MemMapPtr regMap;                          /**< Device memory pointer */
@@ -65,9 +64,7 @@ static Dac_Device dac0 = {
         .devInitialized   = 0,
 };
 
-
 Dac_DeviceHandle OB_DAC0 = &dac0;
-
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
 {
@@ -87,23 +84,22 @@ System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
 }
 
 
-void Dac_setInterruptEvent(Dac_DeviceHandle dev, Dac_InterruptEvent event)
+void Dac_setInterruptEvent (Dac_DeviceHandle dev, Dac_InterruptEvent event)
 {
-	switch(event)
-	{
-	        case DAC_POINTER_TOP:
+    switch(event)
+    {
+    case DAC_INTERRUPTEVENT_TOP:
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBTIEN_MASK;
+        break;
 
-	    	  DAC_C0_REG(dev->regMap)|=DAC_C0_DACBTIEN_MASK;
-	    	break;
+    case DAC_INTERRUPTEVENT_BOTTOM:
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBBIEN_MASK;
+        break;
 
-	        case DAC_POINTER_BOTTOM:
-	          DAC_C0_REG(dev->regMap)|=DAC_C0_DACBBIEN_MASK;
-	        break;
-
-	        case DAC_POINTER_BOOTH:
-	        	DAC_C0_REG(dev->regMap)|=DAC_C0_DACBBIEN_MASK|DAC_C0_DACBTIEN_MASK;
-	        break;
-	}
+    case DAC_INTERRUPTEVENT_BOOTH:
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBBIEN_MASK|DAC_C0_DACBTIEN_MASK;
+        break;
+    }
 }
 
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config)
@@ -132,38 +128,32 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     else
         DAC_C0_REG(dev->regMap) &= ~DAC_C0_LPEN_MASK;
 
-
-
     dev->bufferMode = config->buffer;
     switch (config->buffer)
     {
-      case DAC_BUFFERMODE_OFF:
-
+    case DAC_BUFFERMODE_OFF:
         DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFEN_MASK;
-      break;
+        break;
 
-      case DAC_BUFFERMODE_NORMAL:
+    case DAC_BUFFERMODE_NORMAL:
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+        DAC_C1_REG(dev->regMap) &=~DAC_C1_DACBFMD_MASK;
+        break;
 
-    	DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
-    	DAC_C1_REG(dev->regMap) &=~DAC_C1_DACBFMD_MASK;
-      break;
+    case DAC_BUFFERMODE_SWING:
+        break;
 
-      case DAC_BUFFERMODE_SWING:
-      break;
-
-      case DAC_BUFFERMODE_ONETIME:
-
-	    DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
-	    DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFMD_MASK;
-      break;
-
+    case DAC_BUFFERMODE_ONETIME:
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFMD_MASK;
+        break;
     }
     Dac_setInterruptEvent(dev, config->interruptEvent);
 
     if(callback)
     {
-       dev->callback=callback;
-       Interrupt_enable(INTERRUPT_DAC0);
+        dev->callback = callback;
+        Interrupt_enable(INTERRUPT_DAC0);
     }
     /* enable DMA */
     DAC_C1_REG(dev->regMap) |= ((config->dmaEnable<<DAC_C1_DMAEN_SHIFT)&DAC_C1_DMAEN_MASK);
@@ -179,7 +169,7 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     return ERRORS_NO_ERROR;
 }
 
-System_Errors enableDmaTrigger(Dac_DeviceHandle dev, Dac_InterruptEvent event)
+System_Errors Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dac_InterruptEvent event)
 {
 	Dac_setInterruptEvent(dev,event);
 	return ERRORS_NO_ERROR;

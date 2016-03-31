@@ -2,6 +2,7 @@
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +26,7 @@
 /**
  * @file libohiboard/source/ftm_K12D5.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief FTM implementations for K12D5.
  */
 
@@ -246,7 +248,7 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     case FTM_MODE_PWM:
     case FTM_MODE_FREE:
         /* Reading SC register and clear TOF bit */
-        FTM_SC_REG(dev->regMap) &=~FTM_SC_TOF_MASK;
+        FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
         dev->callback();
         break;
     default:
