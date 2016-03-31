@@ -180,6 +180,10 @@ typedef enum {
     ADC_PINS_DP1,
     ADC_PINS_DP3,
 
+    ADC_PINS_DM0,
+    ADC_PINS_DM1,
+    ADC_PINS_DM3,
+
     ADC_PINS_PTB0,
     ADC_PINS_PTB1,
     ADC_PINS_PTB2,

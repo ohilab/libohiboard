@@ -46,27 +46,16 @@
 
 typedef enum
 {
-	SURCE_NOT_USED     = 0x00,
+    DMA_REQ_SURCE_NOT_USED     = 0x00,
 
-	UART0_RECEIVE      = 0x02,
-	UART0_TRANSMIT     = 0x03,
+	DMA_REQ_UART_RECEIVE       = 0x01,
+	DMA_REQ_UART_TRANSMIT      = 0x02,
 
-	UART1_RECEIVE      = 0x04,
-	UART1_TRANSMIT     = 0x05,
+	DMA_REQ_DAC_UPPER_POINTER  = 0x03,
+	DMA_REQ_DAC_BOTTOM_POINTER = 0x04,
+	DMA_REQ_DAC_BOOTH_POINTER  = 0x05,
 
-	UART2_RECEIVE      = 0x06,
-    UART2_TRANSMIT     = 0x07,
-
-	UART3_RECEIVE      = 0x08,
-	UART3_TRANSMIT     = 0x09,
-
-	DAC_UPPER_POINTER  = 0x0A,
-	DAC_BOTTOM_POINTER = 0x0B,
-	DAC_BOOTH_POINTER  = 0x0C,
-
-	ADC0_CONV_COMPLETE  = 0x28,
-
-
+	DMA_REQ_ADC_CONV_COMPLETE  = 0x06,
 
 }Dma_RequestSourceType;
 
@@ -136,7 +125,8 @@ typedef struct dma_ConfigType
 	uint32_t destinationAddress;
 
 #if defined(LIBOHIBOARD_K64F12)||\
-		defined(LIBOHIBOARD_FRDMK64F)
+	defined(LIBOHIBOARD_FRDMK64F)||\
+	defined(LIBOHIBOARD_K12D5)
 
 	/* Source and destination for minor cycle */
 	uint8_t  sourceOff;
@@ -204,11 +194,11 @@ extern Dma_DeviceHandle OB_DMA0;
  *                                                                                                           *
  *************************************************************************************************************/
 
-System_Errors  dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *callback);
+System_Errors  Dma_init(Dma_DeviceHandle dev, dma_ConfigType* config, void *callback);
 
 /*************************************************************************************************************
  *                                                                                                           *
- *                                 This function initialize a DMA Channel                                     *
+ *                                 This function disable a DMA Channel                                     *
  *                                                                                                           *
  *************************************************************************************************************/
 
