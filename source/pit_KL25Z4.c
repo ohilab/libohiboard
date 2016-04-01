@@ -76,6 +76,7 @@ static Pit_Device pit0 = {
     },
 
     .isInitialized    = {
+                        FALSE,
                         FALSE
     },
 };
