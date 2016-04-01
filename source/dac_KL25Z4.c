@@ -176,15 +176,15 @@ System_Errors Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dac_InterruptEvent eve
 }
 
 
-//void DAC0_IRQHandler(void)
-//{
-//	OB_DAC0->callback();
-//
-//	if(DAC_SR_REG(OB_DAC0->regMap)&DAC_SR_DACBFRPBF_MASK)
-//		DAC_SR_REG(OB_DAC0->regMap)&=~DAC_SR_DACBFRPBF_MASK;
-//	if(DAC_SR_REG(OB_DAC0->regMap)&DAC_SR_DACBFRPTF_MASK)
-//		DAC_SR_REG(OB_DAC0->regMap)&=~DAC_SR_DACBFRPTF_MASK;
-//}
+void DAC0_IRQHandler(void)
+{
+	OB_DAC0->callback();
+
+	if(DAC_SR_REG(OB_DAC0->regMap)&DAC_SR_DACBFRPBF_MASK)
+		DAC_SR_REG(OB_DAC0->regMap)&=~DAC_SR_DACBFRPBF_MASK;
+	if(DAC_SR_REG(OB_DAC0->regMap)&DAC_SR_DACBFRPTF_MASK)
+		DAC_SR_REG(OB_DAC0->regMap)&=~DAC_SR_DACBFRPTF_MASK;
+}
 
 #endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */
 

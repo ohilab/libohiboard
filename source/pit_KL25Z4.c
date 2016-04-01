@@ -1,7 +1,7 @@
 /* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Matteo Civale <matteo.civale@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,11 +49,11 @@ typedef struct Pit_Device
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
     /** The functions pointer for ISR. */
-    void (*isr[PIT_MAX_NUMBER])(void);
+    void (*isr)(void);
     /** The functions pointer for user callback. */
     void (*callback[PIT_MAX_NUMBER])(void);
     /** ISR vector numbers. */
-    Interrupt_Vector isrNumber[PIT_MAX_NUMBER];
+    Interrupt_Vector isrNumber;
 
     /** Indicate which timer was been initialized. */
     bool isInitialized[PIT_MAX_NUMBER];
@@ -66,15 +66,13 @@ static Pit_Device pit0 = {
     .simScgcPtr       = &SIM_SCGC6,
     .simScgcBitEnable = SIM_SCGC6_PIT_MASK,
 
-    .isr              = {
-    		            PIT_IRQHandler
-    },
-    .isrNumber        = {
-                        INTERRUPT_PIT,
-						INTERRUPT_PIT
-    },
+    .isr              = PIT_IRQHandler,
+
+    .isrNumber        = INTERRUPT_PIT,
+
     .callback         = {
-                        0
+                        0,
+						0
     },
 
     .isInitialized    = {
@@ -131,8 +129,7 @@ System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* conf
     	PIT_TCTRL_REG(dev->regMap,config->number) |= PIT_TCTRL_TIE_MASK;
         dev->callback[config->number] = callback;
         /* Enable interrupt */
-        Interrupt_enable(dev->isrNumber[config->number]);
-        NVIC_EnableIRQ(PIT_IRQn);
+        Interrupt_enable(dev->isrNumber);
     }
 
     dev->isInitialized[config->number] = TRUE;
