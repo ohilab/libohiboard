@@ -162,7 +162,7 @@ typedef struct Dma_Config
     uint32_t nOfCycle;
 
     /* Transfer mode */
-    Dma_TransferModeType transferMode;
+    Dma_TransferMode transferMode;
 
     /* Disable channel after transfer complete */
     bool disableAfterComplete;

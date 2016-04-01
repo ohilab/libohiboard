@@ -206,12 +206,13 @@ Adc_DeviceHandle OB_ADC0 = &adc0;
 void ADC0_IRQHandler (void)
 {
     OB_ADC0->callback();
-    //ADC_R_REG(OB_ADC0->regMap, 0U);
-    //ADC_R_REG(OB_ADC0->regMap, 1U);
 
-//    if (!(ADC_SC3_REG(OB_ADC0->regMap) & ADC_SC3_ADCO_MASK) &&
-//        !(ADC_SC2_REG(OB_ADC0->regMap) & ADC_SC2_ADTRG_MASK))
-//        ADC_SC1_REG(OB_ADC0->regMap,0) |= ADC_SC1_ADCH(ADC_CH_DISABLE);
+    ADC_R_REG(OB_ADC0->regMap, 0U);
+    ADC_R_REG(OB_ADC0->regMap, 1U);
+
+    if (!(ADC_SC3_REG(OB_ADC0->regMap) & ADC_SC3_ADCO_MASK) &&
+        !(ADC_SC2_REG(OB_ADC0->regMap) & ADC_SC2_ADTRG_MASK))
+        ADC_SC1_REG(OB_ADC0->regMap,0) |= ADC_SC1_ADCH(ADC_CH_DISABLE);
 }
 
 System_Errors Adc_init (Adc_DeviceHandle dev, void *callback, Adc_Config *config)

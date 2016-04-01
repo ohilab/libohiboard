@@ -1,7 +1,7 @@
 /* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

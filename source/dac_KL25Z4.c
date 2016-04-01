@@ -169,11 +169,18 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     return ERRORS_NO_ERROR;
 }
 
+#ifdef LIBOHIBOARD_DMA
 System_Errors Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dac_InterruptEvent event)
 {
 	Dac_setInterruptEvent(dev,event);
 	return ERRORS_NO_ERROR;
 }
+#endif
+
+void DAC0_IRQHandler(void)
+{
+	OB_DAC0->callback();
+
 
 
 void DAC0_IRQHandler(void)
