@@ -661,7 +661,8 @@ void Gpio_toggle (Gpio_Pins pin);
 Gpio_Level Gpio_get (Gpio_Pins pin);
 
 #if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
+    defined (LIBOHIBOARD_FRDMK64F)   || \
+    defined (LIBOHIBOARD_K12D5)
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
