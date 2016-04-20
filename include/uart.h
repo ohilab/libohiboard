@@ -396,12 +396,12 @@ extern Uart_DeviceHandle OB_UART2;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
-extern Uart_DeviceHandle UART3;
-extern Uart_DeviceHandle UART4;
-extern Uart_DeviceHandle UART5;
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
+extern Uart_DeviceHandle OB_UART4;
+extern Uart_DeviceHandle OB_UART5;
 
 #elif defined (LIBOHIBOARD_K12D5)
 

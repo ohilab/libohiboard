@@ -105,7 +105,7 @@ static Uart_Device uart0 = {
 
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART0 = &uart0;
+Uart_DeviceHandle OB_UART0 = &uart0;
 
 static Uart_Device uart1 = {
         .regMap           = UART1_BASE_PTR,
@@ -135,7 +135,7 @@ static Uart_Device uart1 = {
 
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART1 = &uart1;
+Uart_DeviceHandle OB_UART1 = &uart1;
 
 static Uart_Device uart2 = {
         .regMap           = UART2_BASE_PTR,
@@ -165,7 +165,7 @@ static Uart_Device uart2 = {
 
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART2 = &uart2;
+Uart_DeviceHandle OB_UART2 = &uart2;
 
 static Uart_Device uart3 = {
         .regMap           = UART3_BASE_PTR,
@@ -201,7 +201,7 @@ static Uart_Device uart3 = {
 
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART3 = &uart3;
+Uart_DeviceHandle OB_UART3 = &uart3;
 
 static Uart_Device uart4 = {
         .regMap           = UART4_BASE_PTR,
@@ -231,7 +231,7 @@ static Uart_Device uart4 = {
 
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART4 = &uart4;
+Uart_DeviceHandle OB_UART4 = &uart4;
 
 static Uart_Device uart5 = {
         .regMap           = UART5_BASE_PTR,
@@ -261,7 +261,7 @@ static Uart_Device uart5 = {
 
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART5 = &uart5;
+Uart_DeviceHandle OB_UART5 = &uart5;
 
 static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 {
@@ -269,7 +269,7 @@ static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     uint8_t temp;
     uint32_t clockHz;
 
-    if ((dev == UART0) || (dev == UART1))
+    if ((dev == OB_UART0) || (dev == OB_UART1))
     {
         clockHz = Clock_getFrequency(CLOCK_SYSTEM);
     }

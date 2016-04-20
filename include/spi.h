@@ -591,9 +591,9 @@ extern Spi_DeviceHandle SPI1;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
-extern Spi_DeviceHandle SPI0;
-extern Spi_DeviceHandle SPI1;
-extern Spi_DeviceHandle SPI2;
+extern Spi_DeviceHandle OB_SPI0;
+extern Spi_DeviceHandle OB_SPI1;
+extern Spi_DeviceHandle OB_SPI2;
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)

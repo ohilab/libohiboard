@@ -1819,7 +1819,8 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 	{
 		return ERRORS_MCG_NOT_INIT;
 	}
-#if defined (LIBOHIBOARD_K10D12)
+#if defined (LIBOHIBOARD_K10D12) || \
+    defined (LIBOHIBOARD_K10D10)
 
 	else if((busDivider % coreDivider != 0) || (flexbusDivider < busDivider) || (flashDivider % busDivider !=0))
 
@@ -1831,7 +1832,8 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 	{
 		return ERRORS_MCG_ERRATA_DIVIDER;
 	}
-#if defined (LIBOHIBOARD_K10D12)
+#if defined (LIBOHIBOARD_K10D12) || \
+    defined (LIBOHIBOARD_K10D10)
 
 	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) ||
 	        (mcgFreq / flexbusDivider > CLOCK_MAX_FREQ_FLEXBUS) ||

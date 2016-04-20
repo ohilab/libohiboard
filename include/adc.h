@@ -686,8 +686,12 @@ void ADC0_IRQHandler();
 extern Adc_DeviceHandle OB_ADC0;
 
 #elif defined (LIBOHIBOARD_K10DZ10)    || \
-	  defined (LIBOHIBOARD_K10D10)     || \
-	  defined (LIBOHIBOARD_K60DZ10)
+	  defined (LIBOHIBOARD_K10D10)
+
+extern Adc_DeviceHandle OB_ADC0;
+extern Adc_DeviceHandle OB_ADC1;
+
+#elif defined (LIBOHIBOARD_K60DZ10)
 
 extern Adc_DeviceHandle ADC0;
 extern Adc_DeviceHandle ADC1;
