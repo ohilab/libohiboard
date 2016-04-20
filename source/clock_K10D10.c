@@ -1819,13 +1819,30 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 	{
 		return ERRORS_MCG_NOT_INIT;
 	}
+#if defined (LIBOHIBOARD_K10D12)
+
 	else if((busDivider % coreDivider != 0) || (flexbusDivider < busDivider) || (flashDivider % busDivider !=0))
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+    else if((busDivider % coreDivider != 0) || (flashDivider % busDivider !=0))
+
+#endif
 	{
 		return ERRORS_MCG_ERRATA_DIVIDER;
 	}
+#if defined (LIBOHIBOARD_K10D12)
+
 	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) ||
 	        (mcgFreq / flexbusDivider > CLOCK_MAX_FREQ_FLEXBUS) ||
 	        (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) ||
+	        (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
+#endif
+
 	{
 		return ERRORS_MCG_OUT_OF_RANGE;
 	}
