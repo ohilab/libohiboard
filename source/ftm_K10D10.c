@@ -566,6 +566,26 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     return ERRORS_FTM_OK;
 }
 
+void Ftm_enableInterrupt (Ftm_DeviceHandle dev)
+{
+    /* disable interrupt */
+    FTM_SC_REG(dev->regMap) &=~ FTM_SC_TOIE_MASK;
+    /* set to zero cont */
+    FTM_CNT_REG(dev->regMap) = 0;
+
+    /* Clear pending interrupt*/
+    FTM_SC_REG(dev->regMap) &=~ FTM_SC_TOF_MASK;
+
+    /* enable interrupt */
+    FTM_SC_REG(dev->regMap) |= FTM_SC_TOIE_MASK;
+}
+
+void Ftm_disableInterrupt (Ftm_DeviceHandle dev)
+{
+    /* disable interrupt */
+    FTM_SC_REG(dev->regMap) &=~ FTM_SC_TOIE_MASK;
+}
+
 
 #endif // LIBOHIBOARD_K10D10
 

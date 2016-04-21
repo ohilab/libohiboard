@@ -396,6 +396,13 @@ extern Uart_DeviceHandle OB_UART2;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+void UART3_RX_TX_IRQHandler ();
+void UART4_RX_TX_IRQHandler ();
+void UART5_RX_TX_IRQHandler ();
+
 extern Uart_DeviceHandle OB_UART0;
 extern Uart_DeviceHandle OB_UART1;
 extern Uart_DeviceHandle OB_UART2;

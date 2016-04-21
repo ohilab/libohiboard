@@ -62,6 +62,11 @@ typedef struct Uart_Device
 
     Uart_ClockSource clockSource;
 
+    void (*isr)(void);                     /**< The function pointer for ISR. */
+    void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
+    void (*callbackTx)(void); /**< The function pointer for user Tx callback. */
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
@@ -103,7 +108,12 @@ static Uart_Device uart0 = {
                              3,
         },
 
-        .devInitialized = 0,
+        .isr              = UART0_RX_TX_IRQHandler,
+        .isrNumber        = INTERRUPT_UART0,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
+
+		.devInitialized = 0,
 };
 Uart_DeviceHandle OB_UART0 = &uart0;
 
@@ -132,6 +142,11 @@ static Uart_Device uart1 = {
         .txPinsMux        = {3,
                              3,
         },
+
+        .isr              = UART1_RX_TX_IRQHandler,
+        .isrNumber        = INTERRUPT_UART1,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
 
         .devInitialized = 0,
 };
@@ -162,6 +177,11 @@ static Uart_Device uart2 = {
         .txPinsMux        = {3,
                              3,
         },
+
+        .isr              = UART2_RX_TX_IRQHandler,
+        .isrNumber        = INTERRUPT_UART2,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
 
         .devInitialized = 0,
 };
@@ -199,6 +219,11 @@ static Uart_Device uart3 = {
                              3,
         },
 
+        .isr              = UART3_RX_TX_IRQHandler,
+        .isrNumber        = INTERRUPT_UART3,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
+
         .devInitialized = 0,
 };
 Uart_DeviceHandle OB_UART3 = &uart3;
@@ -228,6 +253,11 @@ static Uart_Device uart4 = {
         .txPinsMux        = {3,
                              3,
         },
+
+        .isr              = UART4_RX_TX_IRQHandler,
+        .isrNumber        = INTERRUPT_UART4,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
 
         .devInitialized = 0,
 };
@@ -259,9 +289,110 @@ static Uart_Device uart5 = {
                              3,
         },
 
+        .isr              = UART5_RX_TX_IRQHandler,
+        .isrNumber        = INTERRUPT_UART5,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
+
         .devInitialized = 0,
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
+
+void UART0_RX_TX_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART0->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART0->callbackRx();
+        (void)UART_S1_REG(OB_UART0->regMap);
+        (void)UART_D_REG(OB_UART0->regMap);
+    }
+    else if (UART_S1_REG(OB_UART0->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART0->callbackTx();
+        (void)UART_S1_REG(OB_UART0->regMap);
+        (void)UART_D_REG(OB_UART0->regMap);
+    }
+}
+
+void UART1_RX_TX_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART1->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART1->callbackRx();
+        (void)UART_S1_REG(OB_UART1->regMap);
+        (void)UART_D_REG(OB_UART1->regMap);
+    }
+    else if (UART_S1_REG(OB_UART1->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART1->callbackTx();
+        (void)UART_S1_REG(OB_UART1->regMap);
+        (void)UART_D_REG(OB_UART1->regMap);
+    }
+}
+
+void UART2_RX_TX_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART2->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART2->callbackRx();
+        (void)UART_S1_REG(OB_UART2->regMap);
+        (void)UART_D_REG(OB_UART2->regMap);
+    }
+    else if (UART_S1_REG(OB_UART2->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART2->callbackTx();
+        (void)UART_S1_REG(OB_UART2->regMap);
+        (void)UART_D_REG(OB_UART2->regMap);
+    }
+}
+
+void UART3_RX_TX_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART3->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART3->callbackRx();
+        (void)UART_S1_REG(OB_UART3->regMap);
+        (void)UART_D_REG(OB_UART3->regMap);
+    }
+    else if (UART_S1_REG(OB_UART3->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART3->callbackTx();
+        (void)UART_S1_REG(OB_UART3->regMap);
+        (void)UART_D_REG(OB_UART3->regMap);
+    }
+}
+
+void UART4_RX_TX_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART4->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART4->callbackRx();
+        (void)UART_S1_REG(OB_UART4->regMap);
+        (void)UART_D_REG(OB_UART4->regMap);
+    }
+    else if (UART_S1_REG(OB_UART4->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART4->callbackTx();
+        (void)UART_S1_REG(OB_UART4->regMap);
+        (void)UART_D_REG(OB_UART4->regMap);
+    }
+}
+
+void UART5_RX_TX_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART5->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART5->callbackRx();
+        (void)UART_S1_REG(OB_UART5->regMap);
+        (void)UART_D_REG(OB_UART5->regMap);
+    }
+    else if (UART_S1_REG(OB_UART5->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART5->callbackTx();
+        (void)UART_S1_REG(OB_UART5->regMap);
+        (void)UART_D_REG(OB_UART5->regMap);
+    }
+}
 
 static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 {
@@ -390,6 +521,24 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
 
     if (config->txPin != UART_PINS_TXNONE)
         Uart_setTxPin(dev, config->txPin);
+
+    /* If call back exist save it */
+    if (config->callbackRx)
+    {
+        dev->callbackRx = config->callbackRx;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* Enable RX interrupt */
+        UART_C2_REG(dev->regMap) |= UART_C2_RIE_MASK;
+    }
+    if (config->callbackTx)
+    {
+        dev->callbackTx = config->callbackTx;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* Enable TX interrupt */
+        UART_C2_REG(dev->regMap) |= UART_C2_TIE_MASK;
+    }
 
     return ERRORS_NO_ERROR;
 }
