@@ -207,13 +207,13 @@ typedef enum
     FTM_CHANNELS_NONE,
 } Ftm_Channels;
 
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
+void TPM0_IRQHandler (void);
+void TPM1_IRQHandler (void);
+void TPM2_IRQHandler (void);
 
-extern Ftm_DeviceHandle FTM0;
-extern Ftm_DeviceHandle FTM1;
-extern Ftm_DeviceHandle FTM2;
+extern Ftm_DeviceHandle OB_FTM0;
+extern Ftm_DeviceHandle OB_FTM1;
+extern Ftm_DeviceHandle OB_FTM2;
 
 #elif defined(LIBOHIBOARD_K10D10)
 

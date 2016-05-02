@@ -80,10 +80,6 @@ typedef struct Ftm_Device
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Ftm_Device;
 
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
-
 static Ftm_Device ftm0 = {
         .regMap           = TPM0_BASE_PTR,
 
@@ -163,12 +159,12 @@ static Ftm_Device ftm0 = {
                              FTM_CHANNELS_CH4,
         },
 
-        .isr              = Ftm_isrFtm0,
+        .isr              = TPM0_IRQHandler,
         .isrNumber        = INTERRUPT_TPM0,
 
         .devInitialized   = 0,
 };
-Ftm_DeviceHandle FTM0 = &ftm0;
+Ftm_DeviceHandle OB_FTM0 = &ftm0;
 
 static Ftm_Device ftm1 = {
         .regMap           = TPM1_BASE_PTR,
@@ -205,12 +201,12 @@ static Ftm_Device ftm1 = {
                              FTM_CHANNELS_CH1,
         },
 
-        .isr              = Ftm_isrFtm1,
+        .isr              = TPM1_IRQHandler,
         .isrNumber        = INTERRUPT_TPM1,
 
         .devInitialized   = 0,
 };
-Ftm_DeviceHandle FTM1 = &ftm1;
+Ftm_DeviceHandle OB_FTM1 = &ftm1;
 
 static Ftm_Device ftm2 = {
         .regMap           = TPM2_BASE_PTR,
@@ -255,12 +251,12 @@ static Ftm_Device ftm2 = {
                              FTM_CHANNELS_CH1,
         },
 
-        .isr              = Ftm_isrFtm2,
+        .isr              = TPM2_IRQHandler,
         .isrNumber        = INTERRUPT_TPM2,
 
         .devInitialized   = 0,
 };
-Ftm_DeviceHandle FTM2 = &ftm2;
+Ftm_DeviceHandle OB_FTM2 = &ftm2;
 
 static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
 {
@@ -285,19 +281,19 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     }
 }
 
-void Ftm_isrFtm0 (void)
+void TPM0_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(FTM0);
+    Ftm_callbackInterrupt(OB_FTM0);
 }
 
-void Ftm_isrFtm1 (void)
+void TPM1_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(FTM1);
+    Ftm_callbackInterrupt(OB_FTM1);
 }
 
-void Ftm_isrFtm2 (void)
+void TPM2_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(FTM2);
+    Ftm_callbackInterrupt(OB_FTM2);
 }
 
 static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_t timerFrequency)

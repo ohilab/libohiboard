@@ -76,10 +76,6 @@ typedef struct Ftm_Device
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Ftm_Device;
 
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
-
 static Ftm_Device ftm0 = {
         .regMap           = FTM0_BASE_PTR,
 
