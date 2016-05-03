@@ -53,6 +53,7 @@ typedef enum
 	CLOCK_CRYSTAL,
 #if defined (LIBOHIBOARD_K64F12)     || \
 	defined (LIBOHIBOARD_FRDMK64F)
+
 	CLOCK_CRYSTAL_32K,
 	CLOCK_INTERNAL_48M
 #endif
@@ -74,6 +75,8 @@ typedef enum
 	  defined (LIBOHIBOARD_K60DZ10)    || \
 	  defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)   || \
+	  defined (LIBOHIBOARD_KV46F)      || \
+	  defined (LIBOHIBOARD_TWRKV46F)   || \
 	  defined (LIBOHIBOARD_OHIBOARD_R1)
 	CLOCK_FEI,
 	CLOCK_FEE,
@@ -106,11 +109,13 @@ uint32_t Clock_getFrequency (Clock_Source source);
 
 Clock_State Clock_getCurrentState(); 
 
-#if defined (LIBOHIBOARD_K10D10)     || \
-    defined (LIBOHIBOARD_K12D5)      || \
-    defined (LIBOHIBOARD_K60DZ10)    || \
-    defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)   || \
+#if defined (LIBOHIBOARD_K10D10)       || \
+    defined (LIBOHIBOARD_K12D5)        || \
+    defined (LIBOHIBOARD_K60DZ10)      || \
+    defined (LIBOHIBOARD_K64F12)       || \
+    defined (LIBOHIBOARD_FRDMK64F)     || \
+	defined (LIBOHIBOARD_KV46F)        || \
+    defined (LIBOHIBOARD_TWRKV46F) || \
 	defined (LIBOHIBOARD_OHIBOARD_R1)
 
 uint8_t Clock_getCoreDivider();
