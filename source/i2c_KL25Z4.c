@@ -102,7 +102,7 @@ static Iic_Device iic0 = {
 
         .devInitialized = 0,
 };
-Iic_DeviceHandle IIC0 = &iic0;
+Iic_DeviceHandle OB_IIC0 = &iic0;
 
 static Iic_Device iic1 = {
         .regMap           = I2C1_BASE_PTR,
@@ -144,7 +144,7 @@ static Iic_Device iic1 = {
 
         .devInitialized = 0,
 };
-Iic_DeviceHandle IIC1 = &iic1;
+Iic_DeviceHandle OB_IIC1 = &iic1;
 
 /* See Table 50-41 I2C Divider and Hold Values */
 static uint16_t Iic_sclDivTab[] = {
@@ -169,9 +169,10 @@ static uint16_t Iic_sclDivTab[] = {
     /* 3C */ 2304, /* 3D */ 2560, /* 3E */ 3072, /* 3F */ 3840,
 };
 
-static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
+static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
+    uint32_t pullup = (pullupEnable == TRUE) ? (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK) : 0;
 
     if (dev->devInitialized == 0)
         return ERRORS_IIC_DEVICE_NOT_INIT;
@@ -181,16 +182,17 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
         if (dev->sclPins[devPinIndex] == sclPin)
         {
             *(dev->sclPinsPtr[devPinIndex]) =
-                PORT_PCR_MUX(dev->sclPinsMux[devPinIndex]);
+                PORT_PCR_MUX(dev->sclPinsMux[devPinIndex]) | pullup;
             return ERRORS_NO_ERROR;
         }
     }
     return ERRORS_IIC_NO_PIN_FOUND;
 }
 
-static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
+static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
+    uint32_t pullup = (pullupEnable == TRUE) ? (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK) : 0;
 
     if (dev->devInitialized == 0)
         return ERRORS_IIC_DEVICE_NOT_INIT;
@@ -200,7 +202,7 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
         if (dev->sdaPins[devPinIndex] == sdaPin)
         {
             *(dev->sdaPinsPtr[devPinIndex]) =
-                PORT_PCR_MUX(dev->sdaPinsMux[devPinIndex]);
+                PORT_PCR_MUX(dev->sdaPinsMux[devPinIndex]) | pullup;
             return ERRORS_NO_ERROR;
         }
     }
@@ -319,10 +321,10 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
 
     /* Config the port controller */
     if (config->sclPin != IIC_PINS_SCLNONE)
-        Iic_setSclPin(dev, config->sclPin);
+        Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
 
     if (config->sdaPin != IIC_PINS_SDANONE)
-        Iic_setSdaPin(dev, config->sdaPin);
+        Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
 
     return ERRORS_NO_ERROR;
 }

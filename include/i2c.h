@@ -245,6 +245,8 @@ typedef struct _Iic_Config
     Iic_DeviceType        devType;
     Iic_AddressMode       addressMode;
 
+    bool                  pullupEnable;
+
     uint16_t              sclTimeout;
 
 } Iic_Config;
@@ -281,8 +283,8 @@ extern Iic_DeviceHandle IIC1;
 #elif defined (LIBOHIBOARD_KL25Z4) || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
-extern Iic_DeviceHandle IIC0;
-extern Iic_DeviceHandle IIC1;
+extern Iic_DeviceHandle OB_IIC0;
+extern Iic_DeviceHandle OB_IIC1;
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
