@@ -28,6 +28,7 @@
  * @file libohiboard/include/dac.h
  * @author Francesco Piunti <francesco.piunti89@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @autor  Matteo Civale <matteo.civale@gmail.com>
  * @brief DAC definitions and prototypes.
  */
 
@@ -81,7 +82,9 @@ typedef struct Dac_Device* Dac_DeviceHandle;
 extern Dac_DeviceHandle DAC0;
 extern Dac_DeviceHandle DAC1;
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+      defined (LIBOHIBOARD_KV46F) || \
+      defined (LIBOHIBOARD_TRWKV46F)
 
 extern Dac_DeviceHandle OB_DAC0;
 

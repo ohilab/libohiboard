@@ -40,10 +40,22 @@
 
 typedef enum
 {
+
+#if defined(LIBOHIBOARD_KV46F)   || \
+	defined(LIBOHIBOARD_TWRKV46F)
+
+    CLOCK_CORE,
+    CLOCK_FAST_PERIPHERALS,
+    CLOCK_NANOEDGE,
+
+#else
+
     CLOCK_BUS,
     CLOCK_SYSTEM,
     CLOCK_FLEXBUS,
-    CLOCK_FLASH
+
+#endif
+    CLOCK_FLASH,
 } Clock_Source;
 
 typedef enum
@@ -95,10 +107,19 @@ typedef struct _Clock_Config
 
 	uint32_t fext;
 	uint32_t foutSys;
+#if defined(LIBOHIBOARD_KV46F)   || \
+	defined(LIBOHIBOARD_TWRKV46F)
 
+	uint8_t coreDivider;
+    uint8_t fastPerDivider;
+    uint8_t flashDivider;
+    bool enableHGO;
+
+#else
 	uint8_t busDivider;
 	uint8_t flexbusDivider;
 	uint8_t flashDivider;
+#endif
 } Clock_Config;
 
 

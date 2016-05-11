@@ -31,7 +31,7 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Francesco Piunti <francesco.piunti89@gmail.com>
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
- * @author Matteo Civale <m.civale@gmail.com>
+ * @author Matteo Civale    <matteo.civale@gmail.com>
  * @brief ADC definitions and prototypes.
  */
 
@@ -44,77 +44,30 @@
 #include "errors.h"
 #include "types.h"
 
-typedef enum {
-#if defined (LIBOHIBOARD_KL15Z4)     || \
-	defined (LIBOHIBOARD_KL25Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL25Z)  || \
-    defined (LIBOHIBOARD_FRDMKL25Z)  || \
-	defined (LIBOHIBOARD_K12D5)      || \
-    defined (LIBOHIBOARD_K10DZ10)    || \
-	defined (LIBOHIBOARD_K10D10)     || \
-	defined (LIBOHIBOARD_K60DZ10)    || \
-    defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
-    
-	ADC_RESOLUTION_16BIT,
+/* Define interrupt mask */
+#define ADC_ENABLE_INT_ZC         0x01
+#define ADC_ENABLE_INT_EOSIA      0x02
+#define ADC_ENABLE_INT_LLMT       0x04
+#define ADC_ENABLE_INT_HLMT       0x08
+#define ADC_ENABLE_INT_EOSIB      0x0C
 
-#endif
-	ADC_RESOLUTION_12BIT,
-	ADC_RESOLUTION_10BIT,
-	ADC_RESOLUTION_8BIT,	
-} Adc_Resolution;
+#define ADC_ENABLE_INT_ZC_SHIFT     0x00
+#define ADC_ENABLE_INT_EOSI_SHIFT   0x01
+#define ADC_ENABLE_INT_LLMT_SHIFT   0x02
+#define ADC_ENABLE_INT_HLMT_SHIFT   0x03
+#define ADC_ENABLE_INT_EOSIB_SHIFT  0x04
 
-typedef enum {
-    ADC_INPUTTYPE_SINGLE_ENDED = 0,
-    ADC_INPUTTYPE_DIFFERENTIAL = 1,
-} Adc_InputType;
 
-typedef enum {
-    ADC_AVERAGE_1_SAMPLES,
-    ADC_AVERAGE_4_SAMPLES,
-    ADC_AVERAGE_8_SAMPLES,
-    ADC_AVERAGE_16_SAMPLES,
-    ADC_AVERAGE_32_SAMPLES,    
-} Adc_Average;
 
-typedef enum {
-	ADC_BUS_CLOCK,
-	ADC_BUS_CLOCK_DIV2,
-	ADC_ALTERNATE_CLOCK,
-	ADC_ASYNCHRONOUS_CLOCK,
-} Adc_ClockSource;
-
-typedef enum {
-    ADC_SHORT_SAMPLE,
-    ADC_LONG_SAMPLE_2,
-    ADC_LONG_SAMPLE_6,
-    ADC_LONG_SAMPLE_12,
-    ADC_LONG_SAMPLE_20,
-} Adc_SampleLength;
-
-typedef enum {
-    ADC_NORMAL_CONVERTION,
-    ADC_HIGH_SPEED_CONVERTION,
-}Adc_ConvertionSpeed;
-
-typedef enum {
-    ADC_SINGLE_CONVERTION,
-    ADC_CONTINUOUS_CONVERTION,
-}Adc_ContinuousConvertion;
-
-typedef enum {
-	ADC_VREF,
-	ADC_VALT,
-}Adc_VoltReference;
 
 typedef enum {
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
-	defined (LIBOHIBOARD_KL02Z4)
+    defined (LIBOHIBOARD_KL02Z4)
 
     ADC_PINS_INTERNAL,
 
 #elif defined (LIBOHIBOARD_FRDMKL03Z) || \
-	  defined (LIBOHIBOARD_KL03Z4)
+      defined (LIBOHIBOARD_KL03Z4)
 
     ADC_PINS_PTA0,
     ADC_PINS_PTA8,
@@ -153,7 +106,7 @@ typedef enum {
     ADC_PINS_INTERNAL,
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)
+      defined (LIBOHIBOARD_FRDMKL25Z)
 
     ADC_PINS_PTE20,
     ADC_PINS_PTE21,
@@ -247,7 +200,7 @@ typedef enum {
     ADC_PINS_ADC1_DP0,
     ADC_PINS_ADC1_DP1,
     ADC_PINS_PGA_DP,
-    ADC_PINS_ADC1_DP3,		        		
+    ADC_PINS_ADC1_DP3,
     ADC_PINS_PTE0,
     ADC_PINS_PTE1,
     ADC_PINS_PTE2,
@@ -277,7 +230,7 @@ typedef enum {
     ADC_PINS_INTERNAL,
     
 #elif defined (LIBOHIBOARD_K64F12)     || \
-	  defined (LIBOHIBOARD_FRDMK64F)
+      defined (LIBOHIBOARD_FRDMK64F)
 
     ADC_PINS_PTE0,
     ADC_PINS_PTE1,
@@ -330,11 +283,331 @@ typedef enum {
 
     ADC_PINS_INTERNAL,
 
+#elif defined (LIBOHIBOARD_KV46F) || \
+      defined (LIBOHIBOARD_TRWKV46F)
+
+    ADC_PINS_PTE0,
+    ADC_PINS_PTE1,
+    ADC_PINS_PTE2,
+    ADC_PINS_PTE3,
+    ADC_PINS_PTE16,
+    ADC_PINS_PTE17,
+    ADC_PINS_PTE18,
+    ADC_PINS_PTE19,
+    ADC_PINS_PTE20,
+    ADC_PINS_PTE21,
+    ADC_PINS_PTE29,
+    ADC_PINS_PTE30,
+    ADC_PINS_PTE24,
+    ADC_PINS_PTE25,
+
+    ADC_PINS_PTA17,
+
+    ADC_PINS_PTB0,
+    ADC_PINS_PTB1,
+    ADC_PINS_PTB2,
+    ADC_PINS_PTB3,
+    ADC_PINS_PTB10,
+    ADC_PINS_PTB11,
+
+    ADC_PINS_PTC0,
+    ADC_PINS_PTC1,
+    ADC_PINS_PTC2,
+    ADC_PINS_PTC10,
+    ADC_PINS_PTC11,
+
+    ADC_PINS_PTD1,
+    ADC_PINS_PTD5,
+    ADC_PINS_PTD6,
+
+
+    ADC_PINS_ACH6a,
+    ADC_PINS_ACH7a,
+    ADC_PINS_ACH2,
+    ADC_PINS_ACH3,
+    ADC_PINS_ACH6c,
+    ADC_PINS_ACH7c,
+    ADC_PINS_ACH6d,
+
+
 #endif
 
     ADC_PINS_NONE,
 
 } Adc_Pins;
+
+
+typedef enum {
+#if defined (LIBOHIBOARD_FRDMKL03Z) || \
+    defined (LIBOHIBOARD_KL03Z4)
+
+    ADC_CHL_A = 0x00,
+
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL25Z)  || \
+      defined (LIBOHIBOARD_KL15Z4)
+
+    ADC_CHL_A = 0x00,
+    ADC_CHL_B = 0x01,
+
+#elif defined (LIBOHIBOARD_K10DZ10)    || \
+      defined (LIBOHIBOARD_K10D10)     || \
+      defined (LIBOHIBOARD_K12D5)      || \
+      defined (LIBOHIBOARD_K60DZ10)    || \
+      defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
+
+    ADC_CHL_A = 0x00,
+    ADC_CHL_B = 0x01,
+
+#elif defined (LIBOHIBOARD_FRDMKL02Z) || \
+      defined (LIBOHIBOARD_KL02Z4)    || \
+      defined (LIBOHIBOARD_FRDMKL03Z) || \
+      defined (LIBOHIBOARD_KL03Z4)
+
+    ADC_CHL_A = 0x00,
+
+#elif defined (LIBOHIBOARD_KV46F) || \
+      defined (LIBOHIBOARD_TWRKV46F)
+
+    ADC_CHL_A        = 0x0,
+    ADC_CHL_B        = 0x1,
+    ADC_CHL_C        = 0x2,
+    ADC_CHL_D        = 0x3,
+    ADC_CHL_E        = 0x4,
+    ADC_CHL_F        = 0x5,
+    ADC_CHL_G        = 0x6,
+    ADC_CHL_RESERVED = 0x7,
+
+#endif
+
+} Adc_ChannelMux;
+
+typedef enum {
+
+    ADC_VREFH_PAD =0x0,
+    ADC_VREFH_INT =0x1,
+    ADC_VREFL_PAD =0x0,
+    ADC_VREFL_INT =0x1,
+
+}Adc_VoltReference;
+
+typedef enum{
+
+    SCANMODE_ONCE_SEQUENCIAL      = 0x0,
+    SCANMODE_ONCE_PARALLEL        = 0x1,
+    SCANMODE_LOOP_SEQUENCIAL      = 0x2,
+    SCANMODE_LOOP_PARALLEL        = 0x3,
+    SCANMODE_TRIGGERED_SEQUENTIAL = 0x4,
+    SCANMODE_TRIGGERED_PARALLEL   = 0x5,
+
+}Adc_ScanMode;
+
+typedef struct{
+
+    Adc_Pins pin;
+    bool diffEn;
+    bool zeroCrossEn;
+    uint16_t highLim;
+    uint16_t lowLim;
+
+}Adc_CannelSetting;
+
+typedef enum
+{
+    ADC_SPEED_UPTO_6_25MHZ  = 0x0,
+    ADC_SPEED_UPTO_12_5MHZ  = 0x1,
+    ADC_SPEED_UPTO_18_75MHZ = 0x2,
+    ADC_SPEED_UPTO_25MHZ    = 0x3,
+}Adc_ConvertionSpeed;
+
+/* Section for cyclic ADC converter */
+#if defined (LIBOHIBOARD_KV46F) || \
+    defined (LIBOHIBOARD_TRWKV46F)
+
+    typedef struct{
+        uint8_t           clkDiv0;
+        uint8_t           clkDiv1;
+
+        Adc_VoltReference ADCAvrefH;
+        Adc_VoltReference ADCBvrefH;
+
+        Adc_VoltReference ADCAvrefL;
+        Adc_VoltReference ADCBvrefL;
+
+        Adc_ConvertionSpeed ADCAspeed;
+        Adc_ConvertionSpeed ADCBspeed;
+
+        bool                autoPwrDownEn;
+        bool                autoStbEn;
+
+        uint8_t           pwrUpDelay;
+    }Adc_Config;
+
+    typedef enum
+    {
+        ADC_SYNC_MANUAL_ONLY,
+        ADC_SYNC_HARDWERE,
+
+    }Adc_Sync;
+
+    typedef struct{
+
+        Adc_ScanMode scanmode;
+        struct
+        {
+          uint8_t zc:1;
+          uint8_t eos0:1;
+          uint8_t llmt:1;
+          uint8_t hlmt:1;
+          uint8_t eos1:1;
+        }interrToEnable;
+
+        void (*isrADCA)(void);
+        void (*isrADCB)(void);
+
+        Adc_Sync sync0;
+        Adc_Sync sync1;
+
+        bool simultEn;
+
+
+    }Adc_acqConfig;
+
+    typedef enum{
+        ADC_GAIN_X1 = 0x0,
+        ADC_GAIN_X2 = 0x1,
+        ADC_GAIN_X4 = 0x2,
+    } Adc_gain;
+
+    typedef enum{
+        ADC_ZC_DISABLE          = 0x0,
+        ADC_ZC_PLUS_TO_MINUS    = 0x1,
+        ADC_ZC_MINUS_TO_PLUS    = 0x2,
+        ADC_ZC_BOOTH            = 0x3,
+
+    }Adc_zeroCross;
+
+    typedef struct{
+
+        bool differencialEn;
+        Adc_Pins pin;
+        uint8_t Hlimit;
+        uint8_t Llimit;
+
+        Adc_zeroCross scMode;
+        Adc_gain gain;
+        bool scanIntEn;
+        uint8_t offset;
+    }Adc_channelConfig;
+
+
+
+    typedef enum{
+        ADC_CHANNEL_CHA0 = 0x00,
+        ADC_CHANNEL_CHA1 = 0x01,
+        ADC_CHANNEL_CHA2 = 0x02,
+        ADC_CHANNEL_CHA3 = 0x03,
+        ADC_CHANNEL_CHA4 = 0x04,
+        ADC_CHANNEL_CHA5 = 0x05,
+        ADC_CHANNEL_CHA6 = 0x06,
+        ADC_CHANNEL_CHA7 = 0x07,
+
+        ADC_CHANNEL_CHB0 = 0x08,
+        ADC_CHANNEL_CHB1 = 0x09,
+        ADC_CHANNEL_CHB2 = 0x0A,
+        ADC_CHANNEL_CHB3 = 0x0B,
+        ADC_CHANNEL_CHB4 = 0x0C,
+        ADC_CHANNEL_CHB5 = 0x0D,
+        ADC_CHANNEL_CHB6 = 0x0E,
+        ADC_CHANNEL_CHB7 = 0x0F,
+
+
+    }Adc_ChannelNumber;
+
+    typedef struct Adc_Device* Adc_DeviceHandle;
+
+    void ADCA_IRQHandler(void);
+
+    void ADCB_IRQHandler(void);
+
+    /**
+     * This function initialize the ADC device and setup operational mode.
+     *
+     * @param[in] dev Adc device handle to be synchronize.
+     * @param[in] config A pointer to configuration object
+     * @return A System_Errors elements that indicate the status of initialization.
+     */
+
+     System_Errors Adc_init (Adc_DeviceHandle dev,  Adc_Config *config);
+
+     /**
+      * This function set the ADCs A and B acquisition parameter as indicate
+      * by acquisitin config var
+      *
+      * @param[in] dev Adc device handle to be set.
+      */
+
+     System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config);
+#else /* standard ADC section */
+typedef enum {
+#if defined (LIBOHIBOARD_KL15Z4)     || \
+	defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+	defined (LIBOHIBOARD_K12D5)      || \
+    defined (LIBOHIBOARD_K10DZ10)    || \
+	defined (LIBOHIBOARD_K10D10)     || \
+	defined (LIBOHIBOARD_K60DZ10)    || \
+    defined (LIBOHIBOARD_K64F12)     || \
+    defined (LIBOHIBOARD_FRDMK64F)
+
+	ADC_RESOLUTION_16BIT,
+
+#endif
+	ADC_RESOLUTION_12BIT,
+	ADC_RESOLUTION_10BIT,
+	ADC_RESOLUTION_8BIT,
+} Adc_Resolution;
+
+typedef enum {
+    ADC_INPUTTYPE_SINGLE_ENDED = 0,
+    ADC_INPUTTYPE_DIFFERENTIAL = 1,
+} Adc_InputType;
+
+typedef enum {
+    ADC_AVERAGE_1_SAMPLES,
+    ADC_AVERAGE_4_SAMPLES,
+    ADC_AVERAGE_8_SAMPLES,
+    ADC_AVERAGE_16_SAMPLES,
+    ADC_AVERAGE_32_SAMPLES,
+} Adc_Average;
+
+typedef enum {
+	ADC_BUS_CLOCK,
+	ADC_BUS_CLOCK_DIV2,
+	ADC_ALTERNATE_CLOCK,
+	ADC_ASYNCHRONOUS_CLOCK,
+} Adc_ClockSource;
+
+typedef enum {
+    ADC_SHORT_SAMPLE,
+    ADC_LONG_SAMPLE_2,
+    ADC_LONG_SAMPLE_6,
+    ADC_LONG_SAMPLE_12,
+    ADC_LONG_SAMPLE_20,
+} Adc_SampleLength;
+
+typedef enum {
+    ADC_NORMAL_CONVERTION,
+    ADC_HIGH_SPEED_CONVERTION,
+}Adc_ConvertionSpeed;
+
+typedef enum {
+    ADC_SINGLE_CONVERTION,
+    ADC_CONTINUOUS_CONVERTION,
+}Adc_ContinuousConvertion;
+
 
 #define ADC_MAX_CHANNEL_NUMBER 2
 
@@ -579,39 +852,7 @@ typedef enum {
 #endif
 } Adc_ChannelNumber;
 
-typedef enum {
-#if defined (LIBOHIBOARD_FRDMKL03Z) || \
-    defined (LIBOHIBOARD_KL03Z4)
 
-    ADC_CHL_A = 0x00,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)  || \
-      defined (LIBOHIBOARD_KL15Z4)
-
-	ADC_CHL_A = 0x00,
-    ADC_CHL_B = 0x01,
-
-#elif defined (LIBOHIBOARD_K10DZ10)    || \
-	  defined (LIBOHIBOARD_K10D10)     || \
-	  defined (LIBOHIBOARD_K12D5)      || \
-	  defined (LIBOHIBOARD_K60DZ10)    || \
-      defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-	ADC_CHL_A = 0x00,
-	ADC_CHL_B = 0x01,
-
-#elif defined (LIBOHIBOARD_FRDMKL02Z) || \
-	  defined (LIBOHIBOARD_KL02Z4)    || \
-      defined (LIBOHIBOARD_FRDMKL03Z) || \
-      defined (LIBOHIBOARD_KL03Z4)
-
-	ADC_CHL_A = 0x00,
-
-#endif
-
-} Adc_ChannelMux;
 
 typedef struct Adc_Device* Adc_DeviceHandle;
 
@@ -639,6 +880,8 @@ typedef struct _Adc_ChannelConfig
 
 } Adc_ChannelConfig;
 
+
+
 /**
  * This function initialize the ADC device and setup operational mode.
  *
@@ -650,8 +893,8 @@ typedef struct _Adc_ChannelConfig
 System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config);
 
 void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin);
-System_Errors Adc_readValue (Adc_DeviceHandle dev, 
-                             Adc_ChannelNumber channel, 
+System_Errors Adc_readValue (Adc_DeviceHandle dev,
+                             Adc_ChannelNumber channel,
                              uint16_t *value,
                              Adc_InputType type);
 System_Errors Adc_readValueFromInterrupt (Adc_DeviceHandle dev, uint16_t *value);
@@ -667,7 +910,7 @@ System_Errors Adc_enableDmaTrigger (Adc_DeviceHandle dev);
 /**
  * See AN4662 for info in calibration process.
  */
-System_Errors Adc_calibration (Adc_DeviceHandle dev);
+//System_Errors Adc_calibration (Adc_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
 	defined (LIBOHIBOARD_KL02Z4)    || \
@@ -711,6 +954,8 @@ extern Adc_DeviceHandle OB_ADC0;
 extern Adc_DeviceHandle OB_ADC1;
 
 #endif
+
+#endif /* standard ADC section */
 
 #endif /* __ADC_H */
 

@@ -80,6 +80,8 @@ typedef enum _System_Errors
 	
     ERRORS_DAC_DEVICE_NOT_INIT,
     ERRORS_DAC_DEVICE_JUST_INIT,
+    ERRORS_ADC_ERRATA_DIVIDERS,
+    ERRORS_ADC_PIN_WRONG,
 
     ERRORS_ADC_DEVICE_JUST_INIT,
     ERRORS_ADC_DEVICE_NOT_INIT,                  /**< Device not initialized. */
