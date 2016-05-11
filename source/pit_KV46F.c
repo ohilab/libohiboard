@@ -59,7 +59,7 @@ typedef struct Pit_Device
     bool isInitialized[PIT_MAX_NUMBER];
 } Pit_Device;
 
-void Pit_isrPit0 (void);
+void PIT0_IRQHandler (void);
 void Pit_isrPit1 (void);
 void Pit_isrPit2 (void);
 void Pit_isrPit3 (void);
@@ -71,7 +71,7 @@ static Pit_Device pit0 = {
     .simScgcBitEnable = SIM_SCGC6_PIT_MASK,
 
     .isr              = {
-                        Pit_isrPit0,
+                        PIT0_IRQHandler,
                         Pit_isrPit1,
                         Pit_isrPit2,
                         Pit_isrPit3
@@ -96,30 +96,30 @@ static Pit_Device pit0 = {
                         FALSE
     },
 };
-Pit_DeviceHandle PIT0 = &pit0;
+Pit_DeviceHandle OB_PIT0 = &pit0;
 
-void Pit_isrPit0 (void)
+void PIT0_IRQHandler (void)
 {
-    PIT_TFLG_REG(PIT0->regMap,0) |= PIT_TFLG_TIF_MASK;
-    PIT0->callback[0]();
+    PIT_TFLG_REG(OB_PIT0->regMap,0) |= PIT_TFLG_TIF_MASK;
+    OB_PIT0->callback[0]();
 }
 
 void Pit_isrPit1 (void)
 {
-    PIT_TFLG_REG(PIT0->regMap,1) |= PIT_TFLG_TIF_MASK;
-    PIT0->callback[1]();
+    PIT_TFLG_REG(OB_PIT0->regMap,1) |= PIT_TFLG_TIF_MASK;
+    OB_PIT0->callback[1]();
 }
 
 void Pit_isrPit2 (void)
 {
-    PIT_TFLG_REG(PIT0->regMap,2) |= PIT_TFLG_TIF_MASK;
-    PIT0->callback[2]();
+    PIT_TFLG_REG(OB_PIT0->regMap,2) |= PIT_TFLG_TIF_MASK;
+    OB_PIT0->callback[2]();
 }
 
 void Pit_isrPit3 (void)
 {
-    PIT_TFLG_REG(PIT0->regMap,3) |= PIT_TFLG_TIF_MASK;
-    PIT0->callback[3]();
+    PIT_TFLG_REG(OB_PIT0->regMap,3) |= PIT_TFLG_TIF_MASK;
+    OB_PIT0->callback[3]();
 }
 
 System_Errors Pit_init (Pit_DeviceHandle dev)
@@ -128,14 +128,14 @@ System_Errors Pit_init (Pit_DeviceHandle dev)
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
     /* Turn on the PIT */
-    PIT_MCR_REG(dev->regMap) = 0;
+    PIT_MCR_REG(dev->regMap) &=~(PIT_MCR_MDIS_MASK|PIT_MCR_FRZ_MASK);
 
     return ERRORS_NO_ERROR;
 }
 
 System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* config)
 {
-    float currentBusPeriod = (float) 1000000000/Clock_getFrequency(CLOCK_BUS);//[ns]
+    float currentBusPeriod = (float) 1000000000/Clock_getFrequency(CLOCK_FLASH);//[ns]
     float requestPeriod = (float) 1000000000/config->frequency; //[ns]
     uint32_t regValue;
 
