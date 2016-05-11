@@ -41,58 +41,27 @@
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 {
-    uint16_t div;
-
     /* Make sure that the IRQ is an allowable number. */
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-    /* Determine which of the NVICISERs corresponds to the irq */
-    div = vectorNumber/32;
+    /* Clear pending request */
+    NVIC_ClearPendingIRQ(vectorNumber);
 
-    switch (div)
-    {
-    case 0x0:
-        NVICICPR0 = 1 << (vectorNumber%32);
-        NVICISER0 = 1 << (vectorNumber%32);
-        break;
-    case 0x1:
-        NVICICPR1 = 1 << (vectorNumber%32);
-        NVICISER1 = 1 << (vectorNumber%32);
-        break;
-    case 0x2:
-        NVICICPR2 = 1 << (vectorNumber%32);
-        NVICISER2 = 1 << (vectorNumber%32);
-        break;
-    }
+    /* Enable request */
+    NVIC_EnableIRQ(vectorNumber);
 
     return ERRORS_NO_ERROR;
 }
 
 System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
 {
-    uint16_t div;
 
     /* Make sure that the IRQ is an allowable number. */
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-    /* Determine which of the NVICISERs corresponds to the irq */
-    div = vectorNumber/32;
-
-    switch (div)
-    {
-    case 0x0:
-        NVICICER0 = 1 << (vectorNumber%32);
-        break;
-    case 0x1:
-        NVICICER1 = 1 << (vectorNumber%32);
-        break;
-    case 0x2:
-        NVICICER2 = 1 << (vectorNumber%32);
-        break;
-    }
-
+    NVIC_DisableIRQ(vectorNumber);
     return ERRORS_NO_ERROR;
 }
 
@@ -101,8 +70,7 @@ System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber, uint8_t prio
     if (priority > NVIC_MAX_PRIORITY) return ERRORS_IRQ_PRIORITY_LEVEL_WRONG;
 
     /* Set interrupt priority note priority 0 is the higher priority level*/
-    NVIC_IP_REG(NVIC_BASE_PTR,vectorNumber) = (priority<<4) & 0xFF;
-
+    NVIC_SetPriority(vectorNumber,priority);
     return ERRORS_NO_ERROR;
 }
 

@@ -37,7 +37,7 @@
 	defined(LIBOHIBOARD_TWRKV46F)
 
 #define CLOCK_INIT_DIFF                      200000000
-#define CLOCK_MAX_FREQ_MCG                   150000000
+#define CLOCK_MAX_FREQ_MCG                   300000000
 #define CLOCK_MAX_FREQ_SYS                   150000000
 #define CLOCK_MAX_FREQ_EXT                    50000000
 #define CLOCK_MAX_FREQ_BUS					  75000000
@@ -75,10 +75,10 @@
 
 /* PLL IN/OUT limits*/
 #define CLOCK_MIN_FREQ_PLL_OUT				  48000000
-#define CLOCK_MAX_FREQ_PLL_OUT                120000000
+#define CLOCK_MAX_FREQ_PLL_OUT               300000000
 
-#define CLOCK_MIN_FREQ_PLL_IN                 2000000
-#define CLOCK_MAX_FREQ_PLL_IN                 4000000
+#define CLOCK_MIN_FREQ_PLL_IN                 8000000
+#define CLOCK_MAX_FREQ_PLL_IN                16000000
 
 #define CLOCK_INTERNAL_FREQ_SLOW_OUT          32000
 
@@ -921,7 +921,7 @@ static uint32_t Clock_fbe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 
     /* wait the refresh of the status register */
     while((MCG_S_REG(regmap) & MCG_S_PLLST_MASK) != MCG_S_PLLST_MASK);
-    //while((MCG_S_REG(regmap) & MCG_S_LOCK0_MASK) != MCG_S_LOCK0_MASK);
+    while((MCG_S_REG(regmap) & MCG_S_LOCK0_MASK) != MCG_S_LOCK0_MASK);
 
     //Now in CLOCK_PBE
 
@@ -1000,6 +1000,8 @@ static uint32_t Clock_pbe2pee (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 
     //Now in CLOCK_BLPE
 
+
+
     MCG_C2_REG(regmap) &= ~(MCG_C2_LP_MASK);
 
     tempReg = MCG_C5_REG(regmap);
@@ -1026,13 +1028,14 @@ static uint32_t Clock_pbe2pee (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
     //Now in CLOCK_PEE
 
     MCG_C1 &= ~(MCG_C1_IRCLKEN_MASK);
+
 //    SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
 
     prdivTmp = ((MCG_C5_REG(regmap) & MCG_C5_PRDIV0_MASK) >> MCG_C5_PRDIV0_SHIFT);
     vdivTmp = ((MCG_C6_REG(regmap) & MCG_C6_VDIV0_MASK) >> MCG_C6_VDIV0_SHIFT);
 
     foutMcg = (fext/(prdivTmp + 1));
-    foutMcg *= (vdivTmp + 24);
+    foutMcg *= (vdivTmp + 16);
 
     return foutMcg;
 }
@@ -1827,29 +1830,26 @@ uint32_t Clock_getFrequency (Clock_Source source)
 	MCG_MemMapPtr regmap = Clock_device.regmap;
 
 	uint8_t cpuDiv;
-	uint8_t busDiv;
+	uint8_t fastPerDiv;
 	uint8_t flexbusDiv;
 	uint8_t flashDiv;
 
 	cpuDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT);
-	busDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV2_MASK) >> SIM_CLKDIV1_OUTDIV2_SHIFT);
-//	flexbusDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV3_MASK) >> SIM_CLKDIV1_OUTDIV3_SHIFT);
-
-
-	flashDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT);
+	fastPerDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV2_MASK) >> SIM_CLKDIV1_OUTDIV2_SHIFT);
+    flashDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT);
 
 	if (Clock_device.devInitialized == 1)
 	{
 		switch (source)
 		{
-		    case CLOCK_BUS:
-		    	return Clock_device.foutMcg/(busDiv + 1);
-		    case CLOCK_SYSTEM:
-		    	return Clock_device.foutMcg/(cpuDiv + 1);
-		    case CLOCK_FLEXBUS:
-		    	return Clock_device.foutMcg/(flexbusDiv + 1);
 		    case CLOCK_FLASH:
-		    	return Clock_device.foutMcg/(flashDiv + 1);
+		    	return (Clock_device.foutMcg>>1)/(flashDiv + 1);
+		    case CLOCK_CORE:
+		    	return (Clock_device.foutMcg>>1)/(cpuDiv + 1);
+		    case CLOCK_FAST_PERIPHERALS:
+		    	return (Clock_device.foutMcg>>1)/(fastPerDiv + 1);
+		    case CLOCK_NANOEDGE:
+		        return Clock_device.foutMcg;
 		}
 	}
 
@@ -1865,32 +1865,39 @@ uint32_t Clock_getFrequency (Clock_Source source)
  * @param flashDivider: value of flash_clock divider (This value must be equal to busDivider or equal to a multiple of busDivider. In addiction to this bus clock have to be less or equal than 25MHz)
  * @return error if the peripheral clock is out of range.
  */
-System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint8_t flashDivider)
+System_Errors Clock_setDividers(uint8_t coreDivider, uint8_t fastPeripheralDivider, uint8_t flashDivider)
 {
 	uint32_t mcgFreq = Clock_device.foutMcg;
-	uint8_t coreDivider = Clock_device.coreDivider;
-	uint32_t tempReg;
+    uint32_t tempReg;
 
-	if(Clock_device.devInitialized == 0)
-	{
-		return ERRORS_MCG_NOT_INIT;
-	}
-	else if((busDivider % coreDivider != 0) || (flashDivider % busDivider !=0))
+	/* Check that dividers are correct */
+
+	if(
+	   (fastPeripheralDivider % coreDivider != 0) &&
+	   (coreDivider % fastPeripheralDivider !=0)&&
+	   (flashDivider%fastPeripheralDivider!=0)&&
+	   (flashDivider%coreDivider!=0)
+	   )
 	{
 		return ERRORS_MCG_ERRATA_DIVIDER;
 	}
-	else if(mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH)
+
+	if(
+	   (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH)||
+	   (mcgFreq / coreDivider > CLOCK_MAX_FREQ_SYS)||
+	   (mcgFreq / fastPeripheralDivider > CLOCK_MAX_FREQ_SYS)
+	  )
 	{
 		return ERRORS_MCG_ERRATA_DIVIDER;
 	}
-	else
-	{
-	    tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
-	    tempReg &= ~(SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
-	    tempReg |= (SIM_CLKDIV1_OUTDIV2(busDivider-1) | SIM_CLKDIV1_OUTDIV4(flashDivider-1));
-	    SIM_CLKDIV1_REG(SIM_BASE_PTR) = tempReg;
-	    return ERRORS_NO_ERROR;
-	}
+
+    tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
+    tempReg &= ~(SIM_CLKDIV1_OUTDIV2_MASK |SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
+    tempReg |= (SIM_CLKDIV1_OUTDIV2(coreDivider-1)|SIM_CLKDIV1_OUTDIV2(fastPeripheralDivider-1) | SIM_CLKDIV1_OUTDIV4(flashDivider-1));
+    SIM_CLKDIV1_REG(SIM_BASE_PTR) = tempReg;
+
+    return ERRORS_NO_ERROR;
+
 }
 
 
@@ -1925,10 +1932,10 @@ System_Errors Clock_Init (Clock_Config *config)
 
 	uint32_t fext = config->fext;
 	Clock_Origin source = config->source;
-	uint32_t foutSys = config->foutSys;
+	uint32_t foutSys = config->foutSys*2; // the MCG must be twice the system frequency
 
-	uint8_t busDivider = config->busDivider;
-	uint8_t flexbusDivider = config->flexbusDivider;
+	uint8_t coreDivider = 1;
+	uint8_t fastPerDivider = config->fastPerDivider;
 	uint8_t flashDivider = config->flashDivider;
 
     uint32_t fdiff = CLOCK_INIT_DIFF; //impongo all'inizio un valore di fdiff più alto del massimo possibile (in questo caso 200MHz)
@@ -1973,10 +1980,12 @@ System_Errors Clock_Init (Clock_Config *config)
     uint8_t oscsel;
 
     //variabili divisori del clock
-    uint8_t outdiv1 = 1;
-	uint8_t outdiv2 = 2;
-	//uint8_t outdiv3 = 2;
-	uint8_t outdiv4 = 4;
+    uint8_t outdiv1;
+	uint8_t outdiv2;
+	uint8_t outdiv4;
+
+	uint32_t divTemp;
+	uint8_t cont;
 
     if (Clock_device.devInitialized == 1)
     {
@@ -1998,11 +2007,8 @@ System_Errors Clock_Init (Clock_Config *config)
     	return error = ERRORS_MCG_UNDER_100khz;
     }
 
-    /* calculation of foutMcg from foutSys */
+    /* Check if the clock reference respect limits */
 
-    //MCG_C2_REG(regmap) |= MCG_C2_HGO0_MASK;
-
-    /* calculation of RANGE 0 and frdivider */
     if((source == CLOCK_EXTERNAL) || (source == CLOCK_CRYSTAL))
     {
     	if (fext > CLOCK_MAX_FREQ_EXT)
@@ -2015,11 +2021,9 @@ System_Errors Clock_Init (Clock_Config *config)
         	return error = ERRORS_MCG_EXTERNAL_REFERENCE_OUT_OF_RANGE;;
     	}
 
-        else
-        {
-        	oscsel = 0;
-        }
+        oscsel = 0;
 
+        /* calculation of RANGE 0 and frdivider */
         if(source == CLOCK_CRYSTAL)
         {
             range0Tmp = 0;
@@ -2046,55 +2050,26 @@ System_Errors Clock_Init (Clock_Config *config)
             }
         }
 
-        fll_r = 0;
-        if((range0Tmp == 0) || (oscsel == 1))
+
+        if(range0Tmp)
         {
-            fll_r = 1;
-            frdivTmp = 0;
+            divTemp=5;
         }
         else
+            divTemp=0;
+
+        cont=0;
+        while (fext>CLOCK_MAX_FREQ_FLL_IN*(1<<divTemp))
         {
-            if(fext <= CLOCK_MAX_FREQ_FLL_IN*32)  //39062.5*32
-            {
-                fll_r = 32;
-                frdivTmp = 0;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*64) //39062.5*64
-            {
-                fll_r = 64;
-                frdivTmp = 1;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*128) //39062.5*128
-            {
-                fll_r = 128;
-                frdivTmp = 2;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*256) //39062.5*256
-            {
-                fll_r = 256;
-                frdivTmp = 3;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*512) //39062.5*512
-            {
-                fll_r = 512;
-                frdivTmp = 4;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*1024) //39062.5*1024
-            {
-                fll_r = 1024;
-                frdivTmp = 5;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*1280) //39062.5*1280
-            {
-                fll_r = 1280;
-                frdivTmp = 6;
-            }
-            else if(fext <= CLOCK_MAX_FREQ_FLL_IN*1536) //39062.5*1536
-            {
-                fll_r = 1536;
-                frdivTmp = 7;
-            }
+            divTemp++;
         }
+        if(range0Tmp)
+        {
+            frdivTmp=divTemp-5;
+        }
+
+        fll_r=1<<divTemp;
+
 
         if(source == CLOCK_EXTERNAL)
         {
@@ -2189,7 +2164,7 @@ System_Errors Clock_Init (Clock_Config *config)
                             f1 = fext/j;
                             if((f1 >= (CLOCK_MIN_FREQ_PLL_IN)) && (f1 <= (CLOCK_MAX_FREQ_PLL_IN)))
                             {
-                                for(k=24; k<56; k++)
+                                for(k=16; k<48; k++)
                                 {
                                     f2 = f1*k;
                                     if(f2 <= (CLOCK_MAX_FREQ_PLL_OUT))
@@ -2200,7 +2175,7 @@ System_Errors Clock_Init (Clock_Config *config)
                                             {
                                                 diff = foutMcg - f2;
                                                 prdivTmp = j-1;
-                                                vdivTmp = k-24;
+                                                vdivTmp = k-16;
                                             }
                                         }
                                         else
@@ -2209,7 +2184,7 @@ System_Errors Clock_Init (Clock_Config *config)
                                             {
                                                 diff = f2 - foutMcg;
                                                 prdivTmp = j-1;
-                                                vdivTmp = k-24;
+                                                vdivTmp = k-16;
                                             }
                                         }
                                     }
@@ -2224,7 +2199,7 @@ System_Errors Clock_Init (Clock_Config *config)
                         }
                         stateOutTmp = CLOCK_PEE;
                         f = (fext/(prdivTmp+1));
-                        f = f*(vdivTmp+24);
+                        f = f*(vdivTmp+16);
                         error = ERRORS_NO_ERROR;
                     }
                 }
@@ -2408,34 +2383,12 @@ System_Errors Clock_Init (Clock_Config *config)
     	return error;
     }
 
-    if (outdiv1 <= 8)
-    {
-    	outdiv2 = outdiv1*2;
-    	if(outdiv2 <= 8)
-    	{
-    		outdiv4 = outdiv2*2;
-    	}
-    	else
-    	{
-    		outdiv4 = busDivider;
-    	}
-    }
-    else
-    {
-    	outdiv2 = outdiv1;
-    	outdiv4 = outdiv2;
-    }
+    coreDivider *=outdiv1;
+    fastPerDivider *= outdiv1;
+    flashDivider *=outdiv1;
 
-    /* select system_clock divider and bus_clock divider */
-    tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
-    tempReg &= ~(SIM_CLKDIV1_OUTDIV1_MASK | SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
-    tempReg |= (SIM_CLKDIV1_OUTDIV1(outdiv1-1) | SIM_CLKDIV1_OUTDIV2(outdiv2-1) | SIM_CLKDIV1_OUTDIV4(outdiv4-1));
-
-    SIM_CLKDIV1_REG(SIM_BASE_PTR) = tempReg;
-
-//    /*Low Power Mode, PLL/FLL off in bypass mode*/
-//    MCG_C2_REG(regmap) |= MCG_C2_LP_MASK;
-
+    /* Set divider */
+    error = Clock_setDividers(coreDivider, fastPerDivider, flashDivider);
     /* state transition */
     foutMcg = Clock_StateTransition(fext, stateOut, prdiv, vdiv, dmx32, drstDrs, range0, frdiv, ircs, fcrdiv);
     if(foutMcg == 0)
@@ -2450,8 +2403,8 @@ System_Errors Clock_Init (Clock_Config *config)
     {
         Clock_device.foutMcg = foutMcg;
         Clock_device.mcgState = Clock_getCurrentState();
+        Clock_device.coreDivider=outdiv1;
         Clock_device.devInitialized = 1;
-		error = Clock_setDividers(busDivider, flexbusDivider, flashDivider);
 		Clock_device.mcgError = error;
         return error;
     }
