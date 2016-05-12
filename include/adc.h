@@ -385,21 +385,24 @@ typedef enum {
 
 typedef enum {
 
-    ADC_VREFH_PAD =0x0,
-    ADC_VREFH_INT =0x1,
-    ADC_VREFL_PAD =0x0,
-    ADC_VREFL_INT =0x1,
+    ADC_VREFH_PAD  = 0x0,
+    ADC_VREFH_ANB2 = 0x1,
+    ADC_VREFH_ANA2 = 0x1,
+
+    ADC_VREFL_PAD  = 0x0,
+    ADC_VREFL_ANA3 = 0x1,
+    ADC_VREFL_ANB3 = 0x01
 
 }Adc_VoltReference;
 
 typedef enum{
 
-    SCANMODE_ONCE_SEQUENCIAL      = 0x0,
-    SCANMODE_ONCE_PARALLEL        = 0x1,
-    SCANMODE_LOOP_SEQUENCIAL      = 0x2,
-    SCANMODE_LOOP_PARALLEL        = 0x3,
-    SCANMODE_TRIGGERED_SEQUENTIAL = 0x4,
-    SCANMODE_TRIGGERED_PARALLEL   = 0x5,
+    ADC_SCANMODE_ONCE_SEQUENCIAL      = 0x0,
+    ADC_SCANMODE_ONCE_PARALLEL        = 0x1,
+    ADC_SCANMODE_LOOP_SEQUENCIAL      = 0x2,
+    ADC_SCANMODE_LOOP_PARALLEL        = 0x3,
+    ADC_SCANMODE_TRIGGERED_SEQUENTIAL = 0x4,
+    ADC_SCANMODE_TRIGGERED_PARALLEL   = 0x5,
 
 }Adc_ScanMode;
 
@@ -426,14 +429,14 @@ typedef enum
     defined (LIBOHIBOARD_TRWKV46F)
 
     typedef struct{
-        uint8_t           clkDiv0;
-        uint8_t           clkDiv1;
+        uint8_t             clkDiv0;
+        uint8_t             clkDiv1;
 
-        Adc_VoltReference ADCAvrefH;
-        Adc_VoltReference ADCBvrefH;
+        Adc_VoltReference   ADCAvrefH;
+        Adc_VoltReference   ADCBvrefH;
 
-        Adc_VoltReference ADCAvrefL;
-        Adc_VoltReference ADCBvrefL;
+        Adc_VoltReference   ADCAvrefL;
+        Adc_VoltReference   ADCBvrefL;
 
         Adc_ConvertionSpeed ADCAspeed;
         Adc_ConvertionSpeed ADCBspeed;
@@ -441,7 +444,7 @@ typedef enum
         bool                autoPwrDownEn;
         bool                autoStbEn;
 
-        uint8_t           pwrUpDelay;
+        uint8_t             pwrUpDelay;
     }Adc_Config;
 
     typedef enum
@@ -456,11 +459,11 @@ typedef enum
         Adc_ScanMode scanmode;
         struct
         {
-          uint8_t zc:1;
-          uint8_t eos0:1;
-          uint8_t llmt:1;
-          uint8_t hlmt:1;
-          uint8_t eos1:1;
+          uint8_t zc   :1;
+          uint8_t eos0 :1;
+          uint8_t llmt :1;
+          uint8_t hlmt :1;
+          uint8_t eos1 :1;
         }interrToEnable;
 
         void (*isrADCA)(void);
@@ -492,13 +495,14 @@ typedef enum
 
         bool differencialEn;
         Adc_Pins pin;
-        uint8_t Hlimit;
-        uint8_t Llimit;
+        uint16_t Hlimit;
+        uint16_t Llimit;
 
         Adc_zeroCross scMode;
         Adc_gain gain;
         bool scanIntEn;
         uint8_t offset;
+        bool sampleOnSync;
     }Adc_channelConfig;
 
 
@@ -526,6 +530,7 @@ typedef enum
     }Adc_ChannelNumber;
 
     typedef struct Adc_Device* Adc_DeviceHandle;
+    extern Adc_DeviceHandle OB_ADC0;
 
     void ADCA_IRQHandler(void);
 
@@ -549,6 +554,11 @@ typedef enum
       */
 
      System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config);
+
+     System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_channelConfig *config);
+
+     System_Errors Adc_acquireStart (Adc_DeviceHandle dev);
+
 #else /* standard ADC section */
 typedef enum {
 #if defined (LIBOHIBOARD_KL15Z4)     || \
