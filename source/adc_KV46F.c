@@ -44,7 +44,7 @@ typedef struct Adc_Device {
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
-
+    volatile uint32_t *channelmuxPtr;
     void (*isrADCA)(void);                     /**< The function pointer for ISR. */
     void (*isrADCB)(void);                     /**< The function pointer for ISR. */
 
@@ -70,6 +70,7 @@ typedef struct Adc_Device {
 
 static Adc_Device adc0 = {
      .regMap           = ADC_BASE_PTR,
+     .channelmuxPtr    = &SIM_ADCOPT,
 
      .simScgcPtr       = &SIM_SCGC5,
      .simScgcBitEnable = SIM_SCGC5_ADC_MASK,
@@ -289,23 +290,30 @@ static Adc_Device adc0 = {
          .devCalibration = 0,
 };
 
+Adc_DeviceHandle OB_ADC0 = &adc0;
+
 void ADCA_IRQHandler(void)
-{}
+{
+    OB_ADC0->callbackADCA();
+}
 void ADCB_IRQHandler(void)
-{}
+{
+    OB_ADC0->callbackADCB();
+}
 
 
 System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
 {
     uint16_t regapp;
     uint32_t busfrequency;
+
     /* Enable ADC Clock */
     *dev->simScgcPtr|=dev->simScgcBitEnable;
 
     busfrequency=Clock_getFrequency(CLOCK_FAST_PERIPHERALS);
     if(
-       (busfrequency/(config->clkDiv0)>(config->ADCAspeed+1)*6.26e6)||
-       (busfrequency/(config->clkDiv0)>(config->ADCAspeed+1)*6.26e6)
+       (busfrequency/(config->clkDiv0+1)>(config->ADCAspeed+1)*6.26e6)||
+       (busfrequency/(config->clkDiv1+1)>(config->ADCBspeed+1)*6.26e6)
        )
         return ERRORS_ADC_ERRATA_DIVIDERS;
 
@@ -318,6 +326,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     regapp=ADC_CTRL2_REG(dev->regMap);
     regapp&=~ADC_CTRL2_DIV0_MASK;
     regapp|=ADC_CTRL2_DIV0(config->clkDiv0);
+    ADC_CTRL2_REG(dev->regMap)=regapp;
 
     /* Set ABS and PUDELAY and  APD */
     regapp=ADC_PWR_REG(dev->regMap);
@@ -333,11 +342,18 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
                                ADC_PWR2_SPEEDB(config->ADCBspeed)|
                                ADC_PWR2_DIV1(config->clkDiv1);
 
+    /* Power UP converter */
+    ADC_PWR_REG(dev->regMap) &=~(ADC_PWR_PD0_MASK|ADC_PWR_PD1_MASK);
 
     /* wait for ADC to power up */
     while(ADC_PWR_REG(dev->regMap) & (ADC_PWR_PSTS0_MASK|ADC_PWR_PSTS1_MASK)){};
 
+    /* Disable all channel */
+    ADC_SDIS_REG(dev->regMap)=0xFFFF;
+
     dev->devInitialized=TRUE;
+    /* Disable all channel */
+    ADC_SDIS_REG(dev->regMap)=0xFFFF;
 
 
     return ERRORS_NO_ERROR;
@@ -368,6 +384,17 @@ System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config)
               ADC_CTRL2_SIMULT(config->simultEn);
     ADC_CTRL2_REG(dev->regMap)=regapp;
 
+    if(config->isrADCA)
+    {
+        dev->callbackADCA=config->isrADCA;
+        Interrupt_enable(INTERRUPT_ADCA);
+    }
+
+    if(config->isrADCB)
+    {
+        dev->callbackADCB=config->isrADCB;
+        Interrupt_enable(INTERRUPT_ADCB);
+    }
 
 
     return ERRORS_NO_ERROR;
@@ -378,7 +405,8 @@ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_ch
 {
     uint16_t regapp;
     uint8_t i;
-
+    uint8_t shift;
+    uint32_t regapp32;
     if (!dev->devInitialized)
         return ERRORS_DAC_DEVICE_NOT_INIT;
 
@@ -391,6 +419,28 @@ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_ch
     }
     if(i==ADC_MAX_PINS)
         return ERRORS_ADC_PIN_WRONG;
+
+    /*                      Enable pin                  */
+
+    /* Set ALT */
+    if(dev->pinsPtr[i])
+        *(dev->pinsPtr[i]) = PORT_PCR_MUX(dev->pinMux[i]) | PORT_PCR_IRQC(0);
+
+    /* Set mux */
+    if(dev->channelMux[i]!=ADC_CHL_RESERVED)
+    {
+        regapp32=*(dev->channelmuxPtr);
+        shift=0;
+
+        if(dev->channelNumber[i]>0x08)
+           shift+=8; //The channel is a B channel
+        if(dev->channelNumber[i]==0x7)
+           shift+=4;
+        regapp32 &= ~(0x7<<shift);
+        regapp32 |= (dev->channelMux[i]<<shift);
+        *(dev->channelmuxPtr)=regapp32;
+    }
+
 
     /* Set channel */
     regapp=*(&ADC_CLIST1_REG(dev->regMap)+(channelIndex>>2));
@@ -406,26 +456,39 @@ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_ch
     /* Set OFFSET */
     ADC_OFFST_REG(dev->regMap,channelIndex)=ADC_OFFST_OFFSET(config->offset);
 
-    /* Set GAI */
+    /* Set GAIN */
     regapp = *(&ADC_GC1_REG(dev->regMap)+(channelIndex>>3));
-    regapp &= (0x3<<((channelIndex%8)<<1));
+    regapp &= ~(0x3<<((channelIndex%8)<<1));
     regapp |=(config->gain<<((channelIndex%8)<<1));
     *(&ADC_GC1_REG(dev->regMap)+(channelIndex>>3))=regapp;
 
     /* Set ZCE */
     regapp = *(&ADC_ZXCTRL1_REG(dev->regMap)+(channelIndex>>3));
-    regapp &= (0x3<<((channelIndex%8)<<1));
+    regapp &= ~(0x3<<((channelIndex%8)<<1));
     regapp |= (config->scMode<<((channelIndex%8)<<1));
     *(&ADC_ZXCTRL1_REG(dev->regMap)+(channelIndex>>3))=regapp;
-
 
     /* Set DS */
     ADC_SDIS_REG(dev->regMap) &= ~(1<<channelIndex);
 
+    /* Set SCHLTN */
+    ADC_SCHLTEN_REG(dev->regMap)|=((0x1&config->scanIntEn)<<channelIndex);
+
+    /* Set SCTRL */
+    ADC_SCTRL_REG(dev->regMap)|=(0x1&config->sampleOnSync)<<channelIndex;
+
     return ERRORS_NO_ERROR;
 }
 
+System_Errors Adc_acquireStart (Adc_DeviceHandle dev)
+{
+    if(!dev->devInitialized)
+        return ERRORS_ADC_DEVICE_NOT_INIT;
+    ADC_CTRL1_REG(dev->regMap) &= ~ADC_CTRL1_STOP0_MASK;
+    ADC_CTRL2_REG(dev->regMap) &= ~ADC_CTRL2_STOP1_MASK;
 
+    return ERRORS_NO_ERROR;
+}
 
 /**
  *
