@@ -336,6 +336,59 @@ typedef enum {
 
 } Adc_Pins;
 
+typedef enum{
+    ADC_A_CH0,
+    ADC_A_CH1,
+    ADC_A_CH2,
+    ADC_A_CH3,
+    ADC_A_CH4,
+    ADC_A_CH5,
+
+    ADC_A_CH6,
+    ADC_A_CH6a,
+    ADC_A_CH6b,
+    ADC_A_CH6c,
+    ADC_A_CH6d,
+    ADC_A_CH6e,
+    ADC_A_CH6f,
+    ADC_A_CH6g,
+
+    ADC_A_CH7,
+    ADC_A_CH7a,
+    ADC_A_CH7b,
+    ADC_A_CH7c,
+    ADC_A_CH7d,
+    ADC_A_CH7e,
+    ADC_A_CH7f,
+    ADC_A_CH7g,
+
+
+    ADC_B_CH0,
+    ADC_B_CH1,
+    ADC_B_CH2,
+    ADC_B_CH3,
+    ADC_B_CH4,
+    ADC_B_CH5,
+
+    ADC_B_CH6,
+    ADC_B_CH6a,
+    ADC_B_CH6b,
+    ADC_B_CH6c,
+    ADC_B_CH6d,
+    ADC_B_CH6e,
+    ADC_B_CH6f,
+    ADC_B_CH6g,
+
+    ADC_B_CH7,
+    ADC_B_CH7a,
+    ADC_B_CH7b,
+    ADC_B_CH7c,
+    ADC_B_CH7d,
+    ADC_B_CH7e,
+    ADC_B_CH7f,
+    ADC_B_CH7g,
+}Adc_channel;
+
 
 typedef enum {
 #if defined (LIBOHIBOARD_FRDMKL03Z) || \
@@ -429,26 +482,27 @@ typedef enum
     defined (LIBOHIBOARD_TRWKV46F)
 
     typedef struct{
-        uint8_t             clkDiv0;
-        uint8_t             clkDiv1;
+        uint8_t             clkDiv;
 
-        Adc_VoltReference   ADCAvrefH;
-        Adc_VoltReference   ADCBvrefH;
+        Adc_VoltReference   vrefH;
 
-        Adc_VoltReference   ADCAvrefL;
-        Adc_VoltReference   ADCBvrefL;
+        Adc_VoltReference   vrefL;
 
-        Adc_ConvertionSpeed ADCAspeed;
-        Adc_ConvertionSpeed ADCBspeed;
+        Adc_ConvertionSpeed speed;
 
+    }Adc_Config;
+
+
+    typedef struct{
         bool                autoPwrDownEn;
         bool                autoStbEn;
 
         uint8_t             pwrUpDelay;
-    }Adc_Config;
 
-    typedef enum
-    {
+    }Adc_powerConfig;
+
+
+    typedef enum{
         ADC_SYNC_MANUAL_ONLY,
         ADC_SYNC_HARDWERE,
 
@@ -493,15 +547,19 @@ typedef enum
 
     typedef struct{
 
+        bool slotEn;
+        Adc_channel channelP;
+        Adc_channel channelM;
+
         bool differencialEn;
-        Adc_Pins pin;
+
         uint16_t Hlimit;
         uint16_t Llimit;
 
         Adc_zeroCross scMode;
         Adc_gain gain;
         bool scanIntEn;
-        uint8_t offset;
+        uint16_t offset;
         bool sampleOnSync;
     }Adc_channelConfig;
 
@@ -529,6 +587,12 @@ typedef enum
 
     }Adc_ChannelNumber;
 
+    typedef enum
+    {
+        ADC_CONVERTER_A = 0x0,
+        ADC_CONVERTER_B = 0x1,
+    }Adc_converter;
+
     typedef struct Adc_Device* Adc_DeviceHandle;
     extern Adc_DeviceHandle OB_ADC0;
 
@@ -544,7 +608,7 @@ typedef enum
      * @return A System_Errors elements that indicate the status of initialization.
      */
 
-     System_Errors Adc_init (Adc_DeviceHandle dev,  Adc_Config *config);
+     System_Errors Adc_init (Adc_DeviceHandle dev);
 
      /**
       * This function set the ADCs A and B acquisition parameter as indicate
@@ -552,12 +616,19 @@ typedef enum
       *
       * @param[in] dev Adc device handle to be set.
       */
+     System_Errors Adc_setPowerMode(Adc_DeviceHandle dev, Adc_powerConfig *config);
+
+     System_Errors Adc_configureADCx(Adc_DeviceHandle dev, Adc_converter converter, Adc_Config*config );
+
+     System_Errors Adc_powerUpADCx(Adc_DeviceHandle dev, Adc_converter converter);
 
      System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config);
 
      System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_channelConfig *config);
 
-     System_Errors Adc_acquireStart (Adc_DeviceHandle dev);
+     System_Errors Adc_acquireStart (Adc_DeviceHandle dev, bool adcAstart, bool adcBstart);
+
+     System_Errors Adc_readValue(Adc_DeviceHandle dev, uint8_t slotIndex, uint16_t* value );
 
 #else /* standard ADC section */
 typedef enum {
