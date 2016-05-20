@@ -37,7 +37,9 @@
 #if defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)   || \
     defined (LIBOHIBOARD_K12D5)      || \
-    defined (LIBOHIBOARD_KL25Z4)
+    defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_KV46F)      || \
+    defined (LIBOHIBOARD_TRWKV46F)
 
 #include "platforms.h"
 #include "errors.h"
@@ -54,8 +56,9 @@ typedef enum
 	DMA_REQ_DAC_UPPER_POINTER  = 0x03,
 	DMA_REQ_DAC_BOTTOM_POINTER = 0x04,
 	DMA_REQ_DAC_BOOTH_POINTER  = 0x05,
+	DMA_REQ_DAC_BUFFER         = 0x06,
 
-	DMA_REQ_ADC_CONV_COMPLETE  = 0x06,
+	DMA_REQ_ADC_CONV_COMPLETE  = 0x07,
 
 } Dma_RequestSource;
 
@@ -69,7 +72,9 @@ typedef enum
 
 #if	defined (LIBOHIBOARD_K64F12)   || \
 	defined (LIBOHIBOARD_FRDMK64F) || \
-	defined (LIBOHIBOARD_K12D5)
+	defined (LIBOHIBOARD_K12D5)    || \
+	defined (LIBOHIBOARD_KV46F)    || \
+	defined (LIBOHIBOARD_TRWKV46F)
 
 	DMA_CHANNEL_4  = 4,
 	DMA_CHANNEL_5  = 5,
@@ -120,9 +125,11 @@ typedef struct Dma_Config
 	uint32_t sourceAddress;
 	uint32_t destinationAddress;
 
-#if defined(LIBOHIBOARD_K64F12)  || \
-	defined(LIBOHIBOARD_FRDMK64F)|| \
-	defined(LIBOHIBOARD_K12D5)
+#if defined(LIBOHIBOARD_K64F12)    || \
+	defined(LIBOHIBOARD_FRDMK64F)  || \
+	defined(LIBOHIBOARD_K12D5)     || \
+	defined (LIBOHIBOARD_KV46F)    || \
+	defined (LIBOHIBOARD_TRWKV46F)
 
 	/* Source and destination for minor cycle */
 	uint8_t  sourceOff;

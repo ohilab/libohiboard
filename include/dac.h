@@ -41,6 +41,10 @@
 #include "errors.h"
 #include "types.h"
 
+#ifdef LIBOHIBOARD_DMA
+    #include "dma.h"
+#endif
+
 typedef enum {
     DAC_VOLTAGEREF_VDDA,
     DAC_VOLTAGEREF_VOUT
@@ -61,19 +65,43 @@ typedef enum
 
 typedef enum 
 {
-    DAC_BUFFERMODE_OFF,
-    DAC_BUFFERMODE_NORMAL,
-    DAC_BUFFERMODE_SWING,
-    DAC_BUFFERMODE_ONETIME
+    DAC_BUFFERMODE_NORMAL  = 0x0,
+    DAC_BUFFERMODE_SWING   = 0x1,
+    DAC_BUFFERMODE_ONETIME = 0x2,
+
+#if defined (LIBOHIBOARD_KV46F) || \
+    defined (LIBOHIBOARD_TRWKV46F)
+    DAC_BUFFERMODE_FIFO    = 0x3,
+#endif
+    DAC_BUFFERMODE_OFF     = 0x4,
+
 } Dac_BufferMode;
+
+#if defined (LIBOHIBOARD_KV46F) || \
+    defined (LIBOHIBOARD_TRWKV46F)
+
+typedef struct
+{
+    uint8_t intTopEn      :1;
+    uint8_t intBottmEn    :1;
+    uint8_t intWaterMark  :1;
+    uint8_t watermarkVale :2;
+
+}Dac_InterruptEvent;
+
+
+#else
 
 typedef enum
 {
 	DAC_INTERRUPTEVENT_NO_EVENT,
 	DAC_INTERRUPTEVENT_TOP,
 	DAC_INTERRUPTEVENT_BOTTOM,
-	DAC_INTERRUPTEVENT_BOOTH
+	DAC_INTERRUPTEVENT_BOOTH,
+
 }Dac_InterruptEvent;
+#endif
+
 
 typedef struct Dac_Device* Dac_DeviceHandle;
 
@@ -116,13 +144,23 @@ typedef struct _Dac_Config
     bool dmaEnable;
     Dac_InterruptEvent interruptEvent;
 
+    void (*intisr)(void);
+
 } Dac_Config;
+
+void DAC0_IRQHandler(void);
 
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config);
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
 
-//System_Errors enableDmaTrigger(Dac_DeviceHandle dev, Dac_InterruptEvent event);
+System_Errors Dac_loadBuffer(Dac_DeviceHandle dev, uint16_t* buffer, uint8_t startPos, uint8_t len);
+
+#ifdef LIBOHIBOARD_DAC
+    uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request);
+#endif
+
+
 
 #endif /* __DAC_H */
 
