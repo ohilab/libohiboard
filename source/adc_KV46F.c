@@ -343,7 +343,6 @@ System_Errors Adc_configureADCx(Adc_DeviceHandle dev, Adc_converter converter, A
                                         ADC_CAL_SEL_VREFLO_B(config->vrefL);
 
             /* Set DIV1 SPEEDB */
-
             ADC_PWR2_REG(dev->regMap) &= ~(ADC_PWR2_SPEEDB_MASK|ADC_PWR2_DIV1_MASK);
             ADC_PWR2_REG(dev->regMap) |= ADC_PWR2_SPEEDB(config->speed)|
                                          ADC_PWR2_DIV1(config->clkDiv);
@@ -463,10 +462,11 @@ System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config)
     ADC_CTRL1_REG(dev->regMap)=regapp;
 
     /* Set SYNC1=?, EOSIE1=?, SIMULT=? */
-    regapp= ADC_CTRL2_REG(dev->regMap);
+    regapp = ADC_CTRL2_REG(dev->regMap);
     regapp &= ~(ADC_CTRL2_SYNC1_MASK|ADC_CTRL2_EOSIE1_MASK|ADC_CTRL2_SIMULT_MASK);
     regapp |= ADC_CTRL2_SYNC1(config->sync1)|ADC_CTRL2_EOSIE1(config->interrToEnable.eos1)|
               ADC_CTRL2_SIMULT(config->simultEn);
+
     ADC_CTRL2_REG(dev->regMap)=regapp;
 
     if(config->isrADCA)
@@ -513,30 +513,30 @@ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t slotIndex, Adc_chann
     if(ip==-1)
         return ERRORS_ADC_PIN_WRONG;
     /* Set channel P */
-    regapp=*(&ADC_CLIST1_REG(dev->regMap)+(slotIndex>>2));
-    regapp&=~(0xF<<((slotIndex%4)<<2));
-    regapp|=(0xF&dev->channelNumber[ip])<<(slotIndex%4);
+    regapp = *(&ADC_CLIST1_REG(dev->regMap)+(slotIndex>>2));
+    regapp &= ~(0xF<<((slotIndex%4)<<2));
+    regapp |= (0xF&dev->channelNumber[ip])<<(slotIndex%4);
     *(&ADC_CLIST1_REG(dev->regMap)+(slotIndex>>2))=regapp;
 
     /* Set GAIN */
     regapp = *(&ADC_GC1_REG(dev->regMap)+(dev->channelNumber[ip]>>3));
     regapp &= ~(0x3<<((dev->channelNumber[ip]%8)<<1));
-    regapp |=(config->gain<<((dev->channelNumber[ip]%8)<<1));
+    regapp |= (config->gain<<((dev->channelNumber[ip]%8)<<1));
     *(&ADC_GC1_REG(dev->regMap)+(dev->channelNumber[ip]>>3))=regapp;
 
     if(config->differencialEn)
     {
-        im=Adc_enablePin(dev, config->channelM);
-        if(ip==-1)
+        im = Adc_enablePin(dev, config->channelM);
+        if(ip == -1)
             return ERRORS_ADC_PIN_WRONG;
 
         /* Set GAIN */
         regapp = *(&ADC_GC1_REG(dev->regMap)+(dev->channelNumber[ip]>>3));
         regapp &= ~(0x3<<((dev->channelNumber[im]%8)<<1));
-        regapp |=(config->gain<<((dev->channelNumber[im]%8)<<1));
-        *(&ADC_GC1_REG(dev->regMap)+(dev->channelNumber[im]>>3))=regapp;
+        regapp |= (config->gain<<((dev->channelNumber[im]%8)<<1));
+        *(&ADC_GC1_REG(dev->regMap)+(dev->channelNumber[im]>>3)) = regapp;
 
-        if((dev->channelNumber[ip]+1)!=dev->channelNumber[im]||(dev->channelNumber[ip]%2!=0))
+        if((dev->channelNumber[ip]+1) != dev->channelNumber[im]||(dev->channelNumber[ip]%2!=0))
             return ERRORS_ADC_CHANNEL_WRONG;
 
     }/* End pin enabling */
@@ -547,12 +547,12 @@ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t slotIndex, Adc_chann
        ((0x8<=dev->channelNumber[ip])&&(dev->channelNumber[ip]<=0xB))
       )
     {
-        regptr= &ADC_CTRL1_REG(dev->regMap);
+        regptr = &ADC_CTRL1_REG(dev->regMap);
         shift = ADC_CTRL1_CHNCFG_L_SHIFT+dev->channelNumber[ip]>>2;
     }
     else
     {
-        regptr=&ADC_CTRL2_REG(dev->regMap);
+        regptr = &ADC_CTRL2_REG(dev->regMap);
         shift = ADC_CTRL2_CHNCFG_H_SHIFT+((dev->channelNumber[ip]>>2)-1);
     }
 
@@ -564,12 +564,12 @@ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t slotIndex, Adc_chann
 
     /*                       Enable controls                    */
     /* Set HLIM */
-    ADC_HILIM_REG(dev->regMap,slotIndex)=ADC_HILIM_HLMT(config->Hlimit);
+    ADC_HILIM_REG(dev->regMap,slotIndex) = ADC_HILIM_HLMT(config->Hlimit);
     /* Set LLIM */
-    ADC_LOLIM_REG(dev->regMap,slotIndex)=ADC_LOLIM_LLMT(config->Llimit);
+    ADC_LOLIM_REG(dev->regMap,slotIndex) = ADC_LOLIM_LLMT(config->Llimit);
 
     /* Set OFFSET */
-    ADC_OFFST_REG(dev->regMap,slotIndex)=ADC_OFFST_OFFSET(config->offset);
+    ADC_OFFST_REG(dev->regMap,slotIndex) = ADC_OFFST_OFFSET(config->offset);
 
     /* Set ZCE */
     regapp = *(&ADC_ZXCTRL1_REG(dev->regMap)+(slotIndex>>3));

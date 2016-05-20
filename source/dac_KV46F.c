@@ -36,6 +36,7 @@
 #include "utility.h"
 #include "dac.h"
 #include "clock.h"
+#include "interrupt.h"
 
 typedef struct Dac_Device
 {
@@ -47,6 +48,12 @@ typedef struct Dac_Device
     Dac_BufferMode bufferMode;
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+
+    uint8_t dmaChannel;
+
+    Interrupt_Vector isrNumber;
+    void (*intisr)(void);
+
 } Dac_Device;
 
 static Dac_Device dac0 = {
@@ -55,9 +62,19 @@ static Dac_Device dac0 = {
         .simScgcPtr       = &SIM_SCGC6,
         .simScgcBitEnable = SIM_SCGC6_DAC0_MASK,
 
+        .dmaChannel       = 45,
+
         .devInitialized   = 0,
+        .isrNumber        = INTERRUPT_DAC0,
 };
 Dac_DeviceHandle OB_DAC0 = &dac0;
+
+
+
+void DAC0_IRQHandler(void)
+{
+    OB_DAC0->intisr();
+}
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
 {
@@ -105,19 +122,77 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     /* FIXME:  Just now we disable DMA */
 
     dev->bufferMode = config->buffer;
-    if (dev->bufferMode == DAC_BUFFERMODE_OFF)
+
+    DAC_C1_REG(dev->regMap) &= ~DAC_C1_DMAEN_MASK;
+
+
+    /* Settings for  buffer mode */
+//    DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFEN_MASK;
+//    DAC_C0_REG(dev->regMap) &= ~(DAC_C0_DACBWIEN_MASK|DAC_C0_DACBTIEN_MASK|
+//                                 DAC_C0_DACBBIEN_MASK);
+
+
+    DAC_SR_REG(dev->regMap) = 0x0;
+
+    if (config->buffer != DAC_BUFFERMODE_OFF)
     {
-        DAC_C1_REG(dev->regMap) = 0x00;
+        DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFMD_MASK;
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFMD(config->buffer);
+
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBWIEN(config->interruptEvent.intWaterMark);
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBTIEN(config->interruptEvent.intTopEn);
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBBIEN(config->interruptEvent.intBottmEn);
+
+        /* Enable buffer mode */
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+
+        if(config->intisr)
+        {
+            dev->intisr = config->intisr;
+            Interrupt_enable(dev->isrNumber);
+        }
     }
-    else
-    {
-        /* FIXME: buffer mode! */
-    }
+
+    /* End buffer mode settings */
+
+    /* Select trigger type */
+    DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACTRGSEL_MASK;
+    DAC_C0_REG(dev->regMap) |= DAC_C0_DACTRGSEL(config->trigger);
 
     /* Enable module */
     DAC_C0_REG(dev->regMap) |= DAC_C0_DACEN_MASK;
 
     dev->devInitialized = 1;
+    return ERRORS_NO_ERROR;
+}
+
+uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request)
+{
+
+    /* Enable module */
+//    DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACEN_MASK;
+    DAC_C1_REG(dev->regMap) |= DAC_C1_DMAEN_MASK;
+//    DAC_C0_REG(dev->regMap) |= DAC_C0_DACEN_MASK;
+    return dev->dmaChannel;
+
+}
+
+System_Errors Dac_loadBuffer(Dac_DeviceHandle dev, uint16_t* buffer, uint8_t startPos, uint8_t len)
+{
+    if(!dev->devInitialized)
+        return ERRORS_DAC_DEVICE_NOT_INIT;
+
+    uint8_t i;
+    uint8_t endPos=startPos+len;
+    if((endPos>0x10)||(startPos > 0xF))
+        return ERRORS_DAC_WRONG_PARAMETER;
+
+    for(i=startPos;i<(endPos);i++)
+    {
+        DAC_DATL_REG(dev->regMap, i) = buffer[i]&0xFF;
+        DAC_DATH_REG(dev->regMap, i) = (buffer[i]>>8)&0xF;
+    }
+
     return ERRORS_NO_ERROR;
 }
 
