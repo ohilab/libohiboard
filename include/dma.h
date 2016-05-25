@@ -193,12 +193,14 @@ extern Dma_DeviceHandle OB_DMA0;
  * @param[in] request
  * @param[in] channel
  * @param[in] callback
+ * @param[in] callbackError
  */
 System_Errors  Dma_init(Dma_DeviceHandle dev,
                         void* pHandler,
                         Dma_RequestSource request,
                         Dma_Channel channel,
-                        void *callback);
+                        void *callback,
+                        void *callbackError);
 
 /**
  * This function disable a DMA Channel
