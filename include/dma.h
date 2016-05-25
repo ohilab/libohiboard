@@ -151,12 +151,14 @@ typedef struct Dma_Config
 	bool incrementSource;
 	bool incrementDestination;
 	bool enableAA;
-	uint8_t sourceModulo;
-	uint8_t destinationModulo;
+
 	Dma_LinkCannel linkCh1;
 	Dma_LinkCannel linkCh2;
 
 #endif
+
+	uint8_t sourceModulo;
+	uint8_t destinationModulo;
 
 	/* Source and destination data size */
     Dma_DataSize sSize;
