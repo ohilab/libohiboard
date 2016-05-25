@@ -139,8 +139,13 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
         DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFMD_MASK;
         DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFMD(config->buffer);
 
+        DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACBWIEN_MASK;
         DAC_C0_REG(dev->regMap) |= DAC_C0_DACBWIEN(config->interruptEvent.intWaterMark);
+
+        DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACBTIEN_MASK;
         DAC_C0_REG(dev->regMap) |= DAC_C0_DACBTIEN(config->interruptEvent.intTopEn);
+
+        DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACBBIEN_MASK;
         DAC_C0_REG(dev->regMap) |= DAC_C0_DACBBIEN(config->interruptEvent.intBottmEn);
 
         /* Enable buffer mode */

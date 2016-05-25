@@ -144,8 +144,8 @@ System_Errors Dma_init (Dma_DeviceHandle dev,
 
     /* enable error interrupt  */
 
-        DMA_EEI_REG(dev->regMap) |=1;
-        Interrupt_enable(16);
+//        DMA_EEI_REG(dev->regMap) |=1;
+//        Interrupt_enable(16);
     /* ++++++++++++++++++++++++++++++++ */
 
 
