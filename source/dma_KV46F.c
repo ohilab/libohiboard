@@ -64,7 +64,10 @@ typedef struct Dma_Device
 
     uint8_t channelSource[MAX_DMA_CHANNEL];
 
-    void (*irqCallback[MAX_DMA_CHANNEL]) (void);//(void);
+    Interrupt_Vector errorIsrNum;
+
+    void (*irqCallback[MAX_DMA_CHANNEL]) (void);
+    void (*irqCallbackError[MAX_DMA_CHANNEL]) (void);
 
 } Dma_Device;
 
@@ -81,16 +84,18 @@ static Dma_Device dma0 = {
 
         .simScgcBitEnableDMAMUX  = SIM_SCGC6_DMAMUX_MASK,
         .simScgcBitEnableDMA     = SIM_SCGC7_DMA_MASK,
+        .errorIsrNum             = INTERRUPT_DMA_ERROR,
 
 };
 
 Dma_DeviceHandle OB_DMA0 = &dma0;
 
-System_Errors Dma_init (Dma_DeviceHandle dev,
+System_Errors  Dma_init(Dma_DeviceHandle dev,
                         void* pHandler,
                         Dma_RequestSource request,
                         Dma_Channel channel,
-                        void *callback)
+                        void *callback,
+                        void *callbackError)
 {
 
     switch (request)
@@ -142,11 +147,18 @@ System_Errors Dma_init (Dma_DeviceHandle dev,
         dev->irqCallback[channel] = callback;
     }
 
-    /* enable error interrupt  */
+    DMA_EEI_REG(dev->regMap) &= ~(1<<channel);
 
-//        DMA_EEI_REG(dev->regMap) |=1;
-//        Interrupt_enable(16);
-    /* ++++++++++++++++++++++++++++++++ */
+    /* Enable error interrupt ? */
+
+    if(callbackError)
+    {
+        DMA_EEI_REG(dev->regMap) |= 1;
+        dev->irqCallbackError[channel] = callbackError;
+        Interrupt_enable(dev->errorIsrNum);
+    }
+
+    /* End interrupt error enabling */
 
 
     /* Enable dma Channel source request routing on the channel indicate by config.channel */
@@ -314,7 +326,17 @@ void DMA15_IRQHandler(void)
 }
 void DMA_Error_IRQHandler(void)
 {
+    uint8_t i;
+
+    i=0;
+    while((i<MAX_DMA_CHANNEL)&&(DMA_ERR_REG(OB_DMA0->regMap)&(1<<i)))
+    {
+        i++;
     }
+    OB_DMA0->irqCallbackError[i]();
+    DMA_ERR_REG(OB_DMA0->regMap) |= 1<<i;
+
+}
 
 #endif /* LIBOHIBOARD_K12D5 */
 #endif /* LIBOHIBOARD_DMA */

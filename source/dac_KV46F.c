@@ -125,13 +125,6 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
 
     DAC_C1_REG(dev->regMap) &= ~DAC_C1_DMAEN_MASK;
 
-
-    /* Settings for  buffer mode */
-//    DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFEN_MASK;
-//    DAC_C0_REG(dev->regMap) &= ~(DAC_C0_DACBWIEN_MASK|DAC_C0_DACBTIEN_MASK|
-//                                 DAC_C0_DACBBIEN_MASK);
-
-
     DAC_SR_REG(dev->regMap) = 0x0;
 
     if (config->buffer != DAC_BUFFERMODE_OFF)
@@ -174,10 +167,8 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
 uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request)
 {
 
-    /* Enable module */
-//    DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACEN_MASK;
     DAC_C1_REG(dev->regMap) |= DAC_C1_DMAEN_MASK;
-//    DAC_C0_REG(dev->regMap) |= DAC_C0_DACEN_MASK;
+
     return dev->dmaChannel;
 
 }
