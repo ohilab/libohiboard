@@ -93,6 +93,10 @@
 #include "dma.h"
 #endif
 
+#ifdef LIBOHIBOARD_XBAR
+#include "xbar.h"
+#endif
+
 #include "timeday.h"
 
 void test();

@@ -49,7 +49,10 @@ typedef enum
     FTM_MODE_OUTPUT_COMPARE,
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
-    defined (LIBOHIBOARD_K64F12)
+    defined (LIBOHIBOARD_K64F12)   || \
+    defined (LIBOHIBOARD_KV46F)    || \
+    defined (LIBOHIBOARD_TRWKV46F)
+
     FTM_MODE_COMBINE,
 #endif
 
@@ -388,11 +391,23 @@ extern Ftm_DeviceHandle FTM1;
 extern Ftm_DeviceHandle FTM2;
 
 #elif defined (LIBOHIBOARD_K64F12)     || \
-	  defined (LIBOHIBOARD_FRDMK64F)
+	  defined (LIBOHIBOARD_FRDMK64F)   || \
+	  defined (LIBOHIBOARD_KV46F)      || \
+	  defined (LIBOHIBOARD_TRWKV46F)
+
+#if defined (LIBOHIBOARD_K64F12)     || \
+	defined (LIBOHIBOARD_FRDMK64F)
 
 #define FTM_MAX_CHANNEL                  8
 #define FTM_MAX_FAULT_CHANNEL            4
 
+#elif  defined (LIBOHIBOARD_KV46F)      || \
+       defined  (LIBOHIBOARD_TRWKV46F)
+
+#define FTM_MAX_CHANNEL                  8
+#define FTM_MAX_FAULT_CHANNEL            4
+
+#endif
 typedef enum
 {
 	FTM_PINS_PTE5,
@@ -406,6 +421,7 @@ typedef enum
     FTM_PINS_PTA5,
     FTM_PINS_PTA12,
     FTM_PINS_PTA13,
+    FTM_PINS_PTA18,
 
     FTM_PINS_PTB0,
     FTM_PINS_PTB1,
@@ -431,14 +447,23 @@ typedef enum
     FTM_PINS_PTD6,
     FTM_PINS_PTD7,
 
+    FTM_PINS_PTE20,
+    FTM_PINS_PTE21,
+    FTM_PINS_PTE24,
+    FTM_PINS_PTE25,
+    FTM_PINS_PTE29,
+    FTM_PINS_PTE30,
+
     FTM_PINS_STOP,
 } Ftm_Pins;
 
 typedef enum
 {
+    FTM_FAULTPINS_PTA4,
     FTM_FAULTPINS_PTA18,
     FTM_FAULTPINS_PTA19,
 
+    FTM_FAULTPINS_PTB1,
     FTM_FAULTPINS_PTB2,
     FTM_FAULTPINS_PTB3,
     FTM_FAULTPINS_PTB4,
@@ -446,12 +471,15 @@ typedef enum
     FTM_FAULTPINS_PTB10,
     FTM_FAULTPINS_PTB11,
 
-    FTM_FAULTPINS_PTC9,
+    FTM_FAULTPINS_PTC0,
+    FTM_FAULTPINS_PTC3,
     FTM_FAULTPINS_PTC12,
 
     FTM_FAULTPINS_PTD6,
     FTM_FAULTPINS_PTD7,
     FTM_FAULTPINS_PTD12,
+
+    FTM_FAULTPINS_PTE16,
 
     FTM_FAULTPINS_STOP,
 } Ftm_FaultPins;
@@ -524,12 +552,10 @@ typedef enum
 
 void FTM0_IRQHandler (void);
 void FTM1_IRQHandler (void);
-void FTM2_IRQHandler (void);
 void FTM3_IRQHandler (void);
 
 extern Ftm_DeviceHandle OB_FTM0;
 extern Ftm_DeviceHandle OB_FTM1;
-extern Ftm_DeviceHandle OB_FTM2;
 extern Ftm_DeviceHandle OB_FTM3;
 
 typedef enum
@@ -593,7 +619,9 @@ typedef struct Ftm_Config
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
-    defined (LIBOHIBOARD_K64F12)
+    defined (LIBOHIBOARD_K64F12)   || \
+	defined (LIBOHIBOARD_KV46F)    || \
+	defined  (LIBOHIBOARD_TRWKV46F)
 
     /* Fault configurations */
     Ftm_FaultConfig fault[FTM_MAX_FAULT_CHANNEL];
@@ -610,6 +638,7 @@ typedef struct Ftm_Config
     Ftm_CombineChannelConfig channelPair[FTM_MAX_CHANNEL>>1];
     uint32_t deadTime;  /**< Only valid in combine or complementary mode [ns] */
     bool symmetrical;
+
 #endif
 
 } Ftm_Config;

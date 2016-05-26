@@ -42,18 +42,19 @@
 
 typedef enum
 {
-    XBAR_IN_PIT_CH0,
+    XBAR_IN_PIT_CH0 = 0x1,
 }Xbar_Input;
 
 typedef enum
 {
-    XBAR_OUT_DAC0_12B_SYNC,
+    XBAR_OUT_DAC0_12B_SYNC = 0x1,
 }Xbar_Output;
 
 typedef struct Xbar_Device* Xbar_DeviceHandle ;
 
 
 extern Xbar_DeviceHandle OB_XBARA;
+extern Xbar_DeviceHandle OB_XBARB;
 
 /**
  * This function initialize the XBAR device
@@ -62,6 +63,18 @@ extern Xbar_DeviceHandle OB_XBARA;
  */
 
 System_Errors Xbar_init(Xbar_DeviceHandle dev);
+
+/**
+ * This function route the  XBAR in input to XBAR out output
+ *
+ * @param[in] dev Xbar device handle to initialize
+ * @param[in] in channel input selected
+ * @param[out] out channel out selected
+ */
+
+
+System_Errors Xbar_ruteInToOut(Xbar_DeviceHandle dev, Xbar_Input in, Xbar_Output out);
+
 
 #endif
 #endif /* LIBOHIBOARD_XBAR */

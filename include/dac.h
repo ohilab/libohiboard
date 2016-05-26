@@ -116,6 +116,18 @@ extern Dac_DeviceHandle DAC1;
 
 extern Dac_DeviceHandle OB_DAC0;
 
+#if defined (LIBOHIBOARD_KV46F) || \
+    defined (LIBOHIBOARD_TRWKV46F)
+
+typedef enum{
+    DAC_HARDSYNC_XBARA      = 0x0,
+    DAC_HARDSYNC_PDB_BOOTH  = 0x1,
+    DAC_HARDSYNC_PDB0       = 0x2,
+    DAC_HARDSYNC_PDB1       = 0x3,
+}Dac_HardSyncSelect;
+
+#endif
+
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
@@ -132,6 +144,9 @@ extern Dac_DeviceHandle DAC1;
 
 #endif
 
+
+
+
 typedef struct _Dac_Config
 {
     Dac_VoltageRef ref;
@@ -143,6 +158,13 @@ typedef struct _Dac_Config
 
     bool dmaEnable;
     Dac_InterruptEvent interruptEvent;
+
+#if defined (LIBOHIBOARD_KV46F) || \
+    defined (LIBOHIBOARD_TRWKV46F)
+
+    Dac_HardSyncSelect hardSyncSel;
+
+#endif
 
     void (*intisr)(void);
 
