@@ -51,6 +51,10 @@ typedef struct Dac_Device
 
     uint8_t dmaChannel;
 
+    volatile uint32_t* simSyncCtrlPtr;
+    uint32_t simCtrlMask;
+    uint8_t  simCtrlShift;
+
     Interrupt_Vector isrNumber;
     void (*intisr)(void);
 
@@ -66,6 +70,11 @@ static Dac_Device dac0 = {
 
         .devInitialized   = 0,
         .isrNumber        = INTERRUPT_DAC0,
+
+        /* For hardware sync selection */
+        .simSyncCtrlPtr = &SIM_MISCTRL0,
+        .simCtrlMask    = SIM_MISCTRL0_DACTRIGSRC_MASK,
+        .simCtrlShift   = SIM_MISCTRL0_DACTRIGSRC_SHIFT,
 };
 Dac_DeviceHandle OB_DAC0 = &dac0;
 
@@ -153,9 +162,19 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
 
     /* End buffer mode settings */
 
-    /* Select trigger type */
+    /* Select trigger type selection */
+
     DAC_C0_REG(dev->regMap) &= ~DAC_C0_DACTRGSEL_MASK;
-    DAC_C0_REG(dev->regMap) |= DAC_C0_DACTRGSEL(config->trigger);
+    if(config->trigger==DAC_TRIGGER_HARDWARE)
+    {
+        *(dev->simSyncCtrlPtr) &= ~dev->simCtrlMask;
+        *(dev->simSyncCtrlPtr) |= (config->hardSyncSel<<dev->simCtrlShift)&
+                                   dev->simCtrlMask;
+    }
+    else
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACTRGSEL(config->trigger);
+
+    /* End trigger type selection */
 
     /* Enable module */
     DAC_C0_REG(dev->regMap) |= DAC_C0_DACEN_MASK;

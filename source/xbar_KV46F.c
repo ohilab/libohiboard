@@ -72,6 +72,7 @@ typedef struct Xbar_Device {
 
 static Xbar_Device xbarA={
         .regMapA     = XBARA,
+        .regMapB     = 0,
         .simScgPtr   = &SIM_SCGC5,
         .maskClockEn = SIM_SCGC5_XBARA_MASK,
 
@@ -90,6 +91,9 @@ static Xbar_Device xbarB={
 
 };
 
+Xbar_DeviceHandle OB_XBARB = &xbarB;
+
+
 uint8_t Xbara_findCannelNum(uint8_t* channelList, uint8_t channel, uint8_t len);
 
 
@@ -104,13 +108,14 @@ System_Errors Xbar_init(Xbar_DeviceHandle dev)
 
 
     *dev->simScgPtr |= dev->maskClockEn;
+    dev->devinitialized = TRUE;
 
     return ERRORS_NO_ERROR;
 }
 
 System_Errors Xbar_ruteInToOut(Xbar_DeviceHandle dev, Xbar_Input in, Xbar_Output out)
 {
-    uint8_t inNum, outNum;
+    int inNum, outNum;
     uint32_t mask;
     volatile uint32_t* ptr;
     uint32_t shift;
@@ -121,6 +126,7 @@ System_Errors Xbar_ruteInToOut(Xbar_DeviceHandle dev, Xbar_Input in, Xbar_Output
     /* Find in index */
     if((inNum = Xbara_findCannelNum(dev->input, in, XBAR_A_MAX_IN))<0)
         return ERRORS_XBAR_IN_WRONG;
+
     /* Find out index */
     if((outNum = Xbara_findCannelNum(dev->output, out, XBAR_A_MAX_OUT))<0)
         return ERRORS_XBAR_OUT_WRONG;
@@ -133,7 +139,7 @@ System_Errors Xbar_ruteInToOut(Xbar_DeviceHandle dev, Xbar_Input in, Xbar_Output
         mask = 0x3F<<shift;
 
         *ptr &= ~mask;
-        *ptr |= (in<<shift)&mask;
+        *ptr |= (inNum<<shift)&mask;
     }
     else
     {
