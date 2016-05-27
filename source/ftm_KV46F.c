@@ -502,17 +502,17 @@ static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
 
     if (prescaler > 64)
         return FTM_PRESCALER_128;
-    else if (prescaler > 32)
+    else if (prescaler >= 32)
         return FTM_PRESCALER_64;
-    else if (prescaler > 16)
+    else if (prescaler >= 16)
         return FTM_PRESCALER_32;
-    else if (prescaler > 8)
+    else if (prescaler >= 8)
         return FTM_PRESCALER_16;
-    else if (prescaler > 4)
+    else if (prescaler >= 4)
         return FTM_PRESCALER_8;
-    else if (prescaler > 2)
+    else if (prescaler >= 2)
         return FTM_PRESCALER_4;
-    else if (prescaler > 1)
+    else if (prescaler >= 1)
         return FTM_PRESCALER_2;
     else
         return FTM_PRESCALER_1;
@@ -963,7 +963,7 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     /* Select the right register */
     /* Select the right register */
     regCSCPtr = Ftm_getCnSCRegister(dev,dev->channel[devPinIndex]);
-    regCVPtr = Ftm_getCnVRegister(dev,dev->channel[devPinIndex]);
+    regCVPtr  = Ftm_getCnVRegister(dev,dev->channel[devPinIndex]);
 
     /* Enable channel and set PWM value */
     if (regCSCPtr && regCVPtr)
