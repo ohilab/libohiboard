@@ -34,6 +34,16 @@
 
 #include "gpio.h"
 #include "platforms.h"
+#include "interrupt.h"
+
+#define  PORTA_MAX_PIN  15
+#define  PORTD_MAX_PIN  8
+
+static void (*Gpio_isrPortARequestVector[PORTA_MAX_PIN]) (void);
+static void (*Gpio_isrPortDRequestVector[PORTD_MAX_PIN]) (void);
+
+static uint32_t INT_REG_A = 0x0;
+static uint32_t INT_REG_D = 0x0;
 
 typedef enum
 {
@@ -53,6 +63,8 @@ typedef struct _Gpio_PinDevice
 
 static Gpio_PinDevice Gpio_availablePins[] =
 {
+        {0xFF,0xFF},
+
         {GPIO_PORTS_A,0},
         {GPIO_PORTS_A,1},
         {GPIO_PORTS_A,2},
@@ -267,6 +279,96 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     Gpio_getPort(pin,&port);
 
     return ((port->PDIR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
+}
+
+System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event)
+{
+    GPIO_MemMapPtr port;
+    Gpio_getPort(pin,&port);
+
+    switch(Gpio_availablePins[pin].port)
+    {
+    case GPIO_PORTS_A:
+        PORTA_PCR(Gpio_availablePins[pin].pinNumber)|=PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
+        Gpio_isrPortARequestVector[Gpio_availablePins[pin].pinNumber]=callback;
+        INT_REG_A |= 1 << Gpio_availablePins[pin].pinNumber;
+        Interrupt_enable (INTERRUPT_PORTA);
+        break;
+    case GPIO_PORTS_D:
+        PORTD_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
+        Gpio_isrPortDRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        INT_REG_D |= 1 << Gpio_availablePins[pin].pinNumber;
+        Interrupt_enable (INTERRUPT_PORTD);
+        break;
+    default:
+        assert(0);
+        return ERRORS_GPIO_WRONG_PORT;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
+{
+    GPIO_MemMapPtr port;
+    Gpio_getPort(pin,&port);
+
+    switch(Gpio_availablePins[pin].port)
+    {
+    case GPIO_PORTS_A:
+        PORTA_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        INT_REG_A &= ~(1 << Gpio_availablePins[pin].pinNumber);
+        if (!INT_REG_A) Interrupt_disable(INTERRUPT_PORTA);
+        break;
+    case GPIO_PORTS_D:
+        PORTD_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        INT_REG_D &= ~(1 << Gpio_availablePins[pin].pinNumber);
+        if (!INT_REG_D) Interrupt_disable(INTERRUPT_PORTD);
+        break;
+    default:
+        assert(0);
+        return ERRORS_GPIO_WRONG_PORT;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+void PORTA_IRQHandler (void)
+{
+    uint8_t i=0;
+
+    while (i < PORTA_MAX_PIN)
+    {
+        if(INT_REG_A & (1 << i))
+        {
+            if (PORTA_PCR(i) & PORT_PCR_ISF_MASK)
+            {
+                Gpio_isrPortARequestVector[i]();
+                //reset interrupt
+                PORTA_PCR(i) |= PORT_PCR_ISF_MASK;
+            }
+        }
+        i++;
+    }
+}
+
+void PORTD_IRQHandler (void)
+{
+    uint8_t i=0;
+
+    while (i < PORTD_MAX_PIN)
+    {
+        if(INT_REG_D & (1 << i))
+        {
+            if (PORTD_PCR(i) & PORT_PCR_ISF_MASK)
+            {
+                Gpio_isrPortDRequestVector[i]();
+                //reset interrupt
+                PORTD_PCR(i) |= PORT_PCR_ISF_MASK;
+            }
+        }
+        i++;
+    }
 }
 
 #endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */

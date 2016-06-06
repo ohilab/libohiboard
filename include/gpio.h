@@ -61,6 +61,8 @@ typedef enum
 
 typedef enum
 {
+    GPIO_PINS_NONE = 0,
+
 #if defined (LIBOHIBOARD_KL02Z4)     || \
     defined (LIBOHIBOARD_FRDMKL02Z)
 
@@ -123,7 +125,7 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_KL15Z4)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -201,7 +203,7 @@ typedef enum
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -274,11 +276,10 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_K10DZ10)
     
-    GPIO_PINS_NONE,
     
 #elif defined (LIBOHIBOARD_K10D10)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -389,7 +390,7 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_K12D5)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -457,7 +458,7 @@ typedef enum
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -532,7 +533,7 @@ typedef enum
 #elif defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -733,7 +734,6 @@ typedef enum
 
 #endif
 
-    GPIO_PINS_NONE,
 } Gpio_Pins;
 
 typedef enum
@@ -754,7 +754,9 @@ Gpio_Level Gpio_get (Gpio_Pins pin);
 
 #if defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)   || \
-    defined (LIBOHIBOARD_K12D5)
+    defined (LIBOHIBOARD_K12D5)      || \
+	defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
