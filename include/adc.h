@@ -995,6 +995,9 @@ extern Adc_DeviceHandle ADC0;
 #elif defined (LIBOHIBOARD_KL25Z4)    || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
+/* Bandgap value */
+#define ADC_BGR_mV               1000
+
 void ADC0_IRQHandler();
 
 extern Adc_DeviceHandle OB_ADC0;
