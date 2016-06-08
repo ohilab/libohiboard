@@ -60,7 +60,7 @@ typedef struct Pit_Device
 } Pit_Device;
 
 void PIT0_IRQHandler (void);
-void Pit_isrPit1 (void);
+void PIT1_IRQHandler (void);
 void Pit_isrPit2 (void);
 void Pit_isrPit3 (void);
 
@@ -72,7 +72,7 @@ static Pit_Device pit0 = {
 
     .isr              = {
                         PIT0_IRQHandler,
-                        Pit_isrPit1,
+                        PIT1_IRQHandler,
                         Pit_isrPit2,
                         Pit_isrPit3
     },
@@ -104,7 +104,7 @@ void PIT0_IRQHandler (void)
     OB_PIT0->callback[0]();
 }
 
-void Pit_isrPit1 (void)
+void PIT1_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,1) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[1]();
