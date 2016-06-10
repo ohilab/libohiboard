@@ -54,7 +54,7 @@ typedef struct Adc_Device {
     Interrupt_Vector isrNumberADCA;                       /**< ISR vector number. */
     Interrupt_Vector isrNumberADCB;
 
-    Adc_channel channel[ADC_MAX_PINS+1];  /**< List of the pin for the ADC channel. */
+    Adc_Channel channel[ADC_MAX_PINS+1];  /**< List of the pin for the ADC channel. */
     volatile uint32_t* pinsPtr[ADC_MAX_PINS];
 
     Adc_ChannelNumber channelNumber[ADC_MAX_PINS];
@@ -486,7 +486,7 @@ System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config)
 
 }
 
-System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t slotIndex, Adc_channelConfig *config)
+System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t slotIndex, Adc_ChannelConfig *config)
 {
     uint16_t regapp;
     uint8_t channelnum;
