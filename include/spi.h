@@ -54,7 +54,9 @@ typedef enum {
     defined (LIBOHIBOARD_K60DZ10)     || \
     defined (LIBOHIBOARD_OHIBOARD_R1) || \
     defined (LIBOHIBOARD_K64F12)      || \
-    defined (LIBOHIBOARD_FRDMK64F)
+    defined (LIBOHIBOARD_FRDMK64F)    || \
+    defined (LIBOHIBOARD_KV46F)       || \
+    defined (LIBOHIBOARD_TRWKV46F)
 
 typedef enum {
     SPI_CONTINUOUS_SCK,                            /**< Set to Continuous SCK */
@@ -237,6 +239,27 @@ typedef enum
 	SPI_PINS_PTE5,
 	SPI_PINS_PTE6,
 
+#elif defined (LIBOHIBOARD_KV46F)    || \
+      defined (LIBOHIBOARD_TRWKV46F)
+
+    SPI_PINS_PTA14,
+
+    SPI_PINS_PTB23,
+
+    SPI_PINS_PTC0,
+    SPI_PINS_PTC1,
+    SPI_PINS_PTC2,
+    SPI_PINS_PTC3,
+    SPI_PINS_PTC4,
+
+    SPI_PINS_PTD0,
+    SPI_PINS_PTD4_PCS0,
+    SPI_PINS_PTD4_PCS1,
+    SPI_PINS_PTD5_PCS,
+    SPI_PINS_PTD6_PCS,
+
+    SPI_PINS_PTE16,
+
 #endif
 
 	SPI_PINS_PCSNONE,
@@ -361,6 +384,17 @@ typedef enum
 	SPI_PINS_PTD13,
 
 	SPI_PINS_PTE1,
+
+#elif defined (LIBOHIBOARD_KV46F)    || \
+      defined (LIBOHIBOARD_TRWKV46F)
+
+	SPI_PINS_PTA16,
+	SPI_PINS_PTC6,
+
+	SPI_PINS_PTD2,
+	SPI_PINS_PTD6_SOUT,
+
+	SPI_PINS_PTE18,
 
 #endif
 
@@ -488,8 +522,18 @@ typedef enum
 
 	SPI_PINS_PTE3,
 
-#endif
+#elif defined (LIBOHIBOARD_KV46F)    || \
+      defined (LIBOHIBOARD_TRWKV46F)
 
+	SPI_PINS_PTA17,
+
+	SPI_PINS_PTC7,
+
+	SPI_PINS_PTD3,
+
+	SPI_PINS_PTE19,
+
+#endif
 	SPI_PINS_SINNONE,
 } Spi_SinPins;
 
@@ -596,6 +640,18 @@ typedef enum
 
 	SPI_PINS_PTE2,
 
+#elif defined (LIBOHIBOARD_KV46F)    || \
+      defined (LIBOHIBOARD_TRWKV46F)
+
+    SPI_PINS_PTA15,
+
+    SPI_PINS_PTC5,
+
+    SPI_PINS_PTD1,
+    SPI_PINS_PTD5_CLK,
+
+    SPI_PINS_PTE17,
+
 #endif
 
 	SPI_PINS_SCKNONE,
@@ -619,11 +675,20 @@ typedef struct _Spi_Config
     defined (LIBOHIBOARD_K60DZ10)     || \
     defined (LIBOHIBOARD_OHIBOARD_R1) || \
     defined (LIBOHIBOARD_K64F12)      || \
-    defined (LIBOHIBOARD_FRDMK64F)
+    defined (LIBOHIBOARD_FRDMK64F)    || \
+    defined (LIBOHIBOARD_KV46F)       || \
+    defined (LIBOHIBOARD_TRWKV46F)
 
     uint32_t              frameSize;
 
     Spi_ContinousSck      continuousSck;
+
+#endif
+
+#if defined (LIBOHIBOARD_KV46F)       || \
+	defined (LIBOHIBOARD_TRWKV46F)
+
+    void (*callback)(void);
 
 #endif
 
@@ -679,6 +744,13 @@ extern Spi_DeviceHandle SPI2;
 extern Spi_DeviceHandle SPI0;
 extern Spi_DeviceHandle SPI1;
 extern Spi_DeviceHandle SPI2;
+
+#elif defined (LIBOHIBOARD_KV46F)      || \
+      defined (LIBOHIBOARD_TRWKV46F)
+
+extern Spi_DeviceHandle OB_SPI0;
+
+void  SPI0_IRQHandler(void);
 
 #endif
 

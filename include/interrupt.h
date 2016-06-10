@@ -303,6 +303,7 @@ typedef enum {
 	INTERRUPT_DMA14        = 14,
 	INTERRUPT_DMA15        = 15,
 	INTERRUPT_DMA_ERROR    = 16,
+	INTERRUPT_SPI0         = 26,
 
 	INTERRUPT_UART0        = 31,
 	INTERRUPT_UART1        = 33,
