@@ -333,9 +333,7 @@ typedef enum {
 #endif
 
     ADC_PINS_NONE,
-
 } Adc_Pins;
-
 
 typedef enum {
 #if defined (LIBOHIBOARD_FRDMKL03Z) || \
@@ -378,9 +376,7 @@ typedef enum {
     ADC_CHL_F        = 0x5,
     ADC_CHL_G        = 0x6,
     ADC_CHL_RESERVED = 0x7,
-
 #endif
-
 } Adc_ChannelMux;
 
 
@@ -442,12 +438,9 @@ typedef enum{
     ADC_B_CH7e,
     ADC_B_CH7f,
     ADC_B_CH7g,
-
 }Adc_Channel;
 
-
 typedef enum {
-
     ADC_VREFH_PAD  = 0x0,
     ADC_VREFH_ANB2 = 0x1,
     ADC_VREFH_ANA2 = 0x1,
@@ -455,40 +448,31 @@ typedef enum {
     ADC_VREFL_PAD  = 0x0,
     ADC_VREFL_ANA3 = 0x1,
     ADC_VREFL_ANB3 = 0x01
-
 }Adc_VoltReference;
 
 typedef enum{
-
     ADC_SCANMODE_ONCE_SEQUENCIAL      = 0x0,
     ADC_SCANMODE_ONCE_PARALLEL        = 0x1,
     ADC_SCANMODE_LOOP_SEQUENCIAL      = 0x2,
     ADC_SCANMODE_LOOP_PARALLEL        = 0x3,
     ADC_SCANMODE_TRIGGERED_SEQUENTIAL = 0x4,
     ADC_SCANMODE_TRIGGERED_PARALLEL   = 0x5,
-
 }Adc_ScanMode;
 
 typedef struct{
-
     Adc_Pins pin;
     bool diffEn;
     bool zeroCrossEn;
     uint16_t highLim;
     uint16_t lowLim;
-
 }Adc_ChannelSetting;
 
-
-typedef enum
-{
+typedef enum{
     ADC_SPEED_UPTO_6_25MHZ  = 0x0,
     ADC_SPEED_UPTO_12_5MHZ  = 0x1,
     ADC_SPEED_UPTO_18_75MHZ = 0x2,
     ADC_SPEED_UPTO_25MHZ    = 0x3,
-
 }Adc_ConvertionSpeed;
-
 
 typedef struct{
     uint8_t             clkDiv;
@@ -498,27 +482,21 @@ typedef struct{
     Adc_VoltReference   vrefL;
 
     Adc_ConvertionSpeed speed;
-
 }Adc_Config;
-
 
 typedef struct{
     bool                autoPwrDownEn;
     bool                autoStbEn;
 
     uint8_t             pwrUpDelay;
-
 }Adc_powerConfig;
-
 
 typedef enum{
     ADC_SYNC_MANUAL_ONLY,
     ADC_SYNC_HARDWERE,
-
 }Adc_Sync;
 
 typedef struct{
-
     Adc_ScanMode scanmode;
     struct
     {
@@ -536,30 +514,22 @@ typedef struct{
     Adc_Sync sync1;
 
     bool simultEn;
-
-
 }Adc_acqConfig;
-
 
 typedef enum{
     ADC_GAIN_X1 = 0x0,
     ADC_GAIN_X2 = 0x1,
     ADC_GAIN_X4 = 0x2,
-
 } Adc_gain;
-
 
 typedef enum{
     ADC_ZC_DISABLE          = 0x0,
     ADC_ZC_PLUS_TO_MINUS    = 0x1,
     ADC_ZC_MINUS_TO_PLUS    = 0x2,
     ADC_ZC_BOOTH            = 0x3,
-
 }Adc_zeroCross;
 
-
 typedef struct{
-
     bool slotEn;
     Adc_Channel channelP;
     Adc_Channel channelM;
@@ -574,10 +544,7 @@ typedef struct{
     bool scanIntEn;
     uint16_t offset;
     bool sampleOnSync;
-
 }Adc_ChannelConfig;
-
-
 
 typedef enum{
     ADC_CHANNEL_CHA0 = 0x00,
@@ -597,10 +564,7 @@ typedef enum{
     ADC_CHANNEL_CHB5 = 0x0D,
     ADC_CHANNEL_CHB6 = 0x0E,
     ADC_CHANNEL_CHB7 = 0x0F,
-
-
 }Adc_ChannelNumber;
-
 
 typedef enum
 {
@@ -710,6 +674,11 @@ typedef enum {
     ADC_SINGLE_CONVERTION,
     ADC_CONTINUOUS_CONVERTION,
 }Adc_ContinuousConvertion;
+
+typedef enum {
+    ADC_VREF,
+    ADC_VALT,
+}Adc_VoltReference;
 
 
 #define ADC_MAX_CHANNEL_NUMBER 2
