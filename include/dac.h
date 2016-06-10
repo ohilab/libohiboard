@@ -178,7 +178,7 @@ System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
 
 System_Errors Dac_loadBuffer(Dac_DeviceHandle dev, uint16_t* buffer, uint8_t startPos, uint8_t len);
 
-#ifdef LIBOHIBOARD_DAC
+#ifdef LIBOHIBOARD_DMA
     uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request);
 #endif
 

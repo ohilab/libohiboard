@@ -336,6 +336,61 @@ typedef enum {
 
 } Adc_Pins;
 
+
+typedef enum {
+#if defined (LIBOHIBOARD_FRDMKL03Z) || \
+    defined (LIBOHIBOARD_KL03Z4)
+
+    ADC_CHL_A = 0x00,
+
+#elif defined (LIBOHIBOARD_KL25Z4)     || \
+      defined (LIBOHIBOARD_FRDMKL25Z)  || \
+      defined (LIBOHIBOARD_KL15Z4)
+
+    ADC_CHL_A = 0x00,
+    ADC_CHL_B = 0x01,
+
+#elif defined (LIBOHIBOARD_K10DZ10)    || \
+      defined (LIBOHIBOARD_K10D10)     || \
+      defined (LIBOHIBOARD_K12D5)      || \
+      defined (LIBOHIBOARD_K60DZ10)    || \
+      defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)
+
+    ADC_CHL_A = 0x00,
+    ADC_CHL_B = 0x01,
+
+#elif defined (LIBOHIBOARD_FRDMKL02Z) || \
+      defined (LIBOHIBOARD_KL02Z4)    || \
+      defined (LIBOHIBOARD_FRDMKL03Z) || \
+      defined (LIBOHIBOARD_KL03Z4)
+
+    ADC_CHL_A = 0x00,
+
+#elif defined (LIBOHIBOARD_KV46F) || \
+      defined (LIBOHIBOARD_TWRKV46F)
+
+    ADC_CHL_A        = 0x0,
+    ADC_CHL_B        = 0x1,
+    ADC_CHL_C        = 0x2,
+    ADC_CHL_D        = 0x3,
+    ADC_CHL_E        = 0x4,
+    ADC_CHL_F        = 0x5,
+    ADC_CHL_G        = 0x6,
+    ADC_CHL_RESERVED = 0x7,
+
+#endif
+
+} Adc_ChannelMux;
+
+
+/**
+ *Section for cyclic ADC converter
+ */
+
+#if defined (LIBOHIBOARD_KV46F) || \
+    defined (LIBOHIBOARD_TRWKV46F)
+
 typedef enum{
     ADC_A_CH0,
     ADC_A_CH1,
@@ -387,54 +442,9 @@ typedef enum{
     ADC_B_CH7e,
     ADC_B_CH7f,
     ADC_B_CH7g,
-}Adc_channel;
 
+}Adc_Channel;
 
-typedef enum {
-#if defined (LIBOHIBOARD_FRDMKL03Z) || \
-    defined (LIBOHIBOARD_KL03Z4)
-
-    ADC_CHL_A = 0x00,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)  || \
-      defined (LIBOHIBOARD_KL15Z4)
-
-    ADC_CHL_A = 0x00,
-    ADC_CHL_B = 0x01,
-
-#elif defined (LIBOHIBOARD_K10DZ10)    || \
-      defined (LIBOHIBOARD_K10D10)     || \
-      defined (LIBOHIBOARD_K12D5)      || \
-      defined (LIBOHIBOARD_K60DZ10)    || \
-      defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-    ADC_CHL_A = 0x00,
-    ADC_CHL_B = 0x01,
-
-#elif defined (LIBOHIBOARD_FRDMKL02Z) || \
-      defined (LIBOHIBOARD_KL02Z4)    || \
-      defined (LIBOHIBOARD_FRDMKL03Z) || \
-      defined (LIBOHIBOARD_KL03Z4)
-
-    ADC_CHL_A = 0x00,
-
-#elif defined (LIBOHIBOARD_KV46F) || \
-      defined (LIBOHIBOARD_TWRKV46F)
-
-    ADC_CHL_A        = 0x0,
-    ADC_CHL_B        = 0x1,
-    ADC_CHL_C        = 0x2,
-    ADC_CHL_D        = 0x3,
-    ADC_CHL_E        = 0x4,
-    ADC_CHL_F        = 0x5,
-    ADC_CHL_G        = 0x6,
-    ADC_CHL_RESERVED = 0x7,
-
-#endif
-
-} Adc_ChannelMux;
 
 typedef enum {
 
@@ -467,7 +477,8 @@ typedef struct{
     uint16_t highLim;
     uint16_t lowLim;
 
-}Adc_CannelSetting;
+}Adc_ChannelSetting;
+
 
 typedef enum
 {
@@ -475,162 +486,173 @@ typedef enum
     ADC_SPEED_UPTO_12_5MHZ  = 0x1,
     ADC_SPEED_UPTO_18_75MHZ = 0x2,
     ADC_SPEED_UPTO_25MHZ    = 0x3,
+
 }Adc_ConvertionSpeed;
 
-/* Section for cyclic ADC converter */
-#if defined (LIBOHIBOARD_KV46F) || \
-    defined (LIBOHIBOARD_TRWKV46F)
 
-    typedef struct{
-        uint8_t             clkDiv;
+typedef struct{
+    uint8_t             clkDiv;
 
-        Adc_VoltReference   vrefH;
+    Adc_VoltReference   vrefH;
 
-        Adc_VoltReference   vrefL;
+    Adc_VoltReference   vrefL;
 
-        Adc_ConvertionSpeed speed;
+    Adc_ConvertionSpeed speed;
 
-    }Adc_Config;
+}Adc_Config;
 
 
-    typedef struct{
-        bool                autoPwrDownEn;
-        bool                autoStbEn;
+typedef struct{
+    bool                autoPwrDownEn;
+    bool                autoStbEn;
 
-        uint8_t             pwrUpDelay;
+    uint8_t             pwrUpDelay;
 
-    }Adc_powerConfig;
-
-
-    typedef enum{
-        ADC_SYNC_MANUAL_ONLY,
-        ADC_SYNC_HARDWERE,
-
-    }Adc_Sync;
-
-    typedef struct{
-
-        Adc_ScanMode scanmode;
-        struct
-        {
-          uint8_t zc   :1;
-          uint8_t eos0 :1;
-          uint8_t llmt :1;
-          uint8_t hlmt :1;
-          uint8_t eos1 :1;
-        }interrToEnable;
-
-        void (*isrADCA)(void);
-        void (*isrADCB)(void);
-
-        Adc_Sync sync0;
-        Adc_Sync sync1;
-
-        bool simultEn;
+}Adc_powerConfig;
 
 
-    }Adc_acqConfig;
+typedef enum{
+    ADC_SYNC_MANUAL_ONLY,
+    ADC_SYNC_HARDWERE,
 
-    typedef enum{
-        ADC_GAIN_X1 = 0x0,
-        ADC_GAIN_X2 = 0x1,
-        ADC_GAIN_X4 = 0x2,
-    } Adc_gain;
+}Adc_Sync;
 
-    typedef enum{
-        ADC_ZC_DISABLE          = 0x0,
-        ADC_ZC_PLUS_TO_MINUS    = 0x1,
-        ADC_ZC_MINUS_TO_PLUS    = 0x2,
-        ADC_ZC_BOOTH            = 0x3,
+typedef struct{
 
-    }Adc_zeroCross;
-
-    typedef struct{
-
-        bool slotEn;
-        Adc_channel channelP;
-        Adc_channel channelM;
-
-        bool differencialEn;
-
-        uint16_t Hlimit;
-        uint16_t Llimit;
-
-        Adc_zeroCross scMode;
-        Adc_gain gain;
-        bool scanIntEn;
-        uint16_t offset;
-        bool sampleOnSync;
-    }Adc_channelConfig;
-
-
-
-    typedef enum{
-        ADC_CHANNEL_CHA0 = 0x00,
-        ADC_CHANNEL_CHA1 = 0x01,
-        ADC_CHANNEL_CHA2 = 0x02,
-        ADC_CHANNEL_CHA3 = 0x03,
-        ADC_CHANNEL_CHA4 = 0x04,
-        ADC_CHANNEL_CHA5 = 0x05,
-        ADC_CHANNEL_CHA6 = 0x06,
-        ADC_CHANNEL_CHA7 = 0x07,
-
-        ADC_CHANNEL_CHB0 = 0x08,
-        ADC_CHANNEL_CHB1 = 0x09,
-        ADC_CHANNEL_CHB2 = 0x0A,
-        ADC_CHANNEL_CHB3 = 0x0B,
-        ADC_CHANNEL_CHB4 = 0x0C,
-        ADC_CHANNEL_CHB5 = 0x0D,
-        ADC_CHANNEL_CHB6 = 0x0E,
-        ADC_CHANNEL_CHB7 = 0x0F,
-
-
-    }Adc_ChannelNumber;
-
-    typedef enum
+    Adc_ScanMode scanmode;
+    struct
     {
-        ADC_CONVERTER_A = 0x0,
-        ADC_CONVERTER_B = 0x1,
-    }Adc_converter;
+      uint8_t zc   :1;
+      uint8_t eos0 :1;
+      uint8_t llmt :1;
+      uint8_t hlmt :1;
+      uint8_t eos1 :1;
+    }interrToEnable;
 
-    typedef struct Adc_Device* Adc_DeviceHandle;
-    extern Adc_DeviceHandle OB_ADC0;
+    void (*isrADCA)(void);
+    void (*isrADCB)(void);
 
-    void ADCA_IRQHandler(void);
+    Adc_Sync sync0;
+    Adc_Sync sync1;
 
-    void ADCB_IRQHandler(void);
+    bool simultEn;
 
-    /**
-     * This function initialize the ADC device and setup operational mode.
-     *
-     * @param[in] dev Adc device handle to be synchronize.
-     * @param[in] config A pointer to configuration object
-     * @return A System_Errors elements that indicate the status of initialization.
-     */
 
-     System_Errors Adc_init (Adc_DeviceHandle dev);
+}Adc_acqConfig;
 
-     /**
-      * This function set the ADCs A and B acquisition parameter as indicate
-      * by acquisitin config var
-      *
-      * @param[in] dev Adc device handle to be set.
-      */
-     System_Errors Adc_setPowerMode(Adc_DeviceHandle dev, Adc_powerConfig *config);
 
-     System_Errors Adc_configureADCx(Adc_DeviceHandle dev, Adc_converter converter, Adc_Config*config );
+typedef enum{
+    ADC_GAIN_X1 = 0x0,
+    ADC_GAIN_X2 = 0x1,
+    ADC_GAIN_X4 = 0x2,
 
-     System_Errors Adc_powerUpADCx(Adc_DeviceHandle dev, Adc_converter converter);
+} Adc_gain;
 
-     System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config);
 
-     System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_channelConfig *config);
+typedef enum{
+    ADC_ZC_DISABLE          = 0x0,
+    ADC_ZC_PLUS_TO_MINUS    = 0x1,
+    ADC_ZC_MINUS_TO_PLUS    = 0x2,
+    ADC_ZC_BOOTH            = 0x3,
 
-     System_Errors Adc_acquireStart (Adc_DeviceHandle dev, bool adcAstart, bool adcBstart);
+}Adc_zeroCross;
 
-     System_Errors Adc_readValue(Adc_DeviceHandle dev, uint8_t slotIndex, uint16_t* value );
 
-#else /* standard ADC section */
+typedef struct{
+
+    bool slotEn;
+    Adc_Channel channelP;
+    Adc_Channel channelM;
+
+    bool differencialEn;
+
+    uint16_t Hlimit;
+    uint16_t Llimit;
+
+    Adc_zeroCross scMode;
+    Adc_gain gain;
+    bool scanIntEn;
+    uint16_t offset;
+    bool sampleOnSync;
+
+}Adc_ChannelConfig;
+
+
+
+typedef enum{
+    ADC_CHANNEL_CHA0 = 0x00,
+    ADC_CHANNEL_CHA1 = 0x01,
+    ADC_CHANNEL_CHA2 = 0x02,
+    ADC_CHANNEL_CHA3 = 0x03,
+    ADC_CHANNEL_CHA4 = 0x04,
+    ADC_CHANNEL_CHA5 = 0x05,
+    ADC_CHANNEL_CHA6 = 0x06,
+    ADC_CHANNEL_CHA7 = 0x07,
+
+    ADC_CHANNEL_CHB0 = 0x08,
+    ADC_CHANNEL_CHB1 = 0x09,
+    ADC_CHANNEL_CHB2 = 0x0A,
+    ADC_CHANNEL_CHB3 = 0x0B,
+    ADC_CHANNEL_CHB4 = 0x0C,
+    ADC_CHANNEL_CHB5 = 0x0D,
+    ADC_CHANNEL_CHB6 = 0x0E,
+    ADC_CHANNEL_CHB7 = 0x0F,
+
+
+}Adc_ChannelNumber;
+
+
+typedef enum
+{
+    ADC_CONVERTER_A = 0x0,
+    ADC_CONVERTER_B = 0x1,
+}Adc_converter;
+
+
+typedef struct Adc_Device* Adc_DeviceHandle;
+extern Adc_DeviceHandle OB_ADC0;
+
+void ADCA_IRQHandler(void);
+
+void ADCB_IRQHandler(void);
+
+/**
+ * This function initialize the ADC device and setup operational mode.
+ *
+ * @param[in] dev Adc device handle to be synchronize.
+ * @param[in] config A pointer to configuration object
+ * @return A System_Errors elements that indicate the status of initialization.
+ */
+
+ System_Errors Adc_init (Adc_DeviceHandle dev);
+
+ /**
+  * This function set the ADCs A and B acquisition parameter as indicate
+  * by acquisitin config var
+  *
+  * @param[in] dev Adc device handle to be set.
+  */
+ System_Errors Adc_setPowerMode(Adc_DeviceHandle dev, Adc_powerConfig *config);
+
+ System_Errors Adc_configureADCx(Adc_DeviceHandle dev, Adc_converter converter, Adc_Config*config );
+
+ System_Errors Adc_powerUpADCx(Adc_DeviceHandle dev, Adc_converter converter);
+
+ System_Errors Adc_acquireConfig (Adc_DeviceHandle dev,  Adc_acqConfig *config);
+
+ System_Errors Adc_setChannel (Adc_DeviceHandle dev, uint8_t channelIndex, Adc_ChannelConfig *config);
+
+ System_Errors Adc_acquireStart (Adc_DeviceHandle dev, bool adcAstart, bool adcBstart);
+
+ System_Errors Adc_readValue(Adc_DeviceHandle dev, uint8_t slotIndex, uint16_t* value );
+
+
+/**
+ *Standard ADC section
+ */
+
+#else
+
 typedef enum {
 #if defined (LIBOHIBOARD_KL15Z4)     || \
 	defined (LIBOHIBOARD_KL25Z4)     || \
