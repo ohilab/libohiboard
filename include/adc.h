@@ -982,7 +982,7 @@ System_Errors Adc_enableDmaTrigger (Adc_DeviceHandle dev);
 /**
  * See AN4662 for info in calibration process.
  */
-//System_Errors Adc_calibration (Adc_DeviceHandle dev);
+System_Errors Adc_calibration (Adc_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
 	defined (LIBOHIBOARD_KL02Z4)    || \
