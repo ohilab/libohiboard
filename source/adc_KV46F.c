@@ -32,9 +32,7 @@
 
 #include "adc.h"
 #include "platforms.h"
-#include "system.h"
 #include "interrupt.h"
-#include "adc.h"
 #include "clock.h"
 
 #if defined (LIBOHIBOARD_KV46F)     || \
