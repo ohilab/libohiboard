@@ -644,7 +644,7 @@ typedef enum
 #elif defined(LIBOHIBOARD_KV46F)   || \
 	  defined(LIBOHIBOARD_TWRKV46F)
     
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
 	GPIO_PINS_PTA1,
 	GPIO_PINS_PTA2,
 	GPIO_PINS_PTA3,
