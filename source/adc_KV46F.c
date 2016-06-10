@@ -28,12 +28,17 @@
  * @brief ADC functions implementation for KV46f or TWRKV46F.
  */
 
+#ifdef LIBOHIBOARD_ADC
+
 #include "adc.h"
 #include "platforms.h"
 #include "system.h"
 #include "interrupt.h"
 #include "adc.h"
 #include "clock.h"
+
+#if defined (LIBOHIBOARD_KV46F)     || \
+    defined (LIBOHIBOARD_TRWKV46F)
 
 #define ADC_MAX_PINS        37
 #define ADC_MAX_CHANNEL     16
@@ -625,6 +630,9 @@ System_Errors Adc_readValue(Adc_DeviceHandle dev, uint8_t slotIndex, uint16_t* v
     return ERRORS_NO_ERROR;
 
 }
+
+#endif //(LIBOHIBOARD_KV46F) || (LIBOHIBOARD_TRWKV46F)
+#endif //LIBOHIBOARD_ADC
 
 /**
  *
