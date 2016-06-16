@@ -374,7 +374,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     {
         if (config->continuousSck == SPI_CONTINUOUS_SCK)
         {
-            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(0xF)| 0);
+            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(config->csInactiveState&0x3F)| 0);
         }
         else
         {
@@ -399,34 +399,60 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
         {
             SPI_MCR_REG(regmap) = (SPI_MCR_PCSIS(0xF) | 0);
         }
-
-        for(index = 0; index < (dev->index-1); index++)
-        {
-            SPI_CTAR_SLAVE_REG(regmap,index) = (((frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
-        }
+        /*in slave mode only ctar0 are used */
+        SPI_CTAR_SLAVE_REG(regmap, 0) = (((frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
     }
     else
     {
         return ERRORS_PARAM_VALUE;
     }
+    /*Set cs mode */
+    SPI_PUSHR_REG(regmap) &= ~SPI_PUSHR_CONT_MASK;
+    SPI_PUSHR_REG(regmap) |= SPI_PUSHR_CONT(config->csFormat);
+
+    /*Set tx and rx fifo */
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_DIS_TXF_MASK;
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_DIS_RXF_MASK;
+    SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_TXF(!config->txFifoEn);
+    SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_RXF(!config->rxFifoEn);
+
+    /*Set ROOE */
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_ROOE_MASK;
+    spi_mcr_reg(regmap) |= SPI_MCR_ROOE(config->rooeEn);
+
+
 
     if(config->callback)
     {
         dev->callback = config->callback;
         Interrupt_enable(dev->isrNum);
 
+        SPI_RSER_REG(regmap) &= 0;
+        SPI_RSER_REG(regmap) |= SPI_RSER_TCF_RE(config->intEventEn.TCF)    |
+                                SPI_RSER_EOQF_RE(config->intEventEn.EOQF)  |
+                                SPI_RSER_TFUF_RE(config->intEventEn.TFUF)  |
+                                SPI_RSER_TFFF_DIRS(config->intEventEn.TFFF)|
+                                SPI_RSER_RFOF_RE(config->intEventEn.RFOF)  |
+                                SPI_RSER_RFDF_RE(config->intEventEn.RFDF)  |
+                                SPI_RSER_RFDF_DIRS(config->intEventEn.RFDF);
+
     }
+
     dev->devInitialized = 1;
 
     /* Config the port controller */
     if (config->pcs0Pin != SPI_PINS_PCSNONE)
         Spi_setPcsPin(dev, config->pcs0Pin);
+
     if (config->pcs1Pin != SPI_PINS_PCSNONE)
         Spi_setPcsPin(dev, config->pcs1Pin);
+
     if (config->pcs2Pin != SPI_PINS_PCSNONE)
         Spi_setPcsPin(dev, config->pcs2Pin);
+
     if (config->pcs3Pin != SPI_PINS_PCSNONE)
         Spi_setPcsPin(dev, config->pcs3Pin);
+
     if (config->pcs4Pin != SPI_PINS_PCSNONE)
         Spi_setPcsPin(dev, config->pcs4Pin);
 
@@ -443,7 +469,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 }
 
 
-System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
+System_Errors Spi_readByte (Spi_DeviceHandle dev, uint16_t *data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 
@@ -465,7 +491,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
     // wait till RX_FIFO is not empty
     while((SPI_SR_REG(regmap) & SPI_SR_RFDF_MASK) != SPI_SR_RFDF_MASK);
 
-    *data = SPI_POPR_REG(regmap) & 0x000000FF;
+    *data = SPI_POPR_REG(regmap) & 0x0000FFFF;
 
     // Clear the RX FIFO Drain Flag
     SPI_SR_REG(regmap) |= SPI_SR_RFDF_MASK;
@@ -473,18 +499,17 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
+System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint16_t data, Spi_ChiSelect cs)
 {
     SPI_MemMapPtr regmap = dev->regMap;
-
-    uint16_t x = 0;
 
     // Wait till TX FIFO is Empty.
     while((SPI_SR_REG(regmap)  & SPI_SR_TFFF_MASK) != 0x2000000U);
 
     // Transmit Byte on SPI
 
-    SPI_PUSHR_REG(regmap) = data;
+    SPI_PUSHR_REG(regmap) &= ~SPI_PUSHR_PCS_MASK;
+    SPI_PUSHR_REG(regmap) = data|SPI_PUSHR_PCS(cs);
 
     SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
 
@@ -494,9 +519,37 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     // Clear Transmit Flag.
     SPI_SR_REG(regmap) |= SPI_SR_TCF_MASK;
 
-    (void)SPI_POPR_REG(regmap);
+//    (void)SPI_POPR_REG(regmap);
 
     return ERRORS_NO_ERROR;
+}
+
+System_Errors Spi_txEnDisable (Spi_DeviceHandle dev, bool enable)
+{
+    if(!dev->devInitialized)
+        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    /* Enable/Disable transmission */
+    if(enable)
+        SPI_MCR_REG(dev->regMap) &= ~SPI_MCR_HALT_MASK;
+    else
+        SPI_MCR_REG(dev->regMap) |= SPI_MCR_HALT_MASK;
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Spi_flushBuffer (Spi_DeviceHandle dev, Spi_BufferType buffer)
+{
+    if(!dev->devInitialized)
+        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    if(buffer == SPI_RX_BUFFER)
+        SPI_MCR_REG(dev->regMap) |= SPI_MCR_CLR_RXF_MASK;
+    else
+        SPI_MCR_REG(dev->regMap) |= SPI_MCR_CLR_TXF_MASK;
+
+    return ERRORS_NO_ERROR;
+
 }
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
