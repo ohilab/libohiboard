@@ -44,10 +44,18 @@
 #include "errors.h"
 #include "types.h"
 
+#define HIGH 1
+#define LOW  0
+
 typedef enum {
     SPI_MASTER_MODE,
     SPI_SLAVE_MODE
 } Spi_DeviceType;
+
+typedef enum {
+    SPI_TX_BUFFER,
+    SPI_RX_BUFFER,
+} Spi_BufferType;
 
 #if defined (LIBOHIBOARD_K10D10)      || \
     defined (LIBOHIBOARD_K12D5)       || \
@@ -62,6 +70,20 @@ typedef enum {
     SPI_CONTINUOUS_SCK,                            /**< Set to Continuous SCK */
     SPI_NOT_CONTINUOUS_SCK                     /**< Set to not Continuous SCK */
 } Spi_ContinousSck;
+
+typedef enum {
+    SPI_CS_NONE = 0x0,
+    SPI_CS_0    = 0x1,
+    SPI_CS_1    = 0x2,
+    SPI_CS_2    = 0x4,
+    SPI_CS_3    = 0x8,
+    SPI_CS_4    = 0xF,
+} Spi_ChiSelect;
+
+typedef enum {
+    SPI_CS_FORMAT_DISCONTINUOS = 0x0,
+    SPI_CS_FORMAT_CONTINUOS    = 0x1,
+} Spi_CSFormat;
 
 #endif
 
@@ -689,6 +711,33 @@ typedef struct _Spi_Config
 	defined (LIBOHIBOARD_TRWKV46F)
 
     void (*callback)(void);
+    bool mtfEnable;
+    Spi_CSFormat csFormat;
+    bool rxFifoEn;
+    bool txFifoEn;
+    bool rooeEn;
+
+    Spi_PcsPins pcs5Pin;
+    union _csInactiveState
+    {
+        uint8_t sc0 :1;
+        uint8_t sc1 :1;
+        uint8_t sc2 :1;
+        uint8_t sc3 :1;
+        uint8_t sc4 :1;
+        uint8_t sc5 :1;
+    }csInactiveState;
+
+    union _intEventEn
+    {
+        uint8_t TCF   :1;
+        uint8_t TXRXS :1;
+        uint8_t EOQF  :1;
+        uint8_t TFUF  :1;
+        uint8_t TFFF  :1;
+        uint8_t RFOF  :1;
+        uint8_t RFDF  :1;
+    }intEventEn;
 
 #endif
 
@@ -703,8 +752,23 @@ typedef struct Spi_Device* Spi_DeviceHandle;
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config);
 System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed);
 
+#if defined (LIBOHIBOARD_KV46F)  ||\
+    defined (LIBOHIBOARD_TRWKV46F)
+
+System_Errors Spi_read (Spi_DeviceHandle dev, uint16_t * data);
+System_Errors Spi_write (Spi_DeviceHandle dev, uint16_t data, Spi_ChiSelect cs);
+
+System_Errors Spi_txEnDisable (Spi_DeviceHandle dev, bool enable);
+System_Errors Spi_flushBuffer (Spi_DeviceHandle dev, Spi_BufferType buffer);
+
+
+
+
+#else
+
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
+#endif
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
