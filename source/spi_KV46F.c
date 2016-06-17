@@ -342,7 +342,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     uint32_t baudrate = config->baudrate;
     uint32_t tempReg = 0;
     System_Errors error = ERRORS_NO_ERROR;
-
+    uint8_t csLevels =0;
     uint8_t sckpol = 0;
     uint8_t sckphase = 0;
 
@@ -372,13 +372,20 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     /* Select device type */
     if (devType == SPI_MASTER_MODE)
     {
+        csLevels = (config->csInactiveState.sc0<<0) |
+                   (config->csInactiveState.sc1<<1) |
+                   (config->csInactiveState.sc2<<2) |
+                   (config->csInactiveState.sc3<<3) |
+                   (config->csInactiveState.sc4<<4) |
+                   (config->csInactiveState.sc5<<5);
+
         if (config->continuousSck == SPI_CONTINUOUS_SCK)
         {
-            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(config->csInactiveState&0x3F)| 0);
+            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_CONT_SCKE_MASK | SPI_MCR_PCSIS(csLevels&0x3F)| 0);
         }
         else
         {
-            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_PCSIS(0xF) | 0);
+            SPI_MCR_REG(regmap) = (SPI_MCR_MSTR_MASK | SPI_MCR_PCSIS(csLevels&0x3F) | 0);
         }
 
 
@@ -418,7 +425,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 
     /*Set ROOE */
     SPI_MCR_REG(regmap) &= ~SPI_MCR_ROOE_MASK;
-    spi_mcr_reg(regmap) |= SPI_MCR_ROOE(config->rooeEn);
+    SPI_MCR_REG(regmap) |= SPI_MCR_ROOE(config->rooeEn);
 
 
 

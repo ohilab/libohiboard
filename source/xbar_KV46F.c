@@ -143,8 +143,9 @@ System_Errors Xbar_ruteInToOut(Xbar_DeviceHandle dev, Xbar_Input in, Xbar_Output
     }
     else
     {
-
+/*todo : implement xbarab */
     }
+    return ERRORS_NO_ERROR;
 }
 #endif
 
