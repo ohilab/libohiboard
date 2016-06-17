@@ -718,25 +718,26 @@ typedef struct _Spi_Config
     bool rooeEn;
 
     Spi_PcsPins pcs5Pin;
-    union _csInactiveState
+    struct _csInactiveState
     {
-        uint8_t sc0 :1;
-        uint8_t sc1 :1;
-        uint8_t sc2 :1;
-        uint8_t sc3 :1;
-        uint8_t sc4 :1;
-        uint8_t sc5 :1;
+        bool sc0;
+        bool sc1;
+        bool sc2;
+        bool sc3;
+        bool sc4;
+        bool sc5;
+
     }csInactiveState;
 
-    union _intEventEn
+    struct _intEventEn
     {
-        uint8_t TCF   :1;
-        uint8_t TXRXS :1;
-        uint8_t EOQF  :1;
-        uint8_t TFUF  :1;
-        uint8_t TFFF  :1;
-        uint8_t RFOF  :1;
-        uint8_t RFDF  :1;
+        bool TCF  ;
+        bool TXRXS;
+        bool EOQF ;
+        bool TFUF ;
+        bool TFFF ;
+        bool RFOF ;
+        bool RFDF ;
     }intEventEn;
 
 #endif
