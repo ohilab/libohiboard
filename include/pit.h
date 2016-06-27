@@ -66,9 +66,7 @@ extern Pit_DeviceHandle OB_PIT0;
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)   || \
-	  defined (LIBOHIBOARD_KV46F)      || \
+#elif defined (LIBOHIBOARD_KV46F)      || \
 	  defined (LIBOHIBOARD_TWRKV46F)
 
 void PIT0_IRQHandler (void);
@@ -77,6 +75,19 @@ void Pit_isrPit2 (void);
 void Pit_isrPit3 (void);
 
 extern Pit_DeviceHandle OB_PIT0;
+
+#elif defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_FRDMK64F)   || \
+
+void PIT0_IRQHandler (void);
+void PIT1_IRQHandler (void);
+void PIT2_IRQHandler (void);
+void PIT3_IRQHandler (void);
+
+extern Pit_DeviceHandle OB_PIT0;
+
+
+
 
 #endif
 
