@@ -413,11 +413,16 @@ System_Errors strtf (const uint8_t* fString, float* result)
             *result = (10 * (*result)) + digit;
             dotPosition++;
         }
+        else if (isDecimal)
+        {
+            decimalPart = (10.0 * decimalPart) + digit;
+            decimalDivisor *= 10.0;
+        }
         else
         {
             decimalPart = (10.0 * decimalPart) + digit;
-            decimalDivisor *= 10.0; 
         }
+
         fString++;
     }
     
