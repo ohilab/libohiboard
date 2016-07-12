@@ -154,7 +154,7 @@ static Spi_Device spi0 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI0 = &spi0;
+Spi_DeviceHandle OB_SPI0 = &spi0;
 
 static Spi_Device spi1 = {
     .regMap           = SPI1_BASE_PTR,
@@ -218,7 +218,7 @@ static Spi_Device spi1 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI1 = &spi1;
+Spi_DeviceHandle OB_SPI1 = &spi1;
 
 static Spi_Device spi2 = {
     .regMap           = SPI2_BASE_PTR,
@@ -270,7 +270,7 @@ static Spi_Device spi2 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI2 = &spi2;
+Spi_DeviceHandle OB_SPI2 = &spi2;
 
 static uint8_t  Spi_pbrDiv[] = {2, 3, 5, 7};
 static uint16_t Spi_brDiv[] = {

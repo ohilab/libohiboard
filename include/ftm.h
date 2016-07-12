@@ -473,6 +473,9 @@ typedef enum
 
     FTM_FAULTPINS_PTC0,
     FTM_FAULTPINS_PTC3,
+#if defined (LIBOHIBOARD_K64F12)
+    FTM_FAULTPINS_PTC9,
+#endif
     FTM_FAULTPINS_PTC12,
 
     FTM_FAULTPINS_PTD6,
@@ -552,10 +555,12 @@ typedef enum
 
 void FTM0_IRQHandler (void);
 void FTM1_IRQHandler (void);
+void FTM2_IRQHandler (void);
 void FTM3_IRQHandler (void);
 
 extern Ftm_DeviceHandle OB_FTM0;
 extern Ftm_DeviceHandle OB_FTM1;
+extern Ftm_DeviceHandle OB_FTM2;
 extern Ftm_DeviceHandle OB_FTM3;
 
 typedef enum

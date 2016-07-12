@@ -806,9 +806,9 @@ extern Spi_DeviceHandle SPI2;
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
-extern Spi_DeviceHandle SPI0;
-extern Spi_DeviceHandle SPI1;
-extern Spi_DeviceHandle SPI2;
+extern Spi_DeviceHandle OB_SPI0;
+extern Spi_DeviceHandle OB_SPI1;
+extern Spi_DeviceHandle OB_SPI2;
 
 #elif defined (LIBOHIBOARD_KV46F)      || \
       defined (LIBOHIBOARD_TRWKV46F)
