@@ -76,8 +76,8 @@ void Pit_isrPit3 (void);
 
 extern Pit_DeviceHandle OB_PIT0;
 
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)   || \
+#elif defined (LIBOHIBOARD_K64F12)   || \
+      defined (LIBOHIBOARD_FRDMK64F)
 
 void PIT0_IRQHandler (void);
 void PIT1_IRQHandler (void);
