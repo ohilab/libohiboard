@@ -69,8 +69,11 @@ typedef enum
     DAC_BUFFERMODE_SWING   = 0x1,
     DAC_BUFFERMODE_ONETIME = 0x2,
 
-#if defined (LIBOHIBOARD_KV46F) || \
-    defined (LIBOHIBOARD_TRWKV46F)
+#if defined (LIBOHIBOARD_KV46F)    || \
+    defined (LIBOHIBOARD_TRWKV46F) || \
+    defined (LIBOHIBOARD_K64F12)   || \
+    defined (LIBOHIBOARD_FRDMK64F)
+
     DAC_BUFFERMODE_FIFO    = 0x3,
 #endif
     DAC_BUFFERMODE_OFF     = 0x4,
