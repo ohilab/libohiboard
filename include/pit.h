@@ -70,9 +70,9 @@ extern Pit_DeviceHandle OB_PIT0;
 	  defined (LIBOHIBOARD_TWRKV46F)
 
 void PIT0_IRQHandler (void);
-void Pit_isrPit1 (void);
-void Pit_isrPit2 (void);
-void Pit_isrPit3 (void);
+void PIT1_IRQHandler (void);
+void PIT2_IRQHandler (void);
+void PIT3_IRQHandler (void);
 
 extern Pit_DeviceHandle OB_PIT0;
 
