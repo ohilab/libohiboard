@@ -256,8 +256,8 @@ Ftm_DeviceHandle OB_FTM1 = &ftm1;
 static Ftm_Device ftm2 = {
         .regMap           = FTM2_BASE_PTR,
         
-        .simScgcPtr       = &SIM_SCGC3,
-        .simScgcBitEnable = SIM_SCGC3_FTM2_MASK,
+        .simScgcPtr       = &SIM_SCGC6,//&SIM_SCGC3,
+        .simScgcBitEnable = SIM_SCGC6_FTM2_MASK,//SIM_SCGC3_FTM2_MASK,
 
         .pins             = {FTM_PINS_PTB18,
                              FTM_PINS_PTB19,
@@ -1003,7 +1003,9 @@ void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
 
     if (regCSCPtr)
     {
-        *regCSCPtr |= FTM_CnSC_CHF_MASK;
+//        *regCSCPtr |= FTM_CnSC_CHF_MASK;
+        *regCSCPtr &= ~FTM_CnSC_CHF_MASK;
+
     }
 }
 
