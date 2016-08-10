@@ -471,7 +471,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 
         for(index = 0; index < dev->index; index++)
         {
-            SPI_CTAR_REG(regmap,index) = (((frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) | 0);
+            SPI_CTAR_REG(regmap,index) = (((frameSize - 1) << SPI_CTAR_FMSZ_SHIFT) | (sckpol << SPI_CTAR_CPOL_SHIFT) | (sckphase << SPI_CTAR_CPHA_SHIFT) |SPI_CTAR_PCSSCK(2)| 0);
         }
 
         error = Spi_setBaudrate(dev, config->baudrate);
@@ -496,6 +496,18 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     {
         return ERRORS_PARAM_VALUE;
     }
+
+    /*----------*/
+        SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_RXF_MASK;
+        SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_TXF_MASK;
+        /* Flush TX and RX buffer */
+        SPI_MCR_REG(regmap) |= SPI_MCR_CLR_TXF_MASK;
+        SPI_MCR_REG(regmap) |= SPI_MCR_CLR_RXF_MASK;
+        /* Delay clock cs vs clock */
+
+    //    SPI_PUSHR_REG(regmap) |= SPI_PUSHR_PCS(1);
+        /*----------*/
+
 
     dev->devInitialized = 1;
 
@@ -554,6 +566,37 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
     return ERRORS_NO_ERROR;
 }
 
+System_Errors Spi_read (Spi_DeviceHandle dev, uint32_t* data)
+{
+    SPI_MemMapPtr regmap = dev->regMap;
+
+    // Wait till TX FIFO is Empty.
+    while((SPI_SR_REG(regmap) & SPI_SR_TFFF_MASK) != SPI_SR_TFFF_MASK);
+
+    SPI_PUSHR_REG(regmap) = 0x0000|SPI_PUSHR_PCS(1);
+
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
+
+    // Wait till transmit complete
+    while (((SPI_SR_REG(regmap) & SPI_SR_TCF_MASK)) != SPI_SR_TCF_MASK);
+
+    // Clear Transmit Flag.
+    SPI_SR_REG(regmap) |= SPI_SR_TFFF_MASK;
+
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
+
+    // wait till RX_FIFO is not empty
+    while((SPI_SR_REG(regmap) & SPI_SR_RFDF_MASK) != SPI_SR_RFDF_MASK);
+
+    *data = SPI_POPR_REG(regmap) & 0x0000FFFF;
+
+    // Clear the RX FIFO Drain Flag
+    SPI_SR_REG(regmap) |= SPI_SR_RFDF_MASK;
+
+    return ERRORS_NO_ERROR;
+
+}
+
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
     SPI_MemMapPtr regmap = dev->regMap;
@@ -579,6 +622,36 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 
     return ERRORS_NO_ERROR;
 }
+
+System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChiSelect cs)
+{
+    SPI_MemMapPtr regmap = dev->regMap;
+
+    uint16_t x = 0;
+
+    // Wait till TX FIFO is Empty.
+    while((SPI_SR_REG(regmap)  & SPI_SR_TFFF_MASK) != 0x2000000U);
+
+    // Transmit Byte on SPI
+
+//    SPI_PUSHR_REG(regmap) =0;// ~SPI_PUSHR_PCS_MASK;
+    SPI_PUSHR_REG(regmap) = data|SPI_PUSHR_PCS(cs);
+
+
+
+    SPI_MCR_REG(regmap) &= ~SPI_MCR_HALT_MASK;
+
+    // Wait till transmit complete
+    while (((SPI_SR_REG(regmap) & SPI_SR_TCF_MASK)) != SPI_SR_TCF_MASK) ;
+
+    // Clear Transmit Flag.
+    SPI_SR_REG(regmap) |= SPI_SR_TCF_MASK;
+
+    (void)SPI_POPR_REG(regmap);
+
+    return ERRORS_NO_ERROR;
+}
+
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
 
