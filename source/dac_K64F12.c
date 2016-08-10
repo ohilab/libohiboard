@@ -59,7 +59,7 @@ static Dac_Device dac0 = {
 
         .devInitialized   = 0,
 };
-Dac_DeviceHandle DAC0 = &dac0;
+Dac_DeviceHandle OB_DAC0 = &dac0;
 
 static Dac_Device dac1 = {
         .regMap           = DAC1_BASE_PTR,
@@ -69,7 +69,7 @@ static Dac_Device dac1 = {
 
         .devInitialized   = 0,
 };
-Dac_DeviceHandle DAC1 = &dac1;
+Dac_DeviceHandle OB_DAC1 = &dac1;
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
 {
