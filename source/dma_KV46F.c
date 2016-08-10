@@ -140,7 +140,8 @@ System_Errors  Dma_init(Dma_DeviceHandle dev,
     if (callback)
     {
         Interrupt_enable(INTERRUPT_DMA0+channel);
-
+        /* Clear pending request */
+        DMA_INT_REG(OB_DMA0->regMap) |= DMA_INT_INT0(0xF);
         /* Enable the generation of interrupt when the major loop is terminated */
         DMA_CSR_REG(dev->regMap, channel) |= DMA_CSR_INTMAJOR_MASK;
 
