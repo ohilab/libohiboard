@@ -426,8 +426,8 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     /*Set ROOE */
     SPI_MCR_REG(regmap) &= ~SPI_MCR_ROOE_MASK;
     SPI_MCR_REG(regmap) |= SPI_MCR_ROOE(config->rooeEn);
-
-
+    /* clear queue */
+    SPI_MCR_REG(regmap) |= SPI_MCR_CLR_RXF_MASK;
 
     if(config->callback)
     {
@@ -435,13 +435,14 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
         Interrupt_enable(dev->isrNum);
 
         SPI_RSER_REG(regmap) &= 0;
-        SPI_RSER_REG(regmap) |= SPI_RSER_TCF_RE(config->intEventEn.TCF)    |
-                                SPI_RSER_EOQF_RE(config->intEventEn.EOQF)  |
-                                SPI_RSER_TFUF_RE(config->intEventEn.TFUF)  |
-                                SPI_RSER_TFFF_DIRS(config->intEventEn.TFFF)|
-                                SPI_RSER_RFOF_RE(config->intEventEn.RFOF)  |
-                                SPI_RSER_RFDF_RE(config->intEventEn.RFDF)  |
-                                SPI_RSER_RFDF_DIRS(config->intEventEn.RFDF);
+        SPI_RSER_REG(regmap) |= SPI_RSER_TCF_RE(config->intEventEn.TCF)     |
+                                SPI_RSER_EOQF_RE(config->intEventEn.EOQF)   |
+                                SPI_RSER_TFUF_RE(config->intEventEn.TFUF)   |
+                                SPI_RSER_TFFF_RE(config->intEventEn.TFFF)   |
+                                SPI_RSER_TFFF_DIRS(!config->intEventEn.TFFF)|
+                                SPI_RSER_RFOF_RE(config->intEventEn.RFOF)   |
+                                SPI_RSER_RFDF_RE(config->intEventEn.RFDF)   |
+                                SPI_RSER_RFDF_DIRS(!config->intEventEn.RFDF);
 
     }
 
