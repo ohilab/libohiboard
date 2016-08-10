@@ -236,7 +236,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
     controlBits = PORT_PCR_MUX(1) | 0;
 
-    /* TODO: Interrupt? */
+
     if (options & GPIO_PINS_OUTPUT)
     {
         if (options & GPIO_PINS_ENABLE_DRIVE_STRENGTH)
@@ -269,6 +269,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         return ERRORS_GPIO_WRONG_CONFIG;
     }
 
+    PORT_PCR_REG(port,Gpio_availablePins[pin].pinNumber) &= ~0x757;
     PORT_PCR_REG(port,Gpio_availablePins[pin].pinNumber) = controlBits;
 
     if (options & GPIO_PINS_OUTPUT)
