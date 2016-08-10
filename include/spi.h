@@ -768,7 +768,10 @@ System_Errors Spi_flushBuffer (Spi_DeviceHandle dev, Spi_BufferType buffer);
 #else
 
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
+System_Errors Spi_read (Spi_DeviceHandle dev, uint32_t* data);
+
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
+System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChiSelect cs);
 #endif
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
