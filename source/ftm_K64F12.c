@@ -368,6 +368,11 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     switch (dev->mode)
     {
     case FTM_MODE_INPUT_CAPTURE:
+
+        if(FTM_SC_REG(dev->regMap) & FTM_SC_TOF_MASK)
+            FTM_SC_REG(dev->regMap) &= ~FTM_SC_TOF_MASK;
+        dev->callback();
+
         break;
     case FTM_MODE_OUTPUT_COMPARE:
         break;
@@ -471,11 +476,17 @@ static Ftm_DeadTimePrescaler Ftm_computeDeadTimePrescale (uint32_t deadTime)
         return FTM_DEADTIMEPRESCALER_1;
 }
 
-static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
+static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_t timerFrequency)
 {
+    uint8_t prescaler;
     uint32_t clock = Clock_getFrequency(CLOCK_BUS);
-    uint8_t prescaler = (clock / timerFrequency) / 65536;
     
+    if (dev->mode == FTM_MODE_INPUT_CAPTURE)
+        prescaler = (clock / timerFrequency);
+    else
+        prescaler = (clock / timerFrequency) / 65536;
+//    uint8_t prescaler = (clock / timerFrequency) / 65536;
+
     if (prescaler > 64)
         return FTM_PRESCALER_128;
     else if (prescaler > 32)
@@ -646,7 +657,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     switch (dev->mode)
     {
     case FTM_MODE_INPUT_CAPTURE:
-        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        prescaler = Ftm_computeFrequencyPrescale(dev, config->timerFrequency);
 
         dev->configurationBits = config->configurationBits;
         FTM_SC_REG(dev->regMap) &=  ~FTM_SC_CPWMS_MASK;
@@ -659,18 +670,20 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
             if (pin == FTM_PINS_STOP)
                 break;
 
-            Ftm_addInputCapturePin(dev,pin,dev->configurationBits);
+//            Ftm_addInputCapturePin(dev, pin, dev->configurationBits);
         }
 
-        FTM_SC_REG(dev->regMap) = FTM_SC_CLKS(1) | FTM_SC_PS(prescaler) | 0;
+        FTM_CNTIN_REG(dev->regMap) = 0;
+        FTM_MOD_REG(dev->regMap) = 0xFFFF;
+        FTM_SC_REG(dev->regMap) |= FTM_SC_CLKS(1) | FTM_SC_PS(prescaler) | 0;
         break;
     case FTM_MODE_OUTPUT_COMPARE:
         break;
     case FTM_MODE_QUADRATURE_DECODE:
         break;
     case FTM_MODE_PWM:
-        /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        /* Compute prescaler factor */
+        prescaler = Ftm_computeFrequencyPrescale(dev, config->timerFrequency);
         
         if (config->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
         {
@@ -714,7 +727,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     case FTM_MODE_FREE:
         
         /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        prescaler = Ftm_computeFrequencyPrescale(dev, config->timerFrequency);
         
         /* Compute timer modulo */
         modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
@@ -731,7 +744,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         Interrupt_disable(dev->isrNumber);
 
         /* Calculate prescaler */
-        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        prescaler = Ftm_computeFrequencyPrescale(dev, config->timerFrequency);
 
         /*Calculate modulo*/
         modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
@@ -906,13 +919,15 @@ void Ftm_disableInterrupt (Ftm_DeviceHandle dev)
 
 void Ftm_stopCount(Ftm_DeviceHandle dev)
 {
-    FTM_SC_REG(dev->regMap) &= FTM_SC_CLKS_MASK;
-    FTM_SC_REG(dev->regMap) |= FTM_SC_CLKS(0);
+    FTM_MODE_REG(dev->regMap) |= FTM_MODE_WPDIS_MASK;
+    FTM_SC_REG(dev->regMap) &= ~FTM_SC_CLKS_MASK;
+
 }
 
 void Ftm_startCount(Ftm_DeviceHandle dev)
 {
-    FTM_SC_REG(dev->regMap) &= FTM_SC_CLKS_MASK;
+
+    FTM_MODE_REG(dev->regMap) |= FTM_MODE_WPDIS_MASK;
     FTM_SC_REG(dev->regMap) |= FTM_SC_CLKS(1);
 }
 
@@ -1003,7 +1018,7 @@ void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
 
     if (regCSCPtr)
     {
-//        *regCSCPtr |= FTM_CnSC_CHF_MASK;
+
         *regCSCPtr &= ~FTM_CnSC_CHF_MASK;
 
     }
