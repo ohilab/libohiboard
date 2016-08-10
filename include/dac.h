@@ -142,8 +142,8 @@ extern Dac_DeviceHandle OB_DAC0;
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
-extern Dac_DeviceHandle DAC0;
-extern Dac_DeviceHandle DAC1;
+extern Dac_DeviceHandle OB_DAC0;
+extern Dac_DeviceHandle OB_DAC1;
 
 #endif
 
