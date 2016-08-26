@@ -412,12 +412,8 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     /* Enable the clock to the selected FTM */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
-/*rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr*/
-
-   // FTM_SC_REG(dev->regMap)=0;
     FTM_FMS_REG(dev->regMap)&=~FTM_FMS_WPEN_MASK;
- //   FTM_MODE_REG(dev->regMap)|=FTM_MODE_FTMEN_MASK;
-/*rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr*/
+
     /* If call back exist save it */
     if (callback)
     {
