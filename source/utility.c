@@ -478,6 +478,53 @@ System_Errors ftstr (float value, uint8_t* fString, uint8_t precision)
         fString++;
         
         fractional = (uint16_t)((value - intPart) * decMultiplier);
+        switch (precision)
+        {
+        case 2:
+            if (fractional < 10)
+            {
+                *fString = '0';
+                fString++;
+            }
+            break;
+        case 3:
+            if (fractional < 10)
+            {
+                *fString = '0';
+                fString++;
+                *fString = '0';
+                fString++;
+            }
+            else if (fractional < 100)
+            {
+                *fString = '0';
+                fString++;
+            }
+            break;
+        case 4:
+            if (fractional < 10)
+            {
+                *fString = '0';
+                fString++;
+                *fString = '0';
+                fString++;
+                *fString = '0';
+                fString++;
+            }
+            else if (fractional < 100)
+            {
+                *fString = '0';
+                fString++;
+                *fString = '0';
+                fString++;
+            }
+            else if (fractional < 1000)
+            {
+                *fString = '0';
+                fString++;
+            }
+            break;
+        }
         
         // Print fractional part
         u16td (fString,fractional);
