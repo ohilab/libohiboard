@@ -1,20 +1,19 @@
-/******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
- * 
+/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
+ *  Simone Giacomucci <simone.giacomucci@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,81 +24,44 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/include/libohiboard.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/include/ethernet-utility.h
+ * @author Simone Giacomucci <simone.giacomucci@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Library main file.
+ * @brief network utility.
  */
 
-#ifndef __LIBOHIBOARD_H
-#define __LIBOHIBOARD_H
-
-#include <stdio.h>
-
-#include "types.h"
-#include "errors.h"
-#include "utility.h"
-
-#include "interrupt.h"
-
-#include "gpio.h"
-
-#include "system.h"
-
-#include "clock.h"
-
-#ifdef LIBOHIBOARD_FTM
-#include "ftm.h"
-#endif
-
-#ifdef LIBOHIBOARD_PIT
-#include "pit.h"
-#endif
-
-#ifdef LIBOHIBOARD_UART
-#include "uart.h"
-#endif
-
-#ifdef LIBOHIBOARD_IIC
-#include "i2c.h"
-#endif
-
-#ifdef LIBOHIBOARD_SPI
-#include "spi.h"
-#endif
-
-#ifdef LIBOHIBOARD_ADC
-#include "adc.h"
-#endif
-
-#ifdef LIBOHIBOARD_DAC
-#include "dac.h"
-#endif
-
 #ifdef LIBOHIBOARD_ETHERNET
-#include "ethernet.h"
-#include "ethernet-interface.h"
-#include "ethernet-utility.h"
+#ifndef __ETHERNET_UTILITY_H
+#define __ETHERNET_UTILITY_H
+
+#include "libohiboard.h"
+#include "arch/sys_arch.h"
+// lwip includes
+#include "lwip/tcp.h"
+#include "lwip/tcp_impl.h"
+#include "lwip/mem.h"
+#include "lwip/raw.h"
+#include "lwip/icmp.h"
+#include "lwip/netif.h"
+#include "lwip/sys.h"
+#include "lwip/timers.h"
+#include "lwip/inet_chksum.h"
+#include "lwip/init.h"
+#include "netif/etharp.h"
+
+//porting includes
+#include "lwip_K64F12.h"
+
+typedef struct _Network_Config
+{
+    ip_addr_t ip;
+    ip_addr_t netMask;
+    ip_addr_t gw;
+    Ethernet_MacAddress macAdd;
+    Pit_DeviceHandle pit;
+}Network_Config;
+
+void Ethernet_networkConfig(struct netif *netif, Network_Config *config);
+
+#endif /* __ETHERNET_UTILITY_H */
 #endif
-
-#ifdef LIBOHIBOARD_RTC
-#include "rtc.h"
-#endif
-
-#ifdef LIBOHIBOARD_PDB
-#include "pdb.h"
-#endif
-
-#ifdef LIBOHIBOARD_DMA
-#include "dma.h"
-#endif
-
-#ifdef LIBOHIBOARD_XBAR
-#include "xbar.h"
-#endif
-
-#include "timeday.h"
-
-void test();
-
-#endif /* __LIBOHIBOARD_H */

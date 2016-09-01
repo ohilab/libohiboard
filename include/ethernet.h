@@ -255,6 +255,10 @@ typedef enum
 
 } Ethernet_Pins;
 
+/* Rename interrupt function */
+#define   Ethernet_isrEnet0Tx ENET_Transmit_IRQHandler
+#define   Ethernet_isrEnet0Rx ENET_Receive_IRQHandler
+
 void Ethernet_isrEnet0Rx (void);
 void Ethernet_isrEnet0Tx (void);
 void Ethernet_isrEnet0Ts (void);

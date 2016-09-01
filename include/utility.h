@@ -40,7 +40,7 @@
 //convert 2's complement P bit number to 16 bit signed int
 #define C2SI(X,P)     (-((X)&(1<<(P-1)))+((X)&(~(1<<(P-1)))))
 
-#define SET_BIT(n)                  (1<<n)&0xFF
+//#define SET_BIT(n)                  (1<<n)&0xFF
 #define SHIFT_LEFT(X,n)             X<<n
 #define SHIFT_RIGHT(X,n)            X>>n
 
