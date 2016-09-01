@@ -6,7 +6,7 @@ void Ethernet_networkConfig(struct netif *netif, Network_Config *config)
 {
 
     lwip_init();
-    lwipTimerInit(config->pit);
+    lwipTimerInit(config->pit, config->channel);
 
     LWIP_K64F12_setMacAddress(config->macAdd);
 
