@@ -59,6 +59,7 @@ typedef struct _Network_Config
     ip_addr_t gw;
     Ethernet_MacAddress macAdd;
     Pit_DeviceHandle pit;
+    uint8_t channel;
 }Network_Config;
 
 void Ethernet_networkConfig(struct netif *netif, Network_Config *config);
