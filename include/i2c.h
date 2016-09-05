@@ -255,6 +255,33 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config);
 
+#if defined (LIBOHIBOARD_KL25Z4) || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
+
+void Iic_start (Iic_DeviceHandle dev);
+void Iic_repeatedStart (Iic_DeviceHandle dev);
+void Iic_stop (Iic_DeviceHandle dev);
+void Iic_sendNack (Iic_DeviceHandle dev);
+void Iic_sendAck (Iic_DeviceHandle dev);
+bool Iic_getAck (Iic_DeviceHandle dev);
+void Iic_setReceiveMode (Iic_DeviceHandle dev);
+void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
+void Iic_readByte (Iic_DeviceHandle dev, uint8_t *data);
+System_Errors Iic_waitTransfer (Iic_DeviceHandle dev);
+
+void Iic_readRegister (Iic_DeviceHandle dev,
+                       uint8_t writeAddress,
+                       uint8_t readAddress,
+                       uint8_t registerAddress,
+                       uint8_t *data);
+
+void Iic_writeRegister (Iic_DeviceHandle dev,
+                        uint8_t writeAddress,
+                        uint8_t registerAddress,
+                        uint8_t data);
+
+#else
+
 void Iic_start (Iic_DeviceHandle dev);
 void Iic_stop (Iic_DeviceHandle dev);
 
@@ -265,6 +292,8 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data,
         Iic_LastByteMode lastByte);
 System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address, 
         uint8_t *data, uint8_t length, Iic_StopMode stopRequest);
+
+#endif
 
 #if 0
 System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay);

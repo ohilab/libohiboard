@@ -213,6 +213,8 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, boo
  * @brief Setting icr parameter of I2C_F register for generate the desired baudrate
  *
  * Thank for this function at https://github.com/laswick/kinetis/blob/master/phase2_embedded_c/i2c.c
+ * WARNING: On KL25 there is a silicon error on clock distribution. For more informations see:
+ * https://mcuoneclipse.com/2012/12/05/kl25z-and-i2c-missing-repeated-start-condition/
  */
 static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 {
@@ -233,16 +235,16 @@ static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
     for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++)
     {
         i2cClk = busClk / Iic_sclDivTab[icr];
-        if (i2cClk > speed)
-        {
-            i2cClk /= 2;
-            if (i2cClk > speed)
-            {
-                i2cClk /= 2;
-                if (i2cClk > speed)
-                    continue;
-            }
-        }
+//        if (i2cClk > speed)
+//        {
+//            i2cClk /= 2;
+//            if (i2cClk > speed)
+//            {
+//                i2cClk /= 2;
+//                if (i2cClk > speed)
+//                    continue;
+//            }
+//        }
         error = speed - i2cClk;
         if (error < bestError)
         {
@@ -258,26 +260,25 @@ static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 
     icr = bestIcr;
     i2cClk = busClk / Iic_sclDivTab[bestIcr];
-    if (i2cClk > speed)
-    {
-        i2cClk /= 2;
-        if (i2cClk > speed)
-        {
-            mul = 2;
-        }
-        else
-        {
-            mul = 1;
-        }
-    }
-    else
-    {
-        mul = 0;
-    }
+//    if (i2cClk > speed)
+//    {
+//        i2cClk /= 2;
+//        if (i2cClk > speed)
+//        {
+//            mul = 2;
+//        }
+//        else
+//        {
+//            mul = 1;
+//        }
+//    }
+//    else
+//    {
+//        mul = 0;
+//    }
 
-	I2C_F_REG(regmap) = I2C_F_MULT(mul) | I2C_F_ICR(icr);
-
-//    slt = Iic_sclDivTab[icr] / 2 + 1;
+//	I2C_F_REG(regmap) = I2C_F_MULT(mul) | I2C_F_ICR(icr);
+	I2C_F_REG(regmap) = I2C_F_MULT(0) | I2C_F_ICR(icr);
     return ERRORS_NO_ERROR;
 }
 
@@ -329,6 +330,160 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
     return ERRORS_NO_ERROR;
 }
 
+void Iic_start (Iic_DeviceHandle dev)
+{
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
+    I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
+}
+
+void Iic_repeatedStart (Iic_DeviceHandle dev)
+{
+    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
+}
+
+void Iic_stop (Iic_DeviceHandle dev)
+{
+	uint8_t i;
+
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_MST_MASK;
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+
+    for (i = 0; i < 100; ++i ) __asm ("nop");
+}
+
+void Iic_sendNack (Iic_DeviceHandle dev)
+{
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
+}
+
+void Iic_sendAck (Iic_DeviceHandle dev)
+{
+    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
+}
+
+void Iic_setReceiveMode (Iic_DeviceHandle dev)
+{
+	I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+}
+
+void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
+{
+    /* Set TX mode */
+    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
+
+    /* Write the data in the register */
+    I2C_D_REG(dev->regMap) = data;
+}
+
+void Iic_readByte (Iic_DeviceHandle dev, uint8_t *data)
+{
+    /* Read the data in the register */
+    *data = I2C_D_REG(dev->regMap);
+}
+
+System_Errors Iic_waitTransfer (Iic_DeviceHandle dev)
+{
+    uint16_t i, timeoutResult = 0;
+
+    /* Wait for interrupt flag */
+    for (i = 0; i < 1000; ++i)
+    {
+        if (I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)
+        {
+            timeoutResult = 1;
+            break;
+        }
+    }
+    if (timeoutResult == 0)
+        return ERRORS_IIC_TIMEOUT;
+
+    /* Reset value */
+    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
+    return ERRORS_IIC_OK;
+//	while((I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)==0) {}
+}
+
+System_Errors Iic_getAck (Iic_DeviceHandle dev)
+{
+    if((I2C_S_REG(dev->regMap) & I2C_S_RXAK_MASK) == 0)
+        return ERRORS_IIC_TX_ACK_RECEIVED;
+    else
+        return ERRORS_IIC_TX_ACK_NOT_RECEIVED;
+
+}
+
+void Iic_writeRegister (Iic_DeviceHandle dev,
+                        uint8_t writeAddress,
+                        uint8_t registerAddress,
+                        uint8_t data)
+{
+    Iic_start(dev);
+
+    Iic_writeByte(dev,writeAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_writeByte(dev,registerAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_writeByte(dev,data);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_stop(dev);
+
+    /* Small delay */
+    for(uint8_t i=0; i<100; i++)
+    {
+        __asm("nop");
+    }
+}
+
+void Iic_readRegister (Iic_DeviceHandle dev,
+                       uint8_t writeAddress,
+                       uint8_t readAddress,
+                       uint8_t registerAddress,
+                       uint8_t *data)
+{
+    uint8_t read;
+
+    Iic_start(dev);
+
+    Iic_writeByte(dev,writeAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_writeByte(dev,registerAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_repeatedStart(dev);
+
+    Iic_writeByte(dev, readAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_setReceiveMode(dev);
+    Iic_sendNack(dev);
+
+    /* dummy read */
+    Iic_readByte(dev, &read);
+    Iic_waitTransfer(dev);
+    Iic_stop(dev);
+
+    Iic_readByte(dev, &read);
+
+    /* small delay */
+    for(uint8_t i=0; i<40; i++)
+    {
+        __asm("nop");
+    }
+
+    *data = read;
+}
+
+#if 0
 void Iic_start (Iic_DeviceHandle dev)
 {
     /* If we are in communication set repeat star flag */
@@ -559,7 +714,7 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
 
     return ERRORS_IIC_RX_OK;
 }
-
+#endif
 /* Must to be test */
 #if 0
 System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay)
