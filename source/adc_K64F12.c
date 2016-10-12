@@ -659,7 +659,7 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
         }
 
         /* Start conversion */
-        ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(channel);
+        ADC_SC1_REG(regmap,0) = (ADC_SC1_REG(regmap,0)&(~ADC_SC1_ADCH_MASK))|ADC_SC1_ADCH(channel);
 
         /* wait until conversion ended */
         while ((ADC_SC1_REG(regmap,0) & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
@@ -691,6 +691,8 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
 
     ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
 
+    Interrupt_disable(dev->isrNumber);
+
     for(i=0;i<numChannel;i++)
     {
         ADC_SC1_REG(dev->regMap,i) = 0;// ADC_SC1_ADCH(0);
@@ -699,8 +701,9 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
                                      ((config[i].inputType << ADC_SC1_DIFF_SHIFT) & ADC_SC1_DIFF_MASK);
     }
 
-    ADC_SC2_REG(dev->regMap) |=ADC_SC2_ADTRG_MASK;
+    ADC_SC2_REG(dev->regMap) |= ADC_SC2_ADTRG_MASK;
 
+    Interrupt_enable(dev->isrNumber);
 
     return ERRORS_NO_ERROR;
 }
