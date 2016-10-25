@@ -37,7 +37,7 @@
 	defined(LIBOHIBOARD_TWRKV46F)
 
 #define CLOCK_INIT_DIFF                      200000000
-#define CLOCK_MAX_FREQ_MCG                   300000000
+#define CLOCK_MAX_FREQ_MCG                   752000000// 300000000
 #define CLOCK_MAX_FREQ_SYS                   150000000
 #define CLOCK_MAX_FREQ_EXT                    50000000
 #define CLOCK_MAX_FREQ_BUS					  75000000
@@ -74,8 +74,8 @@
 #define CLOCK_CENTER_FREQ_RANGE3_FLL_OUT      96000000
 
 /* PLL IN/OUT limits*/
-#define CLOCK_MIN_FREQ_PLL_OUT				  48000000
-#define CLOCK_MAX_FREQ_PLL_OUT               300000000
+#define CLOCK_MIN_FREQ_PLL_OUT				  128000000//48000000
+#define CLOCK_MAX_FREQ_PLL_OUT                752000000//300000000
 
 #define CLOCK_MIN_FREQ_PLL_IN                 8000000
 #define CLOCK_MAX_FREQ_PLL_IN                16000000
