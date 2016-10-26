@@ -279,6 +279,7 @@ typedef enum {
 	INTERRUPT_UART5        = 68,
     INTERRUPT_FTM3         = 71,
     INTERRUPT_ADC1         = 73,
+    INTERRUPT_SDHC         = 81,
     INTERRUPT_ETHERNET_1588= 82,
     INTERRUPT_ETHERNET_TX  = 83,
     INTERRUPT_ETHERNET_RX  = 84,
