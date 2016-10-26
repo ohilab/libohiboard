@@ -741,7 +741,8 @@ typedef enum
     GPIO_EVENT_WHEN_0     = 0x8,
     GPIO_EVENT_ON_RISING  = 0x9,
     GPIO_EVENT_ON_FALLING = 0xA,
-    GPIO_EVENT_WHEN_1     = 0xB,
+    GPIO_EVENT_WHEN_1     = 0xC,
+    GPIO_EVENT_ON_BOOTH   = 0xB,
 } Gpio_EventType;
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
