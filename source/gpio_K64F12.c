@@ -326,7 +326,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->PDIR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event)
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 {
     GPIO_MemMapPtr port;
     Gpio_getPort(pin,&port);
@@ -334,32 +334,69 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventTyp
     switch(Gpio_availablePins[pin].port)
     {
     case GPIO_PORTS_A:
-        PORTA_PCR(Gpio_availablePins[pin].pinNumber)|=PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrPortARequestVector[Gpio_availablePins[pin].pinNumber]=callback;
+        Gpio_isrPortARequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        INT_REG_A |= 1 << Gpio_availablePins[pin].pinNumber;
+        break;
+    case GPIO_PORTS_B:
+        Gpio_isrPortBRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        INT_REG_B |= 1 << Gpio_availablePins[pin].pinNumber;
+        break;
+    case GPIO_PORTS_C:
+        Gpio_isrPortCRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        INT_REG_C |= 1 << Gpio_availablePins[pin].pinNumber;
+        break;
+    case GPIO_PORTS_D:
+        Gpio_isrPortDRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        INT_REG_D |= 1 << Gpio_availablePins[pin].pinNumber;
+        break;
+    case GPIO_PORTS_E:
+        Gpio_isrPortERequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        INT_REG_E |= 1 << Gpio_availablePins[pin].pinNumber;
+        break;
+    default:
+        assert(0);
+        return ERRORS_GPIO_WRONG_PORT;
+    }
+
+    return ERRORS_NO_ERROR;
+
+}
+
+System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
+{
+    GPIO_MemMapPtr port;
+    Gpio_getPort(pin,&port);
+
+    switch(Gpio_availablePins[pin].port)
+    {
+    case GPIO_PORTS_A:
+        PORTA_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        PORTA_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_ISF_MASK|PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
         INT_REG_A |= 1 << Gpio_availablePins[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTA);
         break;
     case GPIO_PORTS_B:
-        PORTB_PCR(Gpio_availablePins[pin].pinNumber)|=PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrPortBRequestVector[Gpio_availablePins[pin].pinNumber]=callback;
+        PORTB_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        PORTB_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_ISF_MASK|PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
         INT_REG_B |= 1 << Gpio_availablePins[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTB);
         break;
     case GPIO_PORTS_C:
-        PORTC_PCR(Gpio_availablePins[pin].pinNumber)|=PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrPortCRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        PORTC_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        PORTC_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_ISF_MASK|PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
         INT_REG_C |= 1 << Gpio_availablePins[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTC);
+
         break;
     case GPIO_PORTS_D:
-        PORTD_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrPortDRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        PORTD_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        PORTD_PCR(Gpio_availablePins[pin].pinNumber) |=PORT_PCR_ISF_MASK|PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
         INT_REG_D |= 1 << Gpio_availablePins[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTD);
         break;
     case GPIO_PORTS_E:
-        PORTE_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrPortERequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+        PORTE_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
+        PORTE_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_ISF_MASK|PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
         INT_REG_E |= 1 << Gpio_availablePins[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTE);
         break;
