@@ -34,7 +34,7 @@
 #ifndef __ETHERNET_UTILITY_H
 #define __ETHERNET_UTILITY_H
 
-#include "libohiboard.h"
+//#include "libohiboard.h"
 #include "arch/sys_arch.h"
 // lwip includes
 #include "lwip/tcp.h"
