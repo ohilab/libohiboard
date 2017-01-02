@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -132,13 +132,13 @@ typedef enum
     FTM_CHANNELS_CH5,
 } Ftm_Channels;
 
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
+void TPM0_IRQHandler (void);
+void TPM1_IRQHandler (void);
+void TPM2_IRQHandler (void);
 
-extern Ftm_DeviceHandle FTM0;
-extern Ftm_DeviceHandle FTM1;
-extern Ftm_DeviceHandle FTM2;
+extern Ftm_DeviceHandle OB_FTM0;
+extern Ftm_DeviceHandle OB_FTM1;
+extern Ftm_DeviceHandle OB_FTM2;
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
 	defined (LIBOHIBOARD_FRDMKL25Z)
