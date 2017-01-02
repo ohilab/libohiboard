@@ -1,4 +1,4 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -46,7 +46,8 @@ typedef struct _Pit_Config
 
 } Pit_Config;
 
-#if defined (LIBOHIBOARD_KL25Z4)   || \
+#if defined (LIBOHIBOARD_KL15Z4)   || \
+    defined (LIBOHIBOARD_KL25Z4)   || \
     defined (LIBOHIBOARD_FRDMKL25Z)
 
 void PIT_IRQHandler (void);
@@ -86,9 +87,6 @@ void PIT3_IRQHandler (void);
 
 extern Pit_DeviceHandle OB_PIT0;
 
-
-
-
 #endif
 
 /**
@@ -106,6 +104,7 @@ System_Errors Pit_init (Pit_DeviceHandle dev);
  * @param[in] config    The configuration parameters for the timer
  */
 System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* config);
+
 /**
  * TODO: description...
  *
@@ -113,6 +112,7 @@ System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* conf
  * @param[in] number    The number of timer that must be started
  */
 System_Errors Pit_start (Pit_DeviceHandle dev, uint8_t number);
+
 /**
  * TODO: description...
  *
