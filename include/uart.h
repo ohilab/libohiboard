@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -411,9 +411,13 @@ extern Uart_DeviceHandle UART0;
 
 #elif defined(LIBOHIBOARD_KL15Z4)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
+void UART0_IRQHandler ();
+void UART1_IRQHandler ();
+void UART2_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
@@ -528,7 +532,8 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 
-#if defined (LIBOHIBOARD_KL25Z4)     || \
+#if defined (LIBOHIBOARD_KL15Z4)     || \
+    defined (LIBOHIBOARD_KL25Z4)     || \
 	defined (LIBOHIBOARD_FRDMKL25Z)  || \
 	defined (LIBOHIBOARD_K12D5)      || \
     defined (LIBOHIBOARD_K64F12)     || \

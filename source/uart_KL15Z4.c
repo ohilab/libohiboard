@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -58,6 +58,11 @@ typedef struct Uart_Device
 
     Uart_ClockSource clockSource;
 
+    void (*isr)(void);                     /**< The function pointer for ISR. */
+    void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
+    void (*callbackTx)(void); /**< The function pointer for user Tx callback. */
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
@@ -106,9 +111,14 @@ static Uart_Device uart0 = {
                              4,
         },
 
+        .isr              = UART0_IRQHandler,
+        .isrNumber        = INTERRUPT_UART0,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
+
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART0 = &uart0;
+Uart_DeviceHandle OB_UART0 = &uart0;
 
 static Uart_Device uart1 = {
         .regMap0          = 0,
@@ -143,9 +153,14 @@ static Uart_Device uart1 = {
                              3,
         },
 
+        .isr              = UART1_IRQHandler,
+        .isrNumber        = INTERRUPT_UART1,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
+
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART1 = &uart1;
+Uart_DeviceHandle OB_UART1 = &uart1;
 
 static Uart_Device uart2 = {
         .regMap0          = 0,
@@ -186,9 +201,62 @@ static Uart_Device uart2 = {
                              4,
         },
 
+        .isr              = UART2_IRQHandler,
+        .isrNumber        = INTERRUPT_UART2,
+        .callbackRx       = 0,
+        .callbackTx       = 0,
+
         .devInitialized = 0,
 };
-Uart_DeviceHandle UART2 = &uart2;
+Uart_DeviceHandle OB_UART2 = &uart2;
+
+void UART0_IRQHandler (void)
+{
+    if (UART0_S1_REG(OB_UART0->regMap) & UART0_S1_RDRF_MASK)
+    {
+        OB_UART0->callbackRx();
+        (void)UART0_S1_REG(OB_UART0->regMap);
+        (void)UART0_D_REG(OB_UART0->regMap);
+    }
+    else if (UART0_S1_REG(OB_UART0->regMap) & UART0_S1_TDRE_MASK)
+    {
+        OB_UART0->callbackTx();
+        (void)UART0_S1_REG(OB_UART0->regMap);
+        (void)UART0_D_REG(OB_UART0->regMap);
+    }
+}
+
+void UART1_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART1->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART1->callbackRx();
+        (void)UART_S1_REG(OB_UART1->regMap);
+        (void)UART_D_REG(OB_UART1->regMap);
+    }
+    else if (UART_S1_REG(OB_UART1->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART1->callbackTx();
+        (void)UART_S1_REG(OB_UART1->regMap);
+        (void)UART_D_REG(OB_UART1->regMap);
+    }
+}
+
+void UART2_IRQHandler (void)
+{
+    if (UART_S1_REG(OB_UART2->regMap) & UART_S1_RDRF_MASK)
+    {
+        OB_UART2->callbackRx();
+        (void)UART_S1_REG(OB_UART2->regMap);
+        (void)UART_D_REG(OB_UART2->regMap);
+    }
+    else if (UART_S1_REG(OB_UART2->regMap) & UART_S1_TDRE_MASK)
+    {
+        OB_UART2->callbackTx();
+        (void)UART_S1_REG(OB_UART2->regMap);
+        (void)UART_D_REG(OB_UART2->regMap);
+    }
+}
 
 static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
 {
@@ -213,7 +281,7 @@ static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t 
 //    }
 
     /* Save off the current value of the UARTx_BDH except for the SBR field */
-    if (dev == UART0)
+    if (dev == OB_UART0)
     {
         SIM_SOPT2 &= ~(SIM_SOPT2_UART0SRC_MASK);
         SIM_SOPT2 |= SIM_SOPT2_UART0SRC(1);
@@ -267,7 +335,7 @@ static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t 
  */
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
 {
-    if (dev == UART0)
+    if (dev == OB_UART0)
     {
         /* Wait until character has been received */
         while (!(UART0_S1_REG(dev->regMap0) & UART0_S1_RDRF_MASK));
@@ -293,7 +361,7 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
  */
 void Uart_putChar (Uart_DeviceHandle dev, char c)
 {
-    if (dev == UART0)
+    if (dev == OB_UART0)
     {
         /* Wait until space is available in the FIFO */
         while(!(UART0_S1_REG(dev->regMap0) & UART0_S1_TDRE_MASK));
@@ -320,7 +388,7 @@ void Uart_putChar (Uart_DeviceHandle dev, char c)
  */
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
 {
-    if (dev == UART0)
+    if (dev == OB_UART0)
     {
         if (UART0_S1_REG(dev->regMap0) & UART0_S1_OR_MASK)
             UART0_S1_REG(dev->regMap0) |= UART0_S1_OR_MASK;
@@ -332,7 +400,7 @@ uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
     }
 }
 
-System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config)
+System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
 {
     if (dev->devInitialized) return ERRORS_UART_DEVICE_JUST_INIT;
 
@@ -340,13 +408,13 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
     /* Make sure that the transmitter and receiver are disabled while we change settings. */
-    if (dev == UART0)
+    if (dev == OB_UART0)
         UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
     else
         UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
 
     /* FIXME: Configure the UART just for 8-bit mode */
-    if (dev == UART0)
+    if (dev == OB_UART0)
     {
         switch (config->dataBits)
         {
@@ -372,7 +440,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     }
 
     /* Set parity type */
-    if (dev == UART0)
+    if (dev == OB_UART0)
     {
         switch (config->parity)
         {
@@ -407,7 +475,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     Uart_setBaudrate(dev,config->baudrate,config->oversampling);
 
     /* Enable receiver and transmitter */
-    if (dev == UART0)
+    if (dev == OB_UART0)
         UART0_C2_REG(dev->regMap0) |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
     else
         UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
@@ -421,6 +489,39 @@ System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *con
     if (config->txPin != UART_PINS_TXNONE)
         Uart_setTxPin(dev, config->txPin);
 
+    /* If call back exist save it */
+    if (config->callbackRx)
+    {
+        dev->callbackRx = config->callbackRx;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* FIXME: Enable just RX interrupt */
+        if (dev == OB_UART0)
+        {
+            UART0_C2_REG(dev->regMap0) |= UART0_C2_RIE_MASK;
+        }
+        else
+        {
+            UART_C2_REG(dev->regMap) |= UART_C2_RIE_MASK;
+        }
+    }
+
+    if (config->callbackTx)
+    {
+        dev->callbackTx = config->callbackTx;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+        /* FIXME: Enable just TX interrupt */
+        if (dev == OB_UART0)
+        {
+            UART0_C2_REG(dev->regMap0) |= UART0_C2_TIE_MASK;
+        }
+        else
+        {
+            UART_C2_REG(dev->regMap) |= UART_C2_TIE_MASK;
+        }
+    }
+
     return ERRORS_NO_ERROR;
 }
 
@@ -429,7 +530,7 @@ System_Errors Uart_close (Uart_DeviceHandle dev)
     if (!dev->devInitialized) return ERRORS_UART_DEVICE_NOT_INIT;
 
     /* Disable transmitter and receiver. */
-    if (dev == UART0)
+    if (dev == OB_UART0)
         UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
     else
         UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
@@ -482,10 +583,10 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
 
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
 {
-    if (dev == UART0)
-        return (UART0_S1_REG(dev->regMap) & UART0_S1_TC_MASK)
+    if (dev == OB_UART0)
+        return (UART0_S1_REG(dev->regMap0) & UART0_S1_TC_MASK);
     else
-        return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK)
+        return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK);
 }
 
 #endif /* LIBOHIBOARD_KL15Z4 */
