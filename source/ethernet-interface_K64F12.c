@@ -363,8 +363,8 @@ System_Errors EthernetInterface_sendData(EthernetInterface_DeviceHandle dev,
 
     for (buffIndex = 0; buffIndex < bdUsedNumber; buffIndex++)
     {
-        if (dev->bdHandler.isTxBufferDescriptorFull)
-            return ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL;
+//        if (dev->bdHandler.isTxBufferDescriptorFull)
+//            return ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL; << prova senza questo
 
         /* Last Buffer Descriptor */
         if (buffIndex == bdUsedNumber - 1)
