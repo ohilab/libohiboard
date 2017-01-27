@@ -146,7 +146,7 @@ static Spi_Device spi0 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI0 = &spi0;
+Spi_DeviceHandle OB_SPI0 = &spi0;
 
 static Spi_Device spi1 = {
     .regMap           = SPI1_BASE_PTR,
@@ -193,8 +193,8 @@ static Spi_Device spi1 = {
                          SPI_PINS_PTB17I,
                          SPI_PINS_PTD2I,
                          SPI_PINS_PTD3I,
-                         SPI_PINS_PTE18I,
-                         SPI_PINS_PTE19I,
+                         SPI_PINS_PTE1I,
+                         SPI_PINS_PTE3I,
     },
     .sinPinsPtr       = {&PORTB_PCR16,
                          &PORTB_PCR17,
@@ -227,7 +227,7 @@ static Spi_Device spi1 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI1 = &spi1;
+Spi_DeviceHandle OB_SPI1 = &spi1;
 
 static uint16_t Spi_prDiv[]  = {
         /*00*/     2, /*01*/     4, /*02*/     8, /*03*/    16,

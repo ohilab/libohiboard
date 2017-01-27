@@ -623,7 +623,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChiSelect cs)
+System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
 {
     SPI_MemMapPtr regmap = dev->regMap;
 

@@ -78,7 +78,7 @@ typedef enum {
     SPI_CS_2    = 0x4,
     SPI_CS_3    = 0x8,
     SPI_CS_4    = 0xF,
-} Spi_ChiSelect;
+} Spi_ChipSelect;
 
 typedef enum {
     SPI_CS_FORMAT_DISCONTINUOS = 0x0,
@@ -757,21 +757,29 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed);
     defined (LIBOHIBOARD_TRWKV46F)
 
 System_Errors Spi_read (Spi_DeviceHandle dev, uint16_t * data);
-System_Errors Spi_write (Spi_DeviceHandle dev, uint16_t data, Spi_ChiSelect cs);
+System_Errors Spi_write (Spi_DeviceHandle dev, uint16_t data, Spi_ChipSelect cs);
 
 System_Errors Spi_txEnDisable (Spi_DeviceHandle dev, bool enable);
 System_Errors Spi_flushBuffer (Spi_DeviceHandle dev, Spi_BufferType buffer);
 
-
-
-
-#else
+#elif defined (LIBOHIBOARD_K10D10)      || \
+	  defined (LIBOHIBOARD_K12D5)       || \
+	  defined (LIBOHIBOARD_K60DZ10)     || \
+	  defined (LIBOHIBOARD_OHIBOARD_R1) || \
+	  defined (LIBOHIBOARD_K64F12)      || \
+	  defined (LIBOHIBOARD_FRDMK64F)
 
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
 System_Errors Spi_read (Spi_DeviceHandle dev, uint32_t* data);
 
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
-System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChiSelect cs);
+System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs);
+
+#else
+
+System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
+System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
+
 #endif
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
@@ -785,8 +793,8 @@ extern Spi_DeviceHandle SPI1;
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
-extern Spi_DeviceHandle SPI0;
-extern Spi_DeviceHandle SPI1;
+extern Spi_DeviceHandle OB_SPI0;
+extern Spi_DeviceHandle OB_SPI1;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
