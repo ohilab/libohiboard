@@ -753,19 +753,9 @@ void Gpio_toggle (Gpio_Pins pin);
 
 Gpio_Level Gpio_get (Gpio_Pins pin);
 
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)   || \
-    defined (LIBOHIBOARD_K12D5)      || \
-	defined (LIBOHIBOARD_KL25Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL25Z)  || \
-    defined (LIBOHIBOARD_KV46F)      || \
-    defined (LIBOHIBOARD_TRWKV46F)
-
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback);
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
-
-#endif
 
 #endif /* __GPIO_H */
 
