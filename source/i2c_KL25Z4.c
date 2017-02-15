@@ -1,7 +1,8 @@
-/* Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
+ *   Matteo Pirro
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +26,7 @@
 /**
  * @file libohiboard/source/i2c_KL25Z4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Pirro
  * @brief I2C implementations for KL25Z4 and FRDMKL25Z.
  */
 
@@ -481,6 +483,49 @@ void Iic_readRegister (Iic_DeviceHandle dev,
     }
 
     *data = read;
+}
+
+void Iic_readMultipleRegisters (Iic_DeviceHandle dev,
+                       uint8_t writeAddress,
+                       uint8_t readAddress,
+                       uint8_t firstRegisterAddress,
+                       uint8_t *data,
+					   uint8_t length)
+{
+
+}
+
+void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
+                        uint8_t writeAddress,
+                        uint8_t firstRegisterAddress,
+                        uint8_t* data,
+						uint8_t length)
+
+{
+	Iic_start(dev);
+
+	Iic_writeByte(dev,writeAddress);
+	Iic_waitTransfer(dev);
+	Iic_getAck(dev);
+
+	Iic_writeByte(dev,firstRegisterAddress | 0b10000000);
+	Iic_waitTransfer(dev);
+	Iic_getAck(dev);
+
+	for(int i=0;i<length;i++)
+	{
+		Iic_writeByte(dev,data[i]);
+		Iic_waitTransfer(dev);
+		Iic_getAck(dev);
+	}
+
+	Iic_stop(dev);
+
+	/* Small delay */
+	for(uint8_t i=0; i<100; i++)
+	{
+		__asm("nop");
+	}
 }
 
 #if 0

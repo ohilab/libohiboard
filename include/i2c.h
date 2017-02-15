@@ -280,6 +280,19 @@ void Iic_writeRegister (Iic_DeviceHandle dev,
                         uint8_t registerAddress,
                         uint8_t data);
 
+void Iic_readMultipleRegisters (Iic_DeviceHandle dev,
+                       uint8_t writeAddress,
+                       uint8_t readAddress,
+                       uint8_t firstRegisterAddress,
+                       uint8_t *data,
+					   uint8_t length);
+
+void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
+                        uint8_t writeAddress,
+                        uint8_t firstRegisterAddress,
+                        uint8_t* data,
+						uint8_t length);
+
 #else
 
 void Iic_start (Iic_DeviceHandle dev);
