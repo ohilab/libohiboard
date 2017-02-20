@@ -60,7 +60,8 @@ typedef enum
 {
 
 #if defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)
+	  defined (LIBOHIBOARD_FRDMKL25Z) || \
+	  defined (LIBOHIBOARD_KL15Z4)
 
     LLWU_P0,
 	LLWU_P1,
@@ -99,7 +100,8 @@ typedef enum
 {
 
 #if defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)
+	  defined (LIBOHIBOARD_FRDMKL25Z)||	\
+	  defined (LIBOHIBOARD_KL15Z4)
 
     LLWU_WUME0,
 	LLWU_WUME1,

@@ -108,7 +108,8 @@ void Smc_sleep (Smc_DevideHandle dev)
 	/* Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep)
 	* mode instead of deep sleep.
 	*/
-	SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+	//SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK;
 
 	/* WFI instruction will start entry into WAIT mode */
 	__asm("WFI");
@@ -118,7 +119,8 @@ void Smc_sleep (Smc_DevideHandle dev)
 void Smc_deepsleep (Smc_DevideHandle dev)
 {
   /* Set the SLEEPDEEP bit to enable deep sleep mode (STOP) */
-	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+	//SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;
 
   /* WFI instruction will start entry into STOP mode */
   __asm("WFI");

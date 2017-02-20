@@ -33,6 +33,18 @@
 
 #include "gpio.h"
 #include "platforms.h"
+#include "interrupt.h"
+
+
+/* TODO: Verificare che siano giuste le define */
+#define  PORTA_MAX_PIN  15
+#define  PORTD_MAX_PIN  8
+
+static void (*Gpio_isrPortARequestVector[PORTA_MAX_PIN]) (void);
+static void (*Gpio_isrPortDRequestVector[PORTD_MAX_PIN]) (void);
+
+static uint32_t INT_REG_A = 0x0;
+static uint32_t INT_REG_D = 0x0;
 
 typedef enum
 {

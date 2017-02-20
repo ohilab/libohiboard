@@ -138,6 +138,9 @@ typedef enum _System_Errors
     ERRORS_XBAR_IN_WRONG,
     ERRORS_XBAR_OUT_WRONG,
 
+	ERRORS_LLWU_WRONG_EXTPIN,
+	ERRORS_LLWU_WRONG_WAKEUPMODULE,
+
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);

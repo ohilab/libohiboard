@@ -787,8 +787,8 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
 
 #elif defined (LIBOHIBOARD_KL15Z4)
 
-extern Spi_DeviceHandle SPI0;
-extern Spi_DeviceHandle SPI1;
+extern Spi_DeviceHandle OB_SPI0;
+extern Spi_DeviceHandle OB_SPI1;
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)

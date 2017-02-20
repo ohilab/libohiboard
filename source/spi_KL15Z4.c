@@ -163,7 +163,7 @@ static Spi_Device spi0 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI0 = &spi0;
+Spi_DeviceHandle OB_SPI0 = &spi0;
 
 static Spi_Device spi1 = {
     .regMap           = SPI1_BASE_PTR,
@@ -244,7 +244,7 @@ static Spi_Device spi1 = {
 
     .devInitialized   = 0,
 };
-Spi_DeviceHandle SPI1 = &spi1;
+Spi_DeviceHandle OB_SPI1 = &spi1;
 
 static uint16_t Spi_prDiv[]  = {
         /*00*/     2, /*01*/     4, /*02*/     8, /*03*/    16,
@@ -267,7 +267,7 @@ System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
     uint8_t i = 0;
     uint8_t j = 0;
 
-    if (dev == SPI0)
+    if (dev == OB_SPI0)
         clock = Clock_getFrequency(CLOCK_BUS);
     else
         clock = Clock_getFrequency(CLOCK_SYSTEM); /* TODO: Is it true?? */
