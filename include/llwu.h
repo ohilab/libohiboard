@@ -35,8 +35,11 @@
 #define __LLWU_H
 
 #include "platforms.h"
+#include "interrupt.h"
 #include "errors.h"
 #include "types.h"
+
+/* https://community.nxp.com/docs/DOC-332687 */
 
 typedef struct _Llwu_Device {
 
@@ -123,6 +126,7 @@ typedef enum
 	LLWU_WAKEUP_MODULE_ENABLE	  		= 0x1,
 } Llwu_WakeupModule_Enable;
 
+System_Errors Llwu_Init (Llwu_DeviceHandle dev);
 System_Errors Llwu_configExtPin_Interrupt (Llwu_DeviceHandle dev, Llwu_ExtPins pin, Llwu_ExtPin_EventType event, void* callback);
 System_Errors Llwu_configWakeupModule_Interrupt (Llwu_DeviceHandle dev, Llwu_WakeupModules wum, Llwu_WakeupModule_Enable enable, void* callback);
 

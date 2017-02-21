@@ -92,34 +92,57 @@ static Llwu_IntDevice Llwu_IntDevices[] =
 		{LLWU_WAKEUP_MODULE,3},
 };
 
+System_Errors Llwu_Init (Llwu_DeviceHandle dev)
+{
+	/* Clear flags for external sources */
+	dev->regMap->F1 |= 0xFF;
+	dev->regMap->F2 |= 0xFF;
+
+    /* Disable all external sources*/
+	dev->regMap->PE1 &= 0;
+	dev->regMap->PE2 &= 0;
+	dev->regMap->PE3 &= 0;
+	dev->regMap->PE4 &= 0;
+
+    /* Disable all internal sources */
+	dev->regMap->ME &= 0;
+
+}
+
 System_Errors Llwu_configExtPin_Interrupt (Llwu_DeviceHandle dev, Llwu_ExtPins pin, Llwu_ExtPin_EventType event, void* callback)
 {
 
 	switch(Llwu_IntDevices[pin].reg)
     {
     case LLWU_EXTPIN_0_3:
-    	dev->regMap->PE1 &= ~(1 << pin*2);
+    	dev->regMap->PE1 &= ~(0b11 << pin*2);
     	dev->regMap->PE1 |= (event << pin*2);
+    	dev->regMap->F1 |= (1 << pin*2);
         break;
     case LLWU_EXTPIN_4_7:
-    	dev->regMap->PE2 &= ~(1 << pin*2);
-    	dev->regMap->PE2 |= (event << pin*2);
+    	dev->regMap->PE2 &= ~(0b11 << (pin-4)*2);
+    	dev->regMap->PE2 |= (event << (pin-4)*2);
+    	dev->regMap->F1 |= (1 << pin*2);
         break;
     case LLWU_EXTPIN_8_11:
-    	dev->regMap->PE3 &= ~(1 << pin*2);
-    	dev->regMap->PE3 |= (event << pin*2);
+    	dev->regMap->PE3 &= ~(0b11 << (pin-8)*2);
+    	dev->regMap->PE3 |= (event << (pin-8)*2);
+    	dev->regMap->F2 |= (1 << (pin-8)*2);
 		break;
     case LLWU_EXTPIN_12_15:
-    	dev->regMap->PE4 &= ~(1 << pin*2);
-    	dev->regMap->PE4 |= (event << pin*2);
+    	dev->regMap->PE4 &= ~(0b11 << (pin-12)*2);
+    	dev->regMap->PE4 |= (event << (pin-12)*2);
+    	dev->regMap->F2 |= (1 << (pin-8)*2);
 		break;
     default:
         assert(0);
         return ERRORS_LLWU_WRONG_EXTPIN;
     }
 
-    Llwu_isrExtPinRequestVector[Llwu_IntDevices[pin].pinNumber] = callback;
+    Llwu_isrExtPinRequestVector[pin] = callback;
 	INT_EXTPIN |= 1 << pin;
+
+	Interrupt_enable(INTERRUPT_LLWU);
 
     return ERRORS_NO_ERROR;
 }
@@ -130,6 +153,7 @@ System_Errors Llwu_configWakeupModule_Interrupt (Llwu_DeviceHandle dev, Llwu_Wak
 	{
 		dev->regMap->ME &= ~(1 << wum);
 		dev->regMap->ME |= (enable << wum);
+		dev->regMap->F3 |= (1 << wum);
 	}
 	else
 	{
@@ -138,6 +162,8 @@ System_Errors Llwu_configWakeupModule_Interrupt (Llwu_DeviceHandle dev, Llwu_Wak
 
 	Llwu_isrWakeupModuleRequestVector[wum] = callback;
 	INT_WAKEUP_MODULE |= 1 << wum;
+
+	Interrupt_enable(INTERRUPT_LLWU);
 
     return ERRORS_NO_ERROR;
 }
@@ -157,7 +183,7 @@ void LLWU_IRQHandler(void)
 				{
 					Llwu_isrExtPinRequestVector[i]();
 					//reset interrupt
-					OB_LLWU0->regMap->F1 |= (1 << i);
+					OB_LLWU0->regMap->F1 |= (1 << i); /* Sicuro c'è un bug sugli indici */
 				}
 			}
 			else

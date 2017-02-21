@@ -11,6 +11,13 @@
 #include "types.h"
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
+
+typedef enum
+{
+	_MOVING_AVERAGE,
+	_RMS,
+}PtbyPtFilterMode;
 
 typedef struct {
 
@@ -23,14 +30,20 @@ typedef struct {
 
 	uint8_t transient;
 
-}MovAvgFilter_t;
+	PtbyPtFilterMode mode;
 
-typedef MovAvgFilter_t* MovAvgFilterHandle;
+}PtbyPtFilter_t;
 
-void MovAvgInit(MovAvgFilterHandle dev, uint8_t len);
-void MovAvgDispose(MovAvgFilterHandle dev);
-void MovAvgReset(MovAvgFilterHandle dev);
-void MovAvgRun(MovAvgFilterHandle dev);
+typedef PtbyPtFilter_t* PtbyPtFilterHandle;
+
+void PtbyPtFilterInit(PtbyPtFilterHandle dev, uint8_t len, PtbyPtFilterMode mode);
+void PtbyPtFilterDispose(PtbyPtFilterHandle dev);
+void PtbyPtFilterReset(PtbyPtFilterHandle dev);
+void PtbyPtFilterRun(PtbyPtFilterHandle dev);
+void PtbyPtFilterAddSample(PtbyPtFilterHandle dev, float sample);
+void PtbyPtFilterGetOut(PtbyPtFilterHandle dev, float* out);
+
+
 
 
 

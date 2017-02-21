@@ -208,6 +208,9 @@ Smc_Errors Smc_vlpr2vlps(Smc_DevideHandle dev)
 	}
 }
 
+
+
+
 Smc_Errors Smc_run2vlps(Smc_DevideHandle dev)
 {
 	if(dev->actualStatus == SMC_RUN)

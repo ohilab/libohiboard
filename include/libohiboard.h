@@ -108,6 +108,10 @@
 #include "llwu.h"
 #endif
 
+#ifdef LIBOHIBOARD_FILTER
+#include "filter.h"
+#endif
+
 #include "timeday.h"
 
 void test();
