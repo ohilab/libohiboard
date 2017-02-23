@@ -46,7 +46,7 @@
 #include "interrupt.h"
 #include "clock.h"
 
-#define ETHERNET_MAX_PINS                    14
+#define ETHERNET_MAX_PINS                    10//14
 
 /* Ethernet general constants */
 #define ETHERNET_MAX_TIMEOUT                 0xFFFF /**< Ethernet Timeout. */
@@ -115,10 +115,10 @@ static Ethernet_Device enet0 = {
                          ETHERNET_PINS_PTA28,
                          ETHERNET_PINS_PTB0,
                          ETHERNET_PINS_PTB1,
-                         ETHERNET_PINS_PTC16,
-                         ETHERNET_PINS_PTC17,
-                         ETHERNET_PINS_PTC18,
-                         ETHERNET_PINS_PTC19,
+//                         ETHERNET_PINS_PTC16,
+//                         ETHERNET_PINS_PTC17,
+//                         ETHERNET_PINS_PTC18,
+//                         ETHERNET_PINS_PTC19,
     },
     .pinsPtr          = {&PORTA_PCR5,
                          &PORTA_PCR12,
@@ -130,10 +130,10 @@ static Ethernet_Device enet0 = {
                          &PORTA_PCR28,
                          &PORTB_PCR0,
                          &PORTB_PCR1,
-                         &PORTC_PCR16,
-                         &PORTC_PCR17,
-                         &PORTC_PCR18,
-                         &PORTC_PCR19,
+//                         &PORTC_PCR16,
+//                         &PORTC_PCR17,
+//                         &PORTC_PCR18,
+//                         &PORTC_PCR19,
     },
     .pinMux           = {4,
                          4,
@@ -145,10 +145,10 @@ static Ethernet_Device enet0 = {
                          4,
                          4,
                          4,
-                         4,
-                         4,
-                         4,
-                         4,
+//                         4,
+//                         4,
+//                         4,
+//                         4,
     },
 
     .isrRx            = Ethernet_isrEnet0Rx,
