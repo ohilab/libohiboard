@@ -173,26 +173,31 @@ void LLWU_IRQHandler(void)
 
 	uint8_t i=0;
 
-	while (i < LLWU_MAX_EXTPIN)
-	{
-		if(INT_EXTPIN & (1 << i))
-		{
-			if(i < LLWU_MAX_EXTPIN/2)
-			{//Da verificare
-				if((OB_LLWU0->regMap->F1 >> i) & 0x01)
-				{
-					Llwu_isrExtPinRequestVector[i]();
-					//reset interrupt
-					OB_LLWU0->regMap->F1 |= (1 << i); /* Sicuro c'è un bug sugli indici */
-				}
-			}
-			else
-			{
+	OB_LLWU0->regMap->F1 = 0xFF;
+	OB_LLWU0->regMap->F2 = 0xFF;
 
-			}
-		}
-		i++;
-	}
+	Llwu_isrExtPinRequestVector[LLWU_P15];
+
+//	while (i < LLWU_MAX_EXTPIN)
+//	{
+//		if(INT_EXTPIN & (1 << i))
+//		{
+//			if(i < LLWU_MAX_EXTPIN/2)
+//			{//Da verificare
+//				if((OB_LLWU0->regMap->F1 >> i) & 0x01)
+//				{
+//					Llwu_isrExtPinRequestVector[i]();
+//					//reset interrupt
+//					OB_LLWU0->regMap->F1 |= (1 << i); /* Sicuro c'è un bug sugli indici */
+//				}
+//			}
+//			else
+//			{
+//
+//			}
+//		}
+//		i++;
+//	}
 
 	i=0;
 
