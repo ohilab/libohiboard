@@ -483,9 +483,14 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
     {
     case UART_DATABITS_EIGHT:
         UART_C1_REG(dev->regMap) &= ~(UART_C1_M_MASK);
+        if(config->parity != UART_PARITY_NONE)
+        {
+            UART_C1_REG(dev->regMap) |= UART_C1_M_MASK;
+            UART_C4_REG(dev->regMap) &= ~UART_C4_M10_MASK;
+        }
         break;
     case UART_DATABITS_NINE:
-        /* FIXME: UART_C1_REG(dev->regMap) |= UART_C1_M_MASK; */
+        UART_C1_REG(dev->regMap) |= UART_C1_M_MASK;
         break;
     }
 
