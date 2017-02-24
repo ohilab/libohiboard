@@ -459,7 +459,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
     SPI_MemMapPtr regmap = dev->regMap;
 
     /* Copy dummy data in D register */
-    SPI_D_REG(regmap) = 0x00;
+    SPI_D_REG(regmap) = 0xFF;
     /* Wait until slave replay */
     while (!(SPI_S_REG(regmap) & SPI_S_SPRF_MASK));
     /* Save data register */
