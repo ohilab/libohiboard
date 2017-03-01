@@ -1,4 +1,5 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Simone Giacomucci <simone.giacomucci@gmail.com>
