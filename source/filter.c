@@ -10,6 +10,8 @@
 void PtbyPtFilterInit(PtbyPtFilterHandle dev, uint8_t len, PtbyPtFilterMode mode)
 {
 
+	dev->length = len;
+	free(dev->buffer);
 	dev->buffer = (float*)malloc(dev->length * sizeof(float));
 	dev->lastSample = dev->buffer;
 

@@ -176,7 +176,7 @@ void LLWU_IRQHandler(void)
 	OB_LLWU0->regMap->F1 = 0xFF;
 	OB_LLWU0->regMap->F2 = 0xFF;
 
-	Llwu_isrExtPinRequestVector[LLWU_P15];
+//	Llwu_isrExtPinRequestVector[LLWU_P15];
 
 //	while (i < LLWU_MAX_EXTPIN)
 //	{
