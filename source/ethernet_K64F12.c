@@ -1,8 +1,10 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Simone Giacomucci <simone.giacomucci@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +29,7 @@
  * @file libohiboard/source/ethernet_K64F12.c
  * @author Simone Giacomucci <simone.giacomucci@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale
  * @brief Ethernet HAL implementations for K64F12 and FRDMK64F.
  */
 
@@ -151,10 +154,10 @@ static Ethernet_Device enet0 = {
 //                         4,
     },
 
-    .isrRx            = Ethernet_isrEnet0Rx,
+    .isrRx            = ENET_Receive_IRQHandler,
     .isrRxNumber      = INTERRUPT_ETHERNET_RX,
 
-    .isrTx            = Ethernet_isrEnet0Tx,
+    .isrTx            = ENET_Transmit_IRQHandler,
     .isrTxNumber      = INTERRUPT_ETHERNET_TX,
 
     .isrTs            = Ethernet_isrEnet0Ts,
@@ -186,7 +189,7 @@ static void Ethernet_initPins (Ethernet_DeviceHandle dev)
  *  The function called on receiving packet interrupt occurrence. It cleans
  *  the related interrupt flags and calls the upper level callback function.
  */
-void Ethernet_isrEnet0Rx (void)
+void ENET_Receive_IRQHandler (void)
 {
     while (((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_RXB_MASK) != 0) ||
            ((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_RXF_MASK) != 0))
@@ -201,7 +204,7 @@ void Ethernet_isrEnet0Rx (void)
  *  The function called on transmitting packet interrupt occurrence. It cleans
  *  the related interrupt flags and calls the upper level callback function.
  */
-void Ethernet_isrEnet0Tx (void)
+void ENET_Transmit_IRQHandler (void)
 {
     while (((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXB_MASK) != 0) ||
            ((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXF_MASK) != 0))

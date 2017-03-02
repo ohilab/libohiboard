@@ -1,10 +1,7 @@
 /******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  Francesco Piunti <francesco.piunti89@gmail.com>
- *  Alessio Paolucci <a.paolucci89@gmail.com>
  *  Matteo Civale <m.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +25,7 @@
 
 /**
  * @file libohiboard/include/xbar.h
- * @author Matteo Civale    <matteo.civale@gmail.com>
+ * @author Matteo Civale <matteo.civale@gmail.com>
  */
 
 #ifdef LIBOHIBOARD_XBAR

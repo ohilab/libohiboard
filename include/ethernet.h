@@ -1,8 +1,10 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Simone Giacomucci <simone.giacomucci@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +29,7 @@
  * @file libohiboard/include/ethernet.h
  * @author Simone Giacomucci <simone.giacomucci@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale
  * @brief Ethernet HAL definitions and prototypes.
  */
 
@@ -255,12 +258,8 @@ typedef enum
 
 } Ethernet_Pins;
 
-/* Rename interrupt function */
-#define   Ethernet_isrEnet0Tx ENET_Transmit_IRQHandler
-#define   Ethernet_isrEnet0Rx ENET_Receive_IRQHandler
-
-void Ethernet_isrEnet0Rx (void);
-void Ethernet_isrEnet0Tx (void);
+void ENET_Receive_IRQHandler (void);
+void ENET_Transmit_IRQHandler (void);
 void Ethernet_isrEnet0Ts (void);
 
 extern Ethernet_DeviceHandle ENET0;

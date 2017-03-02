@@ -1,8 +1,8 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Simone Giacomucci <simone.giacomucci@gmail.com>
- *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 
 /**
  * @file libohiboard/include/ethernet-utility.h
- * @author Simone Giacomucci <simone.giacomucci@gmail.com>
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale
  * @brief network utility.
  */
 
 #ifdef LIBOHIBOARD_ETHERNET
+
 #ifndef __ETHERNET_UTILITY_H
 #define __ETHERNET_UTILITY_H
 
@@ -62,7 +62,8 @@ typedef struct _Network_Config
     uint8_t channel;
 }Network_Config;
 
-void Ethernet_networkConfig(struct netif *netif, Network_Config *config);
+void Ethernet_networkConfig (struct netif *netif, Network_Config *config);
 
 #endif /* __ETHERNET_UTILITY_H */
-#endif
+
+#endif // LIBOHIBOARD_ETHERNET
