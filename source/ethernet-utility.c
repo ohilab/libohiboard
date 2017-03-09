@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Matteo Civale
@@ -33,18 +33,27 @@
 
 #include "ethernet-utility.h"
 
-void Ethernet_networkConfig (struct netif *netif, Network_Config *config)
+void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config)
 {
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
+    // Disable MPU
+    MPU_CESR &=~ MPU_CESR_VLD_MASK;
 
     lwip_init();
-    lwipTimerInit(config->pit, config->channel);
 
-    LWIP_K64F12_setMacAddress(config->macAdd);
+    LWIPPorting_setMacAddress(config->mac);
+    // Set PHY initialization callback
+    LWIPPorting_setPhyCallback(config->phyCallback);
+
+    // Set timer callback
+    LWIPPorting_setTimerCallback(config->timerCallback);
 
     // Initialize network interface
-    netif_add(netif, &config->ip, &config->netMask, &config->gw, 0, LWIP_K64F12_init, ethernet_input);
+    netif_add(netif, &config->ip, &config->mask, &config->gateway, 0, LWIPPorting_init, ethernet_input);
     netif_set_default(netif);
     netif_set_up(netif);
+#endif
 }
 
 #endif /* LIBOHIBOARD_ETHERNET */
