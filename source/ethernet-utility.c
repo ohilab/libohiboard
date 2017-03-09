@@ -40,14 +40,15 @@ void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config
     // Disable MPU
     MPU_CESR &=~ MPU_CESR_VLD_MASK;
 
-    lwip_init();
-
     LWIPPorting_setMacAddress(config->mac);
     // Set PHY initialization callback
     LWIPPorting_setPhyCallback(config->phyCallback);
 
     // Set timer callback
+    // This callback must be setted before lwip_init()
     LWIPPorting_setTimerCallback(config->timerCallback);
+
+    lwip_init();
 
     // Initialize network interface
     netif_add(netif, &config->ip, &config->mask, &config->gateway, 0, LWIPPorting_init, ethernet_input);
