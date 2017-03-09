@@ -1,7 +1,8 @@
-/* Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Matteo Civale <m.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +26,7 @@
 /**
  * @file libohiboard/source/adc_K64F12.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
+ * @author Matteo Civale <m.civale@gmail.com>
  * @brief ADC functions implementation.
  */
 
@@ -32,7 +34,9 @@
 
 #include "platforms.h"
 #include "system.h"
+#include "interrupt.h"
 #include "adc.h"
+#include "clock.h"
 
 #if defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)
@@ -48,14 +52,19 @@ typedef struct Adc_Device {
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
-    Adc_Pins pins[ADC_MAX_PINS];    /**< List of the pin for the FTM channel. */
+    void (*isr)(void);                     /**< The function pointer for ISR. */
+    void (*callback)(void);      /**< The function pointer for user callback. */
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
+    Adc_Pins pins[ADC_MAX_PINS+1];  /**< List of the pin for the ADC channel. */
     volatile uint32_t* pinsPtr[ADC_MAX_PINS];
     Adc_ChannelNumber channelNumber[ADC_MAX_PINS];
     Adc_ChannelMux channelMux[ADC_MAX_PINS];
     uint8_t pinMux[ADC_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
-
+    /** Indicate that device require calibration on Adc_readValue. */
+    uint8_t devCalibration;
 } Adc_Device;
 
 static Adc_Device adc0 = {
@@ -90,6 +99,7 @@ static Adc_Device adc0 = {
                           ADC_PINS_PTD1,
                           ADC_PINS_PTD5,
                           ADC_PINS_PTD6,
+                          ADC_PINS_NONE,
 		        },
       .pinsPtr         = {&PORTE_PCR2,
                           &PORTE_PCR3,
@@ -201,9 +211,13 @@ static Adc_Device adc0 = {
                           ADC_CHL_B,
          },
 
+         .isr              = ADC0_IRQHandler,
+         .isrNumber        = INTERRUPT_ADC0,
+
          .devInitialized = 0,
+         .devCalibration = 0,
 };
-Adc_DeviceHandle ADC0 = &adc0;
+Adc_DeviceHandle OB_ADC0 = &adc0;
 
 static Adc_Device adc1 = {
         .regMap          = ADC1_BASE_PTR,
@@ -237,6 +251,7 @@ static Adc_Device adc1 = {
                             ADC_PINS_PTC9,
                             ADC_PINS_PTC10,
                             ADC_PINS_PTC11,
+                            ADC_PINS_NONE,
         },
 
         .pinsPtr         = {&PORTE_PCR0,
@@ -350,16 +365,40 @@ static Adc_Device adc1 = {
                            ADC_CHL_B,
       },
 
+      .isr              = ADC1_IRQHandler,
+      .isrNumber        = INTERRUPT_ADC1,
+
       .devInitialized = 0,
+      .devCalibration = 0,
 };
-Adc_DeviceHandle ADC1 = &adc1;
+Adc_DeviceHandle OB_ADC1 = &adc1;
+
+void ADC0_IRQHandler (void)
+{
+    OB_ADC0->callback();
+    ADC_R_REG(OB_ADC0->regMap, 0U);
+
+    if (!(ADC_SC3_REG(OB_ADC0->regMap) & ADC_SC3_ADCO_MASK) &&
+        !(ADC_SC2_REG(OB_ADC0->regMap) & ADC_SC2_ADTRG_MASK))
+        ADC_SC1_REG(OB_ADC0->regMap,0) |= ADC_SC1_ADCH(ADC_CH_DISABLE);
+}
+
+void ADC1_IRQHandler (void)
+{
+    OB_ADC1->callback();
+    ADC_R_REG(OB_ADC1->regMap, 0U);
+
+    if (!(ADC_SC3_REG(OB_ADC1->regMap) & ADC_SC3_ADCO_MASK) &&
+        !(ADC_SC2_REG(OB_ADC1->regMap) & ADC_SC2_ADTRG_MASK))
+        ADC_SC1_REG(OB_ADC1->regMap,0) |= ADC_SC1_ADCH(ADC_CH_DISABLE);
+}
 
 /**
  * @brief
  * @param dev Adc device handle to be synchronize.
  * @return A System_Errors elements that indicate the status of initialization.
  */
-System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
+System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config)
 {
     ADC_MemMapPtr regmap = dev->regMap;
     System_Errors errore = ERRORS_NO_ERROR;
@@ -369,6 +408,16 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
 
     /* Enable the clock to the selected ADC */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
+
+
+
+
+
+    /* Da controllare, quando attivo l'hardwere trigger mode, se non metto uno dei
+     * canali ad un valore diverso da 0x1f l'adc settato per ultimo non parte
+     * */
+    ADC_SC1_REG(regmap,0) =ADC_SC1_ADCH(ADC_CH_DISABLE);
+    ADC_SC1_REG(regmap,1) =ADC_SC1_ADCH(ADC_CH_DISABLE);
 
     /*setting clock source and divider*/
     switch (config->clkDiv)
@@ -440,6 +489,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     	break;
     }
 
+
     /*setting single or continuous convertion*/
     switch (config->contConv)
     {
@@ -500,9 +550,26 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
         break;
     }
 
-    Adc_enablePin (dev, config->adcPin);
+
+    if (config->enableHwTrigger)
+        ADC_SC2_REG(dev->regMap) |= ADC_SC2_ADTRG_MASK;
+    else
+        ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
+
 
     dev->devInitialized = 1;
+
+    /* Calibration flag */
+	if (config->doCalibration)
+		Adc_calibration(dev);
+
+    /* If call back exist save it */
+    if (callback)
+    {
+	   dev->callback = callback;
+	   /* Enable interrupt */
+	   Interrupt_enable(dev->isrNumber);
+    }
 
 	return ERRORS_NO_ERROR;
 }
@@ -513,6 +580,30 @@ void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
 
     for (devPinIndex = 0; devPinIndex < ADC_MAX_PINS; ++devPinIndex)
     {
+        if (dev->pins[devPinIndex] == ADC_PINS_NONE) break;
+
+        /* Pins haven't PORT register */
+        if ((pin == ADC_PINS_ADC0_DP1) ||
+            (pin == ADC_PINS_ADC0_DM1) ||
+            (pin == ADC_PINS_ADC0_DP0) ||
+            (pin == ADC_PINS_ADC0_DM0) ||
+            (pin == ADC_PINS_ADC0_DP3) ||
+            (pin == ADC_PINS_ADC0_DM3) ||
+            (pin == ADC_PINS_ADC0_SE22) ||
+            (pin == ADC_PINS_ADC0_SE16) ||
+            (pin == ADC_PINS_ADC0_SE21) ||
+            (pin == ADC_PINS_ADC0_SE23) ||
+            (pin == ADC_PINS_ADC1_DP1) ||
+            (pin == ADC_PINS_ADC1_DM1) ||
+            (pin == ADC_PINS_ADC1_DP3) ||
+            (pin == ADC_PINS_ADC1_DM3) ||
+            (pin == ADC_PINS_ADC1_DP0) ||
+            (pin == ADC_PINS_ADC1_DM0) ||
+            (pin == ADC_PINS_ADC1_SE16) ||
+            (pin == ADC_PINS_ADC1_SE18) ||
+            (pin == ADC_PINS_ADC1_SE23))
+            break;
+
         if (dev->pins[devPinIndex] == pin)
         {
             *(dev->pinsPtr[devPinIndex]) =
@@ -526,7 +617,8 @@ void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
 
 System_Errors Adc_readValue (Adc_DeviceHandle dev,
                              Adc_ChannelNumber channel,
-                             uint16_t *value)
+                             uint16_t *value,
+                             Adc_InputType type)
 {
     ADC_MemMapPtr regmap = dev->regMap;
     uint8_t channelIndex;
@@ -551,8 +643,23 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
         else
             ADC_CFG2_REG(regmap) |= ADC_CFG2_MUXSEL_MASK;
 
+
+        /* Set single-ended or differential input mode! */
+        ADC_SC1_REG(regmap,0) |= ((type << ADC_SC1_DIFF_SHIFT) & ADC_SC1_DIFF_MASK);
+
+        /*
+         * If is there a callback, enable interrupt and go out!
+         */
+        if(dev->callback)
+        {
+            ADC_SC1_REG(regmap,0) &= ~(ADC_SC1_AIEN_MASK | ADC_SC1_ADCH_MASK);
+            ADC_SC1_REG(regmap,0) |= ADC_SC1_AIEN_MASK | ADC_SC1_ADCH(channel);
+            *value = 0;
+            return ERRORS_NO_ERROR;
+        }
+
         /* Start conversion */
-        ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(channel);
+        ADC_SC1_REG(regmap,0) = (ADC_SC1_REG(regmap,0)&(~ADC_SC1_ADCH_MASK))|ADC_SC1_ADCH(channel);
 
         /* wait until conversion ended */
         while ((ADC_SC1_REG(regmap,0) & ADC_SC1_COCO_MASK) != ADC_SC1_COCO_MASK);
@@ -567,8 +674,111 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
     else
     {
         *value = 0;
-        return ERRORS_ADC_CHANNEL_WRONG;
+        return ERRORS_ADC_CHANNEL_BUSY;
     }
+}
+
+System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
+                                       Adc_ChannelConfig* config,
+                                       uint8_t numChannel)
+{
+    uint8_t i;
+
+    if (numChannel > ADC_MAX_CHANNEL_NUMBER)
+        return ERRORS_ADC_NUMCH_WRONG;
+
+
+
+    ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
+
+    Interrupt_disable(dev->isrNumber);
+
+    for(i=0;i<numChannel;i++)
+    {
+        ADC_SC1_REG(dev->regMap,i) = 0;// ADC_SC1_ADCH(0);
+        ADC_SC1_REG(dev->regMap,i) = ADC_SC1_ADCH(config[i].channel)|
+                                     ADC_SC1_AIEN_MASK |
+                                     ((config[i].inputType << ADC_SC1_DIFF_SHIFT) & ADC_SC1_DIFF_MASK);
+    }
+
+    ADC_SC2_REG(dev->regMap) |= ADC_SC2_ADTRG_MASK;
+
+    Interrupt_enable(dev->isrNumber);
+
+    return ERRORS_NO_ERROR;
+}
+
+
+
+System_Errors Adc_calibration (Adc_DeviceHandle dev)
+{
+	ADC_MemMapPtr regmap = dev->regMap;
+	    uint16_t calibration;
+	    uint32_t busClock = Clock_getFrequency(CLOCK_BUS);
+
+	    uint32_t regSC3  = ADC_SC3_REG(regmap);
+	    uint32_t regSC2  = ADC_SC2_REG(regmap);
+	    uint32_t regCFG1 = ADC_CFG1_REG(regmap);
+
+	    if (!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
+
+	    /* Set registers and clock for a better calibration */
+	    ADC_SC3_REG(regmap) &= ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK | ADC_SC3_ADCO_MASK);
+	    ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3)|ADC_SC3_CAL_MASK;
+
+	    ADC_SC2_REG(regmap) &= ~ADC_SC2_REFSEL_MASK;
+	    ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(0);
+
+	    ADC_CFG1_REG(regmap) &= ~(ADC_CFG1_ADIV_MASK | ADC_CFG1_ADICLK_MASK);
+	    if (busClock < 32000000)
+	        ADC_CFG1_REG(regmap) |= ADC_CFG1_ADIV(3);
+	    else
+	        ADC_CFG1_REG(regmap) |= ADC_CFG1_ADIV(3) | ADC_CFG1_ADICLK_MASK;
+
+	    /* Start calibration */
+	    ADC_SC3_REG(regmap) |= ADC_SC3_CAL_MASK;
+	    /* wait calibration ended */
+	    while (ADC_SC3_REG(regmap) & ADC_SC3_CAL_MASK){;};
+	    /* Check error */
+	    if(ADC_SC3_REG(regmap) & ADC_SC3_CALF_MASK)
+	    {
+	        /* Restore register */
+	        ADC_SC3_REG(regmap) = regSC3;
+	        ADC_SC2_REG(regmap) = regSC2;
+	        ADC_CFG1_REG(regmap) = regCFG1;
+	        return ERRORS_ADC_CALIBRATION;
+	    }
+
+	    calibration = 0;
+	    calibration += ADC_CLP0_REG(regmap);
+	    calibration += ADC_CLP1_REG(regmap);
+	    calibration += ADC_CLP2_REG(regmap);
+	    calibration += ADC_CLP3_REG(regmap);
+	    calibration += ADC_CLP4_REG(regmap);
+	    calibration += ADC_CLPS_REG(regmap);
+	    calibration = (calibration >> 1U) | 0x8000U; // divide by 2
+	    ADC_PG_REG(regmap) = calibration;
+
+	    calibration = 0;
+	    calibration += ADC_CLM0_REG(regmap);
+	    calibration += ADC_CLM1_REG(regmap);
+	    calibration += ADC_CLM2_REG(regmap);
+	    calibration += ADC_CLM3_REG(regmap);
+	    calibration += ADC_CLM4_REG(regmap);
+	    calibration += ADC_CLMS_REG(regmap);
+	    calibration = (calibration >> 1U) | 0x8000U; // divide by 2
+	    ADC_MG_REG(regmap) = calibration;
+
+	    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+
+	    /* Restore register */
+	    ADC_SC3_REG(regmap) = regSC3;
+	    ADC_SC2_REG(regmap) = regSC2;
+	    ADC_CFG1_REG(regmap) = regCFG1;
+
+	    dev->devCalibration = 1;
+
+	    return ERRORS_NO_ERROR;
 }
 
 #endif // defined (LIBOHIBOARD_K64F12) || defined (LIBOHIBOARD_FRDMK64F)

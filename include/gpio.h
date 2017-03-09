@@ -1,8 +1,9 @@
 /******************************************************************************
- * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <m.civale@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/include/gpio.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale <m.civale@gmail.com>
  * @brief GPIO definitions and prototypes.
  */
 
@@ -59,6 +61,8 @@ typedef enum
 
 typedef enum
 {
+    GPIO_PINS_NONE = 0,
+
 #if defined (LIBOHIBOARD_KL02Z4)     || \
     defined (LIBOHIBOARD_FRDMKL02Z)
 
@@ -121,7 +125,7 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_KL15Z4)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -199,7 +203,7 @@ typedef enum
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -272,11 +276,10 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_K10DZ10)
     
-    GPIO_PINS_NONE,
     
 #elif defined (LIBOHIBOARD_K10D10)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -385,10 +388,77 @@ typedef enum
     GPIO_PINS_PTE27,
     GPIO_PINS_PTE28,
 
+#elif defined (LIBOHIBOARD_K12D5)
+
+    GPIO_PINS_PTA0,
+    GPIO_PINS_PTA1,
+    GPIO_PINS_PTA2,
+    GPIO_PINS_PTA3,
+    GPIO_PINS_PTA4,
+    GPIO_PINS_PTA5,
+    GPIO_PINS_PTA12,
+    GPIO_PINS_PTA13,
+    GPIO_PINS_PTA14,
+    GPIO_PINS_PTA15,
+    GPIO_PINS_PTA16,
+    GPIO_PINS_PTA17,
+    GPIO_PINS_PTA18,
+    GPIO_PINS_PTA19,
+
+    GPIO_PINS_PTB0,
+    GPIO_PINS_PTB1,
+    GPIO_PINS_PTB2,
+    GPIO_PINS_PTB3,
+    GPIO_PINS_PTB10,
+    GPIO_PINS_PTB11,
+    GPIO_PINS_PTB12,
+    GPIO_PINS_PTB13,
+    GPIO_PINS_PTB16,
+    GPIO_PINS_PTB17,
+    GPIO_PINS_PTB18,
+    GPIO_PINS_PTB19,
+
+    GPIO_PINS_PTC0,
+    GPIO_PINS_PTC1,
+    GPIO_PINS_PTC2,
+    GPIO_PINS_PTC3,
+    GPIO_PINS_PTC4,
+    GPIO_PINS_PTC5,
+    GPIO_PINS_PTC6,
+    GPIO_PINS_PTC7,
+    GPIO_PINS_PTC8,
+    GPIO_PINS_PTC9,
+    GPIO_PINS_PTC10,
+    GPIO_PINS_PTC11,
+    GPIO_PINS_PTC12,
+    GPIO_PINS_PTC13,
+    GPIO_PINS_PTC16,
+    GPIO_PINS_PTC17,
+
+    GPIO_PINS_PTD0,
+    GPIO_PINS_PTD1,
+    GPIO_PINS_PTD2,
+    GPIO_PINS_PTD3,
+    GPIO_PINS_PTD4,
+    GPIO_PINS_PTD5,
+    GPIO_PINS_PTD6,
+    GPIO_PINS_PTD7,
+
+    GPIO_PINS_PTE0,
+    GPIO_PINS_PTE1,
+    GPIO_PINS_PTE2,
+    GPIO_PINS_PTE3,
+    GPIO_PINS_PTE4,
+    GPIO_PINS_PTE5,
+    GPIO_PINS_PTE16,
+    GPIO_PINS_PTE17,
+    GPIO_PINS_PTE18,
+    GPIO_PINS_PTE19,
+
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -463,7 +533,7 @@ typedef enum
 #elif defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)
 
-    GPIO_PINS_PTA0 = 0,
+    GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,
     GPIO_PINS_PTA2,
     GPIO_PINS_PTA3,
@@ -569,12 +639,111 @@ typedef enum
     GPIO_PINS_PTE26,
     GPIO_PINS_PTE27,
     GPIO_PINS_PTE28,
+
+
+#elif defined(LIBOHIBOARD_KV46F)   || \
+	  defined(LIBOHIBOARD_TWRKV46F)
     
+    GPIO_PINS_PTA0,
+	GPIO_PINS_PTA1,
+	GPIO_PINS_PTA2,
+	GPIO_PINS_PTA3,
+	GPIO_PINS_PTA4,
+	GPIO_PINS_PTA5,
+	GPIO_PINS_PTA6,
+	GPIO_PINS_PTA7,
+	GPIO_PINS_PTA8,
+	GPIO_PINS_PTA9,
+	GPIO_PINS_PTA10,
+	GPIO_PINS_PTA11,
+	GPIO_PINS_PTA12,
+	GPIO_PINS_PTA13,
+	GPIO_PINS_PTA14,
+	GPIO_PINS_PTA15,
+	GPIO_PINS_PTA16,
+	GPIO_PINS_PTA17,
+	GPIO_PINS_PTA18,
+	GPIO_PINS_PTA19,
+
+    GPIO_PINS_PTB0,
+	GPIO_PINS_PTB1,
+	GPIO_PINS_PTB2,
+	GPIO_PINS_PTB3,
+	GPIO_PINS_PTB4,
+	GPIO_PINS_PTB5,
+	GPIO_PINS_PTB6,
+	GPIO_PINS_PTB7,
+	GPIO_PINS_PTB8,
+	GPIO_PINS_PTB9,
+	GPIO_PINS_PTB10,
+	GPIO_PINS_PTB11,
+	GPIO_PINS_PTB12,
+	GPIO_PINS_PTB13,
+	GPIO_PINS_PTB16,
+	GPIO_PINS_PTB17,
+	GPIO_PINS_PTB18,
+	GPIO_PINS_PTB19,
+	GPIO_PINS_PTB20,
+	GPIO_PINS_PTB21,
+	GPIO_PINS_PTB22,
+	GPIO_PINS_PTB23,
+
+	GPIO_PINS_PTC0,
+	GPIO_PINS_PTC1,
+	GPIO_PINS_PTC2,
+	GPIO_PINS_PTC3,
+	GPIO_PINS_PTC4,
+	GPIO_PINS_PTC5,
+	GPIO_PINS_PTC6,
+	GPIO_PINS_PTC7,
+	GPIO_PINS_PTC8,
+	GPIO_PINS_PTC9,
+	GPIO_PINS_PTC10,
+	GPIO_PINS_PTC11,
+	GPIO_PINS_PTC12,
+	GPIO_PINS_PTC13,
+	GPIO_PINS_PTC14,
+	GPIO_PINS_PTC15,
+
+	GPIO_PINS_PTD0,
+	GPIO_PINS_PTD1,
+	GPIO_PINS_PTD2,
+	GPIO_PINS_PTD3,
+	GPIO_PINS_PTD4,
+	GPIO_PINS_PTD5,
+	GPIO_PINS_PTD6,
+	GPIO_PINS_PTD7,
+	GPIO_PINS_PTD8,
+	GPIO_PINS_PTD9,
+	GPIO_PINS_PTD10,
+	GPIO_PINS_PTD11,
+	GPIO_PINS_PTD12,
+	GPIO_PINS_PTD13,
+	GPIO_PINS_PTD14,
+	GPIO_PINS_PTD15,
+	GPIO_PINS_PTD16,
+
+	GPIO_PINS_PTE0,
+	GPIO_PINS_PTE1,
+	GPIO_PINS_PTE2,
+	GPIO_PINS_PTE3,
+	GPIO_PINS_PTE4,
+	GPIO_PINS_PTE5,
+	GPIO_PINS_PTE6,
+	GPIO_PINS_PTE7,
+
 #endif
 
-    GPIO_PINS_NONE,
 } Gpio_Pins;
 
+typedef enum
+{
+    GPIO_EVENT_WHEN_0     = 0x8,
+    GPIO_EVENT_ON_RISING  = 0x9,
+    GPIO_EVENT_ON_FALLING = 0xA,
+    GPIO_EVENT_WHEN_1     = 0xC,
+    GPIO_EVENT_ON_BOOTH   = 0xB,
+} Gpio_EventType;
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
 
@@ -583,6 +752,10 @@ void Gpio_clear (Gpio_Pins pin);
 void Gpio_toggle (Gpio_Pins pin);
 
 Gpio_Level Gpio_get (Gpio_Pins pin);
+
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback);
+System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
+System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
 
 #endif /* __GPIO_H */
 

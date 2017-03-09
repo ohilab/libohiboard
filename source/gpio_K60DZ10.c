@@ -52,6 +52,8 @@ typedef struct _Gpio_PinDevice
 
 static Gpio_PinDevice Gpio_availablePins[] =
 {
+        {0xFF,0xFF},
+
         /* FIXME: Add pins */
 	    {GPIO_PORTS_A,0},
 	    {GPIO_PORTS_A,1},

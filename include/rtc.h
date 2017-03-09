@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -41,14 +41,19 @@
 #include "interrupt.h"
 
 typedef enum {
-    RTC_SYSTEM_OSCILLATOR,
-    RTC_CLKIN,
-    RTC_LPO_1kHz
+    RTC_CLOCK_SYSTEM,
+    RTC_CLOCK_CLKIN,
+    RTC_CLOCK_LPO
 } Rtc_ClockSource;
 
 typedef struct _Rtc_Config
 {
     Rtc_ClockSource clockSource;
+
+    uint32_t alarm;
+    void (*callbackAlarm)(void);    /**< The pointer for user alarm callback. */
+
+    void (*callbackSecond)(void);  /**< The pointer for user second callback. */
 
 } Rtc_Config;
 
@@ -61,10 +66,10 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config);
 void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
 Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
 
-void Rtc_enableAlarm (Rtc_DeviceHandle dev, Rtc_Time alarm);
+void Rtc_enableAlarm (Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
 void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 
-void Rtc_enableSecond (Rtc_DeviceHandle dev);
+void Rtc_enableSecond (Rtc_DeviceHandle dev, void *callback);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
@@ -72,9 +77,14 @@ void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
 extern Rtc_DeviceHandle RTC0;
 
-#elif defined(LIBOHIBOARD_KL15Z4)
+#elif defined (LIBOHIBOARD_KL15Z4)    || \
+      defined (LIBOHIBOARD_KL25Z4)    || \
+      defined (LIBOHIBOARD_FRDMKL25Z)
 
-extern Rtc_DeviceHandle RTC0;
+void RTC_IRQHandler (void);
+void RTC_Seconds_IRQHandler (void);
+
+extern Rtc_DeviceHandle OB_RTC0;
 
 #endif
 

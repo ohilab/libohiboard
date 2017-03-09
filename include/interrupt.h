@@ -4,6 +4,7 @@
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Marco Contigiani <m.contigiani86@gmail.com>
  *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Matteo Civale <m.civale@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +30,7 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Marco Contigiani <m.contigiani86@gmail.com>
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
+ * @author Matteo Civale <m.civale@gmail.com>
  * @brief Interrupt definitions.
  */
 
@@ -129,8 +131,7 @@ typedef enum {
     INTERRUPT_PORTA      = 30,
     INTERRUPT_PORTD      = 31,
 
-#elif defined (LIBOHIBOARD_K10D10) || \
-      defined(LIBOHIBOARD_K10D10)
+#elif defined (LIBOHIBOARD_K10D10)
 
     INTERRUPT_DMA0       = 0,
     INTERRUPT_DMA1       = 1,
@@ -148,11 +149,67 @@ typedef enum {
     INTERRUPT_DMA13      = 13,
     INTERRUPT_DMA14      = 14,
     INTERRUPT_DMA15      = 15,
+    INTERRUPT_UART0      = 45,
+    INTERRUPT_UART0_ERR  = 46,
+    INTERRUPT_UART1      = 47,
+    INTERRUPT_UART1_ERR  = 48,
+    INTERRUPT_UART2      = 49,
+    INTERRUPT_UART2_ERR  = 50,
+    INTERRUPT_UART3      = 51,
+    INTERRUPT_UART3_ERR  = 52,
+    INTERRUPT_UART4      = 53,
+    INTERRUPT_UART4_ERR  = 54,
+    INTERRUPT_UART5      = 55,
+    INTERRUPT_UART5_ERR  = 56,
     INTERRUPT_FTM0       = 62,
     INTERRUPT_FTM1       = 63,
     INTERRUPT_FTM2       = 64,
     INTERRUPT_RTC_ALARM  = 66,
     INTERRUPT_RTC_SECOND = 67,
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+    INTERRUPT_DMA0       = 0,
+    INTERRUPT_DMA1       = 1,
+    INTERRUPT_DMA2       = 2,
+    INTERRUPT_DMA3       = 3,
+    INTERRUPT_DMA4       = 4,
+    INTERRUPT_DMA5       = 5,
+    INTERRUPT_DMA6       = 6,
+    INTERRUPT_DMA7       = 7,
+    INTERRUPT_DMA8       = 8,
+    INTERRUPT_DMA9       = 9,
+    INTERRUPT_DMA10      = 10,
+    INTERRUPT_DMA11      = 11,
+    INTERRUPT_DMA12      = 12,
+    INTERRUPT_DMA13      = 13,
+    INTERRUPT_DMA14      = 14,
+    INTERRUPT_DMA15      = 15,
+	INTERRUTP_DMAERROR   = 16,
+    INTERRUPT_UART0      = 31,
+    INTERRUPT_UART0_ERR  = 32,
+    INTERRUPT_UART1      = 33,
+    INTERRUPT_UART1_ERR  = 34,
+    INTERRUPT_UART2      = 35,
+    INTERRUPT_UART2_ERR  = 36,
+    INTERRUPT_UART3      = 37,
+    INTERRUPT_UART3_ERR  = 38,
+	INTERRUPT_ADC0       = 39,
+    INTERRUPT_FTM0       = 42,
+    INTERRUPT_FTM1       = 43,
+    INTERRUPT_FTM2       = 44,
+    INTERRUPT_RTC_ALARM  = 46,
+    INTERRUPT_RTC_SECOND = 47,
+    INTERRUPT_PIT0       = 48,
+    INTERRUPT_PIT1       = 49,
+    INTERRUPT_PIT2       = 50,
+    INTERRUPT_PIT3       = 51,
+    INTERRUPT_PDB        = 52,
+    INTERRUPT_PORTA      = 59,
+    INTERRUPT_PORTB      = 60,
+    INTERRUPT_PORTC      = 61,
+    INTERRUPT_PORTD      = 62,
+    INTERRUPT_PORTE      = 63,
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
 	  defined (LIBOHIBOARD_OHIBOARD_R1)
@@ -198,6 +255,11 @@ typedef enum {
     INTERRUPT_DMA13        = 13,
     INTERRUPT_DMA14        = 14,
     INTERRUPT_DMA15        = 15,
+	INTERRUPT_UART0        = 31,
+	INTERRUPT_UART1        = 33,
+	INTERRUPT_UART2        = 35,
+	INTERRUPT_UART3        = 37,
+    INTERRUPT_ADC0         = 39,
     INTERRUPT_FTM0         = 42,
     INTERRUPT_FTM1         = 43,
     INTERRUPT_FTM2         = 44,
@@ -207,22 +269,82 @@ typedef enum {
     INTERRUPT_PIT1         = 49,
     INTERRUPT_PIT2         = 50,
     INTERRUPT_PIT3         = 51,
+    INTERRUPT_PDB          = 52,
     INTERRUPT_PORTA		   = 59,
     INTERRUPT_PORTB		   = 60,
     INTERRUPT_PORTC		   = 61,
     INTERRUPT_PORTD		   = 62,
     INTERRUPT_PORTE		   = 63,
+	INTERRUPT_UART4        = 66,
+	INTERRUPT_UART5        = 68,
     INTERRUPT_FTM3         = 71,
+    INTERRUPT_ADC1         = 73,
+    INTERRUPT_SDHC         = 81,
     INTERRUPT_ETHERNET_1588= 82,
     INTERRUPT_ETHERNET_TX  = 83,
     INTERRUPT_ETHERNET_RX  = 84,
     INTERRUPT_ETHERNET_ERR = 85,
+
+#elif defined (LIBOHIBOARD_KV46F)     || \
+   	  defined (LIBOHIBOARD_TWRKV46F)
+	INTERRUPT_DMA0         = 0,
+	INTERRUPT_DMA1         = 1,
+	INTERRUPT_DMA2         = 2,
+	INTERRUPT_DMA3         = 3,
+	INTERRUPT_DMA4         = 4,
+	INTERRUPT_DMA5         = 5,
+	INTERRUPT_DMA6         = 6,
+	INTERRUPT_DMA7         = 7,
+	INTERRUPT_DMA8         = 8,
+	INTERRUPT_DMA9         = 9,
+	INTERRUPT_DMA10        = 10,
+	INTERRUPT_DMA11        = 11,
+	INTERRUPT_DMA12        = 12,
+	INTERRUPT_DMA13        = 13,
+	INTERRUPT_DMA14        = 14,
+	INTERRUPT_DMA15        = 15,
+	INTERRUPT_DMA_ERROR    = 16,
+	INTERRUPT_SPI0         = 26,
+
+	INTERRUPT_UART0        = 31,
+	INTERRUPT_UART1        = 33,
+	INTERRUPT_UART2        = 35,
+	INTERRUPT_UART3        = 37,
+	INTERRUPT_ADCA         = 39,
+	INTERRUPT_FTM0         = 42,
+	INTERRUPT_FTM1         = 43,
+	INTERRUPT_FTM2         = 44,
+	INTERRUPT_RTC_ALARM    = 46,
+	INTERRUPT_RTC_SECOND   = 47,
+	INTERRUPT_PIT0         = 48,
+	INTERRUPT_PIT1         = 49,
+	INTERRUPT_PIT2         = 50,
+	INTERRUPT_PIT3         = 51,
+	INTERRUPT_PDB          = 52,
+	INTERRUPT_DAC0         = 56,
+	INTERRUPT_PORTA		   = 59,
+	INTERRUPT_PORTB		   = 60,
+	INTERRUPT_PORTC		   = 61,
+	INTERRUPT_PORTD		   = 62,
+	INTERRUPT_PORTE		   = 63,
+	INTERRUPT_UART4        = 66,
+	INTERRUPT_UART5        = 68,
+	INTERRUPT_FTM3         = 71,
+	INTERRUPT_ADCB         = 75,
+
+	INTERRUPT_ETHERNET_1588= 82,
+	INTERRUPT_ETHERNET_TX  = 83,
+	INTERRUPT_ETHERNET_RX  = 84,
+	INTERRUPT_ETHERNET_ERR = 85,
 
 #endif
 } Interrupt_Vector;
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
 System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);
+
+System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber,
+                                     uint8_t priority);
 
 #endif /* __INTERRUPT_H */
 

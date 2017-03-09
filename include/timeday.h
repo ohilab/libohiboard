@@ -63,6 +63,6 @@ Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time);
 
 void Time_unixtimeToTime (Time_UnixTime unix, Time_DateType* date, Time_TimeType* time);
 void Time_unixtimeToString (Time_UnixTime unix, char * dateString);
-
+void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool second);
 
 #endif /* __TIMEDAY_H */

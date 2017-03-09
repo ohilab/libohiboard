@@ -218,3 +218,104 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     /* Close string */
     *dateString = '\0';
 }
+
+void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool second)
+{
+    Time_DateType date;
+    Time_TimeType time;
+    uint8_t counter = 0;
+
+    Time_unixtimeToTime(unix,&date,&time);
+
+    /* Day */
+    if (date.day < 10)
+    {
+        *dateString = '0';
+        dateString++;
+        u16td(dateString,date.day);
+        dateString++;
+    }
+    else
+    {
+        u16td(dateString,date.day);
+        dateString += 2;
+    }
+    *dateString = '.';
+    dateString++;
+
+    /* Month */
+    if (date.month < 10)
+    {
+        *dateString = '0';
+        dateString++;
+        u16td(dateString,date.month);
+        dateString++;
+    }
+    else
+    {
+        u16td(dateString,date.month);
+        dateString += 2;
+    }
+    *dateString = '.';
+    dateString++;
+
+    /* Year */
+    u16td(dateString,date.year);
+    dateString += 4;
+
+    *dateString = ' ';
+    dateString++;
+
+    /* Hours */
+    if (time.hours < 10)
+    {
+        *dateString = '0';
+        dateString++;
+        u16td(dateString,time.hours);
+        dateString++;
+    }
+    else
+    {
+        u16td(dateString,time.hours);
+        dateString += 2;
+    }
+
+    *dateString = ':';
+    dateString++;
+
+    /* Minutes */
+    if (time.minutes < 10)
+    {
+        *dateString = '0';
+        dateString++;
+        u16td(dateString,time.minutes);
+        dateString++;
+    }
+    else
+    {
+        u16td(dateString,time.minutes);
+        dateString += 2;
+    }
+
+    if (second == TRUE)
+    {
+        *dateString = ':';
+        dateString++;
+
+        /* Seconds */
+        if (time.seconds < 10)
+        {
+            *dateString = '0';
+            dateString++;
+            u16td(dateString,time.seconds);
+            dateString++;
+        }
+        else
+        {
+            u16td(dateString,time.seconds);
+            dateString += 2;
+        }
+    }
+    /* Close string */
+    *dateString = '\0';
+}

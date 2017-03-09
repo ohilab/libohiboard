@@ -1,9 +1,10 @@
 /******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Pirro
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +29,7 @@
  * @file libohiboard/include/libohiboard.h
  * @author Edoardo Bezzeccheri <coolman3@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Pirro
  * @brief Library main file.
  */
 
@@ -79,10 +81,35 @@
 #ifdef LIBOHIBOARD_ETHERNET
 #include "ethernet.h"
 #include "ethernet-interface.h"
+#include "ethernet-utility.h"
 #endif
 
 #ifdef LIBOHIBOARD_RTC
 #include "rtc.h"
+#endif
+
+#ifdef LIBOHIBOARD_PDB
+#include "pdb.h"
+#endif
+
+#ifdef LIBOHIBOARD_DMA
+#include "dma.h"
+#endif
+
+#ifdef LIBOHIBOARD_XBAR
+#include "xbar.h"
+#endif
+
+#ifdef LIBOHIBOARD_SMC
+#include "smc.h"
+#endif
+
+#ifdef LIBOHIBOARD_LLWU
+#include "llwu.h"
+#endif
+
+#ifdef LIBOHIBOARD_FILTER
+#include "filter.h"
 #endif
 
 #include "timeday.h"

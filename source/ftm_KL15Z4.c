@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -74,10 +74,6 @@ typedef struct Ftm_Device
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Ftm_Device;
-
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
 
 static Ftm_Device ftm0 = {
         .regMap           = TPM0_BASE_PTR,
@@ -174,12 +170,12 @@ static Ftm_Device ftm0 = {
                              FTM_CHANNELS_CH4,
         },
 
-        .isr              = Ftm_isrFtm0,
+        .isr              = TPM0_IRQHandler,
         .isrNumber        = INTERRUPT_TPM0,
 
         .devInitialized   = 0,
 };
-Ftm_DeviceHandle FTM0 = &ftm0;
+Ftm_DeviceHandle OB_FTM0 = &ftm0;
 
 static Ftm_Device ftm1 = {
         .regMap           = TPM1_BASE_PTR,
@@ -216,12 +212,12 @@ static Ftm_Device ftm1 = {
                              FTM_CHANNELS_CH1,
         },
 
-        .isr              = Ftm_isrFtm1,
+        .isr              = TPM1_IRQHandler,
         .isrNumber        = INTERRUPT_TPM1,
 
         .devInitialized   = 0,
 };
-Ftm_DeviceHandle FTM1 = &ftm1;
+Ftm_DeviceHandle OB_FTM1 = &ftm1;
 
 static Ftm_Device ftm2 = {
         .regMap           = TPM2_BASE_PTR,
@@ -266,18 +262,19 @@ static Ftm_Device ftm2 = {
                              FTM_CHANNELS_CH1,
         },
 
-        .isr              = Ftm_isrFtm2,
+        .isr              = TPM2_IRQHandler,
         .isrNumber        = INTERRUPT_TPM2,
 
         .devInitialized   = 0,
 };
-Ftm_DeviceHandle FTM2 = &ftm2;
+Ftm_DeviceHandle OB_FTM2 = &ftm2;
 
 static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
 {
     switch (dev->mode)
     {
     case FTM_MODE_INPUT_CAPTURE:
+        dev->callback();
         break;
     case FTM_MODE_OUTPUT_COMPARE:
         break;
@@ -295,22 +292,22 @@ static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
     }
 }
 
-void Ftm_isrFtm0 (void)
+void TPM0_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(FTM0);
+    Ftm_callbackInterrupt(OB_FTM0);
 }
 
-void Ftm_isrFtm1 (void)
+void TPM1_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(FTM1);
+    Ftm_callbackInterrupt(OB_FTM1);
 }
 
-void Ftm_isrFtm2 (void)
+void TPM2_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(FTM2);
+    Ftm_callbackInterrupt(OB_FTM2);
 }
 
-static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
+static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_t timerFrequency)
 {
     uint32_t clock;
     uint8_t prescaler;
@@ -329,7 +326,11 @@ static Ftm_Prescaler Ftm_computeFrequencyPrescale (uint32_t timerFrequency)
         clock = Clock_getFrequency(CLOCK_SYSTEM)/2;
         break;
     }
-    prescaler = (clock / timerFrequency) / 65536;
+
+    if (dev->mode == FTM_MODE_INPUT_CAPTURE)
+        prescaler = (clock / timerFrequency);
+    else
+        prescaler = (clock / timerFrequency) / 65536;
 
     if (prescaler > 64)
         return FTM_PRESCALER_128;
@@ -368,7 +369,6 @@ static uint16_t Ftm_computeModulo (uint32_t timerFrequency, Ftm_Prescaler presca
         clock = Clock_getFrequency(CLOCK_SYSTEM)/2;
         break;
     }
-
 
     switch (prescaler)
     {
@@ -414,35 +414,53 @@ static uint16_t Ftm_computeDutyValue (uint16_t dutyScaled, uint16_t modulo)
     }
 }
 
-void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled)
+static volatile uint32_t* Ftm_getCnVRegister (Ftm_DeviceHandle dev, Ftm_Channels channel)
 {
-    volatile uint32_t* regCVPtr;
-
     switch (channel)
     {
     case FTM_CHANNELS_CH0:
-        regCVPtr = &TPM_CnV_REG(dev->regMap,0);
-        break;
+        return &TPM_CnV_REG(dev->regMap,0);
     case FTM_CHANNELS_CH1:
-        regCVPtr = &TPM_CnV_REG(dev->regMap,1);
-        break;
+        return &TPM_CnV_REG(dev->regMap,1);
     case FTM_CHANNELS_CH2:
-        regCVPtr = &TPM_CnV_REG(dev->regMap,2);
-        break;
+        return &TPM_CnV_REG(dev->regMap,2);
     case FTM_CHANNELS_CH3:
-        regCVPtr = &TPM_CnV_REG(dev->regMap,3);
-        break;
+        return &TPM_CnV_REG(dev->regMap,3);
     case FTM_CHANNELS_CH4:
-        regCVPtr = &TPM_CnV_REG(dev->regMap,4);
-        break;
+        return &TPM_CnV_REG(dev->regMap,4);
     case FTM_CHANNELS_CH5:
-        regCVPtr = &TPM_CnV_REG(dev->regMap,5);
-        break;
+        return &TPM_CnV_REG(dev->regMap,5);
     default:
         assert(0);
-        regCVPtr = 0;
-        break;
+        return 0;
     }
+}
+
+static volatile uint32_t* Ftm_getCnSCRegister (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    switch (channel)
+    {
+    case FTM_CHANNELS_CH0:
+        return &TPM_CnSC_REG(dev->regMap,0);
+    case FTM_CHANNELS_CH1:
+        return &TPM_CnSC_REG(dev->regMap,1);
+    case FTM_CHANNELS_CH2:
+        return &TPM_CnSC_REG(dev->regMap,2);
+    case FTM_CHANNELS_CH3:
+        return &TPM_CnSC_REG(dev->regMap,3);
+    case FTM_CHANNELS_CH4:
+        return &TPM_CnSC_REG(dev->regMap,4);
+    case FTM_CHANNELS_CH5:
+        return &TPM_CnSC_REG(dev->regMap,5);
+    default:
+        assert(0);
+        return 0;
+    }
+}
+
+void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled)
+{
+    volatile uint32_t* regCVPtr = Ftm_getCnVRegister(dev,channel);
 
     if (regCVPtr)
     {
@@ -478,6 +496,23 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     switch (dev->mode)
     {
     case FTM_MODE_INPUT_CAPTURE:
+        prescaler = Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
+
+        dev->configurationBits = config->configurationBits;
+        TPM_SC_REG(dev->regMap) &=  ~TPM_SC_CPWMS_MASK;
+
+        /* Initialize every selected channels */
+        for (configPinIndex = 0; configPinIndex < FTM_MAX_CHANNEL; ++configPinIndex)
+        {
+            Ftm_Pins pin = config->pins[configPinIndex];
+
+            if (pin == FTM_PINS_STOP)
+                break;
+
+            Ftm_addInputCapturePin(dev,pin,dev->configurationBits);
+        }
+
+        TPM_SC_REG(dev->regMap) = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
         break;
     case FTM_MODE_OUTPUT_COMPARE:
         break;
@@ -485,7 +520,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
         break;
     case FTM_MODE_PWM:
         /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        prescaler = Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
 
         if (config->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
         {
@@ -527,7 +562,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     case FTM_MODE_FREE:
 
         /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(config->timerFrequency);
+        prescaler = Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
 
         /* Compute timer modulo */
         modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
@@ -538,6 +573,39 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
                                   TPM_SC_PS(prescaler) | 0;
         break;
     }
+}
+
+void Ftm_resetCounter (Ftm_DeviceHandle dev)
+{
+    TPM_CNT_REG(dev->regMap) = 0;
+}
+
+void Ftm_enableInterrupt (Ftm_DeviceHandle dev)
+{
+    /* disable interrupt */
+    TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
+    /* set to zero cont */
+    TPM_CNT_REG(dev->regMap) = 0;
+    /* enable interrupt */
+    TPM_SC_REG(dev->regMap) |=TPM_SC_TOIE_MASK;
+}
+
+void Ftm_disableInterrupt (Ftm_DeviceHandle dev)
+{
+    /* disable interrupt */
+    TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
+}
+
+void Ftm_stopCount(Ftm_DeviceHandle dev)
+{
+    TPM_SC_REG(dev->regMap) &= TPM_SC_CMOD_MASK;
+    TPM_SC_REG(dev->regMap) |= TPM_SC_CMOD(0);
+}
+
+void Ftm_startCount(Ftm_DeviceHandle dev)
+{
+    TPM_SC_REG(dev->regMap) &= TPM_SC_CMOD_MASK;
+    TPM_SC_REG(dev->regMap) |= TPM_SC_CMOD(1);
 }
 
 System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled)
@@ -561,38 +629,8 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
     }
 
     /* Select the right register */
-    switch (dev->channel[devPinIndex])
-    {
-    case FTM_CHANNELS_CH0:
-        regCSCPtr = &TPM_CnSC_REG(dev->regMap,0);
-        regCVPtr = &TPM_CnV_REG(dev->regMap,0);
-        break;
-    case FTM_CHANNELS_CH1:
-        regCSCPtr = &TPM_CnSC_REG(dev->regMap,1);
-        regCVPtr = &TPM_CnV_REG(dev->regMap,1);
-        break;
-    case FTM_CHANNELS_CH2:
-        regCSCPtr = &TPM_CnSC_REG(dev->regMap,2);
-        regCVPtr = &TPM_CnV_REG(dev->regMap,2);
-        break;
-    case FTM_CHANNELS_CH3:
-        regCSCPtr = &TPM_CnSC_REG(dev->regMap,3);
-        regCVPtr = &TPM_CnV_REG(dev->regMap,3);
-        break;
-    case FTM_CHANNELS_CH4:
-        regCSCPtr = &TPM_CnSC_REG(dev->regMap,4);
-        regCVPtr = &TPM_CnV_REG(dev->regMap,4);
-        break;
-    case FTM_CHANNELS_CH5:
-        regCSCPtr = &TPM_CnSC_REG(dev->regMap,5);
-        regCVPtr = &TPM_CnV_REG(dev->regMap,5);
-        break;
-    default:
-        assert(0);
-        regCSCPtr = 0;
-        regCVPtr = 0;
-        break;
-    }
+    regCSCPtr = Ftm_getCnSCRegister(dev,dev->channel[devPinIndex]);
+    regCVPtr = Ftm_getCnVRegister(dev,dev->channel[devPinIndex]);
 
     /* Enable channel and set PWM value */
     if (regCSCPtr && regCVPtr)
@@ -607,6 +645,119 @@ System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutySc
         }
 
         Ftm_setPwm (dev,dev->channel[devPinIndex],dutyScaled);
+    }
+    else
+    {
+        return ERRORS_FTM_CHANNEL_NOT_FOUND;
+    }
+
+    return ERRORS_FTM_OK;
+}
+
+void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
+
+    if (regCSCPtr)
+    {
+        *regCSCPtr |= TPM_CnSC_CHIE_MASK;
+    }
+}
+
+void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
+
+    if (regCSCPtr)
+    {
+        *regCSCPtr &= ~TPM_CnSC_CHIE_MASK;
+    }
+}
+
+bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
+
+    if (regCSCPtr && (*regCSCPtr & TPM_CnSC_CHF_MASK))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCSCPtr = Ftm_getCnSCRegister(dev,channel);
+
+    if (regCSCPtr)
+    {
+        *regCSCPtr |= TPM_CnSC_CHF_MASK;
+    }
+}
+
+
+uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel)
+{
+    volatile uint32_t* regCVPtr = Ftm_getCnVRegister(dev,channel);
+
+    if (regCVPtr)
+    {
+        return (uint16_t) *regCVPtr;
+    }
+}
+
+System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t configurations)
+{
+    uint8_t devPinIndex;
+
+    volatile uint32_t* regCSCPtr;
+    volatile uint32_t* regCVPtr;
+
+    uint32_t tempReg = 0;
+
+    if (dev->devInitialized == 0)
+        return ERRORS_FTM_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < FTM_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->pins[devPinIndex] == pin)
+        {
+            *(dev->pinsPtr[devPinIndex]) =
+                PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);
+            break;
+        }
+    }
+
+    /* Select the right register */
+    regCSCPtr = Ftm_getCnSCRegister(dev,dev->channel[devPinIndex]);
+
+    /* Enable channel */
+    if (regCSCPtr)
+    {
+        /* Input capture mode */
+        *regCSCPtr &=  ~TPM_CnSC_MSA_MASK;
+        *regCSCPtr &=  ~TPM_CnSC_MSB_MASK;
+
+        *regCSCPtr &= ~(TPM_CnSC_ELSA_MASK | TPM_CnSC_ELSB_MASK);
+
+        if (configurations & FTM_CONFIG_INPUT_RISING_EDGE)
+        {
+            *regCSCPtr |= TPM_CnSC_ELSA_MASK;
+        }
+        else if (configurations & FTM_CONFIG_INPUT_FALLING_EDGE)
+        {
+            *regCSCPtr |= TPM_CnSC_ELSB_MASK;
+        }
+        else
+        {
+            *regCSCPtr |= (TPM_CnSC_ELSB_MASK | TPM_CnSC_MSB_MASK);
+        }
+
+        /*Enable Selected Channel Interrupt*/
+        *regCSCPtr |= TPM_CnSC_CHIE_MASK;
     }
     else
     {

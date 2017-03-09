@@ -1,8 +1,10 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Simone Giacomucci <simone.giacomucci@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +29,7 @@
  * @file libohiboard/source/ethernet_K64F12.c
  * @author Simone Giacomucci <simone.giacomucci@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale
  * @brief Ethernet HAL implementations for K64F12 and FRDMK64F.
  */
 
@@ -46,7 +49,7 @@
 #include "interrupt.h"
 #include "clock.h"
 
-#define ETHERNET_MAX_PINS                    14
+#define ETHERNET_MAX_PINS                    10//14
 
 /* Ethernet general constants */
 #define ETHERNET_MAX_TIMEOUT                 0xFFFF /**< Ethernet Timeout. */
@@ -115,10 +118,10 @@ static Ethernet_Device enet0 = {
                          ETHERNET_PINS_PTA28,
                          ETHERNET_PINS_PTB0,
                          ETHERNET_PINS_PTB1,
-                         ETHERNET_PINS_PTC16,
-                         ETHERNET_PINS_PTC17,
-                         ETHERNET_PINS_PTC18,
-                         ETHERNET_PINS_PTC19,
+//                         ETHERNET_PINS_PTC16,
+//                         ETHERNET_PINS_PTC17,
+//                         ETHERNET_PINS_PTC18,
+//                         ETHERNET_PINS_PTC19,
     },
     .pinsPtr          = {&PORTA_PCR5,
                          &PORTA_PCR12,
@@ -130,10 +133,10 @@ static Ethernet_Device enet0 = {
                          &PORTA_PCR28,
                          &PORTB_PCR0,
                          &PORTB_PCR1,
-                         &PORTC_PCR16,
-                         &PORTC_PCR17,
-                         &PORTC_PCR18,
-                         &PORTC_PCR19,
+//                         &PORTC_PCR16,
+//                         &PORTC_PCR17,
+//                         &PORTC_PCR18,
+//                         &PORTC_PCR19,
     },
     .pinMux           = {4,
                          4,
@@ -145,16 +148,16 @@ static Ethernet_Device enet0 = {
                          4,
                          4,
                          4,
-                         4,
-                         4,
-                         4,
-                         4,
+//                         4,
+//                         4,
+//                         4,
+//                         4,
     },
 
-    .isrRx            = Ethernet_isrEnet0Rx,
+    .isrRx            = ENET_Receive_IRQHandler,
     .isrRxNumber      = INTERRUPT_ETHERNET_RX,
 
-    .isrTx            = Ethernet_isrEnet0Tx,
+    .isrTx            = ENET_Transmit_IRQHandler,
     .isrTxNumber      = INTERRUPT_ETHERNET_TX,
 
     .isrTs            = Ethernet_isrEnet0Ts,
@@ -186,7 +189,7 @@ static void Ethernet_initPins (Ethernet_DeviceHandle dev)
  *  The function called on receiving packet interrupt occurrence. It cleans
  *  the related interrupt flags and calls the upper level callback function.
  */
-void Ethernet_isrEnet0Rx (void)
+void ENET_Receive_IRQHandler (void)
 {
     while (((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_RXB_MASK) != 0) ||
            ((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_RXF_MASK) != 0))
@@ -201,7 +204,7 @@ void Ethernet_isrEnet0Rx (void)
  *  The function called on transmitting packet interrupt occurrence. It cleans
  *  the related interrupt flags and calls the upper level callback function.
  */
-void Ethernet_isrEnet0Tx (void)
+void ENET_Transmit_IRQHandler (void)
 {
     while (((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXB_MASK) != 0) ||
            ((ENET_EIR_REG(ENET0->regMap) & ENET_EIR_TXF_MASK) != 0))

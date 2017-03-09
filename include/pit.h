@@ -1,4 +1,4 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -46,18 +46,46 @@ typedef struct _Pit_Config
 
 } Pit_Config;
 
-#if defined (LIBOHIBOARD_K60DZ10) || \
-    defined (LIBOHIBOARD_OHIBOARD_R1)
+#if defined (LIBOHIBOARD_KL15Z4)   || \
+    defined (LIBOHIBOARD_KL25Z4)   || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 
-#elif defined (LIBOHIBOARD_K64F12)     || \
+void PIT_IRQHandler (void);
+
+extern Pit_DeviceHandle OB_PIT0;
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+
+void PIT0_IRQHandler (void);
+void PIT1_IRQHandler (void);
+void PIT2_IRQHandler (void);
+void PIT3_IRQHandler (void);
+
+extern Pit_DeviceHandle OB_PIT0;
+
+#elif defined (LIBOHIBOARD_K60DZ10) || \
+      defined (LIBOHIBOARD_OHIBOARD_R1)
+
+#elif defined (LIBOHIBOARD_KV46F)      || \
+	  defined (LIBOHIBOARD_TWRKV46F)
+
+void PIT0_IRQHandler (void);
+void PIT1_IRQHandler (void);
+void PIT2_IRQHandler (void);
+void PIT3_IRQHandler (void);
+
+extern Pit_DeviceHandle OB_PIT0;
+
+#elif defined (LIBOHIBOARD_K64F12)   || \
       defined (LIBOHIBOARD_FRDMK64F)
 
-void Pit_isrPit0 (void);
-void Pit_isrPit1 (void);
-void Pit_isrPit2 (void);
-void Pit_isrPit3 (void);
+void PIT0_IRQHandler (void);
+void PIT1_IRQHandler (void);
+void PIT2_IRQHandler (void);
+void PIT3_IRQHandler (void);
 
-extern Pit_DeviceHandle PIT0;
+extern Pit_DeviceHandle OB_PIT0;
 
 #endif
 
@@ -76,6 +104,7 @@ System_Errors Pit_init (Pit_DeviceHandle dev);
  * @param[in] config    The configuration parameters for the timer
  */
 System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* config);
+
 /**
  * TODO: description...
  *
@@ -83,6 +112,7 @@ System_Errors Pit_config (Pit_DeviceHandle dev, void *callback, Pit_Config* conf
  * @param[in] number    The number of timer that must be started
  */
 System_Errors Pit_start (Pit_DeviceHandle dev, uint8_t number);
+
 /**
  * TODO: description...
  *

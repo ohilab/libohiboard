@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -40,10 +40,22 @@
 
 typedef enum
 {
+
+#if defined(LIBOHIBOARD_KV46F)   || \
+	defined(LIBOHIBOARD_TWRKV46F)
+
+    CLOCK_CORE,
+    CLOCK_FAST_PERIPHERALS,
+    CLOCK_NANOEDGE,
+
+#else
+
     CLOCK_BUS,
     CLOCK_SYSTEM,
     CLOCK_FLEXBUS,
-    CLOCK_FLASH
+
+#endif
+    CLOCK_FLASH,
 } Clock_Source;
 
 typedef enum
@@ -53,6 +65,7 @@ typedef enum
 	CLOCK_CRYSTAL,
 #if defined (LIBOHIBOARD_K64F12)     || \
 	defined (LIBOHIBOARD_FRDMK64F)
+
 	CLOCK_CRYSTAL_32K,
 	CLOCK_INTERNAL_48M
 #endif
@@ -70,9 +83,12 @@ typedef enum
       defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)  || \
       defined (LIBOHIBOARD_K10D10)     || \
+	  defined (LIBOHIBOARD_K12D5)      || \
 	  defined (LIBOHIBOARD_K60DZ10)    || \
 	  defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)   || \
+	  defined (LIBOHIBOARD_KV46F)      || \
+	  defined (LIBOHIBOARD_TWRKV46F)   || \
 	  defined (LIBOHIBOARD_OHIBOARD_R1)
 	CLOCK_FEI,
 	CLOCK_FEE,
@@ -91,10 +107,19 @@ typedef struct _Clock_Config
 
 	uint32_t fext;
 	uint32_t foutSys;
+#if defined(LIBOHIBOARD_KV46F)   || \
+	defined(LIBOHIBOARD_TWRKV46F)
 
+	uint8_t coreDivider;
+    uint8_t fastPerDivider;
+    uint8_t flashDivider;
+    bool enableHGO;
+
+#else
 	uint8_t busDivider;
 	uint8_t flexbusDivider;
 	uint8_t flashDivider;
+#endif
 } Clock_Config;
 
 
@@ -105,10 +130,13 @@ uint32_t Clock_getFrequency (Clock_Source source);
 
 Clock_State Clock_getCurrentState(); 
 
-#if defined (LIBOHIBOARD_K10D10)     || \
-    defined (LIBOHIBOARD_K60DZ10)    || \
-    defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)   || \
+#if defined (LIBOHIBOARD_K10D10)       || \
+    defined (LIBOHIBOARD_K12D5)        || \
+    defined (LIBOHIBOARD_K60DZ10)      || \
+    defined (LIBOHIBOARD_K64F12)       || \
+    defined (LIBOHIBOARD_FRDMK64F)     || \
+	defined (LIBOHIBOARD_KV46F)        || \
+    defined (LIBOHIBOARD_TWRKV46F) || \
 	defined (LIBOHIBOARD_OHIBOARD_R1)
 
 uint8_t Clock_getCoreDivider();

@@ -59,7 +59,7 @@ static Dac_Device dac0 = {
 
         .devInitialized   = 0,
 };
-Dac_DeviceHandle DAC0 = &dac0;
+Dac_DeviceHandle OB_DAC0 = &dac0;
 
 static Dac_Device dac1 = {
         .regMap           = DAC1_BASE_PTR,
@@ -69,7 +69,7 @@ static Dac_Device dac1 = {
 
         .devInitialized   = 0,
 };
-Dac_DeviceHandle DAC1 = &dac1;
+Dac_DeviceHandle OB_DAC1 = &dac1;
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
 {
@@ -117,13 +117,32 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     /* FIXME:  Just now we disable DMA */
 
     dev->bufferMode = config->buffer;
-    if (dev->bufferMode == DAC_BUFFERMODE_OFF)
+//    if (dev->bufferMode == DAC_BUFFERMODE_OFF)
+//    {
+//        DAC_C1_REG(dev->regMap) = 0x00;
+//    }
+//    else
+//    {
+//        /* FIXME: buffer mode! */
+//    }
+    switch(config->buffer)
     {
-        DAC_C1_REG(dev->regMap) = 0x00;
-    }
-    else
-    {
-        /* FIXME: buffer mode! */
+        case DAC_BUFFERMODE_OFF:
+            DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFEN_MASK;
+        break;
+
+        case DAC_BUFFERMODE_NORMAL:
+            DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+            DAC_C1_REG(dev->regMap) &=~DAC_C1_DACBFMD_MASK;
+        break;
+
+        case DAC_BUFFERMODE_SWING:
+        break;
+
+        case DAC_BUFFERMODE_ONETIME:
+            DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+            DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFMD_MASK;
+        break;
     }
 
     /* Enable module */

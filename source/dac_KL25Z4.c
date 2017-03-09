@@ -39,8 +39,8 @@
 #include "utility.h"
 #include "dac.h"
 #include "clock.h"
+#include "interrupt.h"
 
-// DICHIARAZIONE DEL TIPO DAC_DEVICE 
 typedef struct Dac_Device
 {
     DAC_MemMapPtr regMap;                          /**< Device memory pointer */
@@ -51,6 +51,8 @@ typedef struct Dac_Device
     Dac_BufferMode bufferMode;
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+
+    void (*callback)(void);
 } Dac_Device;
 
 static Dac_Device dac0 = {
@@ -62,9 +64,7 @@ static Dac_Device dac0 = {
         .devInitialized   = 0,
 };
 
-
-Dac_DeviceHandle DAC0 = &dac0;
-
+Dac_DeviceHandle OB_DAC0 = &dac0;
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
 {
@@ -81,6 +81,25 @@ System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value)
     }
 
     return ERRORS_NO_ERROR;
+}
+
+
+void Dac_setInterruptEvent (Dac_DeviceHandle dev, Dac_InterruptEvent event)
+{
+    switch(event)
+    {
+    case DAC_INTERRUPTEVENT_TOP:
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBTIEN_MASK;
+        break;
+
+    case DAC_INTERRUPTEVENT_BOTTOM:
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBBIEN_MASK;
+        break;
+
+    case DAC_INTERRUPTEVENT_BOOTH:
+        DAC_C0_REG(dev->regMap) |= DAC_C0_DACBBIEN_MASK|DAC_C0_DACBTIEN_MASK;
+        break;
+    }
 }
 
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config)
@@ -109,23 +128,69 @@ System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config
     else
         DAC_C0_REG(dev->regMap) &= ~DAC_C0_LPEN_MASK;
 
-    /* FIXME:  Just now we disable DMA */
-
     dev->bufferMode = config->buffer;
-    if (dev->bufferMode == DAC_BUFFERMODE_OFF)
+    switch (config->buffer)
     {
-        DAC_C1_REG(dev->regMap) = 0x00;
-    }
-    else
-    {
-        // FIXME: buffer mode!
-    }
+    case DAC_BUFFERMODE_OFF:
+        DAC_C1_REG(dev->regMap) &= ~DAC_C1_DACBFEN_MASK;
+        break;
 
-    // Enable module
+    case DAC_BUFFERMODE_NORMAL:
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+        DAC_C1_REG(dev->regMap) &=~DAC_C1_DACBFMD_MASK;
+        break;
+
+    case DAC_BUFFERMODE_SWING:
+        break;
+
+    case DAC_BUFFERMODE_ONETIME:
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFEN_MASK;
+        DAC_C1_REG(dev->regMap) |= DAC_C1_DACBFMD_MASK;
+        break;
+    }
+    Dac_setInterruptEvent(dev, config->interruptEvent);
+
+    if(callback)
+    {
+        dev->callback = callback;
+        Interrupt_enable(INTERRUPT_DAC0);
+    }
+    /* enable DMA */
+    DAC_C1_REG(dev->regMap) |= ((config->dmaEnable<<DAC_C1_DMAEN_SHIFT)&DAC_C1_DMAEN_MASK);
+
+    /* Enable trigger module */
+    DAC_C0_REG(dev->regMap)|= ((config->trigger<<DAC_C0_DACTRGSEL_SHIFT)&DAC_C0_DACTRGSEL_MASK);
+
+    /* Enable DAC*/
     DAC_C0_REG(dev->regMap) |= DAC_C0_DACEN_MASK;
 
     dev->devInitialized = 1;
+
     return ERRORS_NO_ERROR;
+}
+
+#ifdef LIBOHIBOARD_DMA
+System_Errors Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dac_InterruptEvent event)
+{
+	Dac_setInterruptEvent(dev,event);
+	return ERRORS_NO_ERROR;
+}
+#endif
+
+void DAC0_IRQHandler(void)
+{
+	OB_DAC0->callback();
+
+
+
+void DAC0_IRQHandler(void)
+{
+	OB_DAC0->callback();
+
+	if(DAC_SR_REG(OB_DAC0->regMap)&DAC_SR_DACBFRPBF_MASK)
+		DAC_SR_REG(OB_DAC0->regMap)&=~DAC_SR_DACBFRPBF_MASK;
+	if(DAC_SR_REG(OB_DAC0->regMap)&DAC_SR_DACBFRPTF_MASK)
+		DAC_SR_REG(OB_DAC0->regMap)&=~DAC_SR_DACBFRPTF_MASK;
 }
 
 #endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */

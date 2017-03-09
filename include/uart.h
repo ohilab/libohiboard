@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -46,6 +46,10 @@
 #include "errors.h"
 #include "types.h"
 
+#ifdef LIBOHIBOARD_DMA
+#include "dma.h"
+#endif
+
 typedef enum {
     UART_PARITY_NONE,
     UART_PARITY_EVEN,
@@ -70,6 +74,7 @@ typedef enum {
     defined (LIBOHIBOARD_FRDMKL25Z)  || \
     defined (LIBOHIBOARD_K10DZ10)    || \
     defined (LIBOHIBOARD_K10D10)     || \
+    defined (LIBOHIBOARD_K12D5)      || \
     defined (LIBOHIBOARD_K60DZ10)    || \
     defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)
@@ -84,7 +89,9 @@ typedef enum {
     UART_CLOCKSOURCE_IRC8,
     UART_CLOCKSOURCE_IRC2,
     UART_CLOCKSOURCE_EXT,
-
+#elif defined(LIBOHIBOARD_KV46F)     ||\
+      defined(LIBOHIBOARD_TWRKV46F)
+    UART_CLOCKSOURCE_FAST_PERIPHERALS,
 #endif
 } Uart_ClockSource;
 
@@ -161,6 +168,24 @@ typedef enum
     UART_PINS_PTE17,
     UART_PINS_PTE25,
 
+#elif defined (LIBOHIBOARD_K12D5)
+
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+
+    UART_PINS_PTB10,
+    UART_PINS_PTB16,
+
+    UART_PINS_PTC3,
+    UART_PINS_PTC16,
+
+    UART_PINS_PTD2,
+    UART_PINS_PTD6,
+
+    UART_PINS_PTE1,
+    UART_PINS_PTE5,
+    UART_PINS_PTE17,
+
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
     
@@ -203,6 +228,21 @@ typedef enum
     UART_PINS_PTE5,
     UART_PINS_PTE25,
 
+#elif defined(LIBOHIBOARD_KV46F) ||\
+	  defined(LIBOHIBOARD_TWRKV46F)
+    /* Uart 0 */
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+    UART_PINS_PTB0,
+    UART_PINS_PTB16,
+    UART_PINS_PTC6,
+    UART_PINS_PTD6,
+    UART_PINS_PTE21,
+
+    /* Uart 1*/
+    UART_PINS_PTC3,
+    UART_PINS_PTE1,
+    UART_PINS_PTE17,
 #endif
 
     UART_PINS_RXNONE,
@@ -279,6 +319,24 @@ typedef enum
     UART_PINS_PTE8,
     UART_PINS_PTE16,
     UART_PINS_PTE24,
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+
+    UART_PINS_PTB11,
+    UART_PINS_PTB17,
+
+    UART_PINS_PTC4,
+    UART_PINS_PTC17,
+
+    UART_PINS_PTD3,
+    UART_PINS_PTD7,
+
+    UART_PINS_PTE0,
+    UART_PINS_PTE4,
+    UART_PINS_PTE16,
     
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
@@ -322,6 +380,21 @@ typedef enum
     UART_PINS_PTE4,
     UART_PINS_PTE24,
 
+#elif defined(LIBOHIBOARD_KV46F) ||\
+      defined(LIBOHIBOARD_TWRKV46F)
+    /* Uart 0 */
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+    UART_PINS_PTB1,
+    UART_PINS_PTB17,
+    UART_PINS_PTC7,
+    UART_PINS_PTD7,
+    UART_PINS_PTE20,
+
+    /* Uart 1*/
+    UART_PINS_PTC4,
+    UART_PINS_PTE0,
+    UART_PINS_PTE16,
 #endif
 
     UART_PINS_TXNONE,
@@ -338,25 +411,52 @@ extern Uart_DeviceHandle UART0;
 
 #elif defined(LIBOHIBOARD_KL15Z4)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
+void UART0_IRQHandler ();
+void UART1_IRQHandler ();
+void UART2_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
+void UART0_IRQHandler ();
+void UART1_IRQHandler ();
+void UART2_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
 
 #elif defined (LIBOHIBOARD_K10D10)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
-extern Uart_DeviceHandle UART3;
-extern Uart_DeviceHandle UART4;
-extern Uart_DeviceHandle UART5;
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+void UART3_RX_TX_IRQHandler ();
+void UART4_RX_TX_IRQHandler ();
+void UART5_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
+extern Uart_DeviceHandle OB_UART4;
+extern Uart_DeviceHandle OB_UART5;
+
+#elif defined (LIBOHIBOARD_K12D5)
+
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+void UART3_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
     defined (LIBOHIBOARD_OHIBOARD_R1)
@@ -370,15 +470,30 @@ extern Uart_DeviceHandle UART4;
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
-extern Uart_DeviceHandle UART3;
-extern Uart_DeviceHandle UART4;
-extern Uart_DeviceHandle UART5;
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+void UART3_RX_TX_IRQHandler ();
+void UART4_RX_TX_IRQHandler ();
+void UART5_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
+extern Uart_DeviceHandle OB_UART4;
+extern Uart_DeviceHandle OB_UART5;
+
+#elif defined(LIBOHIBOARD_KV46F) ||\
+      defined(LIBOHIBOARD_TWRKV46F)
+
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
 
 #endif
-
 
 typedef struct _Uart_Config
 {
@@ -393,13 +508,16 @@ typedef struct _Uart_Config
     
     uint32_t baudrate;
 
+    void (*callbackRx)(void);  /**< Callback Function to handle RX Interrupt.*/
+    void (*callbackTx)(void);  /**< Callback Function to handle TX Interrupt.*/
+
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
 
     uint8_t oversampling; /* 4 to 32 */
     uint32_t extClk;      /* external frequency or crystal value if clockSource = UART_CLOCKSOURCE_EXT */
 
-#elif defined(LIBOHIBOARD_KL15Z4)      || \
+#elif defined (LIBOHIBOARD_KL15Z4)     || \
       defined (LIBOHIBOARD_KL25Z4)     || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
@@ -414,7 +532,20 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 
+#if defined (LIBOHIBOARD_KL15Z4)     || \
+    defined (LIBOHIBOARD_KL25Z4)     || \
+	defined (LIBOHIBOARD_FRDMKL25Z)  || \
+	defined (LIBOHIBOARD_K12D5)      || \
+    defined (LIBOHIBOARD_K64F12)     || \
+	defined (LIBOHIBOARD_FRDMK64F)   || \
+	defined (LIBOHIBOARD_KV46F)      || \
+	defined (LIBOHIBOARD_TRWKV46F)
+
+System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
+#else
 System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config);
+#endif
+
 System_Errors Uart_close (Uart_DeviceHandle dev);
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
@@ -424,6 +555,11 @@ void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendStringln (Uart_DeviceHandle dev, const char* text);
 void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
 void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
+
+#ifdef LIBOHIBOARD_DMA
+uint8_t Uart_enableDmaTrigger (Uart_DeviceHandle dev, Dma_RequestSource request);
+uint32_t* Uart_getRxRegisterAddress (Uart_DeviceHandle dev);
+#endif
 
 #endif /* __UART_H */
 

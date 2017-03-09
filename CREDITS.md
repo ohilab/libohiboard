@@ -9,5 +9,6 @@ Credits
 * Nicola Orlandini
 * Niccolo' Paolinelli
 * Alessio Paolucci
+* Matteo Pirro
 * Francesco Piunti
 

@@ -1,8 +1,10 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Simone Giacomucci <simone.giacomucci@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +28,8 @@
 /**
  * @file libohiboard/source/ethernet-interface_K64F12.c
  * @author Simone Giacomucci <simone.giacomucci@gmail.com>
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Matteo Civale
  * @brief Ethernet HAL implementations for K64F12 and FRDMK64F.
  */
 
@@ -363,8 +367,9 @@ System_Errors EthernetInterface_sendData(EthernetInterface_DeviceHandle dev,
 
     for (buffIndex = 0; buffIndex < bdUsedNumber; buffIndex++)
     {
-        if (dev->bdHandler.isTxBufferDescriptorFull)
-            return ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL;
+    	// FIXME: removed this control! Check ASAP
+//        if (dev->bdHandler.isTxBufferDescriptorFull)
+//            return ERRORS_ETHERNETIF_RX_BUFFERDESCRIPTOR_FULL;
 
         /* Last Buffer Descriptor */
         if (buffIndex == bdUsedNumber - 1)

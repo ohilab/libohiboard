@@ -133,6 +133,8 @@
 #include "platforms/MK10DZ10.h"
 #elif defined(LIBOHIBOARD_K10D10)
 #include "platforms/MK10D10.h"
+#elif defined(LIBOHIBOARD_K12D5)
+#include "platforms/MK12D5.h"
 #elif defined(LIBOHIBOARD_K60DZ10)
 #include "platforms/MK60DZ10.h"
 #elif defined(LIBOHIBOARD_K60F15)
@@ -161,6 +163,9 @@
 #include "platforms/MK64F12.h"
 #elif defined(LIBOHIBOARD_OHIBOARD_R1)
 #include "platforms/MK60DZ10.h"
+#elif defined(LIBOHIBOARD_KV46F) || defined(LIBOHIBOARD_TWRKV46F)
+#include "platforms/MKV46F16.h"
 #endif
+
 
 #endif /* __PLATFORMS_H */

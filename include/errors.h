@@ -43,6 +43,7 @@ typedef enum _System_Errors
 	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
 	
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
+	ERRORS_IRQ_PRIORITY_LEVEL_WRONG,
 	
 	ERRORS_GPIO_WRONG_PORT,
 	ERRORS_GPIO_WRONG_CONFIG,
@@ -54,6 +55,7 @@ typedef enum _System_Errors
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
 	
+	ERRORS_IIC_OK,
 	ERRORS_IIC_TX_OK,
 	ERRORS_IIC_TX_ERROR,
 	ERRORS_IIC_TX_TIMEOUT,
@@ -61,6 +63,7 @@ typedef enum _System_Errors
 	ERRORS_IIC_TX_ACK_NOT_RECEIVED,
     ERRORS_IIC_RX_OK,
 	ERRORS_IIC_RX_TIMEOUT,
+	ERRORS_IIC_TIMEOUT,
 	ERRORS_IIC_SCLTIMEOUT_TOO_LARGE,
 	ERRORS_IIC_SCLTIMEOUT,
 	ERRORS_IIC_NO_SCLTIMEOUT,
@@ -75,16 +78,24 @@ typedef enum _System_Errors
     ERRORS_SPI_NO_PIN_FOUND,
 	
 	ERRORS_ADC_CHANNEL_WRONG,
+    ERRORS_ADC_CHANNEL_BUSY,
 	
     ERRORS_DAC_DEVICE_NOT_INIT,
     ERRORS_DAC_DEVICE_JUST_INIT,
+    ERRORS_ADC_ERRATA_DIVIDERS,
+    ERRORS_DAC_WRONG_PARAMETER,
+    ERRORS_ADC_PIN_WRONG,
 
     ERRORS_ADC_DEVICE_JUST_INIT,
+    ERRORS_ADC_DEVICE_NOT_INIT,                  /**< Device not initialized. */
     ERRORS_ADC_DIVIDER_NOT_FOUND,
+    ERRORS_ADC_NUMCH_WRONG,
+    ERRORS_ADC_CALIBRATION,        /**< Error during ADC calibration process. */
 	
 	ERRORS_FTM_OK,
 	ERRORS_FTM_CHANNEL_NOT_FOUND,
 	ERRORS_FTM_DEVICE_NOT_INIT,
+	ERRORS_FTM_FAULT_PIN_WRONG,
 	
 	ERRORS_UTILITY_ILLEGAL_CHAR,
 	ERRORS_UTILITY_EMPTY_STRING,
@@ -106,6 +117,11 @@ typedef enum _System_Errors
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
 
+    ERROR_PTB_DEVICE_WRONG,                  /**< Device triggered not exist. */
+    ERROR_PTB_DEVICE_NOT_INIT,
+
+	ERRORS_DMA_OK, /* Initialization ok */
+
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
     ERRORS_ETHERNET_SMI_TIMEOUT,    /**< Error during communication with PHY. */
@@ -115,7 +131,16 @@ typedef enum _System_Errors
     ERRORS_ETHERNETIF_RX_FRAME_TRUNCATED,
     ERRORS_ETHERNETIF_RX_GENERIC_ERROR,
     ERRORS_ETHERNETIF_RX_SMALL_BUFFERDESCRIPTOR_NUMBER,
-    ERRORS_ETHERNETIF_TX_BUFFERDESCRIPTOR_FULL
+    ERRORS_ETHERNETIF_TX_BUFFERDESCRIPTOR_FULL,
+
+    ERRORS_XBAR_JUST_INIT,
+    ERRORS_XBAR_NOT_INIT,
+    ERRORS_XBAR_IN_WRONG,
+    ERRORS_XBAR_OUT_WRONG,
+
+	ERRORS_LLWU_WRONG_EXTPIN,
+	ERRORS_LLWU_WRONG_WAKEUPMODULE,
+
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
