@@ -107,14 +107,14 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
     return ERRORS_NO_ERROR;
 }
 
-//System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber, uint8_t priority)
-//{
-//    if (priority > NVIC_MAX_PRIORITY) return ERRORS_IRQ_PRIORITY_LEVEL_WRONG;
-//
-//    /* Set interrupt priority note priority 0 is the higher priority level*/
-//    NVIC_IP_REG(NVIC_BASE_PTR,vectorNumber) = (priority<<4) & 0xFF;
-//    return ERRORS_NO_ERROR;
-//}
+System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber, uint8_t priority)
+{
+    if (priority > NVIC_MAX_PRIORITY) return ERRORS_IRQ_PRIORITY_LEVEL_WRONG;
+    /* Set interrupt priority note priority 0 is the higher priority level*/
+    NVIC_SetPriority(vectorNumber, priority);
+
+    return ERRORS_NO_ERROR;
+}
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
 
