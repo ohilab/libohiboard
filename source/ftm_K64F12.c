@@ -415,26 +415,33 @@ static System_Errors Ftm_addFaultPin (Ftm_DeviceHandle dev, Ftm_FaultPins pin, F
     return ERRORS_FTM_FAULT_PIN_WRONG;
 }
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_FTM0
 void FTM0_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM0);
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_FTM1
 void FTM1_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM1);
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_FTM2
 void FTM2_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM2);
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_FTM3
 void FTM3_IRQHandler (void)
 {
     Ftm_callbackInterrupt(OB_FTM3);
 }
-
+#endif
 
 static uint8_t Ftm_computeDeadTimeModulo (uint32_t deadTime, Ftm_DeadTimePrescaler prescaler)
 {

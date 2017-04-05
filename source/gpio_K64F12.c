@@ -447,7 +447,7 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 
     return ERRORS_NO_ERROR;
 }
-
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PORTA
 void PORTA_IRQHandler (void)
 {
     uint8_t i=0;
@@ -466,7 +466,9 @@ void PORTA_IRQHandler (void)
         i++;
     }
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PORTB
 void PORTB_IRQHandler (void)
 {
     uint8_t i=0;
@@ -485,7 +487,9 @@ void PORTB_IRQHandler (void)
         i++;
     }
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PORTC
 void PORTC_IRQHandler (void)
 {
     uint8_t i=0;
@@ -504,7 +508,9 @@ void PORTC_IRQHandler (void)
         i++;
     }
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PORTD
 void PORTD_IRQHandler (void)
 {
     uint8_t i=0;
@@ -523,7 +529,9 @@ void PORTD_IRQHandler (void)
         i++;
     }
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PORTE
 void PORTE_IRQHandler (void)
 {
     uint8_t i=0;
@@ -542,5 +550,6 @@ void PORTE_IRQHandler (void)
         i++;
     }
 }
+#endif
 
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
