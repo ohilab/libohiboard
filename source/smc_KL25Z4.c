@@ -95,6 +95,10 @@ Smc_Errors Smc_Interrupt (Smc_DevideHandle dev)
 			dev->actualStatus = dev->lastStatus;
 			dev->lastStatus = SMC_VLPS;
 			break;
+		case SMC_LLS:
+			dev->actualStatus = dev->lastStatus;;
+			dev->lastStatus = SMC_LLS;
+			break;
 	}
 }
 

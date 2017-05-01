@@ -168,36 +168,45 @@ System_Errors Llwu_configWakeupModule_Interrupt (Llwu_DeviceHandle dev, Llwu_Wak
     return ERRORS_NO_ERROR;
 }
 
+
 void LLWU_IRQHandler(void)
 {
 
 	uint8_t i=0;
 
-	OB_LLWU0->regMap->F1 = 0xFF;
-	OB_LLWU0->regMap->F2 = 0xFF;
+	int a,mask = 0;
+	mask = 1 << 6;
+	a = 0x40 & mask;
+	if(a == mask)
+	{
+		a++;
+	}
 
-//	Llwu_isrExtPinRequestVector[LLWU_P15];
-
-//	while (i < LLWU_MAX_EXTPIN)
-//	{
-//		if(INT_EXTPIN & (1 << i))
-//		{
-//			if(i < LLWU_MAX_EXTPIN/2)
-//			{//Da verificare
-//				if((OB_LLWU0->regMap->F1 >> i) & 0x01)
-//				{
-//					Llwu_isrExtPinRequestVector[i]();
-//					//reset interrupt
-//					OB_LLWU0->regMap->F1 |= (1 << i); /* Sicuro c'è un bug sugli indici */
-//				}
-//			}
-//			else
-//			{
-//
-//			}
-//		}
-//		i++;
-//	}
+	while (i < LLWU_MAX_EXTPIN)
+	{
+		uint8_t mask = 0;
+		if(i < LLWU_MAX_EXTPIN/2)
+		{
+			mask = (1 << i);
+			if((OB_LLWU0->regMap->F1 >> i) & mask == mask)
+			{
+				Llwu_isrExtPinRequestVector[i]();
+				//reset interrupt
+				OB_LLWU0->regMap->F1 |= (1 << i);
+			}
+		}
+		else
+		{
+			mask = (1 << (i-8));
+			if((OB_LLWU0->regMap->F2 >> (i-8)) & mask == mask)
+			{
+				Llwu_isrExtPinRequestVector[i]();
+				//reset interrupt
+				OB_LLWU0->regMap->F2 |= (1 << (i-8));
+			}
+		}
+		i++;
+	}
 
 	i=0;
 
