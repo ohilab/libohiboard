@@ -211,7 +211,7 @@ void LLWU_IRQHandler(void)
 	i=0;
 
 
-
+/* FixMe: Da testare */
 //	while (i < LLWU_MAX_WAKEUP_MODULE)
 //	{
 //		if(INT_WAKEUP_MODULE & (1 << i))
