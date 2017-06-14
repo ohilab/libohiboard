@@ -1,4 +1,4 @@
-/* Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -285,8 +285,62 @@ typedef enum {
     INTERRUPT_ETHERNET_RX  = 84,
     INTERRUPT_ETHERNET_ERR = 85,
 
+#elif defined (LIBOHIBOARD_KV31F12)
+
+    INTERRUPT_DMA0         = 0,
+    INTERRUPT_DMA1         = 1,
+    INTERRUPT_DMA2         = 2,
+    INTERRUPT_DMA3         = 3,
+    INTERRUPT_DMA4         = 4,
+    INTERRUPT_DMA5         = 5,
+    INTERRUPT_DMA6         = 6,
+    INTERRUPT_DMA7         = 7,
+    INTERRUPT_DMA8         = 8,
+    INTERRUPT_DMA9         = 9,
+    INTERRUPT_DMA10        = 10,
+    INTERRUPT_DMA11        = 11,
+    INTERRUPT_DMA12        = 12,
+    INTERRUPT_DMA13        = 13,
+    INTERRUPT_DMA14        = 14,
+    INTERRUPT_DMA15        = 15,
+    INTERRUPT_DMA_ERROR    = 16,
+    INTERRUPT_LLWU         = 21,
+    INTERRUPT_WDOG         = 22,
+    INTERRUPT_RNG          = 23,
+    INTERRUPT_IIC0         = 24,
+    INTERRUPT_IIC1         = 25,
+    INTERRUPT_SPI0         = 26,
+    INTERRUPT_SPI1         = 27,
+    INTERRUPT_LPUART0      = 30,
+    INTERRUPT_UART0        = 31,
+    INTERRUPT_UART0_ERR    = 32,
+    INTERRUPT_UART1        = 33,
+    INTERRUPT_UART1_ERR    = 34,
+    INTERRUPT_UART2        = 35,
+    INTERRUPT_UART2_ERR    = 36,
+    INTERRUPT_ADC0         = 39,
+    INTERRUPT_CMP0         = 40,
+    INTERRUPT_CMP1         = 41,
+    INTERRUPT_FTM0         = 42,
+    INTERRUPT_FTM1         = 43,
+    INTERRUPT_FTM2         = 44,
+    INTERRUPT_PIT0         = 48,
+    INTERRUPT_PIT1         = 49,
+    INTERRUPT_PIT2         = 50,
+    INTERRUPT_PIT3         = 51,
+    INTERRUPT_PDB          = 52,
+    INTERRUPT_DAC0         = 56,
+    INTERRUPT_PORTA        = 59,
+    INTERRUPT_PORTB        = 60,
+    INTERRUPT_PORTC        = 61,
+    INTERRUPT_PORTD        = 62,
+    INTERRUPT_PORTE        = 63,
+    INTERRUPT_SWI          = 64,
+    INTERRUPT_ADCB         = 73,
+
 #elif defined (LIBOHIBOARD_KV46F)     || \
    	  defined (LIBOHIBOARD_TWRKV46F)
+
 	INTERRUPT_DMA0         = 0,
 	INTERRUPT_DMA1         = 1,
 	INTERRUPT_DMA2         = 2,

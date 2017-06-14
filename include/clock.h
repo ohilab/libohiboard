@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2014-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -63,7 +63,8 @@ typedef enum
 	CLOCK_INTERNAL,
 	CLOCK_EXTERNAL,
 	CLOCK_CRYSTAL,
-#if defined (LIBOHIBOARD_K64F12)     || \
+#if defined (LIBOHIBOARD_KV31F12)    || \
+	defined (LIBOHIBOARD_K64F12)     || \
 	defined (LIBOHIBOARD_FRDMK64F)
 
 	CLOCK_CRYSTAL_32K,
@@ -86,6 +87,7 @@ typedef enum
 	  defined (LIBOHIBOARD_K12D5)      || \
 	  defined (LIBOHIBOARD_K60DZ10)    || \
 	  defined (LIBOHIBOARD_K64F12)     || \
+      defined (LIBOHIBOARD_KV31F12)    || \
 	  defined (LIBOHIBOARD_FRDMK64F)   || \
 	  defined (LIBOHIBOARD_KV46F)      || \
 	  defined (LIBOHIBOARD_TWRKV46F)   || \
@@ -107,6 +109,7 @@ typedef struct _Clock_Config
 
 	uint32_t fext;
 	uint32_t foutSys;
+
 #if defined(LIBOHIBOARD_KV46F)   || \
 	defined(LIBOHIBOARD_TWRKV46F)
 
@@ -135,8 +138,9 @@ Clock_State Clock_getCurrentState();
     defined (LIBOHIBOARD_K60DZ10)      || \
     defined (LIBOHIBOARD_K64F12)       || \
     defined (LIBOHIBOARD_FRDMK64F)     || \
+    defined (LIBOHIBOARD_KV31F12)      || \
 	defined (LIBOHIBOARD_KV46F)        || \
-    defined (LIBOHIBOARD_TWRKV46F) || \
+    defined (LIBOHIBOARD_TWRKV46F)     || \
 	defined (LIBOHIBOARD_OHIBOARD_R1)
 
 uint8_t Clock_getCoreDivider();

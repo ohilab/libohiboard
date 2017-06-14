@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -163,6 +163,8 @@
 #include "platforms/MK64F12.h"
 #elif defined(LIBOHIBOARD_OHIBOARD_R1)
 #include "platforms/MK60DZ10.h"
+#elif defined(LIBOHIBOARD_KV31F12)
+#include "platforms/MKV31F51212.h"
 #elif defined(LIBOHIBOARD_KV46F) || defined(LIBOHIBOARD_TWRKV46F)
 #include "platforms/MKV46F16.h"
 #endif
