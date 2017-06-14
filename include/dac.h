@@ -1,9 +1,10 @@
 /******************************************************************************
- * Copyright (C) 2014 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Francesco Piunti <francesco.piunti89@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Matteo Civale <matteo.civale@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -69,7 +70,8 @@ typedef enum
     DAC_BUFFERMODE_SWING   = 0x1,
     DAC_BUFFERMODE_ONETIME = 0x2,
 
-#if defined (LIBOHIBOARD_KV46F)    || \
+#if defined (LIBOHIBOARD_KV31F12)  || \
+    defined (LIBOHIBOARD_KV46F)    || \
     defined (LIBOHIBOARD_TRWKV46F) || \
     defined (LIBOHIBOARD_K64F12)   || \
     defined (LIBOHIBOARD_FRDMK64F)
@@ -90,8 +92,7 @@ typedef struct
     uint8_t intWaterMark  :1;
     uint8_t watermarkVale :2;
 
-}Dac_InterruptEvent;
-
+} Dac_InterruptEvent;
 
 #else
 
@@ -102,13 +103,17 @@ typedef enum
 	DAC_INTERRUPTEVENT_BOTTOM,
 	DAC_INTERRUPTEVENT_BOOTH,
 
-}Dac_InterruptEvent;
+} Dac_InterruptEvent;
 #endif
-
 
 typedef struct Dac_Device* Dac_DeviceHandle;
 
-#if defined (LIBOHIBOARD_K10D10)
+#if defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
+
+extern Dac_DeviceHandle OB_DAC0;
+
+#elif defined (LIBOHIBOARD_K10D10)
 
 extern Dac_DeviceHandle DAC0;
 extern Dac_DeviceHandle DAC1;
@@ -118,6 +123,11 @@ extern Dac_DeviceHandle DAC1;
       defined (LIBOHIBOARD_TRWKV46F)
 
 extern Dac_DeviceHandle OB_DAC0;
+
+#elif defined (LIBOHIBOARD_KV31F12)
+
+extern Dac_DeviceHandle OB_DAC0;
+extern Dac_DeviceHandle OB_DAC1;
 
 #if defined (LIBOHIBOARD_KV46F) || \
     defined (LIBOHIBOARD_TRWKV46F)
@@ -134,11 +144,6 @@ typedef enum{
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
 
-#elif defined (LIBOHIBOARD_KL25Z4)  || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-extern Dac_DeviceHandle OB_DAC0;
-
 #elif defined (LIBOHIBOARD_K64F12)     || \
       defined (LIBOHIBOARD_FRDMK64F)
 
@@ -146,8 +151,6 @@ extern Dac_DeviceHandle OB_DAC0;
 extern Dac_DeviceHandle OB_DAC1;
 
 #endif
-
-
 
 
 typedef struct _Dac_Config
@@ -173,8 +176,6 @@ typedef struct _Dac_Config
 
 } Dac_Config;
 
-void DAC0_IRQHandler(void);
-
 System_Errors Dac_init (Dac_DeviceHandle dev, void *callback, Dac_Config *config);
 
 System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
@@ -184,8 +185,6 @@ System_Errors Dac_loadBuffer(Dac_DeviceHandle dev, uint16_t* buffer, uint8_t sta
 #ifdef LIBOHIBOARD_DMA
     uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request);
 #endif
-
-
 
 #endif /* __DAC_H */
 
