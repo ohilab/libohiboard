@@ -72,6 +72,7 @@ typedef enum {
     defined (LIBOHIBOARD_KL25Z4)     || \
     defined (LIBOHIBOARD_FRDMKL25Z)  || \
     defined (LIBOHIBOARD_FRDMKL25Z)  || \
+    defined (LIBOHIBOARD_KV31F12)    || \
     defined (LIBOHIBOARD_K10DZ10)    || \
     defined (LIBOHIBOARD_K10D10)     || \
     defined (LIBOHIBOARD_K12D5)      || \
@@ -89,9 +90,12 @@ typedef enum {
     UART_CLOCKSOURCE_IRC8,
     UART_CLOCKSOURCE_IRC2,
     UART_CLOCKSOURCE_EXT,
+
 #elif defined(LIBOHIBOARD_KV46F)     ||\
       defined(LIBOHIBOARD_TWRKV46F)
+
     UART_CLOCKSOURCE_FAST_PERIPHERALS,
+
 #endif
 } Uart_ClockSource;
 
@@ -228,9 +232,27 @@ typedef enum
     UART_PINS_PTE5,
     UART_PINS_PTE25,
 
+#elif defined(LIBOHIBOARD_KV31F12)
+
+    /* UART0 */
+    UART_PINS_PTA1,
+    UART_PINS_PTA15,
+    UART_PINS_PTB0,
+    UART_PINS_PTB16,
+    UART_PINS_PTD6,
+
+    /* UART1 */
+    UART_PINS_PTC3,
+    UART_PINS_PTE1,
+
+    /* UART2 */
+    UART_PINS_PTD2,
+    UART_PINS_PTE17,
+
 #elif defined(LIBOHIBOARD_KV46F) ||\
 	  defined(LIBOHIBOARD_TWRKV46F)
-    /* Uart 0 */
+
+    /* UART0 */
     UART_PINS_PTA1,
     UART_PINS_PTA15,
     UART_PINS_PTB0,
@@ -239,10 +261,11 @@ typedef enum
     UART_PINS_PTD6,
     UART_PINS_PTE21,
 
-    /* Uart 1*/
+    /* UART1*/
     UART_PINS_PTC3,
     UART_PINS_PTE1,
     UART_PINS_PTE17,
+
 #endif
 
     UART_PINS_RXNONE,
@@ -380,9 +403,27 @@ typedef enum
     UART_PINS_PTE4,
     UART_PINS_PTE24,
 
+#elif defined(LIBOHIBOARD_KV31F12)
+
+    /* UART0 */
+    UART_PINS_PTA2,
+    UART_PINS_PTA14,
+    UART_PINS_PTB1,
+    UART_PINS_PTB17,
+    UART_PINS_PTD7,
+
+    /* UART1 */
+    UART_PINS_PTC4,
+    UART_PINS_PTE0,
+
+    /* UART2 */
+    UART_PINS_PTD3,
+    UART_PINS_PTE16,
+
 #elif defined(LIBOHIBOARD_KV46F) ||\
       defined(LIBOHIBOARD_TWRKV46F)
-    /* Uart 0 */
+
+    /* UART0 */
     UART_PINS_PTA2,
     UART_PINS_PTA14,
     UART_PINS_PTB1,
@@ -391,7 +432,7 @@ typedef enum
     UART_PINS_PTD7,
     UART_PINS_PTE20,
 
-    /* Uart 1*/
+    /* UART1*/
     UART_PINS_PTC4,
     UART_PINS_PTE0,
     UART_PINS_PTE16,
@@ -484,6 +525,16 @@ extern Uart_DeviceHandle OB_UART3;
 extern Uart_DeviceHandle OB_UART4;
 extern Uart_DeviceHandle OB_UART5;
 
+#elif defined(LIBOHIBOARD_KV31F12)
+
+void UART0_RX_TX_IRQHandler ();
+void UART1_RX_TX_IRQHandler ();
+void UART2_RX_TX_IRQHandler ();
+
+extern Uart_DeviceHandle OB_UART0;
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+
 #elif defined(LIBOHIBOARD_KV46F) ||\
       defined(LIBOHIBOARD_TWRKV46F)
 
@@ -538,6 +589,7 @@ uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 	defined (LIBOHIBOARD_K12D5)      || \
     defined (LIBOHIBOARD_K64F12)     || \
 	defined (LIBOHIBOARD_FRDMK64F)   || \
+    defined (LIBOHIBOARD_KV31F12)    || \
 	defined (LIBOHIBOARD_KV46F)      || \
 	defined (LIBOHIBOARD_TRWKV46F)
 
