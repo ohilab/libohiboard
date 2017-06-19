@@ -98,29 +98,37 @@ static Pit_Device pit0 = {
 };
 Pit_DeviceHandle OB_PIT0 = &pit0;
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PIT0
 void PIT0_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,0) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[0]();
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PIT1
 void PIT1_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,1) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[1]();
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PIT2
 void PIT2_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,2) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[2]();
 }
+#endif
 
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PIT3
 void PIT3_IRQHandler (void)
 {
     PIT_TFLG_REG(OB_PIT0->regMap,3) |= PIT_TFLG_TIF_MASK;
     OB_PIT0->callback[3]();
 }
+#endif
 
 System_Errors Pit_init (Pit_DeviceHandle dev)
 {
@@ -188,6 +196,32 @@ System_Errors Pit_stop (Pit_DeviceHandle dev, uint8_t number)
     PIT_TCTRL_REG(dev->regMap,number) &= ~PIT_TCTRL_TEN_MASK;
     return ERRORS_NO_ERROR;
 }
+
+System_Errors Pit_enableInterrupt (Pit_DeviceHandle dev, uint8_t number)
+{
+    if (number > (PIT_MAX_NUMBER - 1))
+        return ERRORS_PIT_NOT_EXIST;
+
+    if (!dev->isInitialized[number])
+        return ERRORS_PIT_NOT_INITIALIZED;
+
+    PIT_TCTRL_REG(dev->regMap,number) |= PIT_TCTRL_TIE_MASK;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Pit_disableInterrupt (Pit_DeviceHandle dev, uint8_t number)
+{
+    if (number > (PIT_MAX_NUMBER - 1))
+        return ERRORS_PIT_NOT_EXIST;
+
+    if (!dev->isInitialized[number])
+        return ERRORS_PIT_NOT_INITIALIZED;
+
+    PIT_TCTRL_REG(dev->regMap,number) &= ~PIT_TCTRL_TIE_MASK;
+    return ERRORS_NO_ERROR;
+}
+
+
 #endif /* LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F */
 
 #endif /* LIBOHIBOARD_PIT */

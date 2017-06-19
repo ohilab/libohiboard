@@ -124,6 +124,20 @@ System_Errors Pit_start (Pit_DeviceHandle dev, uint8_t number);
  */
 System_Errors Pit_stop (Pit_DeviceHandle dev, uint8_t number);
 
+#if defined (LIBOHIBOARD_K64F12)
+
+/**
+ *
+ */
+System_Errors Pit_enableInterrupt (Pit_DeviceHandle dev, uint8_t number);
+
+/**
+ *
+ */
+System_Errors Pit_disableInterrupt (Pit_DeviceHandle dev, uint8_t number);
+
+#endif
+
 #endif /* __PIT_H */
 
 #endif /* LIBOHIBOARD_ETHERNET */

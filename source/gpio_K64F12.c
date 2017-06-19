@@ -447,6 +447,7 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 
     return ERRORS_NO_ERROR;
 }
+
 #ifndef LIBOHIBOARD_CUSTOMINTERRUPT_PORTA
 void PORTA_IRQHandler (void)
 {
