@@ -50,6 +50,7 @@ typedef enum
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
     defined (LIBOHIBOARD_K64F12)   || \
+    defined (LIBOHIBOARD_KV31F12)  || \
     defined (LIBOHIBOARD_KV46F)    || \
     defined (LIBOHIBOARD_TRWKV46F)
 
@@ -392,11 +393,17 @@ extern Ftm_DeviceHandle FTM2;
 
 #elif defined (LIBOHIBOARD_K64F12)     || \
 	  defined (LIBOHIBOARD_FRDMK64F)   || \
+	  defined(LIBOHIBOARD_KV31F12)     || \
 	  defined (LIBOHIBOARD_KV46F)      || \
 	  defined (LIBOHIBOARD_TRWKV46F)
 
 #if defined (LIBOHIBOARD_K64F12)     || \
 	defined (LIBOHIBOARD_FRDMK64F)
+
+#define FTM_MAX_CHANNEL                  8
+#define FTM_MAX_FAULT_CHANNEL            4
+
+#elif defined (LIBOHIBOARD_KV31F12)
 
 #define FTM_MAX_CHANNEL                  8
 #define FTM_MAX_FAULT_CHANNEL            4
@@ -408,6 +415,79 @@ extern Ftm_DeviceHandle FTM2;
 #define FTM_MAX_FAULT_CHANNEL            4
 
 #endif
+
+#if defined(LIBOHIBOARD_KV31F12)
+
+typedef enum
+{
+    FTM_PINS_PTA0,
+    FTM_PINS_PTA1,
+    FTM_PINS_PTA2,
+    FTM_PINS_PTA3,
+    FTM_PINS_PTA4,
+    FTM_PINS_PTA5,
+    FTM_PINS_PTA12,
+    FTM_PINS_PTA13,
+
+    FTM_PINS_PTB0,
+    FTM_PINS_PTB1,
+    FTM_PINS_PTB18,
+    FTM_PINS_PTB19,
+
+    FTM_PINS_PTC1,
+    FTM_PINS_PTC2,
+    FTM_PINS_PTC3,
+    FTM_PINS_PTC4,
+    FTM_PINS_PTC5,
+    FTM_PINS_PTC8,
+    FTM_PINS_PTC9,
+    FTM_PINS_PTC10,
+    FTM_PINS_PTC11,
+
+    FTM_PINS_PTD0,
+    FTM_PINS_PTD1,
+    FTM_PINS_PTD2,
+    FTM_PINS_PTD3,
+    FTM_PINS_PTD4,
+    FTM_PINS_PTD5,
+    FTM_PINS_PTD6,
+    FTM_PINS_PTD7,
+
+    FTM_PINS_PTE5,
+    FTM_PINS_PTE6,
+    FTM_PINS_PTE24,
+    FTM_PINS_PTE25,
+
+    FTM_PINS_STOP,
+} Ftm_Pins;
+
+typedef enum
+{
+    FTM_FAULTPINS_PTA4,
+    FTM_FAULTPINS_PTA18,
+    FTM_FAULTPINS_PTA19,
+
+    FTM_FAULTPINS_PTB1,
+    FTM_FAULTPINS_PTB2,
+    FTM_FAULTPINS_PTB3,
+    FTM_FAULTPINS_PTB10,
+    FTM_FAULTPINS_PTB11,
+
+    FTM_FAULTPINS_PTC0,
+    FTM_FAULTPINS_PTC9,
+    FTM_FAULTPINS_PTC12,
+
+    FTM_FAULTPINS_PTD6,
+    FTM_FAULTPINS_PTD7,
+
+    FTM_FAULTPINS_PTE16,
+
+    FTM_FAULTPINS_STOP,
+} Ftm_FaultPins;
+
+
+#else
+
 typedef enum
 {
 	FTM_PINS_PTE5,
@@ -487,6 +567,7 @@ typedef enum
     FTM_FAULTPINS_STOP,
 } Ftm_FaultPins;
 
+#endif
 
 typedef enum
 {
@@ -625,8 +706,9 @@ typedef struct Ftm_Config
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
     defined (LIBOHIBOARD_K64F12)   || \
+    defined (LIBOHIBOARD_KV31F12)  || \
 	defined (LIBOHIBOARD_KV46F)    || \
-	defined  (LIBOHIBOARD_TRWKV46F)
+	defined (LIBOHIBOARD_TRWKV46F)
 
     /* Fault configurations */
     Ftm_FaultConfig fault[FTM_MAX_FAULT_CHANNEL];

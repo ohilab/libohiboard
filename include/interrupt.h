@@ -336,6 +336,7 @@ typedef enum {
     INTERRUPT_PORTD        = 62,
     INTERRUPT_PORTE        = 63,
     INTERRUPT_SWI          = 64,
+    INTERRUPT_FTM3         = 71,
     INTERRUPT_ADCB         = 73,
 
 #elif defined (LIBOHIBOARD_KV46F)     || \
