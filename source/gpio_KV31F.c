@@ -36,11 +36,11 @@
 #include "platforms.h"
 #include "interrupt.h"
 
-#define  PORTA_MAX_PIN  14
-#define  PORTB_MAX_PIN  15
+#define  PORTA_MAX_PIN  20
+#define  PORTB_MAX_PIN  24
 #define  PORTC_MAX_PIN  19
 #define  PORTD_MAX_PIN  8
-#define  PORTE_MAX_PIN  14
+#define  PORTE_MAX_PIN  27
 
 static void (*Gpio_isrPortARequestVector[PORTA_MAX_PIN]) (void);
 static void (*Gpio_isrPortBRequestVector[PORTB_MAX_PIN]) (void);
