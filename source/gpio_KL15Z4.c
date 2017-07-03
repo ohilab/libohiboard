@@ -37,7 +37,7 @@
 
 
 /* TODO: Verificare che siano giuste le define */
-#define  PORTA_MAX_PIN  15
+#define  PORTA_MAX_PIN  21
 #define  PORTD_MAX_PIN  8
 
 static void (*Gpio_isrPortARequestVector[PORTA_MAX_PIN]) (void);
