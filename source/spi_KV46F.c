@@ -92,17 +92,19 @@ static Spi_Device spi0 = {
                          SPI_PINS_PTD6_PCS,
                          SPI_PINS_PTE16
     },
-    .pcsPinsPtr       = {&PORTA_PCR14,
-                         &PORTC_PCR0,
-                         &PORTC_PCR1,
-                         &PORTC_PCR2,
-                         &PORTC_PCR3,
-                         &PORTC_PCR4,
-                         &PORTD_PCR0,
-                         &PORTD_PCR4,
-                         &PORTD_PCR4,
-                         &PORTD_PCR5,
-                         &PORTD_PCR6,
+    .pcsPinsPtr       = {&PORTA_PCR14,//PTA14
+                         &PORTB_PCR23,//PTB23
+                         &PORTC_PCR0, //PTC0
+                         &PORTC_PCR1, //PTC1
+                         &PORTC_PCR2, //PTC2
+                         &PORTC_PCR3, //PTC3
+                         &PORTC_PCR4, //PTC4
+                         &PORTD_PCR0, //PTD0
+                         &PORTD_PCR4, //PTD4
+                         &PORTD_PCR4, //PTD4
+                         &PORTD_PCR5, //PTD5
+                         &PORTD_PCR6, //PTD6
+                         &PORTE_PCR16,//PTE16
     },
     .pcsPinsMux       = {2,//PTA14
                          3,//PTB23
