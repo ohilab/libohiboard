@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -283,6 +283,60 @@ typedef enum {
 
     ADC_PINS_INTERNAL,
 
+#elif defined (LIBOHIBOARD_KV31F12)
+
+    ADC_PINS_PTE0,
+    ADC_PINS_PTE1,
+    ADC_PINS_PTE2,
+    ADC_PINS_PTE3,
+    ADC_PINS_PTE16,
+    ADC_PINS_PTE17,
+    ADC_PINS_PTE18,
+    ADC_PINS_PTE19,
+    ADC_PINS_PTE24,
+    ADC_PINS_PTE25,
+
+    ADC_PINS_ADC0_DP1,
+    ADC_PINS_ADC0_DM1,
+    ADC_PINS_ADC1_DP1,
+    ADC_PINS_ADC1_DM1,
+    ADC_PINS_ADC0_DP0,
+    ADC_PINS_ADC1_DP3,
+    ADC_PINS_ADC0_DM0,
+    ADC_PINS_ADC1_DM3,
+    ADC_PINS_ADC1_DP0,
+    ADC_PINS_ADC0_DP3,
+    ADC_PINS_ADC1_DM0,
+    ADC_PINS_ADC0_DM3,
+
+    ADC_PINS_ADC1_SE18,
+    ADC_PINS_ADC0_SE23,
+    ADC_PINS_ADC1_SE23,
+
+    ADC_PINS_PTA17,
+
+    ADC_PINS_PTB0,
+    ADC_PINS_PTB1,
+    ADC_PINS_PTB2,
+    ADC_PINS_PTB3,
+    ADC_PINS_PTB4,
+    ADC_PINS_PTB10,
+    ADC_PINS_PTB11,
+
+    ADC_PINS_PTC0,
+    ADC_PINS_PTC1,
+    ADC_PINS_PTC2,
+    ADC_PINS_PTC8,
+    ADC_PINS_PTC9,
+    ADC_PINS_PTC10,
+    ADC_PINS_PTC11,
+
+    ADC_PINS_PTD1,
+    ADC_PINS_PTD5,
+    ADC_PINS_PTD6,
+
+    ADC_PINS_INTERNAL,
+
 #elif defined (LIBOHIBOARD_KV46F) || \
       defined (LIBOHIBOARD_TRWKV46F)
 
@@ -353,7 +407,8 @@ typedef enum {
       defined (LIBOHIBOARD_K12D5)      || \
       defined (LIBOHIBOARD_K60DZ10)    || \
       defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
+      defined (LIBOHIBOARD_FRDMK64F)   || \
+      defined (LIBOHIBOARD_KV31F12)
 
     ADC_CHL_A = 0x00,
     ADC_CHL_B = 0x01,
@@ -376,6 +431,7 @@ typedef enum {
     ADC_CHL_F        = 0x5,
     ADC_CHL_G        = 0x6,
     ADC_CHL_RESERVED = 0x7,
+
 #endif
 } Adc_ChannelMux;
 
@@ -627,7 +683,8 @@ typedef enum {
 	defined (LIBOHIBOARD_K10D10)     || \
 	defined (LIBOHIBOARD_K60DZ10)    || \
     defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
+    defined (LIBOHIBOARD_FRDMK64F)   || \
+    defined (LIBOHIBOARD_KV31F12)
 
 	ADC_RESOLUTION_16BIT,
 
@@ -921,6 +978,36 @@ typedef enum {
 	ADC_CH_VREFL         = 0x1E,
 	ADC_CH_DISABLE       = 0x1F,
 
+#elif defined (LIBOHIBOARD_KV31F12)
+
+    ADC_CH_DP0          = 0x00,
+    ADC_CH_DP1          = 0x01,
+    ADC_CH_DP2          = 0X02,
+    ADC_CH_DP3          = 0x03,
+    ADC_CH_SE4a         = 0x04,
+    ADC_CH_SE5a         = 0x05,
+    ADC_CH_SE6a         = 0x06,
+    ADC_CH_SE7a         = 0x07,
+    ADC_CH_SE4b         = 0x24,
+    ADC_CH_SE5b         = 0x25,
+    ADC_CH_SE6b         = 0x26,
+    ADC_CH_SE7b         = 0x27,
+    ADC_CH_SE8          = 0x08,
+    ADC_CH_SE9          = 0x09,
+    ADC_CH_SE12         = 0x0C,
+    ADC_CH_SE13         = 0x0D,
+    ADC_CH_SE14         = 0x0E,
+    ADC_CH_SE15         = 0x0F,
+    ADC_CH_SE17         = 0x11,
+    ADC_CH_SE18         = 0x12,
+    ADC_CH_SE23         = 0x17,
+
+    ADC_CH_TEMP          = 0x1A,
+    ADC_CH_BANDGAP       = 0x1B,
+    ADC_CH_VREFH         = 0x1D,
+    ADC_CH_VREFL         = 0x1E,
+    ADC_CH_DISABLE       = 0x1F,
+
 #endif
 } Adc_ChannelNumber;
 
@@ -977,8 +1064,6 @@ System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
 
 System_Errors Adc_enableDmaTrigger (Adc_DeviceHandle dev);
 
-
-
 /**
  * See AN4662 for info in calibration process.
  */
@@ -1028,12 +1113,19 @@ void ADC1_IRQHandler();
 extern Adc_DeviceHandle OB_ADC0;
 extern Adc_DeviceHandle OB_ADC1;
 
+#elif defined (LIBOHIBOARD_KV31F12)
+
+void ADC0_IRQHandler();
+void ADC1_IRQHandler();
+
+extern Adc_DeviceHandle OB_ADC0;
+extern Adc_DeviceHandle OB_ADC1;
+
 #endif
 
 #endif /* standard ADC section */
 
 #endif /* __ADC_H */
 
-#endif // LIBOHIBOARD_ADC
-
+#endif /* LIBOHIBOARD_ADC */
 

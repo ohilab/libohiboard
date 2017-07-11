@@ -1,4 +1,5 @@
-/* Copyright (C) 2017 A. C. Open Hardware Ideas Lab
+/******************************************************************************
+ * Copyright (C) 2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  * Marco Giammarini <m.giammarini@warcomeb.it>
@@ -24,7 +25,7 @@
  ******************************************************************************/
 
 /**
- * @file libohiboard/source/gpio_KV31F.c
+ * @file libohiboard/source/gpio_KV31F12.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Matteo Civale <matteo.civale@gmail.com>
  * @brief GPIO implementations for KV31F.
