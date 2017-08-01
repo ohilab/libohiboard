@@ -678,6 +678,13 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
     }
 }
 
+System_Errors Adc_readValueFromInterrupt (Adc_DeviceHandle dev,
+										uint16_t *value)
+{
+	ADC_MemMapPtr regmap = dev->regMap;
+    *value = (uint16_t) ADC_R_REG(regmap,0);
+}
+
 System_Errors Adc_setHwChannelTrigger (Adc_DeviceHandle dev,
                                        Adc_ChannelConfig* config,
                                        uint8_t numChannel)
