@@ -141,6 +141,10 @@ typedef enum _System_Errors
 	ERRORS_LLWU_WRONG_EXTPIN,
 	ERRORS_LLWU_WRONG_WAKEUPMODULE,
 
+	ERRORS_FLASH_READ_COLLISION,
+    ERRORS_FLASH_ACCESS,
+    ERRORS_FLASH_PROTECTION_VIOLATION,
+
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);

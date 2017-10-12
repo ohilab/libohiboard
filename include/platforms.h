@@ -169,5 +169,10 @@
 #include "platforms/MKV46F16.h"
 #endif
 
+// Features files
+// To use this file the user must define the correct microcontroller
+#if defined(LIBOHIBOARD_K64F12) & defined(LIBOHIBOARD_FLASH)
+#include "platforms/MK64F12_features.h"
+#endif
 
 #endif /* __PLATFORMS_H */
