@@ -61,13 +61,57 @@ extern Flash_DeviceHandle OB_FLASH0;
 
 #endif
 
+/**
+ * This function initialize the flash informations for user data
+ *
+ * @param dev The device handle
+ * @param sectorNumbers The number of memory sector to save user data
+ * @retval ERRORS_NO_ERROR No problem during flash initialization
+ */
 System_Errors Flash_init (Flash_DeviceHandle dev, uint8_t sectorNumbers);
 
+/**
+ * This function read a 16bit value at the specified index. The index start
+ * from user location start address. In this case each index value represent
+ * a 16bit location.
+ *
+ * @param dev The device handle
+ * @param index The position of the data.
+ * @return the read value
+ */
 uint16_t Flash_readLocation (Flash_DeviceHandle dev, uint16_t index);
+
+/**
+ * This function read a 8bit value at the specified index. The index start
+ * from user location start address. In this case each index value represent
+ * a 8bit location.
+ *
+ * @param dev The device handle
+ * @param index The position of the data.
+ * @return the read value
+ */
 uint8_t Flash_readLocation8 (Flash_DeviceHandle dev, uint16_t index);
 
+/**
+ * This function erase the specified sector.
+ *
+ * @param dev The device handle
+ * @param sectorNumber The current sector number to erase
+ * @retval ERRORS_NO_ERROR No problem during erasing
+ * @retval ERRORS_FLASH_PROTECTION_VIOLATION The flash sector is protected
+ * @retval ERRORS_FLASH_ACCESS In case of invalid argument
+ */
 System_Errors Flash_EraseSector (Flash_DeviceHandle dev, uint8_t sectorNumber);
 
+/**
+ * This function write data into memory starting from start address of user dedicated
+ * location.
+ * The buffer must be 8-byte padded!
+ *
+ * @param dev The device handle
+ * @param buffer The data buffer to write into flash memory
+ * @param size The number of byte must be write
+ */
 System_Errors Flash_writeBuffer (Flash_DeviceHandle dev, uint8_t *buffer, uint32_t size);
 
 #endif /* __FLASH_H */

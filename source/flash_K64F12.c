@@ -123,14 +123,14 @@ static System_Errors Flash_writeLongWord (Flash_DeviceHandle dev, uint32_t addre
     dev->commandArray[1] = FLASH_GET_BIT_16_23(address);
     dev->commandArray[2] = FLASH_GET_BIT_8_15(address);
     dev->commandArray[3] = FLASH_GET_BIT_0_7(address);
-    dev->commandArray[4] = data;
-    dev->commandArray[5] = data + 1;
-    dev->commandArray[6] = data + 2;
-    dev->commandArray[7] = data + 3;
-    dev->commandArray[8] = data + 4;
-    dev->commandArray[9] = data + 5;
-    dev->commandArray[10] = data + 6;
-    dev->commandArray[11] = data + 7;
+    dev->commandArray[4] = FLASH_READ8((data + 3));
+    dev->commandArray[5] = FLASH_READ8((data + 2));
+    dev->commandArray[6] = FLASH_READ8((data + 1));
+    dev->commandArray[7] = FLASH_READ8((data + 0));
+    dev->commandArray[8] = FLASH_READ8((data + 7));
+    dev->commandArray[9] = FLASH_READ8((data + 6));
+    dev->commandArray[10] = FLASH_READ8((data + 5));
+    dev->commandArray[11] = FLASH_READ8((data + 4));
 
     return Flash_sequenceCommand(dev);
 }
