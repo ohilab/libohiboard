@@ -496,17 +496,17 @@ static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_
 
     if (prescaler > 64)
         return FTM_PRESCALER_128;
-    else if (prescaler > 32)
+    else if (prescaler >= 32)
         return FTM_PRESCALER_64;
-    else if (prescaler > 16)
+    else if (prescaler >= 16)
         return FTM_PRESCALER_32;
-    else if (prescaler > 8)
+    else if (prescaler >= 8)
         return FTM_PRESCALER_16;
-    else if (prescaler > 4)
+    else if (prescaler >= 4)
         return FTM_PRESCALER_8;
-    else if (prescaler > 2)
+    else if (prescaler >= 2)
         return FTM_PRESCALER_4;
-    else if (prescaler > 1)
+    else if (prescaler >= 1)
         return FTM_PRESCALER_2;
     else
         return FTM_PRESCALER_1;
