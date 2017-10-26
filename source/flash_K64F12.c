@@ -73,10 +73,13 @@ typedef struct Flash_Device
 
     uint8_t commandArray[12];
 
+    bool isInit;
+
 } Flash_Device;
 
 static Flash_Device flash0 = {
         .regMap           = FTFE_BASE_PTR,
+        .isInit           = FALSE,
 };
 Flash_DeviceHandle OB_FLASH0 = &flash0;
 
@@ -137,6 +140,8 @@ static System_Errors Flash_writeLongWord (Flash_DeviceHandle dev, uint32_t addre
 
 System_Errors Flash_init (Flash_DeviceHandle dev, uint8_t sectorNumbers)
 {
+    if (dev->isInit == TRUE) return ERRORS_FLASH_JUST_INIT;
+
     // Save memory address
     dev->startAddr = FSL_FEATURE_FLASH_PFLASH_START_ADDRESS;
     dev->flashSize = FSL_FEATURE_FLASH_PFLASH_BLOCK_SIZE * FSL_FEATURE_FLASH_PFLASH_BLOCK_COUNT;
