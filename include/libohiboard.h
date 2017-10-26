@@ -112,12 +112,14 @@
 #include "flash.h"
 #endif
 
+#ifdef LIBOHIBOARD_SDHC
+#include "sdhc.h"
+#endif
+
 #ifdef LIBOHIBOARD_FILTER
 #include "filter.h"
 #endif
 
 #include "timeday.h"
-
-void test();
 
 #endif /* __LIBOHIBOARD_H */
