@@ -1,4 +1,4 @@
-/* Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -99,7 +99,8 @@ typedef enum
     IIC_PINS_PTE1,
     IIC_PINS_PTE24,
 
-#elif defined (LIBOHIBOARD_K10D10)
+#elif defined (LIBOHIBOARD_K10D10) || \
+      defined (LIBOHIBOARD_K10D7)
 
     IIC_PINS_PTB0,
     IIC_PINS_PTB2,
@@ -189,7 +190,8 @@ typedef enum
     IIC_PINS_PTE0,
     IIC_PINS_PTE25,
 
-#elif defined (LIBOHIBOARD_K10D10)
+#elif defined (LIBOHIBOARD_K10D10) || \
+      defined (LIBOHIBOARD_K10D7)
 
     IIC_PINS_PTB1,
     IIC_PINS_PTB3,
@@ -255,9 +257,11 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config);
 
-#if defined (LIBOHIBOARD_KL25Z4) || \
+#if defined (LIBOHIBOARD_KL25Z4)    || \
     defined (LIBOHIBOARD_FRDMKL25Z) || \
-	defined (LIBOHIBOARD_KL15Z4)
+	defined (LIBOHIBOARD_KL15Z4)    || \
+	defined (LIBOHIBOARD_K10D7)     || \
+	defined (LIBOHIBOARD_K10D10)
 
 void Iic_start (Iic_DeviceHandle dev);
 void Iic_repeatedStart (Iic_DeviceHandle dev);
@@ -266,8 +270,8 @@ void Iic_sendNack (Iic_DeviceHandle dev);
 void Iic_sendAck (Iic_DeviceHandle dev);
 bool Iic_getAck (Iic_DeviceHandle dev);
 void Iic_setReceiveMode (Iic_DeviceHandle dev);
-System_Errors Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
-System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data);
+void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
+void Iic_readByte (Iic_DeviceHandle dev, uint8_t *data);
 System_Errors Iic_waitTransfer (Iic_DeviceHandle dev);
 
 void Iic_readRegister (Iic_DeviceHandle dev,
@@ -325,6 +329,12 @@ extern Iic_DeviceHandle OB_IIC1;
 
 #elif defined (LIBOHIBOARD_KL25Z4) || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
+
+extern Iic_DeviceHandle OB_IIC0;
+extern Iic_DeviceHandle OB_IIC1;
+
+#elif defined (LIBOHIBOARD_K10D7) || \
+      defined (LIBOHIBOARD_K10D10)
 
 extern Iic_DeviceHandle OB_IIC0;
 extern Iic_DeviceHandle OB_IIC1;

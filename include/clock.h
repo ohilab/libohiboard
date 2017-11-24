@@ -83,6 +83,7 @@ typedef enum
 #elif defined (LIBOHIBOARD_KL15Z4)     || \
       defined (LIBOHIBOARD_KL25Z4)     || \
       defined (LIBOHIBOARD_FRDMKL25Z)  || \
+      defined (LIBOHIBOARD_K10D7)      || \
       defined (LIBOHIBOARD_K10D10)     || \
 	  defined (LIBOHIBOARD_K12D5)      || \
 	  defined (LIBOHIBOARD_K60DZ10)    || \
@@ -134,6 +135,7 @@ uint32_t Clock_getFrequency (Clock_Source source);
 Clock_State Clock_getCurrentState(); 
 
 #if defined (LIBOHIBOARD_K10D10)       || \
+	defined (LIBOHIBOARD_K10D7)        || \
     defined (LIBOHIBOARD_K12D5)        || \
     defined (LIBOHIBOARD_K60DZ10)      || \
     defined (LIBOHIBOARD_K64F12)       || \

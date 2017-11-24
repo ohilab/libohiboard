@@ -388,7 +388,8 @@ typedef enum
     GPIO_PINS_PTE27,
     GPIO_PINS_PTE28,
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+	  defined (LIBOHIBOARD_K10D7)
 
     GPIO_PINS_PTA0,
     GPIO_PINS_PTA1,

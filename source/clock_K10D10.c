@@ -32,7 +32,8 @@
  */
 
 #if defined (LIBOHIBOARD_K10D10) || \
-    defined (LIBOHIBOARD_K12D5)
+    defined (LIBOHIBOARD_K12D5)  || \
+	defined (LIBOHIBOARD_K10D7)
 
 #include "platforms.h"
 #include "clock.h"
@@ -115,6 +116,50 @@
 #define CLOCK_CENTER_FREQ_RANGE3_FLL_OUT      96000000
 //#define CLOCK_MIN_FREQ_PLL_OUT                48000000 /* ?? What is the limit ? */
 #define CLOCK_MAX_FREQ_PLL_OUT                50000000
+#define CLOCK_MIN_FREQ_PLL_IN                 2000000
+#define CLOCK_MAX_FREQ_PLL_IN                 4000000
+#define CLOCK_INTERNAL_FREQ_SLOW_OUT          32000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_1        4000000 /* Selected by [FCRDIV] */
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_2        2000000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_3        1000000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_4        500000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_5        250000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_6        125000
+#define CLOCK_INTERNAL_FREQ_FAST_OUT_7        31250
+#define CLOCK_EXTERNAL_32KHZ_REFERENCE        32768
+
+#elif defined (LIBOHIBOARD_K10D7)
+
+#define CLOCK_INIT_DIFF                       100000000
+#define CLOCK_MAX_FREQ_MCG                    72000000
+#define CLOCK_MAX_FREQ_SYS                    72000000
+#define CLOCK_MAX_FREQ_EXT                    50000000
+#define CLOCK_MAX_FREQ_BUS                    50000000
+#define CLOCK_MAX_FREQ_FLEXBUS                50000000
+#define CLOCK_MAX_FREQ_FLASH                  25000000
+#define CLOCK_FREQ_INTERNAL_SLOW              32000
+#define CLOCK_FREQ_INTERNAL_FAST              4000000
+#define CLOCK_MIN_FREQ_RANGE0_OSC_IN          30000
+#define CLOCK_MAX_FREQ_RANGE0_OSC_IN          40000
+#define CLOCK_MIN_FREQ_RANGE1_OSC_IN          3000000
+#define CLOCK_MAX_FREQ_RANGE1_OSC_IN          8000000
+#define CLOCK_MIN_FREQ_RANGE2_OSC_IN          8000000
+#define CLOCK_MAX_FREQ_RANGE2_OSC_IN          32000000
+#define CLOCK_MIN_FREQ_FLL_IN                 31250
+#define CLOCK_MAX_FREQ_FLL_IN                 39062.5
+#define CLOCK_MIN_FREQ_RANGE0_FLL_OUT         20000000
+#define CLOCK_MAX_FREQ_RANGE0_FLL_OUT         25000000
+#define CLOCK_CENTER_FREQ_RANGE0_FLL_OUT      24000000
+#define CLOCK_MIN_FREQ_RANGE1_FLL_OUT         40000000
+#define CLOCK_MAX_FREQ_RANGE1_FLL_OUT         50000000
+#define CLOCK_CENTER_FREQ_RANGE1_FLL_OUT      48000000
+#define CLOCK_MIN_FREQ_RANGE2_FLL_OUT         60000000
+#define CLOCK_MAX_FREQ_RANGE2_FLL_OUT         75000000
+#define CLOCK_CENTER_FREQ_RANGE2_FLL_OUT      72000000
+#define CLOCK_MIN_FREQ_RANGE3_FLL_OUT         80000000
+#define CLOCK_MAX_FREQ_RANGE3_FLL_OUT         100000000
+#define CLOCK_CENTER_FREQ_RANGE3_FLL_OUT      96000000
+#define CLOCK_MAX_FREQ_PLL_OUT                72000000
 #define CLOCK_MIN_FREQ_PLL_IN                 2000000
 #define CLOCK_MAX_FREQ_PLL_IN                 4000000
 #define CLOCK_INTERNAL_FREQ_SLOW_OUT          32000
@@ -871,7 +916,7 @@ static uint32_t Clock_fbe2fbi (uint8_t ircs, uint8_t fcrdiv)
         
     //Now in CLOCK_FBI
     
-    MCG_C1 |= MCG_C1_IRCLKEN_MASK;
+    MCG_C1_REG(regmap) |= MCG_C1_IRCLKEN_MASK;
     
     
     if(ircs == 1)
@@ -1773,7 +1818,8 @@ uint32_t Clock_getFrequency (Clock_Source source)
 
 	cpuDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV1_MASK) >> SIM_CLKDIV1_OUTDIV1_SHIFT);
 	busDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV2_MASK) >> SIM_CLKDIV1_OUTDIV2_SHIFT);
-#if defined (LIBOHIBOARD_K10D10)
+#if defined (LIBOHIBOARD_K10D10) || \
+	defined (LIBOHIBOARD_K10D7)
 	flexbusDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV3_MASK) >> SIM_CLKDIV1_OUTDIV3_SHIFT);
 #endif
 	flashDiv = ((SIM_CLKDIV1_REG(SIM_BASE_PTR) & SIM_CLKDIV1_OUTDIV4_MASK) >> SIM_CLKDIV1_OUTDIV4_SHIFT);
@@ -1820,9 +1866,10 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 		return ERRORS_MCG_NOT_INIT;
 	}
 #if defined (LIBOHIBOARD_K10D12) || \
-    defined (LIBOHIBOARD_K10D10)
+    defined (LIBOHIBOARD_K10D10) || \
+	defined (LIBOHIBOARD_K10D7)
 
-	else if((busDivider % coreDivider != 0) || (flexbusDivider < busDivider) || (flashDivider % busDivider !=0))
+	else if ((busDivider % coreDivider != 0) || (flexbusDivider < busDivider) || (flashDivider % busDivider !=0))
 
 #elif defined (LIBOHIBOARD_K12D5)
 
@@ -1833,16 +1880,17 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 		return ERRORS_MCG_ERRATA_DIVIDER;
 	}
 #if defined (LIBOHIBOARD_K10D12) || \
-    defined (LIBOHIBOARD_K10D10)
+    defined (LIBOHIBOARD_K10D10) || \
+	defined (LIBOHIBOARD_K10D7)
 
-	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) ||
-	        (mcgFreq / flexbusDivider > CLOCK_MAX_FREQ_FLEXBUS) ||
-	        (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
+	else if ((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS)         ||
+	         (mcgFreq / flexbusDivider > CLOCK_MAX_FREQ_FLEXBUS) ||
+	         (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
 
 #elif defined (LIBOHIBOARD_K12D5)
 
-	else if((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS) ||
-	        (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
+	else if ((mcgFreq / busDivider > CLOCK_MAX_FREQ_BUS)      ||
+	         (mcgFreq / flashDivider > CLOCK_MAX_FREQ_FLASH))
 #endif
 
 	{
@@ -1851,7 +1899,8 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
 	else
 	{
 	    tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
-#if defined (LIBOHIBOARD_K10D10)
+#if defined (LIBOHIBOARD_K10D10) || \
+	defined (LIBOHIBOARD_K10D7)
 	    tempReg &= ~(SIM_CLKDIV1_OUTDIV2_MASK | SIM_CLKDIV1_OUTDIV3_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
 	    tempReg |= (SIM_CLKDIV1_OUTDIV2(busDivider-1)     |
 	                SIM_CLKDIV1_OUTDIV3(flexbusDivider-1) |
@@ -2331,7 +2380,8 @@ System_Errors Clock_Init (Clock_Config *config)
     }
     /* select system_clock divider and bus_clock divider */
     tempReg = SIM_CLKDIV1_REG(SIM_BASE_PTR);
-#if defined (LIBOHIBOARD_K10D10)
+#if defined (LIBOHIBOARD_K10D10) || \
+	defined (LIBOHIBOARD_K10D7)
     tempReg &= ~(SIM_CLKDIV1_OUTDIV1_MASK | SIM_CLKDIV1_OUTDIV2_MASK |
                  SIM_CLKDIV1_OUTDIV3_MASK | SIM_CLKDIV1_OUTDIV4_MASK);
     tempReg |= (SIM_CLKDIV1_OUTDIV1(outdiv1-1) |
