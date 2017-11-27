@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2015-2017 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *   Alessio Paolucci <a.paolucci89@gmail.com>
@@ -28,7 +28,7 @@
  * @file libohiboard/source/clock_K10D10.c
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @Clock implementations for K10D10.
+ * @Clock implementations for K10D10, K12D5 and K10D7.
  */
 
 #if defined (LIBOHIBOARD_K10D10) || \
@@ -247,7 +247,7 @@ static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK); //esce quando seleziona il riferimento esterno
@@ -642,7 +642,7 @@ static uint32_t Clock_fbi2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK); //esce quando seleziona il riferimento esterno
@@ -729,7 +729,7 @@ static uint32_t Clock_fee2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     while(((MCG_S_REG(regmap) & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)));
     
@@ -784,7 +784,7 @@ static uint32_t Clock_fbe2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_CLKST_MASK) != MCG_S_CLKST(0)); 
@@ -1249,7 +1249,7 @@ static uint32_t Clock_blpe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK); //esce quando seleziona il riferimento esterno
@@ -1948,7 +1948,7 @@ System_Errors Clock_Init (Clock_Config *config)
 	uint8_t flexbusDivider = config->flexbusDivider;
 	uint8_t flashDivider = config->flashDivider;
 
-    uint32_t fdiff = CLOCK_INIT_DIFF; //impongo all'inizio un valore di fdiff più alto del massimo possibile (in questo caso 200MHz)
+    uint32_t fdiff = CLOCK_INIT_DIFF; //impongo all'inizio un valore di fdiff piï¿½ alto del massimo possibile (in questo caso 200MHz)
     uint32_t foutMcg = 0;
     Clock_State stateOutTmp; //stato in cui deve andare il sistema, utilizzata nelle operazioni di confronto
     System_Errors error;

@@ -1,4 +1,5 @@
-/* Copyright (C) 2013-2016 A. C. Open Hardware Ideas Lab
+/*******************************************************************************
+ * Copyright (C) 2013-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -29,7 +30,7 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
  * @author Nicola Orlandini <n.orlandini90@gmail.com>
- * @brief SPI implementations for K12D5.
+ * @brief SPI implementations for K12D5 and K10D7.
  */
 
 #ifdef LIBOHIBOARD_SPI
@@ -39,14 +40,16 @@
 #include "spi.h"
 #include "clock.h"
 
-#if defined (LIBOHIBOARD_K12D5)
+#if defined (LIBOHIBOARD_K12D5) || \
+	defined (LIBOHIBOARD_K10D7)
 
 #define SPI_MAX_PINS           11
 
 #define SPI_PIN_ENABLED        1
 #define SPI_PIN_DISABLED       0
 
-typedef struct Spi_Device {
+typedef struct Spi_Device
+{
     SPI_MemMapPtr         regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */

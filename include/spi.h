@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -58,6 +58,7 @@ typedef enum {
 } Spi_BufferType;
 
 #if defined (LIBOHIBOARD_K10D10)      || \
+    defined (LIBOHIBOARD_K10D7)       || \
     defined (LIBOHIBOARD_K12D5)       || \
     defined (LIBOHIBOARD_K60DZ10)     || \
     defined (LIBOHIBOARD_OHIBOARD_R1) || \
@@ -159,7 +160,8 @@ typedef enum
     SPI_PINS_PTE6,
     SPI_PINS_PTE16,
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+      defined (LIBOHIBOARD_K10D7)
 
     SPI_PINS_PTA14,
 
@@ -349,7 +351,8 @@ typedef enum
     SPI_PINS_PTE1O,
     SPI_PINS_PTE3O,
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+      defined (LIBOHIBOARD_K10D7)
 
     SPI_PINS_PTA16,
 
@@ -485,7 +488,8 @@ typedef enum
     SPI_PINS_PTE3I,
     SPI_PINS_PTE19,
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+	  defined (LIBOHIBOARD_K10D7)
 
     SPI_PINS_PTA17,
 
@@ -607,7 +611,8 @@ typedef enum
     SPI_PINS_PTE2,
     SPI_PINS_PTE17,
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+	  defined (LIBOHIBOARD_K10D7)
 
     SPI_PINS_PTA15,
 
@@ -694,6 +699,7 @@ typedef struct _Spi_Config
     uint32_t              baudrate;
 #if defined (LIBOHIBOARD_K10D10)      || \
     defined (LIBOHIBOARD_K12D5)       || \
+    defined (LIBOHIBOARD_K10D7)       || \
     defined (LIBOHIBOARD_K60DZ10)     || \
     defined (LIBOHIBOARD_OHIBOARD_R1) || \
     defined (LIBOHIBOARD_K64F12)      || \
@@ -802,7 +808,8 @@ extern Spi_DeviceHandle OB_SPI0;
 extern Spi_DeviceHandle OB_SPI1;
 extern Spi_DeviceHandle OB_SPI2;
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+      defined (LIBOHIBOARD_K10D7)
 
 extern Spi_DeviceHandle OB_SPI0;
 extern Spi_DeviceHandle OB_SPI1;

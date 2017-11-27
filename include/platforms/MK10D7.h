@@ -6752,7 +6752,42 @@ typedef struct {
   __I  uint32_t RXFR1;                             /**< DSPI Receive FIFO Registers, offset: 0x80 */
   __I  uint32_t RXFR2;                             /**< DSPI Receive FIFO Registers, offset: 0x84 */
   __I  uint32_t RXFR3;                             /**< DSPI Receive FIFO Registers, offset: 0x88 */
-} SPI_Type;
+} SPI_Type, *SPI_MemMapPtr;
+
+/* ----------------------------------------------------------------------------
+   -- SPI - Register accessor macros
+   ---------------------------------------------------------------------------- */
+
+/*!
+ * @addtogroup SPI_Register_Accessor_Macros SPI - Register accessor macros
+ * @{
+ */
+
+
+/* SPI - Register accessors */
+#define SPI_MCR_REG(base)                        ((base)->MCR)
+#define SPI_TCR_REG(base)                        ((base)->TCR)
+#define SPI_CTAR_REG(base,index2)                ((base)->CTAR[index2])
+#define SPI_CTAR_COUNT                           2
+#define SPI_CTAR_SLAVE_REG(base,index2)          ((base)->CTAR_SLAVE[index2])
+#define SPI_CTAR_SLAVE_COUNT                     1
+#define SPI_SR_REG(base)                         ((base)->SR)
+#define SPI_RSER_REG(base)                       ((base)->RSER)
+#define SPI_PUSHR_REG(base)                      ((base)->PUSHR)
+#define SPI_PUSHR_SLAVE_REG(base)                ((base)->PUSHR_SLAVE)
+#define SPI_POPR_REG(base)                       ((base)->POPR)
+#define SPI_TXFR0_REG(base)                      ((base)->TXFR0)
+#define SPI_TXFR1_REG(base)                      ((base)->TXFR1)
+#define SPI_TXFR2_REG(base)                      ((base)->TXFR2)
+#define SPI_TXFR3_REG(base)                      ((base)->TXFR3)
+#define SPI_RXFR0_REG(base)                      ((base)->RXFR0)
+#define SPI_RXFR1_REG(base)                      ((base)->RXFR1)
+#define SPI_RXFR2_REG(base)                      ((base)->RXFR2)
+#define SPI_RXFR3_REG(base)                      ((base)->RXFR3)
+
+/*!
+ * @}
+ */ /* end of group SPI_Register_Accessor_Macros */
 
 /* ----------------------------------------------------------------------------
    -- SPI Register Masks
@@ -6970,12 +7005,16 @@ typedef struct {
 #define SPI0_BASE                                (0x4002C000u)
 /** Peripheral SPI0 base pointer */
 #define SPI0                                     ((SPI_Type *)SPI0_BASE)
+#define SPI0_BASE_PTR                            (SPI0)
 /** Peripheral SPI1 base address */
 #define SPI1_BASE                                (0x4002D000u)
 /** Peripheral SPI1 base pointer */
 #define SPI1                                     ((SPI_Type *)SPI1_BASE)
+#define SPI1_BASE_PTR                            (SPI1)
+/** Array initializer of SPI peripheral base addresses */
+#define SPI_BASE_ADDRS                           { SPI0_BASE, SPI1_BASE }
 /** Array initializer of SPI peripheral base pointers */
-#define SPI_BASES                                { SPI0, SPI1 }
+#define SPI_BASE_PTRS                            { SPI0, SPI1 }
 
 /*!
  * @}
