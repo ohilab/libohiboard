@@ -64,6 +64,7 @@ System_Errors ddigit (uint8_t digit, uint8_t* result);
 
 System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength);
 System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength);
+System_Errors dtu32 (const uint8_t* dString, uint32_t* result, uint8_t slength);
 
 uint8_t u16td (uint8_t *dString, uint16_t number);
 uint8_t i16td (uint8_t *dString, int16_t number);

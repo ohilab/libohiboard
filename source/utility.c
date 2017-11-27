@@ -647,3 +647,36 @@ uint8_t u32td (uint8_t *dString, uint32_t number)
     *dString = '\0';
     return charCount;
 }
+
+/**
+ * @brief Decimal string to uint32_t conversion.
+ *
+ */
+System_Errors dtu32 (const uint8_t* dString, uint32_t* result, uint8_t slength)
+{
+    uint8_t i, singleByte;
+
+    if (slength > 0)
+    {
+        if (slength > 10) return ERRORS_UTILITY_LONG_STRING;
+
+        /* Start conversion... */
+        *result = 0;
+        for (i = 0; i < slength; ++i)
+        {
+            if (ddigit(*dString,&singleByte) == ERRORS_UTILITY_CONVERSION_OK)
+            {
+                *result = 10 * (*result) + singleByte;
+            }
+            else
+            {
+                return ERRORS_UTILITY_ILLEGAL_CHAR;
+            }
+            dString++;
+        }
+        return ERRORS_UTILITY_CONVERSION_OK;
+    }
+
+    return ERRORS_UTILITY_EMPTY_STRING;
+}
+

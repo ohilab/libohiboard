@@ -36,8 +36,8 @@
 #include "clock.h"
 
 #if defined (LIBOHIBOARD_KL15Z4)     || \
-      defined (LIBOHIBOARD_KL25Z4)   || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
+    defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 
 typedef struct Rtc_Device {
     RTC_MemMapPtr regMap;
