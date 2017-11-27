@@ -1,4 +1,5 @@
-/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/*******************************************************************************
+ * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -25,12 +26,13 @@
 /**
  * @file libohiboard/source/pit_K12D5.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief PIT implementations for K12D5.
+ * @brief PIT implementations for K12D5 and K10D7.
  */
 
 #ifdef LIBOHIBOARD_PIT
 
-#if defined (LIBOHIBOARD_K12D5)
+#if defined (LIBOHIBOARD_K12D5) || \
+    defined (LIBOHIBOARD_K10D7)
 
 #include "platforms.h"
 

@@ -5421,7 +5421,32 @@ typedef struct {
     __IO uint32_t TCTRL;                             /**< Timer Control Register, array offset: 0x108, array step: 0x10 */
     __IO uint32_t TFLG;                              /**< Timer Flag Register, array offset: 0x10C, array step: 0x10 */
   } CHANNEL[4];
-} PIT_Type;
+} PIT_Type, *PIT_MemMapPtr;
+
+/* ----------------------------------------------------------------------------
+   -- PIT - Register accessor macros
+   ---------------------------------------------------------------------------- */
+
+/*!
+ * @addtogroup PIT_Register_Accessor_Macros PIT - Register accessor macros
+ * @{
+ */
+
+
+/* PIT - Register accessors */
+#define PIT_MCR_REG(base)                        ((base)->MCR)
+#define PIT_LDVAL_REG(base,index)                ((base)->CHANNEL[index].LDVAL)
+#define PIT_LDVAL_COUNT                          4
+#define PIT_CVAL_REG(base,index)                 ((base)->CHANNEL[index].CVAL)
+#define PIT_CVAL_COUNT                           4
+#define PIT_TCTRL_REG(base,index)                ((base)->CHANNEL[index].TCTRL)
+#define PIT_TCTRL_COUNT                          4
+#define PIT_TFLG_REG(base,index)                 ((base)->CHANNEL[index].TFLG)
+#define PIT_TFLG_COUNT                           4
+
+/*!
+ * @}
+ */ /* end of group PIT_Register_Accessor_Macros */
 
 /* ----------------------------------------------------------------------------
    -- PIT Register Masks
@@ -5464,8 +5489,11 @@ typedef struct {
 #define PIT_BASE                                 (0x40037000u)
 /** Peripheral PIT base pointer */
 #define PIT                                      ((PIT_Type *)PIT_BASE)
+#define PIT_BASE_PTR                             (PIT)
+/** Array initializer of PIT peripheral base addresses */
+#define PIT_BASE_ADDRS                           { PIT_BASE }
 /** Array initializer of PIT peripheral base pointers */
-#define PIT_BASES                                { PIT }
+#define PIT_BASE_PTRS                            { PIT }
 
 /*!
  * @}

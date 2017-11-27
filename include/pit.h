@@ -68,7 +68,9 @@ void PIT3_IRQHandler (void);
 
 extern Pit_DeviceHandle OB_PIT0;
 
-#elif defined (LIBOHIBOARD_K12D5)
+#elif defined (LIBOHIBOARD_K12D5) || \
+      defined (LIBOHIBOARD_K10D7)
+
 
 void PIT0_IRQHandler (void);
 void PIT1_IRQHandler (void);
