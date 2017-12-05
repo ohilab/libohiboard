@@ -31,7 +31,8 @@
 #ifdef LIBOHIBOARD_IIC
 
 #if defined (LIBOHIBOARD_K10D10) || \
-    defined (LIBOHIBOARD_K10D7)
+    defined (LIBOHIBOARD_K10D7)  || \
+    defined (LIBOHIBOARD_K12D5)
 
 #include "platforms.h"
 #include "utility.h"
@@ -197,6 +198,9 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
  * @brief Setting icr parameter of I2C_F register for generate the desired baudrate
  *
  * Thank for this function at https://github.com/laswick/kinetis/blob/master/phase2_embedded_c/i2c.c
+ * WARNING: On K1x/K2x there is the same  silicon error on clock distribution of KL25. For more informations see:
+ * https://mcuoneclipse.com/2012/12/05/kl25z-and-i2c-missing-repeated-start-condition/
+ * https://community.nxp.com/thread/327423
  */
 static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 {
@@ -217,16 +221,16 @@ static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
     for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++)
     {
         i2cClk = busClk / Iic_sclDivTab[icr];
-        if (i2cClk > speed)
-        {
-            i2cClk /= 2;
-            if (i2cClk > speed)
-            {
-                i2cClk /= 2;
-                if (i2cClk > speed)
-                    continue;
-            }
-        }
+//        if (i2cClk > speed)
+//        {
+//            i2cClk /= 2;
+//            if (i2cClk > speed)
+//            {
+//                i2cClk /= 2;
+//                if (i2cClk > speed)
+//                    continue;
+//            }
+//        }
         error = speed - i2cClk;
         if (error < bestError)
         {
@@ -242,30 +246,25 @@ static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 
     icr = bestIcr;
     i2cClk = busClk / Iic_sclDivTab[bestIcr];
-    if (i2cClk > speed)
-    {
-        i2cClk /= 2;
-        if (i2cClk > speed)
-        {
-            mul = 2;
-        }
-        else
-        {
-            mul = 1;
-        }
-    }
-    else
-    {
-        mul = 0;
-    }
+//    if (i2cClk > speed)
+//    {
+//        i2cClk /= 2;
+//        if (i2cClk > speed)
+//        {
+//            mul = 2;
+//        }
+//        else
+//        {
+//            mul = 1;
+//        }
+//    }
+//    else
+//    {
+//        mul = 0;
+//    }
 
-    tempReg = I2C_F_REG(regmap);
-    tempReg &= ~(I2C_F_MULT_MASK | I2C_F_ICR_MASK);
-    tempReg |= (I2C_F_MULT(mul) | I2C_F_ICR(icr));
-    I2C_F_REG(regmap) = tempReg;
-
-    slt = Iic_sclDivTab[icr] / 2 + 1;
-
+//  I2C_F_REG(regmap) = I2C_F_MULT(mul) | I2C_F_ICR(icr);
+    I2C_F_REG(regmap) = I2C_F_MULT(0) | I2C_F_ICR(icr);
     return ERRORS_NO_ERROR;
 }
 
