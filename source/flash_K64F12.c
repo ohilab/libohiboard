@@ -197,6 +197,7 @@ System_Errors Flash_writeBuffer (Flash_DeviceHandle dev, uint8_t *buffer, uint32
         addr += dev->blockSize;
         size -= dev->blockSize;
         buffer += dev->blockSize;
+
     }
 }
 
