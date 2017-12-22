@@ -45,6 +45,7 @@
 #define SHIFT_RIGHT(X,n)            X>>n
 
 #define IS_DIGIT(c)                 ((c <= '9') && (c >= '0'))
+#define IS_XDIGIT(c)                (((c <= '9') && (c >= '0')) || ((c <= 'A') && (c >= 'F')) || ((c <= 'a') && (c >= 'f')))
 #define IS_LOWERLETTER(c)           ((c <= 'z') && (c >= 'a'))
 #define IS_UPPERLETTER(c)           ((c <= 'Z') && (c >= 'A'))
 
@@ -80,5 +81,21 @@ void ftu (float number, uint8_t precision, uint16_t* integerPart, uint16_t* deci
 uint8_t stringCompare (const char* string1, const char* string2);
 uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t size);
 int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
+
+/*******************************************************************************
+ * String validation functions
+ *******************************************************************************/
+
+/**
+ *
+ * @return TRUE if the string is valid, FALSE otherwise.
+ */
+bool Utility_isValidIp4Address (char* str);
+
+/**
+ *
+ * @return TRUE if the string is valid, FALSE otherwise.
+ */
+bool Utility_isValidMacAddress (char* str);
 
 #endif /* __UTILITY_H */
