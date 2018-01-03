@@ -106,7 +106,6 @@ System_Errors Flash_EraseSector (Flash_DeviceHandle dev, uint8_t sectorNumber);
 /**
  * This function write data into memory starting from start address of user dedicated
  * location.
- * The buffer must be 8-byte padded!
  *
  * @param dev The device handle
  * @param buffer The data buffer to write into flash memory

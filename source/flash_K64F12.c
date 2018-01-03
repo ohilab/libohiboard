@@ -57,7 +57,6 @@
 #define FTFx_PROGRAM_PARTITION          0x80U
 #define FTFx_SET_EERAM                  0x81U
 
-
 typedef struct Flash_Device
 {
     FTFE_MemMapPtr regMap;                          /**< Device memory pointer */
@@ -116,32 +115,14 @@ static System_Errors Flash_sequenceCommand (Flash_DeviceHandle dev)
         return ERRORS_FLASH_ACCESS;
     else if (FTFE_FSTAT_REG(dev->regMap) & FTFE_FSTAT_FPVIOL_MASK)
         return ERRORS_FLASH_PROTECTION_VIOLATION;
+    else if (FTFE_FSTAT_REG(dev->regMap) & FTFE_FSTAT_MGSTAT0_MASK)
+        return ERRORS_FLASH_COMPLETION_STATUS;
     else
         return ERRORS_NO_ERROR;
 }
 
-static System_Errors Flash_writeLongWord (Flash_DeviceHandle dev, uint32_t address, uint8_t* data)
-{
-    dev->commandArray[0] = FTFx_PROGRAM_PHRASE;
-    dev->commandArray[1] = FLASH_GET_BIT_16_23(address);
-    dev->commandArray[2] = FLASH_GET_BIT_8_15(address);
-    dev->commandArray[3] = FLASH_GET_BIT_0_7(address);
-    dev->commandArray[4] = FLASH_READ8((data + 3));
-    dev->commandArray[5] = FLASH_READ8((data + 2));
-    dev->commandArray[6] = FLASH_READ8((data + 1));
-    dev->commandArray[7] = FLASH_READ8((data + 0));
-    dev->commandArray[8] = FLASH_READ8((data + 7));
-    dev->commandArray[9] = FLASH_READ8((data + 6));
-    dev->commandArray[10] = FLASH_READ8((data + 5));
-    dev->commandArray[11] = FLASH_READ8((data + 4));
-
-    return Flash_sequenceCommand(dev);
-}
-
 System_Errors Flash_init (Flash_DeviceHandle dev, uint8_t sectorNumbers)
 {
-    if (dev->isInit == TRUE) return ERRORS_FLASH_JUST_INIT;
-
     // Save memory address
     dev->startAddr = FSL_FEATURE_FLASH_PFLASH_START_ADDRESS;
     dev->flashSize = FSL_FEATURE_FLASH_PFLASH_BLOCK_SIZE * FSL_FEATURE_FLASH_PFLASH_BLOCK_COUNT;
@@ -172,6 +153,7 @@ uint8_t Flash_readLocation8 (Flash_DeviceHandle dev, uint16_t index)
 System_Errors Flash_EraseSector (Flash_DeviceHandle dev, uint8_t sectorNumber)
 {
     uint32_t sectorAddr = dev->userStartAddr + (dev->sectorSize * sectorNumber);
+    System_Errors error = ERRORS_NO_ERROR;
 
     // Erase Flash Sector Command - Erase all bytes in a program flash sector
     dev->commandArray[0] = FTFx_ERASE_SECTOR;
@@ -179,25 +161,59 @@ System_Errors Flash_EraseSector (Flash_DeviceHandle dev, uint8_t sectorNumber)
     dev->commandArray[2] = FLASH_GET_BIT_8_15(sectorAddr);
     dev->commandArray[3] = FLASH_GET_BIT_0_7(sectorAddr);
 
-    return Flash_sequenceCommand(dev);
+    error = Flash_sequenceCommand(dev);
+
+    // check CCIF bit of the flash status register
+    // wait until CCIF bit is set
+    while(0 == (FTFE_FSTAT_REG(dev->regMap) && FTFE_FSTAT_CCIF_MASK));
+
+    return error;
 }
 
 System_Errors Flash_writeBuffer (Flash_DeviceHandle dev, uint8_t *buffer, uint32_t size)
 {
     System_Errors error = ERRORS_NO_ERROR;
     uint32_t addr = dev->userStartAddr;
+    uint8_t sendBuffer[FSL_FEATURE_FLASH_PFLASH_BLOCK_WRITE_UNIT_SIZE];
+    uint8_t tempSize = 0;
 
     while (size > 0x00U)
     {
-        error = Flash_writeLongWord(dev,addr,buffer);
+        dev->commandArray[0] = FTFx_PROGRAM_PHRASE;
+        dev->commandArray[1] = FLASH_GET_BIT_16_23(addr);
+        dev->commandArray[2] = FLASH_GET_BIT_8_15(addr);
+        dev->commandArray[3] = FLASH_GET_BIT_0_7(addr);
+
+        if (size < dev->blockSize) tempSize = size;
+        else tempSize = dev->blockSize;
+
+        for (uint8_t i = 0; i < tempSize; i++)
+            sendBuffer[i] = *(buffer + i);
+
+        for (uint8_t i = tempSize; i < dev->blockSize; i++)
+            sendBuffer[i] = 0;
+
+        dev->commandArray[4] = FLASH_READ8((sendBuffer + 3));
+        dev->commandArray[5] = FLASH_READ8((sendBuffer + 2));
+        dev->commandArray[6] = FLASH_READ8((sendBuffer + 1));
+        dev->commandArray[7] = FLASH_READ8((sendBuffer + 0));
+        dev->commandArray[8] = FLASH_READ8((sendBuffer + 7));
+        dev->commandArray[9] = FLASH_READ8((sendBuffer + 6));
+        dev->commandArray[10] = FLASH_READ8((sendBuffer + 5));
+        dev->commandArray[11] = FLASH_READ8((sendBuffer + 4));
+
+        error = Flash_sequenceCommand(dev);
 
         if (error != ERRORS_NO_ERROR)
             return error;
 
-        addr += dev->blockSize;
-        size -= dev->blockSize;
-        buffer += dev->blockSize;
+        // check CCIF bit of the flash status register
+        // wait until CCIF bit is set
+        while(0 == (FTFE_FSTAT_REG(dev->regMap) && FTFE_FSTAT_CCIF_MASK));
 
+        addr += tempSize;
+        size -= tempSize;
+        buffer += tempSize;
     }
 }
 
