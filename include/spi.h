@@ -758,6 +758,7 @@ typedef struct Spi_Device* Spi_DeviceHandle;
 
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config);
 System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed);
+bool Spi_isInit(Spi_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_KV46F)  ||\
     defined (LIBOHIBOARD_TRWKV46F)

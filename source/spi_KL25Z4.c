@@ -466,6 +466,11 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     return ERRORS_NO_ERROR;
 }
 
+bool Spi_isInit(Spi_DeviceHandle dev)
+{
+    return dev->devInitialized;
+}
+
 #endif /* LIBOHIBOARD_KL25Z4 || LIBOHIBOARD_FRDMKL25Z */
 
 #endif /* LIBOHIBOARD_SPI */
