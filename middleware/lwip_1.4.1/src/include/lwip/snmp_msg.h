@@ -32,6 +32,8 @@
  * Author: Christiaan Simons <christiaan.simons@axon.tv>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_SNMP_MSG_H__
 #define __LWIP_SNMP_MSG_H__
 
@@ -313,3 +315,5 @@ void snmp_authfail_trap(void);
 #endif /* LWIP_SNMP */
 
 #endif /* __LWIP_SNMP_MSG_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

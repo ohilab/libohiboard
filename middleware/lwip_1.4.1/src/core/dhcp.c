@@ -66,6 +66,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_DHCP /* don't build if not configured for use in lwipopts.h */
@@ -1768,3 +1770,5 @@ dhcp_option_trailer(struct dhcp *dhcp)
 }
 
 #endif /* LWIP_DHCP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

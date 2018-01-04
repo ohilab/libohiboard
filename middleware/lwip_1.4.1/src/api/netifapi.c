@@ -31,6 +31,8 @@
  * 
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_NETIF_API /* don't build if not configured for use in lwipopts.h */
@@ -158,3 +160,5 @@ netifapi_netif_common(struct netif *netif, netifapi_void_fn voidfunc,
 }
 
 #endif /* LWIP_NETIF_API */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

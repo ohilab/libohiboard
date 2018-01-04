@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/inet_chksum.h"
@@ -448,3 +450,5 @@ lwip_chksum_copy(void *dst, const void *src, u16_t len)
   return LWIP_CHKSUM(dst, len);
 }
 #endif /* (LWIP_CHKSUM_COPY_ALGORITHM == 1) */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

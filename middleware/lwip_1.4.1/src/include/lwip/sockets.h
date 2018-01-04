@@ -30,6 +30,7 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
 
 #ifndef __LWIP_SOCKETS_H__
 #define __LWIP_SOCKETS_H__
@@ -377,3 +378,5 @@ int lwip_fcntl(int s, int cmd, int val);
 #endif /* LWIP_SOCKET */
 
 #endif /* __LWIP_SOCKETS_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

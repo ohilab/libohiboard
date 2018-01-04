@@ -31,6 +31,8 @@
 *   Original derived from BSD codes.
 *****************************************************************************/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef PPP_H
 #define PPP_H
 
@@ -199,3 +201,5 @@ void ppp_set_netif_linkcallback(int pd, netif_status_callback_fn link_callback);
 #endif /* PPP_SUPPORT */
 
 #endif /* PPP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

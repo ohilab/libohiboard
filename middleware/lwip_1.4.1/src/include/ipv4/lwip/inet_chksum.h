@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_INET_CHKSUM_H__
 #define __LWIP_INET_CHKSUM_H__
 
@@ -88,3 +91,4 @@ u16_t lwip_chksum_copy(void *dst, const void *src, u16_t len);
 
 #endif /* __LWIP_INET_H__ */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

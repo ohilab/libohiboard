@@ -53,6 +53,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if !MEM_LIBC_MALLOC /* don't build if not configured for use in lwipopts.h */
@@ -657,3 +659,5 @@ void *mem_calloc(mem_size_t count, mem_size_t size)
 }
 
 #endif /* !MEM_LIBC_MALLOC */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

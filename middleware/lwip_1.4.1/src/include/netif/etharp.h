@@ -32,6 +32,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __NETIF_ETHARP_H__
 #define __NETIF_ETHARP_H__
 
@@ -220,3 +222,5 @@ extern const struct eth_addr ethbroadcast, ethzero;
 #endif
 
 #endif /* __NETIF_ARP_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

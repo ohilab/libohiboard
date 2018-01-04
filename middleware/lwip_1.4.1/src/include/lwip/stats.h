@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_STATS_H__
 #define __LWIP_STATS_H__
 
@@ -290,3 +293,5 @@ void stats_display_sys(struct stats_sys *sys);
 #endif
 
 #endif /* __LWIP_STATS_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

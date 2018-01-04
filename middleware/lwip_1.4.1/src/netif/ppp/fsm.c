@@ -55,6 +55,8 @@
  * Deal with variable outgoing MTU.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -888,3 +890,5 @@ fsm_sdata( fsm *f, u_char code, u_char id, u_char *data, int datalen)
 }
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -39,6 +39,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/timers.h"
@@ -485,3 +487,5 @@ tcp_timer_needed(void)
 {
 }
 #endif /* LWIP_TIMERS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

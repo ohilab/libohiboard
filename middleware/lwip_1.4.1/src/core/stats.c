@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_STATS /* don't build if not configured for use in lwipopts.h */
@@ -174,3 +176,4 @@ stats_display(void)
 
 #endif /* LWIP_STATS */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

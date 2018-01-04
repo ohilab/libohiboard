@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/def.h"
@@ -772,3 +774,5 @@ netif_poll_all(void)
 }
 #endif /* !LWIP_NETIF_LOOPBACK_MULTITHREADING */
 #endif /* ENABLE_LOOPBACK */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

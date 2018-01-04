@@ -33,6 +33,9 @@
 *
 *****************************************************************************
 */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef PPPDEBUG_H
 #define PPPDEBUG_H
 
@@ -71,3 +74,5 @@
 #endif /* PPP_DEBUG */
 
 #endif /* PPPDEBUG_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

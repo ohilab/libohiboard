@@ -64,6 +64,8 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -1332,3 +1334,5 @@ auth_script(char *script)
 }
 #endif  /* 0 */ /* PAP_SUPPORT || CHAP_SUPPORT */
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

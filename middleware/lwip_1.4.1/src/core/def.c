@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 #include "lwip/def.h"
 
@@ -106,3 +108,5 @@ lwip_ntohl(u32_t n)
 }
 
 #endif /* (LWIP_PLATFORM_BYTESWAP == 0) && (BYTE_ORDER == LITTLE_ENDIAN) */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_RAW_H__
 #define __LWIP_RAW_H__
 
@@ -96,3 +99,5 @@ u8_t             raw_input      (struct pbuf *p, struct netif *inp);
 #endif /* LWIP_RAW */
 
 #endif /* __LWIP_RAW_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

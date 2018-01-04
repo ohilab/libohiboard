@@ -62,6 +62,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_AUTOIP /* don't build if not configured for use in lwipopts.h */
@@ -526,3 +528,5 @@ autoip_arp_reply(struct netif *netif, struct etharp_hdr *hdr)
 }
 
 #endif /* LWIP_AUTOIP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

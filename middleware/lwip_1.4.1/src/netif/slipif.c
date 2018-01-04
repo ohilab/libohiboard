@@ -55,6 +55,8 @@
  * provided by another file. They are sio_open, sio_read/sio_tryread and sio_send
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "netif/slipif.h"
 #include "lwip/opt.h"
 
@@ -508,3 +510,5 @@ slipif_received_bytes(struct netif *netif, u8_t *data, u8_t len)
 #endif /* SLIP_RX_FROM_ISR */
 
 #endif /* LWIP_HAVE_SLIPIF */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

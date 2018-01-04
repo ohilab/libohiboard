@@ -51,6 +51,8 @@
  * $Id: fsm.h,v 1.5 2009/12/31 17:08:08 goldsimon Exp $
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef FSM_H
 #define FSM_H
 
@@ -155,3 +157,5 @@ void fsm_sdata (fsm*, u_char, u_char, u_char*, int);
 extern int peer_mru[]; /* currently negotiated peer MRU (per unit) */
 
 #endif /* FSM_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

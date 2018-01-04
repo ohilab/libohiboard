@@ -77,6 +77,8 @@ Steve Reynolds
  * Includes
  *----------------------------------------------------------------------------*/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_IGMP /* don't build if not configured for use in lwipopts.h */
@@ -803,3 +805,5 @@ igmp_send(struct igmp_group *group, u8_t type)
 }
 
 #endif /* LWIP_IGMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

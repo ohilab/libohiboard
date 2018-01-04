@@ -38,6 +38,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_RAW /* don't build if not configured for use in lwipopts.h */
@@ -348,3 +350,5 @@ raw_new(u8_t proto)
 }
 
 #endif /* LWIP_RAW */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

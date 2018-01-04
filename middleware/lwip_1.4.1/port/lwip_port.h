@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LIBOHIBOARD_LWIP_PORT_H
 #define __LIBOHIBOARD_LWIP_PORT_H
 
@@ -52,3 +54,5 @@ void LWIPPorting_setMacAddress (Ethernet_MacAddress address);
 void LWIPPorting_setPhyCallback (LWIPPorting_PhyCallback callback);
 
 #endif /* __LIBOHIBOARD_LWIP_PORT_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

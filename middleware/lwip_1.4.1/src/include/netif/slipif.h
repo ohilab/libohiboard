@@ -31,6 +31,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __NETIF_SLIPIF_H__
 #define __NETIF_SLIPIF_H__
 
@@ -79,3 +82,4 @@ void slipif_received_bytes(struct netif *netif, u8_t *data, u8_t len);
  
 #endif 
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

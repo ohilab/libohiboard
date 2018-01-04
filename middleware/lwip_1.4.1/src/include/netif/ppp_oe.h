@@ -67,6 +67,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef PPP_OE_H
 #define PPP_OE_H
 
@@ -188,3 +191,5 @@ err_t pppoe_xmit(struct pppoe_softc *sc, struct pbuf *pb);
 #endif /* PPPOE_SUPPORT */
 
 #endif /* PPP_OE_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

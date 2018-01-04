@@ -38,6 +38,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/memp.h"
@@ -468,3 +470,5 @@ memp_free(memp_t type, void *mem)
 }
 
 #endif /* MEMP_MEM_MALLOC */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

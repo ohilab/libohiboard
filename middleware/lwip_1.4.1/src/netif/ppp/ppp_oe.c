@@ -68,6 +68,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if PPPOE_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -1130,3 +1132,4 @@ pppoe_clear_softc(struct pppoe_softc *sc, const char *message)
 
 #endif /* PPPOE_SUPPORT */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

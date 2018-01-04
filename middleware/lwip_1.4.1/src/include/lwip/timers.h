@@ -30,6 +30,9 @@
  *         Simon Goldschmidt
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_TIMERS_H__
 #define __LWIP_TIMERS_H__
 
@@ -98,3 +101,5 @@ void sys_timeouts_mbox_fetch(sys_mbox_t *mbox, void **msg);
 
 #endif /* LWIP_TIMERS */
 #endif /* __LWIP_TIMERS_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

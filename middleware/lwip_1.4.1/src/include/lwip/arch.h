@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_ARCH_H__
 #define __LWIP_ARCH_H__
 
@@ -215,3 +218,5 @@ extern int errno;
 #endif
 
 #endif /* __LWIP_ARCH_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

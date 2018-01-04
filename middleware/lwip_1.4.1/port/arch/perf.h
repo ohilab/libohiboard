@@ -23,6 +23,8 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __ARCH_PERF_H__
 #define __ARCH_PERF_H__
 
@@ -31,3 +33,4 @@
 
 #endif /* __ARCH_PERF_H__ */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

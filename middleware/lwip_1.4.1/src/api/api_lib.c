@@ -39,6 +39,8 @@
 /* This is the part of the API that is linked with
    the application */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_NETCONN /* don't build if not configured for use in lwipopts.h */
@@ -778,3 +780,5 @@ netconn_gethostbyname(const char *name, ip_addr_t *addr)
 #endif /* LWIP_DNS*/
 
 #endif /* LWIP_NETCONN */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

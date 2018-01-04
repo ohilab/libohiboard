@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_IP_H__
 #define __LWIP_IP_H__
 
@@ -220,4 +223,4 @@ void ip_debug_print(struct pbuf *p);
 
 #endif /* __LWIP_IP_H__ */
 
-
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

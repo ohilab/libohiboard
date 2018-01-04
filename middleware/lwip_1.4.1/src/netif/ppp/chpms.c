@@ -67,6 +67,8 @@
  *   You should also use DOMAIN\\USERNAME as described in README.MSCHAP80
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #define USE_CRYPT
 
 #include "lwip/opt.h"
@@ -394,3 +396,5 @@ ChapMS( chap_state *cstate, char *rchallenge, int rchallenge_len, char *secret, 
 #endif /* MSCHAP_SUPPORT */
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

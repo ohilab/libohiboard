@@ -24,6 +24,8 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIPPORTING_SYS_ARCH_H
 #define __LWIPPORTING_SYS_ARCH_H
 
@@ -45,3 +47,4 @@ void LWIPPorting_timerInit(Pit_DeviceHandle dev, uint8_t number);
 
 #endif /* __LWIPPORTING_SYS_ARCH_H */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

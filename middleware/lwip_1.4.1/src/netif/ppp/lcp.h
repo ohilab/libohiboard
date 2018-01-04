@@ -51,6 +51,8 @@
  * $Id: lcp.h,v 1.4 2010/01/18 20:49:43 goldsimon Exp $
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef LCP_H
 #define LCP_H
 /*
@@ -149,3 +151,5 @@ extern struct protent lcp_protent;
 #define DEFLOOPBACKFAIL 10
 
 #endif /* LCP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

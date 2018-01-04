@@ -36,7 +36,11 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/inet.h"
 
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

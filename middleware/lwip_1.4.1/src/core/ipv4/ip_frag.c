@@ -38,6 +38,8 @@
  * 
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 #include "lwip/ip_frag.h"
 #include "lwip/def.h"
@@ -861,3 +863,5 @@ ip_frag(struct pbuf *p, struct netif *netif, ip_addr_t *dest)
   return ERR_OK;
 }
 #endif /* IP_FRAG */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

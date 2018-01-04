@@ -43,6 +43,8 @@
  *
  */
  
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_ARP || LWIP_ETHERNET
@@ -1397,3 +1399,5 @@ free_and_return:
   return ERR_OK;
 }
 #endif /* LWIP_ARP || LWIP_ETHERNET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

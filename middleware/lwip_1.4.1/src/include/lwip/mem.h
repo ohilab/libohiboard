@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_MEM_H__
 #define __LWIP_MEM_H__
 
@@ -121,3 +124,5 @@ void  mem_free(void *mem);
 #endif
 
 #endif /* __LWIP_MEM_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

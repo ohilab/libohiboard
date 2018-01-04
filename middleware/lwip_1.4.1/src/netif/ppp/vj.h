@@ -22,6 +22,8 @@
  * - Initial distribution.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef VJ_H
 #define VJ_H
 
@@ -154,3 +156,5 @@ extern int   vj_uncompress_uncomp(struct pbuf *nb, struct vjcompress *comp);
 extern int   vj_uncompress_tcp   (struct pbuf **nb, struct vjcompress *comp);
 
 #endif /* VJ_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

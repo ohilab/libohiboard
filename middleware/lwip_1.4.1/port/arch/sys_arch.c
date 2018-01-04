@@ -24,6 +24,8 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "sys_arch.h"
 #include "lwip/sys.h"
 
@@ -55,34 +57,4 @@ u32_t sys_now (void)
     return (u32_t)LWIPPorting_timerCallback();
 }
 
-#if 0
-
-static uint32_t LWIPPorting_time = 0;
-
-Pit_Config LWIPPorting_timerConfig =
-{
-    .number = 0,
-    .frequency = 1000,
-};
-
-u32_t sys_now (void)
-{
-    return (u32_t)LWIPPorting_time;
-}
-
-void LWIPPorting_timerCallback ()
-{
-    LWIPPorting_time++;
-}
-
-void LWIPPorting_timerInit (Pit_DeviceHandle dev, uint8_t number)
-{
-    LWIPPorting_timerConfig.number = number;
-
-    Pit_init(dev);
-    Pit_config(dev, LWIPPorting_timerCallback, &LWIPPorting_timerConfig);
-
-    LWIPPorting_time = 0;
-    Pit_start(dev,number);
-}
-#endif
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

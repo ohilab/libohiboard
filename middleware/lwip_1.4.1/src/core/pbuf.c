@@ -61,6 +61,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/stats.h"
@@ -1177,3 +1179,5 @@ pbuf_strstr(struct pbuf* p, const char* substr)
   }
   return pbuf_memfind(p, substr, (u16_t)substr_len, 0);
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

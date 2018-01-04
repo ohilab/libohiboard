@@ -49,6 +49,8 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef PAP_H
 #define PAP_H
 
@@ -116,3 +118,5 @@ extern struct protent pap_protent;
 #endif /* PAP_SUPPORT */
 
 #endif /* PAP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

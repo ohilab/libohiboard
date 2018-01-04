@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #include "lwip/sys.h"
@@ -66,3 +68,5 @@ sys_msleep(u32_t ms)
 #endif /* sys_msleep */
 
 #endif /* !NO_SYS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -35,6 +35,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_OPT_H__
 #define __LWIP_OPT_H__
 
@@ -2131,3 +2134,5 @@
 #endif
 
 #endif /* __LWIP_OPT_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -51,6 +51,8 @@
  * $Id: ipcp.h,v 1.4 2010/01/18 20:49:43 goldsimon Exp $
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef IPCP_H
 #define IPCP_H
 
@@ -104,3 +106,5 @@ extern ipcp_options ipcp_hisoptions[];
 extern struct protent ipcp_protent;
 
 #endif /* IPCP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

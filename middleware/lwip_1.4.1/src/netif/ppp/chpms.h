@@ -54,6 +54,8 @@
  * $Id: chpms.h,v 1.5 2007/12/19 20:47:23 fbernon Exp $
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef CHPMS_H
 #define CHPMS_H
 
@@ -62,3 +64,5 @@
 void ChapMS (chap_state *, char *, int, char *, int);
 
 #endif /* CHPMS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

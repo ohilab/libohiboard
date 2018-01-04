@@ -31,6 +31,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_DNS_H__
 #define __LWIP_DNS_H__
 
@@ -122,3 +124,5 @@ err_t          dns_local_addhost(const char *hostname, const ip_addr_t *addr);
 #endif /* LWIP_DNS */
 
 #endif /* __LWIP_DNS_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

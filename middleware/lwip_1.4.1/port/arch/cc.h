@@ -30,6 +30,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __ARCH_CC_H__
 #define __ARCH_CC_H__
 
@@ -80,3 +82,5 @@ typedef uintptr_t   mem_ptr_t;
 //    } while (0)
 
 #endif /* __ARCH_CC_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

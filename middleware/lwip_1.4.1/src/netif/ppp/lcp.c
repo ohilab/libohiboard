@@ -50,6 +50,7 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
  
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
 
 #include "lwip/opt.h"
 
@@ -2064,3 +2065,5 @@ lcp_echo_lowerdown (int unit)
 }
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

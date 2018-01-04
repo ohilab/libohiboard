@@ -32,6 +32,8 @@
  * It needs to be implemented by those platforms which need SLIP or PPP
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __SIO_H__
 #define __SIO_H__
 
@@ -139,3 +141,5 @@ void sio_read_abort(sio_fd_t fd);
 #endif
 
 #endif /* __SIO_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

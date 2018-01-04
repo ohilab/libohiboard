@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_UDP_H__
 #define __LWIP_UDP_H__
 
@@ -169,3 +172,5 @@ void udp_debug_print(struct udp_hdr *udphdr);
 #endif /* LWIP_UDP */
 
 #endif /* __LWIP_UDP_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

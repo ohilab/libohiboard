@@ -1,6 +1,8 @@
 /** @file
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_DHCP_H__
 #define __LWIP_DHCP_H__
 
@@ -240,3 +242,5 @@ void dhcp_fine_tmr(void);
 #endif /* LWIP_DHCP */
 
 #endif /*__LWIP_DHCP_H__*/
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_IP_ADDR_H__
 #define __LWIP_IP_ADDR_H__
 
@@ -242,3 +245,5 @@ char *ipaddr_ntoa_r(const ip_addr_t *addr, char *buf, int buflen);
 #endif
 
 #endif /* __LWIP_IP_ADDR_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

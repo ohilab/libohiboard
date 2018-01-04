@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 #include "lwip/ip_addr.h"
 #include "lwip/netif.h"
@@ -310,3 +312,5 @@ char *ipaddr_ntoa_r(const ip_addr_t *addr, char *buf, int buflen)
   *--rp = 0;
   return buf;
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

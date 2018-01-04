@@ -26,6 +26,9 @@
  * Author: Simon Goldschmidt
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_NETDB_H__
 #define __LWIP_NETDB_H__
 
@@ -122,3 +125,5 @@ int lwip_getaddrinfo(const char *nodename,
 #endif /* LWIP_DNS && LWIP_SOCKET */
 
 #endif /* __LWIP_NETDB_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

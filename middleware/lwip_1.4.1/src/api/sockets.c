@@ -38,6 +38,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_SOCKET /* don't build if not configured for use in lwipopts.h */
@@ -2372,3 +2374,5 @@ lwip_fcntl(int s, int cmd, int val)
 }
 
 #endif /* LWIP_SOCKET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

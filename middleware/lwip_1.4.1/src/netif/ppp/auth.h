@@ -50,6 +50,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef AUTH_H
 #define AUTH_H
 
@@ -109,3 +111,5 @@ int  auth_ip_addr (int, u32_t);
 int  bad_ip_adrs (u32_t);
 
 #endif /* AUTH_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

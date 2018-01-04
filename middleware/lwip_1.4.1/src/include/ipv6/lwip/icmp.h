@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_ICMP_H__
 #define __LWIP_ICMP_H__
 
@@ -98,3 +101,4 @@ struct icmp_te_hdr {
 
 #endif /* __LWIP_ICMP_H__ */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

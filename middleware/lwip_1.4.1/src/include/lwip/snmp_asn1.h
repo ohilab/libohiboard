@@ -32,6 +32,8 @@
  * Author: Christiaan Simons <christiaan.simons@axon.tv>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_SNMP_ASN1_H__
 #define __LWIP_SNMP_ASN1_H__
 
@@ -99,3 +101,5 @@ err_t snmp_asn1_enc_raw(struct pbuf *p, u16_t ofs, u16_t raw_len, u8_t *raw);
 #endif /* LWIP_SNMP */
 
 #endif /* __LWIP_SNMP_ASN1_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

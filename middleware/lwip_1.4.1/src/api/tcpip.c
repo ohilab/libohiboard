@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if !NO_SYS /* don't build if not configured for use in lwipopts.h */
@@ -509,3 +511,5 @@ mem_free_callback(void *m)
 }
 
 #endif /* !NO_SYS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

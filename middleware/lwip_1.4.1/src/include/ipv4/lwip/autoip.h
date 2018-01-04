@@ -41,6 +41,8 @@
  * <kontakt@dspies.de>
  */
  
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_AUTOIP_H__
 #define __LWIP_AUTOIP_H__
 
@@ -116,3 +118,5 @@ void autoip_network_changed(struct netif *netif);
 #endif /* LWIP_AUTOIP */
 
 #endif /* __LWIP_AUTOIP_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -65,6 +65,8 @@
  * $Id: chap.h,v 1.6 2010/01/24 13:19:34 goldsimon Exp $
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef CHAP_H
 #define CHAP_H
 
@@ -148,3 +150,5 @@ void ChapAuthPeer (int, char *, u_char);
 extern struct protent chap_protent;
 
 #endif /* CHAP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

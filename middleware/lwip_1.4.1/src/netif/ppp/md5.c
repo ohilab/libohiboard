@@ -31,6 +31,8 @@
  ***********************************************************************
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -318,3 +320,5 @@ Transform (u32_t *buf, u32_t *in)
 #endif /* CHAP_SUPPORT || MD5_SUPPORT */
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

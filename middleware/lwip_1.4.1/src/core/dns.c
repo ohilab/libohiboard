@@ -72,6 +72,8 @@
  * Includes
  *----------------------------------------------------------------------------*/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_DNS /* don't build if not configured for use in lwipopts.h */
@@ -968,3 +970,5 @@ dns_gethostbyname(const char *hostname, ip_addr_t *addr, dns_found_callback foun
 }
 
 #endif /* LWIP_DNS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

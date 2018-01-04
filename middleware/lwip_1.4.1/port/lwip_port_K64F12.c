@@ -35,6 +35,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #if defined (LIBOHIBOARD_K64F12)     || \
     defined (LIBOHIBOARD_FRDMK64F)
 
@@ -328,3 +330,5 @@ LWIPPorting_init (struct netif *netif)
 }
 
 #endif
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

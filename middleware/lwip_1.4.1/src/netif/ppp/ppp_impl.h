@@ -31,6 +31,8 @@
 *   Original derived from BSD codes.
 *****************************************************************************/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef PPP_IMPL_H
 #define PPP_IMPL_H
 
@@ -361,3 +363,5 @@ u32_t GetMask (u32_t);
 #endif /* PPP_SUPPORT */
 
 #endif /* PPP_IMPL_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

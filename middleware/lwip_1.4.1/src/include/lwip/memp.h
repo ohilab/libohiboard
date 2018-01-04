@@ -30,6 +30,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_MEMP_H__
 #define __LWIP_MEMP_H__
 
@@ -114,3 +116,5 @@ void  memp_free(memp_t type, void *mem);
 #endif
 
 #endif /* __LWIP_MEMP_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

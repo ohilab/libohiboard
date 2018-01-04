@@ -30,6 +30,9 @@
  * Author: Leon Woestenberg <leon.woestenberg@axon.tv>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_SNMP_H__
 #define __LWIP_SNMP_H__
 
@@ -365,3 +368,5 @@ void snmp_get_snmpenableauthentraps(u8_t *value);
 #endif
 
 #endif /* __LWIP_SNMP_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

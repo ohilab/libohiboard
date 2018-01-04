@@ -30,4 +30,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/sockets.h"
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

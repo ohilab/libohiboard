@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_INET_H__
 #define __LWIP_INET_H__
 
@@ -66,3 +69,4 @@ u32_t ntohl(u32_t n);
 
 #endif /* __LWIP_INET_H__ */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

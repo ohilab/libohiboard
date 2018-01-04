@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_SYS_H__
 #define __LWIP_SYS_H__
 
@@ -335,3 +338,5 @@ void sys_arch_unprotect(sys_prot_t pval);
 #endif
 
 #endif /* __LWIP_SYS_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -30,6 +30,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_PBUF_H__
 #define __LWIP_PBUF_H__
 
@@ -176,3 +178,5 @@ u16_t pbuf_strstr(struct pbuf* p, const char* substr);
 #endif
 
 #endif /* __LWIP_PBUF_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

@@ -51,6 +51,8 @@
  * $Id: magic.h,v 1.3 2010/01/18 20:49:43 goldsimon Exp $
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef MAGIC_H
 #define MAGIC_H
 
@@ -61,3 +63,5 @@ void  magicInit(void);
 u32_t magic(void);
 
 #endif /* MAGIC_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

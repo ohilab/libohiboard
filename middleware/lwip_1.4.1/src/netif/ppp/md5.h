@@ -37,6 +37,8 @@
  ***********************************************************************
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef MD5_H
 #define MD5_H
 
@@ -53,3 +55,5 @@ void MD5Update( MD5_CTX *mdContext, unsigned char *inBuf, unsigned int inLen);
 void MD5Final ( unsigned char hash[], MD5_CTX *mdContext);
 
 #endif /* MD5_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

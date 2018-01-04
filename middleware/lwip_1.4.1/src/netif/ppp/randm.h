@@ -31,6 +31,8 @@
 *   Extracted from avos.
 *****************************************************************************/
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef RANDM_H
 #define RANDM_H
 
@@ -79,3 +81,5 @@ u32_t avRandom(void);
 
 
 #endif /* RANDM_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

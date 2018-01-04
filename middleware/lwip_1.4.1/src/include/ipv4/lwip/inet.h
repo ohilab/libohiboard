@@ -29,6 +29,9 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_INET_H__
 #define __LWIP_INET_H__
 
@@ -105,3 +108,5 @@ struct in_addr {
 #endif
 
 #endif /* __LWIP_INET_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

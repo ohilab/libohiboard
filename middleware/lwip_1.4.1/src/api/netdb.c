@@ -33,6 +33,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/netdb.h"
 
 #if LWIP_DNS && LWIP_SOCKET
@@ -351,3 +353,5 @@ memerr:
 }
 
 #endif /* LWIP_DNS && LWIP_SOCKET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

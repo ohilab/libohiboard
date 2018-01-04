@@ -32,6 +32,8 @@
  * source code.
 */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIP_IGMP_H__
 #define __LWIP_IGMP_H__
 
@@ -104,3 +106,5 @@ void   igmp_tmr(void);
 #endif /* LWIP_IGMP */
 
 #endif /* __LWIP_IGMP_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

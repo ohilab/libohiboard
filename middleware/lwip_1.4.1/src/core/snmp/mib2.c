@@ -35,6 +35,8 @@
  * Author: Christiaan Simons <christiaan.simons@axon.tv>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 
 #if LWIP_SNMP /* don't build if not configured for use in lwipopts.h */
@@ -4144,3 +4146,5 @@ snmp_set_value(struct obj_def *od, u16_t len, void *value)
 }
 
 #endif /* LWIP_SNMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */

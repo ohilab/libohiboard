@@ -38,6 +38,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #include "lwip/opt.h"
 #include "lwip/ip.h"
 #include "lwip/def.h"
@@ -922,3 +924,5 @@ ip_debug_print(struct pbuf *p)
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
 }
 #endif /* IP_DEBUG */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_1_4_1 */
