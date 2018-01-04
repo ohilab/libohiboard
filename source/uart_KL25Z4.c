@@ -255,7 +255,7 @@ void UART2_IRQHandler (void)
     }
 }
 
-static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
 {
     register uint16_t sbr;
     uint32_t temp;
@@ -465,10 +465,18 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
     if (dev == OB_UART0)
     {
         UART0_C2_REG(dev->regMap0) |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+        if(config->invertTx)
+            UART0_C3_REG(dev->regMap0) |= UART_C3_TXINV_MASK;
+        else
+            UART0_C3_REG(dev->regMap0) &= ~UART_C3_TXINV_MASK;
     }
     else
     {
     	UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+    	if(config->invertTx)
+            UART_C3_REG(dev->regMap) |= UART_C3_TXINV_MASK;
+        else
+            UART_C3_REG(dev->regMap) &= ~UART_C3_TXINV_MASK;
     }
 
     dev->devInitialized = 1;

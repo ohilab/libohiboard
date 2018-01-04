@@ -573,7 +573,7 @@ typedef struct _Uart_Config
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
     uint8_t oversampling; /* 4 to 32 */
-
+    bool invertTx; /* invert Tx logical value */
 #endif
 
 } Uart_Config;
@@ -602,6 +602,7 @@ System_Errors Uart_close (Uart_DeviceHandle dev);
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling);
 
 void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendStringln (Uart_DeviceHandle dev, const char* text);
