@@ -45,7 +45,7 @@
 #define SHIFT_RIGHT(X,n)            X>>n
 
 #define IS_DIGIT(c)                 ((c <= '9') && (c >= '0'))
-#define IS_XDIGIT(c)                (((c <= '9') && (c >= '0')) || ((c <= 'A') && (c >= 'F')) || ((c <= 'a') && (c >= 'f')))
+#define IS_XDIGIT(c)                (((c <= '9') && (c >= '0')) || ((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')))
 #define IS_LOWERLETTER(c)           ((c <= 'z') && (c >= 'a'))
 #define IS_UPPERLETTER(c)           ((c <= 'Z') && (c >= 'A'))
 
