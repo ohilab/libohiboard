@@ -497,17 +497,16 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
         return ERRORS_PARAM_VALUE;
     }
 
-    /*----------*/
-        SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_RXF_MASK;
-        SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_TXF_MASK;
-        /* Flush TX and RX buffer */
-        SPI_MCR_REG(regmap) |= SPI_MCR_CLR_TXF_MASK;
-        SPI_MCR_REG(regmap) |= SPI_MCR_CLR_RXF_MASK;
-        /* Delay clock cs vs clock */
+#if 0
+    /* Flush TX and RX buffer */
 
-    //    SPI_PUSHR_REG(regmap) |= SPI_PUSHR_PCS(1);
-        /*----------*/
+    SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_RXF_MASK;
+    SPI_MCR_REG(regmap) |=  SPI_MCR_DIS_TXF_MASK;
 
+    SPI_MCR_REG(regmap) |= SPI_MCR_CLR_TXF_MASK;
+    SPI_MCR_REG(regmap) |= SPI_MCR_CLR_RXF_MASK;
+
+#endif
 
     dev->devInitialized = 1;
 
