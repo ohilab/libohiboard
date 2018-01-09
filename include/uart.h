@@ -602,7 +602,13 @@ System_Errors Uart_close (Uart_DeviceHandle dev);
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
+#if defined (LIBOHIBOARD_KL15Z4)     || \
+    defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
 void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling);
+#else
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
+#endif
 
 void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendStringln (Uart_DeviceHandle dev, const char* text);
