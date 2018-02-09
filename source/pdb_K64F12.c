@@ -85,7 +85,7 @@ System_Errors Pdb_init (Pdb_DeviceHandle dev, void *callback, Pdb_Config *config
             channelNum = 1;
             break;
         default:
-            return ERROR_PTB_DEVICE_WRONG;
+            return ERRORS_PDB_DEVICE_WRONG;
         }
 
         PDB_C1_REG(dev->regMap,channelNum) |= PDB_C1_EN(config->channelConfigAdc[channelIndex].preTriggerEnabled)  |

@@ -117,8 +117,8 @@ typedef enum _System_Errors
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
 
-    ERRORS_PTB_DEVICE_WRONG,                  /**< Device triggered not exist. */
-    ERRORS_PTB_DEVICE_NOT_INIT,
+    ERRORS_PDB_DEVICE_WRONG,                  /**< Device triggered not exist. */
+    ERRORS_PDB_DEVICE_NOT_INIT,
 
 	ERRORS_DMA_OK,                                 /**< DMA initialization ok */
 
