@@ -39,7 +39,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#ifndef __MCUXPRESSO
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
 
 #define BYTE_ORDER  LITTLE_ENDIAN
 
