@@ -829,10 +829,15 @@ void Gpio_clear (Gpio_Pins pin);
 void Gpio_toggle (Gpio_Pins pin);
 
 Gpio_Level Gpio_get (Gpio_Pins pin);
-
+#if defined(LIBOHIBOARD_KV46F)   || \
+    defined(LIBOHIBOARD_TWRKV46F)
+System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event);
+System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
+#else
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback);
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
+#endif
 
 #endif /* __GPIO_H */
 

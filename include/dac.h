@@ -118,9 +118,7 @@ extern Dac_DeviceHandle OB_DAC0;
 extern Dac_DeviceHandle DAC0;
 extern Dac_DeviceHandle DAC1;
 
-#elif defined (LIBOHIBOARD_K12D5) || \
-      defined (LIBOHIBOARD_KV46F) || \
-      defined (LIBOHIBOARD_TRWKV46F)
+#elif defined (LIBOHIBOARD_K12D5)
 
 extern Dac_DeviceHandle OB_DAC0;
 
@@ -129,8 +127,10 @@ extern Dac_DeviceHandle OB_DAC0;
 extern Dac_DeviceHandle OB_DAC0;
 extern Dac_DeviceHandle OB_DAC1;
 
-#if defined (LIBOHIBOARD_KV46F) || \
+#elif defined (LIBOHIBOARD_KV46F) || \
     defined (LIBOHIBOARD_TRWKV46F)
+
+extern Dac_DeviceHandle OB_DAC0;
 
 typedef enum{
     DAC_HARDSYNC_XBARA      = 0x0,
@@ -138,8 +138,6 @@ typedef enum{
     DAC_HARDSYNC_PDB0       = 0x2,
     DAC_HARDSYNC_PDB1       = 0x3,
 }Dac_HardSyncSelect;
-
-#endif
 
 #elif defined (LIBOHIBOARD_K60DZ10) || \
       defined (LIBOHIBOARD_OHIBOARD_R1)
