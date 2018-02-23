@@ -210,7 +210,7 @@ void UART1_RX_TX_IRQHandler (void)
 
 
 
-static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 {
     register uint16_t sbr, brfa;    //BaudRateFineAdjust
 
