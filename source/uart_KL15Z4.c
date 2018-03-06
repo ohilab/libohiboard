@@ -258,7 +258,7 @@ void UART2_IRQHandler (void)
     }
 }
 
-static void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
 {
     register uint16_t sbr;
     uint32_t temp;
