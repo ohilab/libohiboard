@@ -43,8 +43,8 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-    NVIC_ICPR = 1 << (vectorNumber%32);
-    NVIC_ISER = 1 << (vectorNumber%32);
+    NVIC->ICPR[0] = 1 << (vectorNumber%32);
+    NVIC->ICPR[0] = 1 << (vectorNumber%32);
 
     return ERRORS_NO_ERROR;
 }
@@ -55,7 +55,7 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
     if (vectorNumber > NVIC_NUM_MCU_VECTORS)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-    NVIC_ICER = 1 << (vectorNumber%32);
+    NVIC->ICER[0] = 1 << (vectorNumber%32);
 
     return ERRORS_NO_ERROR;
 }
