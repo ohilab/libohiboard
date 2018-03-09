@@ -142,7 +142,7 @@ extern Ftm_DeviceHandle OB_FTM1;
 extern Ftm_DeviceHandle OB_FTM2;
 
 #elif defined (LIBOHIBOARD_KL25Z4)     || \
-	defined (LIBOHIBOARD_FRDMKL25Z)
+      defined (LIBOHIBOARD_FRDMKL25Z)
 
 /* FIXME: Enable the KL25 into device on .c file! */
 
