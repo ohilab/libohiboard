@@ -35,7 +35,8 @@
 
 void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config)
 {
-#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) || \
+	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
 
     // Disable MPU
     MPU_CESR &=~ MPU_CESR_VLD_MASK;
@@ -52,8 +53,15 @@ void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config
 
     // Initialize network interface
     netif_add(netif, &config->ip, &config->mask, &config->gateway, 0, LWIPPorting_init, ethernet_input);
+#if LWIP_NETIF_STATUS_CALLBACK==1
+    netif_set_status_callback(netif,config->netif_status_callback);
+#endif
+#if LWIP_NETIF_LINK_CALLBACK==1
+    netif_set_link_callback(netif,config->netif_link_callback);
+#endif
     netif_set_default(netif);
     netif_set_up(netif);
+    netif_set_link_down(netif);
 #endif
 }
 
