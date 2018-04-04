@@ -35,11 +35,8 @@
 
 void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config)
 {
-<<<<<<< HEAD
+
 #if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) ||\
-=======
-#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) || \
->>>>>>> origin/develop
 	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
 
     // Disable MPU
