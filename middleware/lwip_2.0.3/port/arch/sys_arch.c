@@ -1,8 +1,9 @@
-/******************************************************************************
+/*******************************************************************************
  * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Matteo Civale
+ *  Simone Giacomucci <simone.giacomucci@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,39 +24,37 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-/**
- * @file libohiboard/source/ethernet-utility.c
- * @author Matteo Civale
- * @brief network utility implementation.
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
+#include "sys_arch.h"
+#include "lwip/sys.h"
+
+static LWIPPorting_TimerCallback LWIPPorting_timerCallback;
+
+/*
+ * Prints an assertion messages and aborts execution.
  */
-
-#ifdef LIBOHIBOARD_ETHERNET
-
-#include "ethernet-utility.h"
-
-void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config)
+void sys_assert (const char *msg)
 {
-#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) ||\
-	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
-
-    // Disable MPU
-    MPU_CESR &=~ MPU_CESR_VLD_MASK;
-
-    LWIPPorting_setMacAddress(config->mac);
-    // Set PHY initialization callback
-    LWIPPorting_setPhyCallback(config->phyCallback);
-
-    // Set timer callback
-    // This callback must be setted before lwip_init()
-    LWIPPorting_setTimerCallback(config->timerCallback);
-
-    lwip_init();
-
-    // Initialize network interface
-    netif_add(netif, &config->ip, &config->mask, &config->gateway, 0, LWIPPorting_init, ethernet_input);
-    netif_set_default(netif);
-    netif_set_up(netif);
+//FSL:only needed for debugging
+//uint8_t stringBuffer[50];
+//sprintf(stringBuffer, msg);
+#ifdef LWIP_DEBUG
+//    PRINTF(msg);
+//    PRINTF("\n\r");
 #endif
+
+    for(;;);
 }
 
-#endif /* LIBOHIBOARD_ETHERNET */
+void LWIPPorting_setTimerCallback (LWIPPorting_TimerCallback callback)
+{
+    LWIPPorting_timerCallback = callback;
+}
+
+u32_t sys_now (void)
+{
+    return (u32_t)LWIPPorting_timerCallback();
+}
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

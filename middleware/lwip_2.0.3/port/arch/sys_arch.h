@@ -1,8 +1,9 @@
-/******************************************************************************
+/*******************************************************************************
  * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Matteo Civale
+ *  Simone Giacomucci <simone.giacomucci@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,39 +24,27 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-/**
- * @file libohiboard/source/ethernet-utility.c
- * @author Matteo Civale
- * @brief network utility implementation.
- */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
-#ifdef LIBOHIBOARD_ETHERNET
+#ifndef __LWIPPORTING_SYS_ARCH_H
+#define __LWIPPORTING_SYS_ARCH_H
 
-#include "ethernet-utility.h"
+#include <stdio.h>
+#include "libohiboard.h"
+#include "cc.h"
 
-void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config)
-{
-#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) ||\
-	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
+typedef uint32_t (*LWIPPorting_TimerCallback) (void);
 
-    // Disable MPU
-    MPU_CESR &=~ MPU_CESR_VLD_MASK;
+void sys_assert( const char *const msg );
+u32_t sys_now (void);
 
-    LWIPPorting_setMacAddress(config->mac);
-    // Set PHY initialization callback
-    LWIPPorting_setPhyCallback(config->phyCallback);
+void LWIPPorting_setTimerCallback(LWIPPorting_TimerCallback callback);
 
-    // Set timer callback
-    // This callback must be setted before lwip_init()
-    LWIPPorting_setTimerCallback(config->timerCallback);
 
-    lwip_init();
-
-    // Initialize network interface
-    netif_add(netif, &config->ip, &config->mask, &config->gateway, 0, LWIPPorting_init, ethernet_input);
-    netif_set_default(netif);
-    netif_set_up(netif);
+#if 0
+void LWIPPorting_timerInit(Pit_DeviceHandle dev, uint8_t number);
 #endif
-}
 
-#endif /* LIBOHIBOARD_ETHERNET */
+#endif /* __LWIPPORTING_SYS_ARCH_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

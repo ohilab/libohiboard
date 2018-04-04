@@ -1,8 +1,8 @@
-/******************************************************************************
- * Copyright (C) 2016-2017 A. C. Open Hardware Ideas Lab
+/* Copyright (C) 2016 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Matteo Civale
+ *  Simone Giacomucci <simone.giacomucci@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,39 +23,14 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-/**
- * @file libohiboard/source/ethernet-utility.c
- * @author Matteo Civale
- * @brief network utility implementation.
- */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
-#ifdef LIBOHIBOARD_ETHERNET
+#ifndef __ARCH_PERF_H__
+#define __ARCH_PERF_H__
 
-#include "ethernet-utility.h"
+#define PERF_START
+#define PERF_STOP(x)
 
-void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config)
-{
-#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) ||\
-	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
+#endif /* __ARCH_PERF_H__ */
 
-    // Disable MPU
-    MPU_CESR &=~ MPU_CESR_VLD_MASK;
-
-    LWIPPorting_setMacAddress(config->mac);
-    // Set PHY initialization callback
-    LWIPPorting_setPhyCallback(config->phyCallback);
-
-    // Set timer callback
-    // This callback must be setted before lwip_init()
-    LWIPPorting_setTimerCallback(config->timerCallback);
-
-    lwip_init();
-
-    // Initialize network interface
-    netif_add(netif, &config->ip, &config->mask, &config->gateway, 0, LWIPPorting_init, ethernet_input);
-    netif_set_default(netif);
-    netif_set_up(netif);
-#endif
-}
-
-#endif /* LIBOHIBOARD_ETHERNET */
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */
