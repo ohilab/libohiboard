@@ -47,18 +47,24 @@
  *   - LIBOHIBOARD_ETHERNET_LWIP_1_4_1
  *******************************************************************************/
 
-#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) || \
+	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
 
 #include "arch/sys_arch.h"
 // lwip includes
 #include "lwip/tcp.h"
-#include "lwip/tcp_impl.h"
 #include "lwip/mem.h"
 #include "lwip/raw.h"
 #include "lwip/icmp.h"
 #include "lwip/netif.h"
 #include "lwip/sys.h"
-#include "lwip/timers.h"
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+	#include "lwip/timers.h"
+	#include "lwip/tcp_impl.h"
+#endif
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+	#include "lwip/timeouts.h"
+#endif
 #include "lwip/inet_chksum.h"
 #include "lwip/init.h"
 #include "netif/etharp.h"
@@ -76,10 +82,19 @@ typedef struct _Ethernet_NetworkConfig
 
     Ethernet_MacAddress mac;
 
-#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
-    void (*phyCallback) (Ethernet_DeviceHandle dev);
+#if defined (LIBOHIBOARD_ETHERNET_LWIP_1_4_1) || \
+	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
 
+    void (*phyCallback) (Ethernet_DeviceHandle dev);
     uint32_t (*timerCallback) (void);
+
+#if LWIP_NETIF_STATUS_CALLBACK==1
+    netif_status_callback_fn	netif_status_callback;
+#endif
+
+#if LWIP_NETIF_LINK_CALLBACK==1
+    netif_status_callback_fn	netif_link_callback;
+#endif
 #endif
 
 } Ethernet_NetworkConfig;
