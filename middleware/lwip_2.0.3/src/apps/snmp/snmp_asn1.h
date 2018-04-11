@@ -34,6 +34,7 @@
  *         Martin Hentschel <info@cl-soft.de>
  *         Elias Oenal <lwip@eliasoenal.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_ASN1_H
 #define LWIP_HDR_APPS_SNMP_ASN1_H
@@ -106,3 +107,5 @@ err_t snmp_asn1_enc_raw(struct snmp_pbuf_stream* pbuf_stream, const u8_t *raw, u
 #endif /* LWIP_SNMP */
 
 #endif /* LWIP_HDR_APPS_SNMP_ASN1_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

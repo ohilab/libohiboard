@@ -39,6 +39,8 @@
  * <delamer@inicotech.com>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/opt.h"
 
 #if LWIP_IPV6 && LWIP_ETHERNET
@@ -116,3 +118,5 @@ ethip6_output(struct netif *netif, struct pbuf *q, const ip6_addr_t *ip6addr)
 }
 
 #endif /* LWIP_IPV6 && LWIP_ETHERNET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

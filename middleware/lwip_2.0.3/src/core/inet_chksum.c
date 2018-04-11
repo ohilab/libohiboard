@@ -44,6 +44,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -607,3 +608,5 @@ lwip_chksum_copy(void *dst, const void *src, u16_t len)
   return LWIP_CHKSUM(dst, len);
 }
 #endif /* (LWIP_CHKSUM_COPY_ALGORITHM == 1) */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

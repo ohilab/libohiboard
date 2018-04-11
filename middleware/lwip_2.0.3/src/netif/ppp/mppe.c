@@ -22,6 +22,7 @@
  *                    MOD_DEC_USAGE_COUNT/MOD_INC_USAGE_COUNT which are
  *                    deprecated in 2.6
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && MPPE_SUPPORT  /* don't build if not configured for use in lwipopts.h */
@@ -410,3 +411,5 @@ sanity_error:
 }
 
 #endif /* PPP_SUPPORT && MPPE_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

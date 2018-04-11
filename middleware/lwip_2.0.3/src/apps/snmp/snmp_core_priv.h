@@ -30,6 +30,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_APPS_SNMP_CORE_PRIV_H
 #define LWIP_HDR_APPS_SNMP_CORE_PRIV_H
 
@@ -74,3 +76,5 @@ u8_t snmp_get_next_node_instance_from_oid(const u32_t *oid, u8_t oid_len, snmp_v
 #endif /* LWIP_SNMP */
 
 #endif /* LWIP_HDR_APPS_SNMP_CORE_PRIV_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

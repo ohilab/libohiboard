@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -51,3 +52,5 @@
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 
 #endif /* LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

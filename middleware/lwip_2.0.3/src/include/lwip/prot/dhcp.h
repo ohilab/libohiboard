@@ -35,6 +35,8 @@
  * Author: Leon Woestenberg <leon.woestenberg@gmx.net>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_PROT_DHCP_H
 #define LWIP_HDR_PROT_DHCP_H
 
@@ -181,3 +183,5 @@ typedef enum {
 #endif
 
 #endif /*LWIP_HDR_PROT_DHCP_H*/
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

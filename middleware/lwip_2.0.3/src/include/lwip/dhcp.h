@@ -35,6 +35,8 @@
  * Author: Leon Woestenberg <leon.woestenberg@gmx.net>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_DHCP_H
 #define LWIP_HDR_DHCP_H
 
@@ -141,3 +143,5 @@ extern void dhcp_set_ntp_servers(u8_t num_ntp_servers, const ip4_addr_t* ntp_ser
 #endif /* LWIP_DHCP */
 
 #endif /*LWIP_HDR_DHCP_H*/
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

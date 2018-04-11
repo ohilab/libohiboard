@@ -57,6 +57,7 @@
  * Author: Simon Goldschmidt
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 #include "lwip/def.h"
@@ -220,3 +221,5 @@ lwip_itoa(char* result, size_t bufsize, int number)
   }
 }
 #endif
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

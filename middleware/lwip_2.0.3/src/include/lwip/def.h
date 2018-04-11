@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_DEF_H
 #define LWIP_HDR_DEF_H
 
@@ -139,3 +141,5 @@ char* lwip_strnstr(const char* buffer, const char* token, size_t n);
 #endif
 
 #endif /* LWIP_HDR_DEF_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

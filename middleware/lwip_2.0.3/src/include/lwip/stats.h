@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_STATS_H
 #define LWIP_HDR_STATS_H
 
@@ -489,3 +491,5 @@ void stats_display_sys(struct stats_sys *sys);
 #endif
 
 #endif /* LWIP_HDR_STATS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

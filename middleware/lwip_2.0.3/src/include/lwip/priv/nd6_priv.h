@@ -40,6 +40,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_ND6_PRIV_H
 #define LWIP_HDR_ND6_PRIV_H
@@ -142,3 +143,5 @@ extern u32_t retrans_timer;
 #endif /* LWIP_IPV6 */
 
 #endif /* LWIP_HDR_ND6_PRIV_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

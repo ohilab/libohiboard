@@ -34,6 +34,7 @@
  * Author: Martin Hentschel <info@cl-soft.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/snmp_opts.h"
 
@@ -154,3 +155,5 @@ snmp_pbuf_stream_seek_abs(struct snmp_pbuf_stream* pbuf_stream, u32_t offset)
 }
 
 #endif /* LWIP_SNMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

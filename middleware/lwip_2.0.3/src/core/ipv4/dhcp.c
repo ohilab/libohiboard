@@ -60,6 +60,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/opt.h"
 
 #if LWIP_IPV4 && LWIP_DHCP /* don't build if not configured for use in lwipopts.h */
@@ -1949,3 +1951,5 @@ dhcp_supplied_address(const struct netif *netif)
 }
 
 #endif /* LWIP_IPV4 && LWIP_DHCP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

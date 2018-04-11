@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_IP_H
 #define LWIP_HDR_IP_H
 
@@ -316,4 +318,4 @@ err_t ip_input(struct pbuf *p, struct netif *inp);
 
 #endif /* LWIP_HDR_IP_H */
 
-
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

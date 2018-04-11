@@ -24,6 +24,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_PPP_OPTS_H
 #define LWIP_PPP_OPTS_H
@@ -591,3 +592,5 @@
 #endif /* PPP_SUPPORT */
 
 #endif /* LWIP_PPP_OPTS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

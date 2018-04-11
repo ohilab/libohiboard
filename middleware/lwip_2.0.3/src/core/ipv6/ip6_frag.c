@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 #include "lwip/ip6_frag.h"
@@ -803,3 +804,5 @@ ip6_frag(struct pbuf *p, struct netif *netif, const ip6_addr_t *dest)
 }
 
 #endif /* LWIP_IPV6 && LWIP_IPV6_FRAG */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

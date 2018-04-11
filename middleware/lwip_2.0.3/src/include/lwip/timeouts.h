@@ -35,6 +35,8 @@
  *         Simon Goldschmidt
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_TIMEOUTS_H
 #define LWIP_HDR_TIMEOUTS_H
 
@@ -119,3 +121,5 @@ void sys_timeouts_mbox_fetch(sys_mbox_t *mbox, void **msg);
 #endif
 
 #endif /* LWIP_HDR_TIMEOUTS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -35,6 +35,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_DNS_H
 #define LWIP_HDR_DNS_H
@@ -128,3 +129,5 @@ err_t          dns_local_addhost(const char *hostname, const ip_addr_t *addr);
 #endif /* LWIP_DNS */
 
 #endif /* LWIP_HDR_DNS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

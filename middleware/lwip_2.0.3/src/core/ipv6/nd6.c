@@ -41,6 +41,8 @@
  * <delamer@inicotech.com>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/opt.h"
 
 #if LWIP_IPV6  /* don't build if not configured for use in lwipopts.h */
@@ -2100,3 +2102,5 @@ nd6_adjust_mld_membership(struct netif *netif, s8_t addr_idx, u8_t new_state)
 #endif /* LWIP_IPV6_MLD */
 
 #endif /* LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

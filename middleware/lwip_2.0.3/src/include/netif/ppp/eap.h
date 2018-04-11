@@ -19,6 +19,7 @@
  *
  * $Id: eap.h,v 1.2 2003/06/11 23:56:26 paulus Exp $
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && EAP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
@@ -167,3 +168,5 @@ extern const struct protent eap_protent;
 #endif /* PPP_EAP_H */
 
 #endif /* PPP_SUPPORT && EAP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -35,6 +35,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/netdb.h"
 
 #if LWIP_DNS && LWIP_SOCKET
@@ -411,3 +413,5 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
 }
 
 #endif /* LWIP_DNS && LWIP_SOCKET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

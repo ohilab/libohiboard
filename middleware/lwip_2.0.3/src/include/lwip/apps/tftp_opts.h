@@ -37,6 +37,7 @@
  * Author: Logan Gunthorpe <logang@deltatee.com>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_TFTP_OPTS_H
 #define LWIP_HDR_APPS_TFTP_OPTS_H
@@ -103,3 +104,5 @@
  */
 
 #endif /* LWIP_HDR_APPS_TFTP_OPTS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

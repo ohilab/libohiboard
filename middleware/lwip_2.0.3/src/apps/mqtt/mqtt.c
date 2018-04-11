@@ -47,6 +47,8 @@
  * Erik Andersson <erian747@gmail.com>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/apps/mqtt.h"
 #include "lwip/timeouts.h"
 #include "lwip/ip_addr.h"
@@ -1340,3 +1342,5 @@ mqtt_client_is_connected(mqtt_client_t *client)
 }
 
 #endif /* LWIP_TCP && LWIP_CALLBACK_API */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

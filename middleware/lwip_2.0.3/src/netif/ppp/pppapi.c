@@ -30,6 +30,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 
@@ -425,3 +426,5 @@ pppapi_ioctl(ppp_pcb *pcb, u8_t cmd, void *arg)
 }
 
 #endif /* LWIP_PPP_API */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

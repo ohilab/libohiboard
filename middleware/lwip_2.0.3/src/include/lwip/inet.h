@@ -37,6 +37,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_INET_H
 #define LWIP_HDR_INET_H
 
@@ -170,3 +172,5 @@ extern const struct in6_addr in6addr_any;
 #endif
 
 #endif /* LWIP_HDR_INET_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

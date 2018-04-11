@@ -1,3 +1,5 @@
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/apps/fs.h"
 #include "lwip/def.h"
 #include "fsdata.h"
@@ -296,3 +298,4 @@ sizeof(data__index_html) - 12,
 #define FS_ROOT file__index_html
 #define FS_NUMFILES 3
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -27,6 +27,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && defined(HAVE_MULTILINK) /* don't build if not configured for use in lwipopts.h */
@@ -607,3 +608,5 @@ str_to_epdisc(ep, str)
 }
 
 #endif /* PPP_SUPPORT && HAVE_MULTILINK */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

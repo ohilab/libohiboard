@@ -38,6 +38,8 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_IP6_FRAG_H
 #define LWIP_HDR_IP6_FRAG_H
 
@@ -118,3 +120,5 @@ err_t ip6_frag(struct pbuf *p, struct netif *netif, const ip6_addr_t *dest);
 #endif
 
 #endif /* LWIP_HDR_IP6_FRAG_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -38,6 +38,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/opt.h"
 
 #if LWIP_IPV4
@@ -1084,3 +1086,5 @@ ip4_debug_print(struct pbuf *p)
 #endif /* IP_DEBUG */
 
 #endif /* LWIP_IPV4 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

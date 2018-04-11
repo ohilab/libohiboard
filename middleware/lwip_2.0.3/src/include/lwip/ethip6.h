@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_ETHIP6_H
 #define LWIP_HDR_ETHIP6_H
@@ -66,3 +67,5 @@ err_t ethip6_output(struct netif *netif, struct pbuf *q, const ip6_addr_t *ip6ad
 #endif /* LWIP_IPV6 && LWIP_ETHERNET */
 
 #endif /* LWIP_HDR_ETHIP6_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

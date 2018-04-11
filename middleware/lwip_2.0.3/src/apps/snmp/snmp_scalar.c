@@ -34,6 +34,7 @@
  * Author: Martin Hentschel <info@cl-soft.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/snmp_opts.h"
 
@@ -218,3 +219,5 @@ snmp_scalar_array_set_value(struct snmp_node_instance* instance, u16_t value_len
 }
 
 #endif /* LWIP_SNMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

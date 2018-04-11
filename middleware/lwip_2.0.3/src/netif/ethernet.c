@@ -37,6 +37,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -312,3 +313,5 @@ pbuf_header_failed:
 }
 
 #endif /* LWIP_ARP || LWIP_ETHERNET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

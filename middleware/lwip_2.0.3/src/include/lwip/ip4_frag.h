@@ -34,6 +34,7 @@
  * Author: Jani Monoses <jani@iv.ro>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_IP4_FRAG_H
 #define LWIP_HDR_IP4_FRAG_H
@@ -98,3 +99,5 @@ err_t ip4_frag(struct pbuf *p, struct netif *netif, const ip4_addr_t *dest);
 #endif /* LWIP_IPV4 */
 
 #endif /* LWIP_HDR_IP4_FRAG_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1120,3 +1121,5 @@ ip6_debug_print(struct pbuf *p)
 #endif /* IP6_DEBUG */
 
 #endif /* LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

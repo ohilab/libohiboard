@@ -39,6 +39,8 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_IP6_ADDR_H
 #define LWIP_HDR_IP6_ADDR_H
 
@@ -283,3 +285,5 @@ char *ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen);
 #endif /* LWIP_IPV6 */
 
 #endif /* LWIP_HDR_IP6_ADDR_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -29,6 +29,8 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_NETIFAPI_H
 #define LWIP_HDR_NETIFAPI_H
 
@@ -138,3 +140,5 @@ err_t netifapi_netif_common(struct netif *netif, netifapi_void_fn voidfunc,
 #endif /* LWIP_NETIF_API */
 
 #endif /* LWIP_HDR_NETIFAPI_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

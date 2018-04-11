@@ -34,6 +34,8 @@
  * Author: Erik Andersson
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_APPS_MQTT_CLIENT_H
 #define LWIP_HDR_APPS_MQTT_CLIENT_H
 
@@ -242,3 +244,5 @@ err_t mqtt_publish(mqtt_client_t *client, const char *topic, const void *payload
 #endif
 
 #endif /* LWIP_HDR_APPS_MQTT_CLIENT_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

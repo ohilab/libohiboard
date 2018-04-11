@@ -168,6 +168,8 @@
  * @ingroup snmp
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/apps/snmp_opts.h"
 
 #if LWIP_SNMP /* don't build if not configured for use in lwipopts.h */
@@ -1347,3 +1349,5 @@ snmp_encode_truthvalue(s32_t *asn1_value, u32_t bool_value)
 }
 
 #endif /* LWIP_SNMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

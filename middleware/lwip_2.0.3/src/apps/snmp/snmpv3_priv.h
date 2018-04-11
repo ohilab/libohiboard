@@ -31,6 +31,7 @@
  *
  * Author: Elias Oenal <lwip@eliasoenal.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_V3_PRIV_H
 #define LWIP_HDR_APPS_SNMP_V3_PRIV_H
@@ -64,3 +65,5 @@ err_t snmpv3_build_priv_param(u8_t* priv_param);
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_V3_PRIV_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

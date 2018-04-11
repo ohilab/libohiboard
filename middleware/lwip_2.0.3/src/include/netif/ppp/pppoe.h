@@ -67,6 +67,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && PPPOE_SUPPORT /* don't build if not configured for use in lwipopts.h */
 
@@ -177,3 +179,5 @@ void pppoe_data_input(struct netif *netif, struct pbuf *p);
 #endif /* PPP_OE_H */
 
 #endif /* PPP_SUPPORT && PPPOE_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

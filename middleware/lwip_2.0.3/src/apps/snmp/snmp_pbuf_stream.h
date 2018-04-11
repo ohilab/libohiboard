@@ -34,6 +34,7 @@
  * Author: Martin Hentschel <info@cl-soft.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_PBUF_STREAM_H
 #define LWIP_HDR_APPS_SNMP_PBUF_STREAM_H
@@ -71,3 +72,5 @@ err_t snmp_pbuf_stream_seek_abs(struct snmp_pbuf_stream* pbuf_stream, u32_t offs
 #endif /* LWIP_SNMP */
 
 #endif /* LWIP_HDR_APPS_SNMP_PBUF_STREAM_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -35,6 +35,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 /*
  * NOTE: || defined __DOXYGEN__ is a workaround for doxygen bug -
@@ -2874,3 +2875,5 @@
  */
 
 #endif /* LWIP_HDR_OPT_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

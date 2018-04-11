@@ -29,5 +29,8 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/netdb.h"
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

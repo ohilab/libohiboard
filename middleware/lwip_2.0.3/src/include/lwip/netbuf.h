@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_NETBUF_H
 #define LWIP_HDR_NETBUF_H
 
@@ -116,3 +118,5 @@ void              netbuf_first    (struct netbuf *buf);
 #endif /* LWIP_NETCONN || LWIP_SOCKET */
 
 #endif /* LWIP_HDR_NETBUF_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

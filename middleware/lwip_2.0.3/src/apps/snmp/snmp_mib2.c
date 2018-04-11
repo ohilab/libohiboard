@@ -37,6 +37,7 @@
  * @defgroup snmp_mib2 MIB2
  * @ingroup snmp
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/snmp_opts.h"
 
@@ -114,3 +115,5 @@ static const u32_t  mib2_base_oid_arr[] = { 1,3,6,1,2,1 };
 const struct snmp_mib mib2 = SNMP_MIB_CREATE(mib2_base_oid_arr, &mib2_root.node);
 
 #endif /* LWIP_SNMP && SNMP_LWIP_MIB2 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

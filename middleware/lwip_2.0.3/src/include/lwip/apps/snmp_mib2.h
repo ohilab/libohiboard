@@ -34,6 +34,8 @@
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_APPS_SNMP_MIB2_H
 #define LWIP_HDR_APPS_SNMP_MIB2_H
 
@@ -76,3 +78,5 @@ void snmp_mib2_set_syslocation_readonly(const u8_t *ocstr, const u16_t *ocstrlen
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_MIB2_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

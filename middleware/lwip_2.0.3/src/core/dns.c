@@ -81,6 +81,7 @@
 /*-----------------------------------------------------------------------------
  * Includes
  *----------------------------------------------------------------------------*/
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1571,3 +1572,5 @@ dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_call
 }
 
 #endif /* LWIP_DNS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

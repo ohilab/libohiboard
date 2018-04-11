@@ -38,6 +38,7 @@
  *         Simon Goldschmidt
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -431,3 +432,5 @@ tcp_timer_needed(void)
 {
 }
 #endif /* LWIP_TIMERS && !LWIP_TIMERS_CUSTOM */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

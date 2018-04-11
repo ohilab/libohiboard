@@ -30,6 +30,8 @@
 * 97-11-05 Guy Lancaster <glanca@gesn.com>, Global Election Systems Inc.
 *   Original derived from BSD codes.
 *****************************************************************************/
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_PPP_IMPL_H
 #define LWIP_HDR_PPP_IMPL_H
 
@@ -627,3 +629,5 @@ void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len);
 
 #endif /* PPP_SUPPORT */
 #endif /* LWIP_HDR_PPP_IMPL_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

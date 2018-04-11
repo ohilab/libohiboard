@@ -36,6 +36,8 @@
  *         Martin Hentschel <info@cl-soft.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_APPS_SNMP_H
 #define LWIP_HDR_APPS_SNMP_H
 
@@ -126,3 +128,5 @@ void snmp_set_write_callback(snmp_write_callback_fct write_callback, void* callb
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

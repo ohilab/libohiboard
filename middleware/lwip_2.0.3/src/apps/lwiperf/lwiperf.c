@@ -44,6 +44,7 @@
  *
  * Author: Simon Goldschmidt
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/lwiperf.h"
 
@@ -659,3 +660,5 @@ lwiperf_abort(void* lwiperf_session)
 }
 
 #endif /* LWIP_IPV4 && LWIP_TCP && LWIP_CALLBACK_API */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -31,6 +31,7 @@
  *
  * Author: Elias Oenal <lwip@eliasoenal.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_V3_H
 #define LWIP_HDR_APPS_SNMP_V3_H
@@ -88,3 +89,5 @@ void snmpv3_password_to_key_sha(
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_V3_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

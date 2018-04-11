@@ -52,6 +52,7 @@
  *         Simon Goldschmidt
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 #include "lwip/mem.h"
@@ -775,3 +776,5 @@ mem_calloc(mem_size_t count, mem_size_t size)
   return p;
 }
 #endif /* MEM_LIBC_MALLOC && (!LWIP_STATS || !MEM_STATS) */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

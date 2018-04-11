@@ -38,6 +38,7 @@
  *
  *  http://csrc.nist.gov/publications/fips/fips46-3/fips46-3.pdf
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_DES
@@ -420,3 +421,5 @@ void des_crypt_ecb( des_context *ctx,
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_DES */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

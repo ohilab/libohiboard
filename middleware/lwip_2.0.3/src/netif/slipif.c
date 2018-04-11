@@ -58,6 +58,7 @@
  *           pbuf_alloc to work on ISR level!).
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/slipif.h"
 #include "lwip/opt.h"
@@ -553,3 +554,5 @@ slipif_received_bytes(struct netif *netif, u8_t *data, u8_t len)
   }
 }
 #endif /* SLIP_RX_FROM_ISR */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

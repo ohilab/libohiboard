@@ -38,6 +38,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_NETIF_ETHARP_H
 #define LWIP_HDR_NETIF_ETHARP_H
@@ -104,3 +105,5 @@ void etharp_input(struct pbuf *p, struct netif *netif);
 #endif /* LWIP_ARP || LWIP_ETHERNET */
 
 #endif /* LWIP_HDR_NETIF_ETHARP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

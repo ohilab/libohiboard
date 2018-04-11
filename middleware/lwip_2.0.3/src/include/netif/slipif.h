@@ -37,6 +37,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_NETIF_SLIPIF_H
 #define LWIP_HDR_NETIF_SLIPIF_H
 
@@ -85,3 +87,4 @@ void slipif_received_bytes(struct netif *netif, u8_t *data, u8_t len);
 
 #endif /* LWIP_HDR_NETIF_SLIPIF_H */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

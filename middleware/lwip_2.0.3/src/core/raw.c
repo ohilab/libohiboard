@@ -44,6 +44,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -519,3 +520,5 @@ void raw_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_a
 }
 
 #endif /* LWIP_RAW */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

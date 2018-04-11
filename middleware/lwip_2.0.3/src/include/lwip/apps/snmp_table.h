@@ -34,6 +34,7 @@
  * Author: Martin Hentschel <info@cl-soft.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_TABLE_H
 #define LWIP_HDR_APPS_SNMP_TABLE_H
@@ -132,3 +133,5 @@ s16_t snmp_table_extract_value_from_refconstptr(struct snmp_node_instance* insta
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_TABLE_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

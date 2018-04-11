@@ -34,6 +34,8 @@
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_SNMP_H
 #define LWIP_HDR_SNMP_H
 
@@ -211,3 +213,5 @@ void mib2_udp_unbind(struct udp_pcb *pcb);
 #endif
 
 #endif /* LWIP_HDR_SNMP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

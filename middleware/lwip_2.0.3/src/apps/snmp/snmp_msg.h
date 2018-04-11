@@ -34,6 +34,7 @@
  *         Martin Hentschel <info@cl-soft.de>
  *         Elias Oenal <lwip@eliasoenal.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_MSG_H
 #define LWIP_HDR_APPS_SNMP_MSG_H
@@ -192,3 +193,5 @@ err_t snmp_append_outbound_varbind(struct snmp_pbuf_stream *pbuf_stream, struct 
 #endif /* LWIP_SNMP */
 
 #endif /* LWIP_HDR_APPS_SNMP_MSG_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

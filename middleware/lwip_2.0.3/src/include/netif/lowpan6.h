@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_LOWPAN6_H
 #define LWIP_HDR_LOWPAN6_H
@@ -84,3 +85,5 @@ err_t tcpip_6lowpan_input(struct pbuf *p, struct netif *inp);
 #endif /* LWIP_IPV6 && LWIP_6LOWPAN */
 
 #endif /* LWIP_HDR_LOWPAN6_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

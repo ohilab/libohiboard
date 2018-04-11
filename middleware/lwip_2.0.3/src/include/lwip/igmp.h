@@ -36,6 +36,7 @@
  * are specifically granted permission to redistribute this
  * source code.
 */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_IGMP_H
 #define LWIP_HDR_IGMP_H
@@ -113,3 +114,5 @@ void   igmp_tmr(void);
 #endif /* LWIP_IPV4 && LWIP_IGMP */
 
 #endif /* LWIP_HDR_IGMP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

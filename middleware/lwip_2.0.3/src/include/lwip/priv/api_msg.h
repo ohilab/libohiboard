@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_API_MSG_H
 #define LWIP_HDR_API_MSG_H
 
@@ -214,3 +216,5 @@ void netconn_free(struct netconn *conn);
 #endif /* LWIP_NETCONN || LWIP_SOCKET */
 
 #endif /* LWIP_HDR_API_MSG_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

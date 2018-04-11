@@ -33,6 +33,7 @@
  *
  * Author: Adam Dunkels <adam@sics.se>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_SYS_H
 #define LWIP_HDR_SYS_H
@@ -453,3 +454,5 @@ void sys_arch_unprotect(sys_prot_t pval);
 #endif
 
 #endif /* LWIP_HDR_SYS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -73,6 +73,7 @@
  * @defgroup sys_misc Misc
  * @ingroup sys_os
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -104,3 +105,5 @@ sys_msleep(u32_t ms)
 #endif /* sys_msleep */
 
 #endif /* !NO_SYS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

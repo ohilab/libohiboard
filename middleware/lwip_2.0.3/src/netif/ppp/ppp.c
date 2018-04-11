@@ -84,6 +84,7 @@
  * @ingroup addons
  * @verbinclude "ppp.txt"
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -1645,3 +1646,5 @@ void print_link_stats() {
 #endif /* PPP_STATS_SUPPORT */
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

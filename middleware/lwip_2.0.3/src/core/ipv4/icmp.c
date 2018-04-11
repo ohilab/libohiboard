@@ -38,6 +38,7 @@
 
 /* Some ICMP messages should be passed to the transport protocols. This
    is not implemented. */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -395,3 +396,5 @@ icmp_send_response(struct pbuf *p, u8_t type, u8_t code)
 }
 
 #endif /* LWIP_IPV4 && LWIP_ICMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

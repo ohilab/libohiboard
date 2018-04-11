@@ -31,6 +31,7 @@
  *
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/snmp_opts.h"
 
@@ -217,3 +218,5 @@ void snmp_threadsync_init(struct snmp_threadsync_instance *instance, snmp_thread
 }
 
 #endif /* LWIP_SNMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

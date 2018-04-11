@@ -42,6 +42,7 @@
  * search-and-replace for the word "ethernetif" to replace it with
  * something that better describes your network interface.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -333,3 +334,5 @@ ethernetif_init(struct netif *netif)
 }
 
 #endif /* 0 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

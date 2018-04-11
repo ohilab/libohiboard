@@ -1,3 +1,5 @@
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HTTPD_STRUCTS_H
 #define LWIP_HTTPD_STRUCTS_H
 
@@ -112,3 +114,5 @@ static const char * const g_pcSSIExtensions[] = {
 #endif /* LWIP_HTTPD_SSI */
 
 #endif /* LWIP_HTTPD_STRUCTS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

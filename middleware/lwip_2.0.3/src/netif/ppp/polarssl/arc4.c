@@ -37,6 +37,7 @@
  *
  *  http://groups.google.com/group/sci.crypt/msg/10a300c9d21afca0
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_ARC4
@@ -99,3 +100,5 @@ void arc4_crypt( arc4_context *ctx, unsigned char *buf, int buflen )
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_DES */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

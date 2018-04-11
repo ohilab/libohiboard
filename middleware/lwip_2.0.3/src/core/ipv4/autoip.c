@@ -56,6 +56,8 @@
  * Author: Dominik Spies <kontakt@dspies.de>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/opt.h"
 
 #if LWIP_IPV4 && LWIP_AUTOIP /* don't build if not configured for use in lwipopts.h */
@@ -525,3 +527,5 @@ autoip_accept_packet(struct netif *netif, const ip4_addr_t *addr)
 }
 
 #endif /* LWIP_IPV4 && LWIP_AUTOIP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

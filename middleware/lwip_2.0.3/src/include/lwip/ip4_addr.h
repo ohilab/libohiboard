@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_IP4_ADDR_H
 #define LWIP_HDR_IP4_ADDR_H
 
@@ -225,3 +227,5 @@ char *ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen);
 #endif /* LWIP_IPV4 */
 
 #endif /* LWIP_HDR_IP_ADDR_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

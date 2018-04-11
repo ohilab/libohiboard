@@ -27,6 +27,7 @@
  * Modified March 1998 by Guy Lancaster, glanca@gesn.com,
  * for a 16 bit processor.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && VJ_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -693,3 +694,5 @@ bad:
 }
 
 #endif /* PPP_SUPPORT && VJ_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

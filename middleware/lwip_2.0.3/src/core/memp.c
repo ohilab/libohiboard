@@ -42,6 +42,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -494,3 +495,5 @@ memp_free(memp_t type, void *mem)
   }
 #endif
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

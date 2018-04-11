@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_API_H
 #define LWIP_HDR_API_H
 
@@ -398,3 +400,5 @@ void netconn_thread_cleanup(void);
 #endif /* LWIP_NETCONN || LWIP_SOCKET */
 
 #endif /* LWIP_HDR_API_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

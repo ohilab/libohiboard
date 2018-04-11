@@ -47,6 +47,7 @@
  *
  * Author: Adam Dunkels <adam@sics.se>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1265,3 +1266,5 @@ netif_null_output_ip6(struct netif *netif, struct pbuf *p, const ip6_addr_t *ipa
   return ERR_IF;
 }
 #endif /* LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

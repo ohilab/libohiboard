@@ -34,6 +34,8 @@
  * Author: Erik Ekman <erik@kryo.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_MDNS_H
 #define LWIP_HDR_MDNS_H
 
@@ -67,3 +69,5 @@ void mdns_resp_netif_settings_changed(struct netif *netif);
 #endif /* LWIP_MDNS_RESPONDER */
 
 #endif /* LWIP_HDR_MDNS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -348,3 +349,5 @@ icmp6_send_response(struct pbuf *p, u8_t code, u32_t data, u8_t type)
 }
 
 #endif /* LWIP_ICMP6 && LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

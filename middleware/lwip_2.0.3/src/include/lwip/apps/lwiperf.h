@@ -34,6 +34,8 @@
  * Author: Simon Goldschmidt
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_APPS_LWIPERF_H
 #define LWIP_HDR_APPS_LWIPERF_H
 
@@ -82,3 +84,5 @@ void  lwiperf_abort(void* lwiperf_session);
 #endif
 
 #endif /* LWIP_HDR_APPS_LWIPERF_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

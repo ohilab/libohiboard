@@ -30,6 +30,7 @@
 * 97-11-05 Guy Lancaster <glanca@gesn.com>, Global Election Systems Inc.
 *   Original derived from BSD codes.
 *****************************************************************************/
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -688,3 +689,5 @@ err_t ppp_ioctl(ppp_pcb *pcb, u8_t cmd, void *arg);
 #endif /* PPP_H */
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

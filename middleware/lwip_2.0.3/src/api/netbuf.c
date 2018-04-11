@@ -41,6 +41,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -244,3 +245,5 @@ netbuf_first(struct netbuf *buf)
 }
 
 #endif /* LWIP_NETCONN */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

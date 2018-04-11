@@ -50,6 +50,8 @@
  * - complete SNTP_CHECK_RESPONSE checks 3 and 4
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/apps/sntp.h"
 
 #include "lwip/opt.h"
@@ -725,3 +727,5 @@ sntp_getservername(u8_t idx)
 #endif /* SNTP_SERVER_DNS */
 
 #endif /* LWIP_UDP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

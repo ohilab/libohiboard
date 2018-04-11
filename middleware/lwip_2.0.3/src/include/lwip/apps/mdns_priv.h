@@ -34,6 +34,8 @@
  * Author: Erik Ekman <erik@kryo.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_MDNS_PRIV_H
 #define LWIP_HDR_MDNS_PRIV_H
 
@@ -64,3 +66,5 @@ u16_t mdns_compress_domain(struct pbuf *pbuf, u16_t *offset, struct mdns_domain 
 #endif /* LWIP_MDNS_RESPONDER */
 
 #endif /* LWIP_HDR_MDNS_PRIV_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

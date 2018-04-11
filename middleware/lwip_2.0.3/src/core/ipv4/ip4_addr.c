@@ -35,6 +35,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -329,3 +330,5 @@ ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen)
 }
 
 #endif /* LWIP_IPV4 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

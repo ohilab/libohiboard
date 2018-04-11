@@ -34,7 +34,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_SOCKETS_H
 #define LWIP_HDR_SOCKETS_H
@@ -591,3 +591,5 @@ int lwip_fcntl(int s, int cmd, int val);
 #endif /* LWIP_SOCKET */
 
 #endif /* LWIP_HDR_SOCKETS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

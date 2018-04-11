@@ -34,6 +34,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_MEMP_PRIV_H
 #define LWIP_HDR_MEMP_PRIV_H
@@ -181,3 +182,5 @@ void  memp_free_pool(const struct memp_desc* desc, void *mem);
 #endif
 
 #endif /* LWIP_HDR_MEMP_PRIV_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

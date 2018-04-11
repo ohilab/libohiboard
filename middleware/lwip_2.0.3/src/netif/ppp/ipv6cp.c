@@ -146,6 +146,7 @@
  * Better defines for selecting the ordering of
  *   interface up / set address.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && PPP_IPV6_SUPPORT  /* don't build if not configured for use in lwipopts.h */
@@ -1531,3 +1532,5 @@ static int ipv6_active_pkt(u_char *pkt, int len) {
 #endif /* DEMAND_SUPPORT */
 
 #endif /* PPP_SUPPORT && PPP_IPV6_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

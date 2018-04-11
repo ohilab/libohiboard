@@ -34,6 +34,7 @@
  *         Martin Hentschel <info@cl-soft.de>
  *         Elias Oenal <lwip@eliasoenal.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/snmp_opts.h"
 
@@ -1666,3 +1667,5 @@ snmp_vb_enumerator_get_next(struct snmp_varbind_enumerator* enumerator, struct s
 }
 
 #endif /* LWIP_SNMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

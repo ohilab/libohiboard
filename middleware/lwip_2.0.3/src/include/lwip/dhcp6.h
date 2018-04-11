@@ -39,6 +39,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_IP6_DHCP6_H
 #define LWIP_HDR_IP6_DHCP6_H
@@ -56,3 +57,5 @@ struct dhcp6
 #endif /* LWIP_IPV6_DHCP6 */
 
 #endif /* LWIP_HDR_IP6_DHCP6_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -79,6 +79,7 @@ Steve Reynolds
 /*-----------------------------------------------------------------------------
  * Includes
  *----------------------------------------------------------------------------*/
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -798,3 +799,5 @@ igmp_send(struct netif *netif, struct igmp_group *group, u8_t type)
 }
 
 #endif /* LWIP_IPV4 && LWIP_IGMP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

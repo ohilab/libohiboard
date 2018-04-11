@@ -32,6 +32,7 @@
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  *         Christiaan Simons <christiaan.simons@axon.tv>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/snmp.h"
 #include "lwip/apps/snmp.h"
@@ -592,3 +593,5 @@ static const struct snmp_node* const tcp_nodes[] = {
 
 const struct snmp_tree_node snmp_mib2_tcp_root = SNMP_CREATE_TREE_NODE(6, tcp_nodes);
 #endif /* LWIP_SNMP && SNMP_LWIP_MIB2 && LWIP_TCP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

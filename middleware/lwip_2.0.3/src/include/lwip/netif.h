@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_NETIF_H
 #define LWIP_HDR_NETIF_H
 
@@ -472,3 +474,5 @@ err_t netif_add_ip6_address(struct netif *netif, const ip6_addr_t *ip6addr, s8_t
 #endif
 
 #endif /* LWIP_HDR_NETIF_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

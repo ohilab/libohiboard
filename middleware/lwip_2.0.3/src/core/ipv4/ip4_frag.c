@@ -37,6 +37,7 @@
  * original reassembly code by Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -862,3 +863,5 @@ memerr:
 #endif /* IP_FRAG */
 
 #endif /* LWIP_IPV4 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -37,6 +37,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_LOWPAN6_OPTS_H
 #define LWIP_HDR_LOWPAN6_OPTS_H
@@ -68,3 +69,5 @@
 #endif
 
 #endif /* LWIP_HDR_LOWPAN6_OPTS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

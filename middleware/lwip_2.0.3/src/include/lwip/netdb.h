@@ -31,6 +31,8 @@
  * Author: Simon Goldschmidt
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_NETDB_H
 #define LWIP_HDR_NETDB_H
 
@@ -148,3 +150,5 @@ int lwip_getaddrinfo(const char *nodename,
 #endif /* LWIP_DNS && LWIP_SOCKET */
 
 #endif /* LWIP_HDR_NETDB_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

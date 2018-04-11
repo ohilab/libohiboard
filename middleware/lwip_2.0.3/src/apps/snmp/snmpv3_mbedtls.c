@@ -32,6 +32,7 @@
  * Author: Elias Oenal <lwip@eliasoenal.com>
  *         Dirk Ziegelmeier <dirk@ziegelmeier.net>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/snmpv3.h"
 #include "snmpv3_priv.h"
@@ -329,3 +330,5 @@ snmpv3_password_to_key_sha(
 }
 
 #endif /* LWIP_SNMP && LWIP_SNMP_V3 && LWIP_SNMP_V3_MBEDTLS */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

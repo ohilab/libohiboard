@@ -44,6 +44,7 @@
 
 /* @todo Check the use of '(struct udp_pcb).chksum_len_rx'!
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1189,3 +1190,5 @@ udp_debug_print(struct udp_hdr *udphdr)
 #endif /* UDP_DEBUG */
 
 #endif /* LWIP_UDP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

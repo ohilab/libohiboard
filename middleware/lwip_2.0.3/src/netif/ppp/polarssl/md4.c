@@ -38,6 +38,7 @@
  *  http://www.ietf.org/rfc/rfc1186.txt
  *  http://www.ietf.org/rfc/rfc1320.txt
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_MD4
@@ -279,3 +280,5 @@ void md4( unsigned char *input, int ilen, unsigned char output[16] )
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_MD4 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

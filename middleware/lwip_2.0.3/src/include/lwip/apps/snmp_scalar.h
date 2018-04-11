@@ -34,6 +34,7 @@
  * Author: Martin Hentschel <info@cl-soft.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_SCALAR_H
 #define LWIP_HDR_APPS_SNMP_SCALAR_H
@@ -111,3 +112,5 @@ snmp_err_t snmp_scalar_array_get_next_instance(const u32_t *root_oid, u8_t root_
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_SCALAR_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

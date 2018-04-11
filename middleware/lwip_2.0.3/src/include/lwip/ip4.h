@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_IP4_H
 #define LWIP_HDR_IP4_H
 
@@ -108,4 +110,4 @@ void ip4_debug_print(struct pbuf *p);
 
 #endif /* LWIP_HDR_IP_H */
 
-
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

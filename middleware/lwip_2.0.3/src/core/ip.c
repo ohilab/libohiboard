@@ -52,6 +52,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -122,3 +123,5 @@ ip_input(struct pbuf *p, struct netif *inp)
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
 
 #endif /* LWIP_IPV4 || LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

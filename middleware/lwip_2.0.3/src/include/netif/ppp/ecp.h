@@ -30,6 +30,7 @@
  *
  * $Id: ecp.h,v 1.2 2003/01/10 07:12:36 fcusack Exp $
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && ECP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
@@ -48,3 +49,5 @@ extern ecp_options ecp_hisoptions[];
 extern const struct protent ecp_protent;
 
 #endif /* PPP_SUPPORT && ECP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

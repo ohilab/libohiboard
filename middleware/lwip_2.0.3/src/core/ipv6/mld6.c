@@ -46,6 +46,8 @@
 
 /* Based on igmp.c implementation of igmp v2 protocol */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/opt.h"
 
 #if LWIP_IPV6 && LWIP_IPV6_MLD  /* don't build if not configured for use in lwipopts.h */
@@ -586,3 +588,5 @@ mld6_send(struct netif *netif, struct mld_group *group, u8_t type)
 }
 
 #endif /* LWIP_IPV6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

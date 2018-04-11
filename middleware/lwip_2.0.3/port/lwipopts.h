@@ -29,6 +29,9 @@
  * Author: Simon Goldschmidt
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
@@ -64,3 +67,5 @@
 #define LWIP_NETIF_LINK_CALLBACK	1
 
 #endif /* __LWIPOPTS_H__ */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

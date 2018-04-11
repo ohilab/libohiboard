@@ -29,6 +29,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_APPS_FS_H
 #define LWIP_HDR_APPS_FS_H
 
@@ -101,3 +103,5 @@ void fs_state_free(struct fs_file *file, void *state);
 #endif
 
 #endif /* LWIP_HDR_APPS_FS_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

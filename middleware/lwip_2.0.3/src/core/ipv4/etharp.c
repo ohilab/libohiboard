@@ -42,6 +42,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1204,3 +1205,5 @@ etharp_request(struct netif *netif, const ip4_addr_t *ipaddr)
 #endif /* LWIP_IPV4 && LWIP_ARP */
 
 #endif /* LWIP_ARP || LWIP_ETHERNET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

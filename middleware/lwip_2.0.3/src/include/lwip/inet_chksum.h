@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_INET_CHKSUM_H
 #define LWIP_HDR_INET_CHKSUM_H
 
@@ -103,3 +105,4 @@ u16_t ip_chksum_pseudo_partial(struct pbuf *p, u8_t proto, u16_t proto_len,
 
 #endif /* LWIP_HDR_INET_H */
 
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -37,6 +37,7 @@
  * with RFC 3927.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_AUTOIP_H
 #define LWIP_HDR_AUTOIP_H
@@ -97,3 +98,5 @@ u8_t autoip_accept_packet(struct netif *netif, const ip4_addr_t *addr);
 #endif /* LWIP_IPV4 && LWIP_AUTOIP */
 
 #endif /* LWIP_HDR_AUTOIP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

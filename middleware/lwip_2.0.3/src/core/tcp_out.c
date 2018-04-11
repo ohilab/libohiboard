@@ -37,6 +37,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1669,3 +1670,5 @@ tcp_zero_window_probe(struct tcp_pcb *pcb)
   return err;
 }
 #endif /* LWIP_TCP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

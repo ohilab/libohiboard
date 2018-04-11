@@ -44,6 +44,7 @@
  * @ingroup addons
  * 6LowPAN netif implementation
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/lowpan6.h"
 
@@ -1191,3 +1192,5 @@ tcpip_6lowpan_input(struct pbuf *p, struct netif *inp)
 #endif /* !NO_SYS */
 
 #endif /* LWIP_IPV6 && LWIP_6LOWPAN */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

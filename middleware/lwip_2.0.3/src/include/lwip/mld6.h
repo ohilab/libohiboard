@@ -39,6 +39,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_MLD6_H
 #define LWIP_HDR_MLD6_H
@@ -97,3 +98,5 @@ err_t  mld6_leavegroup_netif(struct netif *netif, const ip6_addr_t *groupaddr);
 #endif /* LWIP_IPV6_MLD && LWIP_IPV6 */
 
 #endif /* LWIP_HDR_MLD6_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

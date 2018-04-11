@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/err.h"
 #include "lwip/def.h"
 #include "lwip/sys.h"
@@ -113,3 +115,5 @@ lwip_strerr(err_t err)
 }
 
 #endif /* LWIP_DEBUG */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

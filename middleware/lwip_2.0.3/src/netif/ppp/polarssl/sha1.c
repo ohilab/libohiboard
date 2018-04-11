@@ -37,6 +37,7 @@
  *
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_SHA1
@@ -333,3 +334,5 @@ void sha1( unsigned char *input, int ilen, unsigned char output[20] )
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_SHA1 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

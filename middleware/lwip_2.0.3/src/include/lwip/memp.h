@@ -34,6 +34,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_MEMP_H
 #define LWIP_HDR_MEMP_H
@@ -153,3 +154,5 @@ void  memp_free(memp_t type, void *mem);
 #endif
 
 #endif /* LWIP_HDR_MEMP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

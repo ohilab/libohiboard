@@ -36,6 +36,7 @@
  * with RFC 3927.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_PROT_AUTOIP_H
 #define LWIP_HDR_PROT_AUTOIP_H
@@ -76,3 +77,5 @@ typedef enum {
 #endif
 
 #endif /* LWIP_HDR_PROT_AUTOIP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

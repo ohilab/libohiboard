@@ -29,6 +29,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_FSDATA_H
 #define LWIP_FSDATA_H
 
@@ -48,3 +50,5 @@ struct fsdata_file {
 };
 
 #endif /* LWIP_FSDATA_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -41,6 +41,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/netbiosns.h"
 
@@ -365,3 +366,5 @@ netbiosns_stop(void)
 }
 
 #endif /* LWIP_IPV4 && LWIP_UDP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -43,6 +43,7 @@
  * Improved by Marc Boucher <marc@mbsi.ca> and David Haas <dhaas@alum.rpi.edu>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -2825,3 +2826,5 @@ lwip_socket_drop_registered_memberships(int s)
 }
 #endif /* LWIP_IGMP */
 #endif /* LWIP_SOCKET */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -32,6 +32,7 @@
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  *         Christiaan Simons <christiaan.simons@axon.tv>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/snmp.h"
 #include "lwip/apps/snmp.h"
@@ -375,3 +376,5 @@ static const struct snmp_scalar_array_node_def system_nodes[] = {
 const struct snmp_scalar_array_node snmp_mib2_system_node = SNMP_SCALAR_CREATE_ARRAY_NODE(1, system_nodes, system_get_value, system_set_test, system_set_value);
 
 #endif /* LWIP_SNMP && SNMP_LWIP_MIB2 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

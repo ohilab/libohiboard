@@ -29,6 +29,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/httpd_opts.h"
 #include "lwip/def.h"
@@ -177,3 +178,5 @@ fs_bytes_left(struct fs_file *file)
 {
   return file->len - file->index;
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

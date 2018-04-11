@@ -71,6 +71,7 @@
 * 98-06-03 Guy Lancaster <lancasterg@acm.org>, Global Election Systems Inc.
 *   Extracted from avos.
 *****************************************************************************/
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -292,3 +293,5 @@ u32_t magic_pow(u8_t pow) {
 }
 
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

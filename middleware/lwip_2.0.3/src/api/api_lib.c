@@ -54,6 +54,7 @@
 
 /* This is the part of the API that is linked with
    the application */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1008,3 +1009,5 @@ netconn_thread_cleanup(void)
 #endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
 #endif /* LWIP_NETCONN */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

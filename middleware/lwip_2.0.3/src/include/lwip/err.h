@@ -33,6 +33,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_ERR_H
 #define LWIP_HDR_ERR_H
 
@@ -117,3 +119,5 @@ int err_to_errno(err_t err);
 #endif
 
 #endif /* LWIP_HDR_ERR_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

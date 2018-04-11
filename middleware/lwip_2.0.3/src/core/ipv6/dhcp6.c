@@ -38,6 +38,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -48,3 +49,5 @@
 
 
 #endif /* LWIP_IPV6 && LWIP_IPV6_DHCP6 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

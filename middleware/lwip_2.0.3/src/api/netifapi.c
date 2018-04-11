@@ -37,6 +37,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -219,3 +220,5 @@ netifapi_netif_common(struct netif *netif, netifapi_void_fn voidfunc,
 }
 
 #endif /* LWIP_NETIF_API */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

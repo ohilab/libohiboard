@@ -37,6 +37,7 @@
  * Author: Logan Gunthorpe <logang@deltatee.com>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_TFTP_SERVER_H
 #define LWIP_HDR_APPS_TFTP_SERVER_H
@@ -92,3 +93,5 @@ err_t tftp_init(const struct tftp_context* ctx);
 #endif
 
 #endif /* LWIP_HDR_APPS_TFTP_SERVER_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

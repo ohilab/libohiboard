@@ -55,6 +55,7 @@
  * Author: Erik Ekman <erik@kryo.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/apps/mdns.h"
 #include "lwip/apps/mdns_priv.h"
@@ -2026,3 +2027,5 @@ mdns_resp_add_service_txtitem(struct mdns_service *service, const char *txt, u8_
 }
 
 #endif /* LWIP_MDNS_RESPONDER */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -40,6 +40,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1835,3 +1836,5 @@ tcp_trigger_input_pcb_close(void)
 }
 
 #endif /* LWIP_TCP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

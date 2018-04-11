@@ -34,6 +34,7 @@
  *
  * Author: Adam Dunkels <adam@sics.se>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -383,3 +384,5 @@ lwip_init(void)
   sys_timeouts_init();
 #endif /* LWIP_TIMERS */
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

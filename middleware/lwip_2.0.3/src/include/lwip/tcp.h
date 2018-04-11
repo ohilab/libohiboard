@@ -35,6 +35,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_TCP_H
 #define LWIP_HDR_TCP_H
 
@@ -431,3 +433,5 @@ const char* tcp_debug_state_str(enum tcp_state s);
 #endif /* LWIP_TCP */
 
 #endif /* LWIP_HDR_TCP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

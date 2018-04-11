@@ -47,6 +47,8 @@
  * This is simple TFTP server for the lwIP raw API.
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/apps/tftp_server.h"
 
 #if LWIP_UDP
@@ -415,3 +417,5 @@ tftp_init(const struct tftp_context *ctx)
 }
 
 #endif /* LWIP_UDP */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

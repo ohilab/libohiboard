@@ -11,6 +11,8 @@
  *   PAYLOAD_ALIGN_TYPE/PAYLOAD_ALIGNMENT as arguments
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef WIN32
@@ -1031,3 +1033,5 @@ int s_put_ascii(char *buf, const char *ascii_string, int len, int *i)
   }
   return len;
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_ICMP_H
 #define LWIP_HDR_ICMP_H
 
@@ -108,3 +110,5 @@ void icmp_time_exceeded(struct pbuf *p, enum icmp_te_type t);
 #endif
 
 #endif /* LWIP_HDR_ICMP_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

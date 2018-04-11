@@ -24,6 +24,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_PPPAPI_H
 #define LWIP_PPPAPI_H
@@ -135,3 +136,5 @@ err_t pppapi_ioctl(ppp_pcb *pcb, u8_t cmd, void *arg);
 #endif /* LWIP_PPP_API */
 
 #endif /* LWIP_PPPAPI_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

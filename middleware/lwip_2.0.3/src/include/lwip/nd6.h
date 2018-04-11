@@ -40,6 +40,7 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_ND6_H
 #define LWIP_HDR_ND6_H
@@ -82,3 +83,5 @@ void nd6_adjust_mld_membership(struct netif *netif, s8_t addr_idx, u8_t new_stat
 #endif /* LWIP_IPV6 */
 
 #endif /* LWIP_HDR_ND6_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

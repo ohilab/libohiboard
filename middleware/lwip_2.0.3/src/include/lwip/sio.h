@@ -31,6 +31,7 @@
  * This is the interface to the platform specific serial IO module
  * It needs to be implemented by those platforms which need SLIP or PPP
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef SIO_H
 #define SIO_H
@@ -140,3 +141,5 @@ void sio_read_abort(sio_fd_t fd);
 #endif
 
 #endif /* SIO_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

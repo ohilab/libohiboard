@@ -32,6 +32,8 @@
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  */
 
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #include "lwip/apps/snmp_opts.h"
 #include "lwip/ip_addr.h"
 
@@ -98,3 +100,5 @@ snmp_init(void)
 }
 
 #endif /* LWIP_SNMP && SNMP_USE_RAW */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

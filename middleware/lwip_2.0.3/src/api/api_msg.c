@@ -35,6 +35,7 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1951,3 +1952,5 @@ lwip_netconn_do_gethostbyname(void *arg)
 #endif /* LWIP_DNS */
 
 #endif /* LWIP_NETCONN */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

@@ -37,6 +37,7 @@
  * simple server-side-include (SSI) and Common Gateway Interface (CGI)
  * capability.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_HTTPD_H
 #define LWIP_HDR_APPS_HTTPD_H
@@ -234,3 +235,5 @@ void httpd_init(void);
 #endif
 
 #endif /* LWIP_HTTPD_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

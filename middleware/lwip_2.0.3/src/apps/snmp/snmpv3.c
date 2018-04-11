@@ -31,6 +31,7 @@
  *
  * Author: Elias Oenal <lwip@eliasoenal.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "snmpv3_priv.h"
 #include "lwip/apps/snmpv3.h"
@@ -134,3 +135,5 @@ snmpv3_build_priv_param(u8_t* priv_param)
 #endif /* LWIP_SNMP_V3_CRYPTO */
 
 #endif
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

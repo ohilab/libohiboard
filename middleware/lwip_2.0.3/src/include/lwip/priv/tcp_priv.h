@@ -34,6 +34,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_TCP_PRIV_H
 #define LWIP_HDR_TCP_PRIV_H
 
@@ -505,3 +507,5 @@ void tcp_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_a
 #endif /* LWIP_TCP */
 
 #endif /* LWIP_HDR_TCP_PRIV_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

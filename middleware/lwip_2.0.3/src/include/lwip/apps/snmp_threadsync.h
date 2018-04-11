@@ -34,6 +34,7 @@
  * Author: Dirk Ziegelmeier <dziegel@gmx.de>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #ifndef LWIP_HDR_APPS_SNMP_THREADSYNC_H
 #define LWIP_HDR_APPS_SNMP_THREADSYNC_H
@@ -112,3 +113,5 @@ void snmp_threadsync_init(struct snmp_threadsync_instance *instance, snmp_thread
 #endif
 
 #endif /* LWIP_HDR_APPS_SNMP_THREADSYNC_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

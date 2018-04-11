@@ -108,6 +108,7 @@ void eth_rx_irq()
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "lwip/opt.h"
 
@@ -1440,3 +1441,5 @@ pbuf_strstr(const struct pbuf* p, const char* substr)
   }
   return pbuf_memfind(p, substr, (u16_t)substr_len, 0);
 }
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

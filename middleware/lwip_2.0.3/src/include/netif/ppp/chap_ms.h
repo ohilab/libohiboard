@@ -29,6 +29,7 @@
  *
  * $Id: chap_ms.h,v 1.13 2004/11/15 22:13:26 paulus Exp $
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && MSCHAP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
@@ -42,3 +43,5 @@ extern const struct chap_digest_type chapms2_digest;
 #endif /* CHAPMS_INCLUDE */
 
 #endif /* PPP_SUPPORT && MSCHAP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

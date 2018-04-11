@@ -38,6 +38,8 @@
  * Please coordinate changes and requests with Ivan Delamer
  * <delamer@inicotech.com>
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
+
 #ifndef LWIP_HDR_ICMP6_H
 #define LWIP_HDR_ICMP6_H
 
@@ -68,3 +70,5 @@ void icmp6_param_problem(struct pbuf *p, enum icmp6_pp_code c, u32_t pointer);
 
 
 #endif /* LWIP_HDR_ICMP6_H */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

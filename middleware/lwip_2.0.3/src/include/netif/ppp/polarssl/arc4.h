@@ -32,6 +32,7 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if LWIP_INCLUDED_POLARSSL_ARC4
@@ -79,3 +80,5 @@ void arc4_crypt( arc4_context *ctx, unsigned char *buf, int buflen );
 #endif /* LWIP_INCLUDED_POLARSSL_ARC4_H */
 
 #endif /* LWIP_INCLUDED_POLARSSL_ARC4 */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

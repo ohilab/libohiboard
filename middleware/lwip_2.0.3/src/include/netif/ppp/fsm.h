@@ -41,6 +41,7 @@
  *
  * $Id: fsm.h,v 1.10 2004/11/13 02:28:15 paulus Exp $
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
@@ -173,3 +174,5 @@ void fsm_sdata(fsm *f, u_char code, u_char id, const u_char *data, int datalen);
 
 #endif /* FSM_H */
 #endif /* PPP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */

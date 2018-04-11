@@ -29,6 +29,7 @@
  *
  * $Id: ccp.h,v 1.12 2004/11/04 10:02:26 paulus Exp $
  */
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_2_0_3
 
 #include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && CCP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
@@ -154,3 +155,5 @@ void ccp_resetrequest(ppp_pcb *pcb);  /* Issue a reset-request. */
 
 #endif /* CCP_H */
 #endif /* PPP_SUPPORT && CCP_SUPPORT */
+
+#endif /* LIBOHIBOARD_ETHERNET_LWIP_2_0_3 */
