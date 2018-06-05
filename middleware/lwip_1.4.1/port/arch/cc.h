@@ -45,7 +45,9 @@
 #include <time.h>
 #endif
 
+#ifndef BYTE_ORDER
 #define BYTE_ORDER  LITTLE_ENDIAN
+#endif
 
 typedef uint8_t     u8_t;
 typedef int8_t      s8_t;
