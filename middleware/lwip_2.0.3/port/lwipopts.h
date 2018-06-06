@@ -48,11 +48,12 @@
 
 
 /* Minimal changes to opt.h required for tcp unit tests: */
-#define MEM_SIZE                        16000
+#define TCP_MSS							4288//2144
+#define MEM_SIZE                        24000/**the size of ram_heap**/
 #define TCP_SND_QUEUELEN                40
 #define MEMP_NUM_TCP_SEG                TCP_SND_QUEUELEN
 #define TCP_SND_BUF                     (12 * TCP_MSS)
-#define TCP_WND                         (10 * TCP_MSS)
+#define TCP_WND                         (12 * TCP_MSS)
 
 /* Minimal changes to opt.h required for etharp unit tests: */
 #define ETHARP_SUPPORT_STATIC_ENTRIES   1
