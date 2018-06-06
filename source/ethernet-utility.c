@@ -62,7 +62,7 @@ void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config
 #endif
     netif_set_default(netif);
     netif_set_up(netif);
-    netif_set_link_down(netif);
+//    netif_set_link_down(netif);
 #endif
 }
 
