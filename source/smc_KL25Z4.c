@@ -31,297 +31,307 @@
  
 #ifdef LIBOHIBOARD_SMC
 
+#if defined (LIBOHIBOARD_KL15Z4) || \
+    defined (LIBOHIBOARD_KL25Z4)
+
 // https://github.com/bingdo/FRDM-KL25Z-WIZ550io/blob/master/system/src/kl25-sc/smc.c
 
-//• Entered only from Run mode
-//• The Clock Monitor(s) in MCG must be disabled
-//• The slow IRC clock must not be enabled
-//• Select either BLPI mode derived from Fast IRC or BLPE mode from external source
-//• Set SIM_ClkDIV so that core clock < 4 MHz, Bus < 4 MHz, flash clock < 1 MHz
-//• AVLP bit in PMPROT register must = 1
-//• Run Mode Selection (RUNM) bits must be set to 'b10
-//• Optional wait for PMC Regulator to change to Stop Regulation Mode (REGONS) = 0
-//• [MC2] SMC_PMSTAT will be set to 'b000_0100
+// Entered only from Run mode
+// The Clock Monitor(s) in MCG must be disabled
+// The slow IRC clock must not be enabled
+// Select either BLPI mode derived from Fast IRC or BLPE mode from external source
+// Set SIM_ClkDIV so that core clock < 4 MHz, Bus < 4 MHz, flash clock < 1 MHz
+// AVLP bit in PMPROT register must = 1
+// Run Mode Selection (RUNM) bits must be set to 'b10
+// Optional wait for PMC Regulator to change to Stop Regulation Mode (REGONS) = 0
+// [MC2] SMC_PMSTAT will be set to 'b000_0100
 
 #include "smc.h"
 
 static Smc_Device smc0 = {
-        .regMap = SMC_BASE_PTR,
+        .regMap    = SMC_BASE_PTR,
+        .regMapPMC = PMC_BASE_PTR,
 };
 
 Smc_DevideHandle OB_SMC0 = &smc0;
 
-
 System_Errors Smc_init (Smc_DevideHandle dev, Smc_Config *config)
 {
-	uint8_t enabledStatus = 0;
+    uint8_t enabledStatus = 0;
 
-	dev->enabledStatus = config->enabledStatus;
+    dev->enabledStatus = config->enabledStatus;
 
-	if(dev->enabledStatus.AVLP)
-		enabledStatus |= SMC_PMPROT_AVLP_MASK;
+    if (dev->enabledStatus.AVLP)
+        enabledStatus |= SMC_PMPROT_AVLP_MASK;
 
-	if(dev->enabledStatus.ALLS)
-		enabledStatus |= SMC_PMPROT_ALLS_MASK;
+    if (dev->enabledStatus.ALLS)
+        enabledStatus |= SMC_PMPROT_ALLS_MASK;
 
-	if(dev->enabledStatus.ALLS)
-		enabledStatus |= SMC_PMPROT_AVLLS_MASK;
+    if (dev->enabledStatus.ALLS)
+        enabledStatus |= SMC_PMPROT_AVLLS_MASK;
 
-	SMC_PMPROT = enabledStatus;
+    SMC_PMPROT = enabledStatus;
 
-	dev->actualStatus = SMC_RUN;
+    dev->actualStatus = SMCSTATUS_RUN;
 
-	return ERRORS_NO_ERROR;
-
+    return ERRORS_NO_ERROR;
 }
 
-Smc_Errors Smc_Interrupt (Smc_DevideHandle dev)
+void Smc_interrupt (Smc_DevideHandle dev)
 {
-	switch(dev->actualStatus)
-	{
-		case SMC_WAIT:
-			dev->actualStatus = SMC_RUN;
-			dev->lastStatus = SMC_WAIT;
-			break;
-		case SMC_STOP:
-			dev->actualStatus = SMC_RUN;
-			dev->lastStatus = SMC_STOP;
-			break;
-		case SMC_VLPW:
-			dev->actualStatus = SMC_VLPR;
-			dev->lastStatus = SMC_VLPW;
-			break;
-		case SMC_VLPS:
-			dev->actualStatus = dev->lastStatus;
-			dev->lastStatus = SMC_VLPS;
-			break;
-		case SMC_LLS:
-			dev->actualStatus = dev->lastStatus;
-			dev->lastStatus = SMC_LLS;
-			break;
-	}
+    switch (dev->actualStatus)
+    {
+    case SMCSTATUS_WAIT:
+        dev->actualStatus = SMCSTATUS_RUN;
+        dev->lastStatus = SMCSTATUS_WAIT;
+        break;
+    case SMCSTATUS_STOP:
+        dev->actualStatus = SMCSTATUS_RUN;
+        dev->lastStatus = SMCSTATUS_STOP;
+        break;
+    case SMCSTATUS_VLPW:
+        dev->actualStatus = SMCSTATUS_VLPR;
+        dev->lastStatus = SMCSTATUS_VLPW;
+        break;
+    case SMCSTATUS_VLPS:
+        dev->actualStatus = dev->lastStatus;
+        dev->lastStatus = SMCSTATUS_VLPS;
+        break;
+    case SMCSTATUS_LLS:
+        dev->actualStatus = dev->lastStatus;
+        dev->lastStatus = SMCSTATUS_LLS;
+        break;
+    }
 }
 
-Smc_PMSTAT Smc_Get_PMSTAT(Smc_DevideHandle dev)
+Smc_PowerModeStatus Smc_getPowerMode (Smc_DevideHandle dev)
 {
-	return SMC_PMSTAT;
+    return SMC_PMSTAT_REG(dev->regMap);
 }
 
 void Smc_sleep (Smc_DevideHandle dev)
 {
-	/* Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep)
-	* mode instead of deep sleep.
-	*/
-	//SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-	SCB_SCR &= ~SCB_SCR_SLEEPDEEP_MASK;
+    // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep)
+    // mode instead of deep sleep.
+    // This define is into core_cm0plus.h files
+    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
 
-	/* WFI instruction will start entry into WAIT mode */
-	__asm("WFI");
-
+    // WFI instruction will start entry into WAIT mode
+    __asm("WFI");
 }
 
 void Smc_deepsleep (Smc_DevideHandle dev)
 {
-  /* Set the SLEEPDEEP bit to enable deep sleep mode (STOP) */
-	//SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-	SCB_SCR |= SCB_SCR_SLEEPDEEP_MASK;
+    // Set the SLEEPDEEP bit to enable deep sleep mode (STOP)
+    // This define is into core_cm0plus.h files
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-  /* WFI instruction will start entry into STOP mode */
-  __asm("WFI");
-
+    // WFI instruction will start entry into STOP mode
+    __asm("WFI");
 }
 
-Smc_Errors Smc_run2wait(Smc_DevideHandle dev)
+System_Errors Smc_run2wait (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_RUN)
-	{
-		dev->lastStatus = SMC_RUN;
-		dev->actualStatus = SMC_WAIT;
-		Smc_sleep(dev);
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_RUN)
+    {
+        dev->lastStatus = SMCSTATUS_RUN;
+        dev->actualStatus = SMCSTATUS_WAIT;
+        Smc_sleep(dev);
+
+        return ERRORS_SMC_NO_ERROR;
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-Smc_Errors Smc_vlpr2vlpw(Smc_DevideHandle dev)
+System_Errors Smc_vlpr2vlpw (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_VLPR)
-	{
-		dev->lastStatus = SMC_VLPR;
-		dev->actualStatus = SMC_VLPW;
-		Smc_sleep(dev);
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_VLPR)
+    {
+        dev->lastStatus = SMCSTATUS_VLPR;
+        dev->actualStatus = SMCSTATUS_VLPW;
+        Smc_sleep(dev);
+
+        return ERRORS_SMC_NO_ERROR;
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-Smc_Errors Smc_run2stop(Smc_DevideHandle dev)
+System_Errors Smc_run2stop (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_RUN)
-	{
-		dev->lastStatus = SMC_RUN;
-		dev->actualStatus = SMC_STOP;
-		volatile unsigned int dummyread;
-		/* The PMPROT register may have already been written by init code. */
-		/* Set the STOPM field to 0b000 for normal STOP mode
-		For Kinetis L: if trying to enter Stop from VLPR user
-		forced to VLPS low power mode */
-		SMC_PMCTRL &= ~SMC_PMCTRL_STOPM_MASK;
-		SMC_PMCTRL |= SMC_PMCTRL_STOPM(0);
-		/*wait for write to complete to SMC before stopping core */
-		dummyread = SMC_PMCTRL;
-		Smc_deepsleep(dev);
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_RUN)
+    {
+        dev->lastStatus = SMCSTATUS_RUN;
+        dev->actualStatus = SMCSTATUS_STOP;
+        volatile unsigned int dummyread;
+        // The PMPROT register may have already been written by init code.
+        // Set the STOPM field to 0b000 for normal STOP mode
+        // For Kinetis L: if trying to enter Stop from VLPR user
+        // forced to VLPS low power mode
+        SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_STOPM_MASK;
+        SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_STOPM(0);
+        // wait for write to complete to SMC before stopping core
+        dummyread = SMC_PMCTRL_REG(dev->regMap);
+        Smc_deepsleep(dev);
+
+        return ERRORS_SMC_NO_ERROR;
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-Smc_Errors Smc_vlpr2vlps(Smc_DevideHandle dev)
+System_Errors Smc_vlpr2vlps (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_VLPR)
-	{
-		if(dev->enabledStatus.AVLP == 1)
-		{
-			dev->lastStatus = SMC_VLPR;
-			dev->actualStatus = SMC_VLPS;
-			volatile unsigned int dummyread;
-			/* The PMPROT register may have already been written by init code. */
-			/* Set the STOPM field to 0b000 for normal STOP mode
-			For Kinetis L: if trying to enter Stop from VLPR user
-			forced to VLPS low power mode */
-			SMC_PMCTRL &= ~SMC_PMCTRL_STOPM_MASK;
-			SMC_PMCTRL |= SMC_PMCTRL_STOPM(0x2);
-			/*wait for write to complete to SMC before stopping core */
-			dummyread = SMC_PMCTRL;
-			Smc_deepsleep(dev);
-		}
-		else
-		{
-			return STATUS_NOT_ENABLED;
-		}
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_VLPR)
+    {
+        if (dev->enabledStatus.AVLP == 1)
+        {
+            dev->lastStatus = SMCSTATUS_VLPR;
+            dev->actualStatus = SMCSTATUS_VLPS;
+            volatile unsigned int dummyread;
+            // The PMPROT register may have already been written by init code.
+            // Set the STOPM field to 0b000 for normal STOP mode
+            // For Kinetis L: if trying to enter Stop from VLPR user
+            // forced to VLPS low power mode
+            SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_STOPM_MASK;
+            SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_STOPM(0x2);
+            // wait for write to complete to SMC before stopping core
+            dummyread = SMC_PMCTRL_REG(dev->regMap);
+            Smc_deepsleep(dev);
+        }
+        else
+        {
+            return ERRORS_SMC_STATUS_NOT_ENABLED;
+        }
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-
-
-
-Smc_Errors Smc_run2vlps(Smc_DevideHandle dev)
+System_Errors Smc_run2vlps (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_RUN)
-	{
-		if(dev->enabledStatus.AVLP == 1)
-		{
-			dev->lastStatus = SMC_RUN;
-			dev->actualStatus = SMC_VLPS;
-			volatile unsigned int dummyread;
-			/* The PMPROT register may have already been written by init code. */
-			/* Set the STOPM field to 0b000 for normal STOP mode
-			For Kinetis L: if trying to enter Stop from VLPR user
-			forced to VLPS low power mode */
-			SMC_PMCTRL &= ~SMC_PMCTRL_STOPM_MASK;
-			SMC_PMCTRL |= SMC_PMCTRL_STOPM(0x2);
-			/*wait for write to complete to SMC before stopping core */
-			dummyread = SMC_PMCTRL;
-			Smc_deepsleep(dev);
-		}
-		else
-		{
-			return STATUS_NOT_ENABLED;
-		}
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_RUN)
+    {
+        if (dev->enabledStatus.AVLP == 1)
+        {
+            dev->lastStatus = SMCSTATUS_RUN;
+            dev->actualStatus = SMCSTATUS_VLPS;
+            volatile unsigned int dummyread;
+            // The PMPROT register may have already been written by init code.
+            // Set the STOPM field to 0b000 for normal STOP mode
+            // For Kinetis L: if trying to enter Stop from VLPR user
+            // forced to VLPS low power mode */
+            SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_STOPM_MASK;
+            SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_STOPM(0x2);
+            /*wait for write to complete to SMC before stopping core */
+            dummyread = SMC_PMCTRL_REG(dev->regMap);
+            Smc_deepsleep(dev);
+        }
+        else
+        {
+            return ERRORS_SMC_STATUS_NOT_ENABLED;
+        }
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-Smc_Errors Smc_run2vlpr(Smc_DevideHandle dev)
+System_Errors Smc_run2vlpr (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_RUN)
-	{
-		if(dev->enabledStatus.AVLP == 1)
-		{
-			dev->lastStatus = SMC_RUN;
-			dev->actualStatus = SMC_VLPR;
+    if (dev->actualStatus == SMCSTATUS_RUN)
+    {
+        if (dev->enabledStatus.AVLP == 1)
+        {
+            dev->lastStatus = SMCSTATUS_RUN;
+            dev->actualStatus = SMCSTATUS_VLPR;
 
-			/* Am I already in VLPR? */
-			if ((SMC_PMSTAT & SMC_PMSTAT_PMSTAT_MASK)== 0x04){
-				return STATUS_ALREADY_SET;
-			}
-			/* Set the (for MC1)LPLLSM or (for MC2)STOPM field
-			to 0b010 for VLPS mode -
-			and RUNM bits to 0b010 for VLPR mode
-			Need to set state of LPWUI bit */
-			SMC_PMCTRL &= ~SMC_PMCTRL_RUNM_MASK;
-			SMC_PMCTRL |= SMC_PMCTRL_RUNM(0x2);
-			for (int i = 0 ; i < 10000 ; i++)
-			{ /* Check that the value of REGONS bit is not 0. When it is a zero, you can stop checking */
-				if ((PMC_REGSC & PMC_REGSC_REGONS_MASK) == 0x04)
-				{
-				/* 0 Regulator is in stop regulation or in transition to/from it
-				 * 1 MCU is in Run regulation mode */
-				}
-				else break;
-			}
-			if ((PMC_REGSC & PMC_REGSC_REGONS_MASK) ==0x04)
-			{
-				return SMC_ERROR;
-			}
-		}
-		else
-		{
-			return STATUS_NOT_ENABLED;
-		}
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+            // Am I already in VLPR?
+            if ((SMC_PMSTAT_REG(dev->regMap) & SMC_PMSTAT_PMSTAT_MASK) == 0x04)
+            {
+                return ERRORS_SMC_STATUS_ALREADY_SET;
+            }
+
+            // Set the (for MC1)LPLLSM or (for MC2)STOPM field
+            // to 0b010 for VLPS mode -
+            // and RUNM bits to 0b010 for VLPR mode
+            // Need to set state of LPWUI bit
+            SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_RUNM_MASK;
+            SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_RUNM(0x2);
+            for (int i = 0 ; i < 10000 ; i++)
+            {
+                // Check that the value of REGONS bit is not 0.
+                // When it is a zero, you can stop checking
+                if ((PMC_REGSC_REG(dev->regMapPMC) & PMC_REGSC_REGONS_MASK) == 0x04)
+                {
+                    // 0 Regulator is in stop regulation or in transition to/from it
+                    // 1 MCU is in Run regulation mode
+                }
+                else break;
+            }
+            if ((PMC_REGSC_REG(dev->regMapPMC) & PMC_REGSC_REGONS_MASK) == 0x04)
+            {
+                return ERRORS_SMC_ERROR;
+            }
+        }
+        else
+        {
+            return ERRORS_SMC_STATUS_NOT_ENABLED;
+        }
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-Smc_Errors Smc_vlpr2run(Smc_DevideHandle dev)
+System_Errors Smc_vlpr2run (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_VLPR)
-	{
-		dev->lastStatus = SMC_VLPR;
-		dev->actualStatus = SMC_RUN;
-		volatile unsigned int dummyread;
-		SMC_PMCTRL &= ~SMC_PMCTRL_RUNM_MASK;
-		SMC_PMCTRL |= SMC_PMCTRL_RUNM(0x0);
-		dummyread = SMC_PMCTRL;
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_VLPR)
+    {
+        dev->lastStatus = SMCSTATUS_VLPR;
+        dev->actualStatus = SMCSTATUS_RUN;
+        volatile unsigned int dummyread;
+        SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_RUNM_MASK;
+        SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_RUNM(0x0);
+        dummyread = SMC_PMCTRL_REG(dev->regMap);
+
+        return ERRORS_SMC_NO_ERROR;
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
-Smc_Errors Smc_run2lls(Smc_DevideHandle dev)
+System_Errors Smc_run2lls (Smc_DevideHandle dev)
 {
-	if(dev->actualStatus == SMC_RUN)
-	{
-		dev->lastStatus = SMC_RUN;
-		dev->actualStatus = SMC_LLS;
-		volatile unsigned int dummyread;
-		SMC_PMCTRL &= ~SMC_PMCTRL_STOPM_MASK;
-		SMC_PMCTRL |= SMC_PMCTRL_STOPM(0x3);
-		dummyread = SMC_PMCTRL;
-		Smc_deepsleep(dev);
-	}
-	else
-	{
-		return STATUS_NOT_ALLOWED;
-	}
+    if (dev->actualStatus == SMCSTATUS_RUN)
+    {
+        dev->lastStatus = SMCSTATUS_RUN;
+        dev->actualStatus = SMCSTATUS_LLS;
+        volatile unsigned int dummyread;
+        SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_STOPM_MASK;
+        SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_STOPM(0x3);
+        dummyread = SMC_PMCTRL_REG(dev->regMap);
+        Smc_deepsleep(dev);
+
+        return ERRORS_SMC_NO_ERROR;
+    }
+    else
+    {
+        return ERRORS_SMC_STATUS_NOT_ALLOWED;
+    }
 }
 
 
@@ -468,5 +478,7 @@ Smc_Errors Smc_run2lls(Smc_DevideHandle dev)
 //	dummyread = SMC_STOPCTRL;
 //	Smc_deepsleep(dev);
 //}
+
+#endif // LIBOHIBOARD_KL15Z4 || LIBOHIBOARD_KL25Z4
 
 #endif
