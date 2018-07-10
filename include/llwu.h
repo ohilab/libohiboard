@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2017 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2017-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Matteo Pirro
@@ -39,63 +39,46 @@
 #include "errors.h"
 #include "types.h"
 
-/* https://community.nxp.com/docs/DOC-332687 */
-
-typedef struct _Llwu_Device {
-
-	LLWU_MemMapPtr regMap;
-
-    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
-} Llwu_Device;
-
-
-
-typedef Llwu_Device* Llwu_DeviceHandle;
+typedef struct Llwu_Device* Llwu_DeviceHandle;
 
 extern Llwu_DeviceHandle OB_LLWU0;
-
 
 #define LLWU_MAX_REG_EXTPIN	4
 #define LLWU_MAX_EXTPIN		16
 
-
 typedef enum
 {
-
 #if defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z) || \
-	  defined (LIBOHIBOARD_KL15Z4)
+    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+    defined (LIBOHIBOARD_KL15Z4)
 
-    LLWU_P0,
-	LLWU_P1,
-	LLWU_P2,
-	LLWU_P3,
-	LLWU_P4,
-	LLWU_P5,
-	LLWU_P6,
-	LLWU_P7,
-	LLWU_P8,
-	LLWU_P9,
-	LLWU_P10,
-	LLWU_P11,
-	LLWU_P12,
-	LLWU_P13,
-	LLWU_P14,
-	LLWU_P15,
-
+    LLWU_PINS_P0,
+    LLWU_PINS_P1,
+    LLWU_PINS_P2,
+    LLWU_PINS_P3,
+    LLWU_PINS_P4,
+    LLWU_PINS_P5,
+    LLWU_PINS_P6,
+    LLWU_PINS_P7,
+    LLWU_PINS_P8,
+    LLWU_PINS_P9,
+    LLWU_PINS_P10,
+    LLWU_PINS_P11,
+    LLWU_PINS_P12,
+    LLWU_PINS_P13,
+    LLWU_PINS_P14,
+    LLWU_PINS_P15,
 #endif
-
-} Llwu_ExtPins;
-
+	LLWU_PINS_NONE,
+} Llwu_Pins;
 
 typedef enum
 {
-    LLWU_EXTPIN_EVENT_DISABLED   		= 0x0,
-	LLWU_EXTPIN_EVENT_ON_RISING  		= 0x1,
-	LLWU_EXTPIN_EVENT_ON_FALLING 		= 0x2,
-	LLWU_EXTPIN_EVENT_ON_ANY_CHANGE 	= 0x3,
-} Llwu_ExtPin_EventType;
-
+    LLWU_EVENTTYPE_DISABLED      = 0x0,
+	LLWU_EVENTTYPE_ON_RISING     = 0x1,
+	LLWU_EVENTTYPE_ON_FALLING    = 0x2,
+	LLWU_EVENTTYPE_ON_ANY_CHANGE = 0x3,
+} Llwu_EventType;
 
 #define LLWU_MAX_WAKEUP_MODULE	8
 
@@ -103,33 +86,52 @@ typedef enum
 {
 
 #if defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)||	\
-	  defined (LIBOHIBOARD_KL15Z4)
+    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+    defined (LIBOHIBOARD_KL15Z4)
 
-    LLWU_WUME0,
-	LLWU_WUME1,
-	LLWU_WUME2,
-	LLWU_WUME3,
-	LLWU_WUME4,
-	LLWU_WUME5,
-	LLWU_WUME6,
-	LLWU_WUME7,
+    LLWU_WAKEUPMODULE_0,
+    LLWU_WAKEUPMODULE_1,
+    LLWU_WAKEUPMODULE_2,
+    LLWU_WAKEUPMODULE_3,
+    LLWU_WAKEUPMODULE_4,
+    LLWU_WAKEUPMODULE_5,
+    LLWU_WAKEUPMODULE_6,
+    LLWU_WAKEUPMODULE_7,
 
 #endif
+
+    LLWU_WAKEUPMODULE_NONE,
 
 } Llwu_WakeupModules;
 
 
 typedef enum
 {
-    LLWU_WAKEUP_MODULE_DISABLE   		= 0x0,
-	LLWU_WAKEUP_MODULE_ENABLE	  		= 0x1,
-} Llwu_WakeupModule_Enable;
+    LLWU_WAKEUPMODULEENABLE_NO  = 0x0,
+	LLWU_WAKEUPMODULEENABLE_YES = 0x1,
+} Llwu_WakeupModuleEnable;
 
-System_Errors Llwu_Init (Llwu_DeviceHandle dev);
-System_Errors Llwu_configExtPin_Interrupt (Llwu_DeviceHandle dev, Llwu_ExtPins pin, Llwu_ExtPin_EventType event, void* callback);
-System_Errors Llwu_configWakeupModule_Interrupt (Llwu_DeviceHandle dev, Llwu_WakeupModules wum, Llwu_WakeupModule_Enable enable, void* callback);
+/**
+ *
+ */
+void Llwu_init (Llwu_DeviceHandle dev);
 
-#endif /* __LLWU_H */
+/**
+ *
+ */
+System_Errors Llwu_configExtPinInterrupt (Llwu_DeviceHandle dev,
+                                          Llwu_Pins pin,
+                                          Llwu_EventType event,
+                                          void* callback);
+
+/**
+ *
+ */
+System_Errors Llwu_configWakeupModuleInterrupt (Llwu_DeviceHandle dev,
+                                                Llwu_WakeupModules wum,
+                                                Llwu_WakeupModuleEnable enable,
+                                                void* callback);
+
+#endif // __LLWU_H
 
 #endif // LIBOHIBOARD_LLWU

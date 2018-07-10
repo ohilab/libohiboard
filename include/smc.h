@@ -74,19 +74,7 @@ typedef struct _Smc_Config
 
 } Smc_Config;
 
-typedef struct _Smc_Device {
-
-    SMC_MemMapPtr regMap;
-    PMC_MemMapPtr regMapPMC;
-
-    Smc_AllowedStatus enabledStatus;
-    Smc_Status actualStatus;
-    Smc_Status lastStatus;
-
-    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
-} Smc_Device;
-
-typedef Smc_Device* Smc_DevideHandle;
+typedef struct Smc_Device* Smc_DevideHandle;
 
 extern Smc_DevideHandle OB_SMC0;
 

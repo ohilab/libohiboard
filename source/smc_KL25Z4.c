@@ -48,6 +48,18 @@
 
 #include "smc.h"
 
+typedef struct Smc_Device {
+
+    SMC_MemMapPtr regMap;
+    PMC_MemMapPtr regMapPMC;
+
+    Smc_AllowedStatus enabledStatus;
+    Smc_Status actualStatus;
+    Smc_Status lastStatus;
+
+    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+} Smc_Device;
+
 static Smc_Device smc0 = {
         .regMap    = SMC_BASE_PTR,
         .regMapPMC = PMC_BASE_PTR,
