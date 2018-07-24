@@ -46,7 +46,7 @@
 static uint8_t Iic_firstRead = 0;
 
 typedef struct Iic_Device {
-    I2C_MemMapPtr 		  regMap;
+    I2C_Type* 		  regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
@@ -238,7 +238,7 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
  */
 static System_Errors setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
 {
-    I2C_MemMapPtr regmap = dev->regMap;
+    I2C_Type* regmap = dev->regMap;
     uint32_t tempReg = 0;
 
     uint32_t busClk;
@@ -315,7 +315,7 @@ System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
 {
 	if (dev->devInitialized) return ERRORS_IIC_DEVICE_JUST_INIT;
 
-    I2C_MemMapPtr regmap = dev->regMap;
+    I2C_Type* regmap = dev->regMap;
     Iic_DeviceType devType = config->devType;
     uint32_t baudrate = config->baudRate;
 

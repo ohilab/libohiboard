@@ -44,7 +44,7 @@
 
 typedef struct Uart_Device
 {
-    UART_MemMapPtr regMap;                         /**< Device memory pointer */
+    UART_Type* regMap;                         /**< Device memory pointer */
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */

@@ -270,7 +270,8 @@ extern Ethernet_DeviceHandle ENET0;
  */
 void static inline Ethernet_activeRxBufferDescriptor()
 {
-  ENET_RDAR |= ENET_RDAR_RDAR_MASK;
+//  ENET_RDAR |= ENET_RDAR_RDAR_MASK;
+  ENET->RDAR |= ENET_RDAR_RDAR_MASK;
 }
 
 /**
@@ -279,7 +280,8 @@ void static inline Ethernet_activeRxBufferDescriptor()
  */
 void static inline Ethernet_activeTxBufferDescriptor()
 {
-  ENET_TDAR |= ENET_TDAR_TDAR_MASK;
+//  ENET_TDAR |= ENET_TDAR_TDAR_MASK;
+  ENET->TDAR |= ENET_TDAR_TDAR_MASK;
 }
 
 #endif

@@ -68,7 +68,7 @@ typedef enum
 
 typedef struct Ftm_Device
 {
-    FTM_MemMapPtr regMap;                          /**< Device memory pointer */
+    FTM_Type* regMap;                          /**< Device memory pointer */
     
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */

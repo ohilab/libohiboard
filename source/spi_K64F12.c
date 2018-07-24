@@ -44,7 +44,7 @@
 #define SPI_PIN_DISABLED       0
 
 typedef struct Spi_Device {
-    SPI_MemMapPtr         regMap;
+	SPI_Type*         regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
@@ -282,7 +282,7 @@ static uint16_t Spi_brDiv[] = {
 
 System_Errors Spi_setBaudrate(Spi_DeviceHandle dev, uint32_t speed)
 {
-    SPI_MemMapPtr regmap = dev->regMap;
+	SPI_Type* regmap = dev->regMap;
     uint32_t tempReg = 0;
 
     uint32_t busClk;
@@ -424,7 +424,7 @@ static System_Errors Spi_setSckPin(Spi_DeviceHandle dev, Spi_PcsPins sckPin)
 
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 {
-    SPI_MemMapPtr regmap = dev->regMap;
+	SPI_Type* regmap = dev->regMap;
     Spi_DeviceType devType = config->devType;
     uint32_t baudrate = config->baudrate;
     uint32_t tempReg = 0;
@@ -537,7 +537,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
 {
-    SPI_MemMapPtr regmap = dev->regMap;
+	SPI_Type* regmap = dev->regMap;
 
     // Wait till TX FIFO is Empty.
     while((SPI_SR_REG(regmap) & SPI_SR_TFFF_MASK) != SPI_SR_TFFF_MASK);
@@ -567,7 +567,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t *data)
 
 System_Errors Spi_read (Spi_DeviceHandle dev, uint32_t* data)
 {
-    SPI_MemMapPtr regmap = dev->regMap;
+	SPI_Type* regmap = dev->regMap;
 
     // Wait till TX FIFO is Empty.
     while((SPI_SR_REG(regmap) & SPI_SR_TFFF_MASK) != SPI_SR_TFFF_MASK);
@@ -598,7 +598,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint32_t* data)
 
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
-    SPI_MemMapPtr regmap = dev->regMap;
+	SPI_Type* regmap = dev->regMap;
 
     uint16_t x = 0;
 
@@ -624,7 +624,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 
 System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
 {
-    SPI_MemMapPtr regmap = dev->regMap;
+	SPI_Type* regmap = dev->regMap;
 
     uint16_t x = 0;
 

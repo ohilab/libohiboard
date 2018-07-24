@@ -41,7 +41,7 @@
 
 typedef struct Sdhc_Device
 {
-    SDHC_MemMapPtr regMap;                         /**< Device memory pointer */
+    SDHC_Type* regMap;                         /**< Device memory pointer */
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */

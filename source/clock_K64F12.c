@@ -83,7 +83,7 @@
 
 typedef struct Clock_Device
 {
-	MCG_MemMapPtr regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap;
 
     uint32_t foutMcg;
     Clock_State mcgState;
@@ -96,7 +96,7 @@ typedef struct Clock_Device
 }Clock_Device;
 
 static Clock_Device Clock_device = {
-	.regmap = MCG_BASE_PTR,
+	.regmap = MCG,//MCG_BASE_PTR,
 
 	.foutMcg = 0,
 	.mcgState = CLOCK_FEI,
@@ -121,7 +121,7 @@ static Clock_Device Clock_device = {
  */
 static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint32_t fllRefClock;
@@ -155,7 +155,7 @@ static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
 
     while((MCG_S_REG(regmap) & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK); //esce quando seleziona il riferimento esterno
@@ -222,7 +222,7 @@ static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
  */
 static uint32_t Clock_fee2fei (uint8_t dmx32, uint8_t drstDrs)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t dmx32Tmp;
@@ -276,7 +276,7 @@ static uint32_t Clock_fee2fei (uint8_t dmx32, uint8_t drstDrs)
  */
 static uint32_t Clock_fei2fbi (uint8_t ircs, uint8_t fcrdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t fcrdivTmp;
@@ -334,7 +334,7 @@ static uint32_t Clock_fei2fbi (uint8_t ircs, uint8_t fcrdiv)
  */
 static uint32_t Clock_fbi2fei (uint8_t dmx32, uint8_t drstDrs)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t dmx32Tmp;
@@ -390,7 +390,7 @@ static uint32_t Clock_fbi2fei (uint8_t dmx32, uint8_t drstDrs)
  */
 static uint32_t Clock_fei2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -433,7 +433,7 @@ static uint32_t Clock_fei2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
  */
 static uint32_t Clock_fbe2fei (uint8_t dmx32, uint8_t drstDrs)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t dmx32Tmp;
@@ -489,7 +489,7 @@ static uint32_t Clock_fbe2fei (uint8_t dmx32, uint8_t drstDrs)
  */
 static uint32_t Clock_fee2fbi (uint8_t ircs, uint8_t fcrdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t fcrdivTmp;
@@ -549,7 +549,7 @@ static uint32_t Clock_fee2fbi (uint8_t ircs, uint8_t fcrdiv)
  */
 static uint32_t Clock_fbi2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint32_t fllRefClock;
@@ -581,7 +581,7 @@ static uint32_t Clock_fbi2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK); //esce quando seleziona il riferimento esterno
@@ -648,7 +648,7 @@ static uint32_t Clock_fbi2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
  */
 static uint32_t Clock_fee2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -668,7 +668,7 @@ static uint32_t Clock_fee2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     while(((MCG_S_REG(regmap) & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)));
     
@@ -691,7 +691,7 @@ static uint32_t Clock_fee2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
  */
 static uint32_t Clock_fbe2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint32_t fllRefClock;
@@ -723,7 +723,7 @@ static uint32_t Clock_fbe2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_CLKST_MASK) != MCG_S_CLKST(0)); 
@@ -789,7 +789,7 @@ static uint32_t Clock_fbe2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
  */
 static uint32_t Clock_fbi2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -831,7 +831,7 @@ static uint32_t Clock_fbi2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
  */
 static uint32_t Clock_fbe2fbi (uint8_t ircs, uint8_t fcrdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t fcrdivTmp;
@@ -889,7 +889,7 @@ static uint32_t Clock_fbe2fbi (uint8_t ircs, uint8_t fcrdiv)
  */
 static uint32_t Clock_fbe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -925,7 +925,7 @@ static uint32_t Clock_fbe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
  */
 static uint32_t Clock_pbe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
 	uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -969,7 +969,7 @@ static uint32_t Clock_pbe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
  */
 static uint32_t Clock_pbe2pee (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
 	uint32_t foutMcg = 0;
     uint8_t prdivTmp;
@@ -1031,7 +1031,7 @@ static uint32_t Clock_pbe2pee (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
  */
 static uint32_t Clock_pee2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -1087,7 +1087,7 @@ static uint32_t Clock_pee2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
  */
 static uint32_t Clock_fbi2blpi (uint8_t ircs, uint8_t fcrdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t fcrdivTmp;
@@ -1137,7 +1137,7 @@ static uint32_t Clock_fbi2blpi (uint8_t ircs, uint8_t fcrdiv)
  */
 static uint32_t Clock_blpi2fbi (uint8_t ircs, uint8_t fcrdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t fcrdivTmp;
@@ -1186,7 +1186,7 @@ static uint32_t Clock_blpi2fbi (uint8_t ircs, uint8_t fcrdiv)
  */
 static uint32_t Clock_fbe2blpe (uint32_t fext)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     
@@ -1209,7 +1209,7 @@ static uint32_t Clock_fbe2blpe (uint32_t fext)
  */
 static uint32_t Clock_blpe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -1227,7 +1227,7 @@ static uint32_t Clock_blpe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
     /* wait the refresh of the status register */
     if((MCG_C2_REG(regmap) & MCG_C2_EREFS0_MASK)  == (MCG_C2_EREFS0_MASK))
     {
-        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore è inizializzato
+        while((MCG_S_REG(regmap) & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK); //esce quanto oscillatore ï¿½ inizializzato
     }
     
     while((MCG_S_REG(regmap) & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK); //esce quando seleziona il riferimento esterno
@@ -1247,7 +1247,7 @@ static uint32_t Clock_blpe2fbe (uint32_t fext, uint8_t range0, uint8_t frdiv)
  */
 static uint32_t Clock_pbe2blpe (uint32_t fext)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
     uint32_t foutMcg = 0;
     
     MCG_C2_REG(regmap) |=  MCG_C2_LP_MASK; //LP = 1 for Low Power Mode.
@@ -1274,7 +1274,7 @@ static uint32_t Clock_pbe2blpe (uint32_t fext)
  */
 static uint32_t Clock_blpe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     uint8_t tempReg;
@@ -1309,7 +1309,7 @@ static uint32_t Clock_blpe2pbe (uint32_t fext, uint8_t prdiv, uint8_t vdiv)
  */
 Clock_State Clock_getCurrentState ()
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     if (((MCG_C1_REG(regmap) & MCG_C1_CLKS_MASK) >> MCG_C1_CLKS_SHIFT) == 0)
     {
@@ -1366,7 +1366,7 @@ Clock_State Clock_getCurrentState ()
 static uint32_t Clock_StateTransition (uint32_t fext, Clock_State stateOut, uint8_t prdiv, uint8_t vdiv, uint8_t dmx32,
                              uint8_t drstDrs, uint8_t range0, uint8_t frdiv, uint8_t ircs, uint8_t fcrdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
     uint32_t foutMcg = 0;
     Clock_State stateIn;
@@ -1809,7 +1809,7 @@ static uint32_t Clock_StateTransition (uint32_t fext, Clock_State stateOut, uint
  */
 uint32_t Clock_getFrequency (Clock_Source source)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
 	uint8_t cpuDiv;
 	uint8_t busDiv;
@@ -1904,7 +1904,7 @@ uint8_t Clock_getCoreDivider()
  */
 System_Errors Clock_Init (Clock_Config *config)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+	/*MCG_MemMapPtr*/MCG_Type* regmap = Clock_device.regmap;
 
 	uint32_t fext = config->fext;
 	Clock_Origin source = config->source;
@@ -1914,7 +1914,7 @@ System_Errors Clock_Init (Clock_Config *config)
 	uint8_t flexbusDivider = config->flexbusDivider;
 	uint8_t flashDivider = config->flashDivider;
 
-    uint32_t fdiff = CLOCK_INIT_DIFF; //impongo all'inizio un valore di fdiff più alto del massimo possibile (in questo caso 200MHz)
+    uint32_t fdiff = CLOCK_INIT_DIFF; //impongo all'inizio un valore di fdiff piï¿½ alto del massimo possibile (in questo caso 200MHz)
     uint32_t foutMcg = 0;
     Clock_State stateOutTmp; //stato in cui deve andare il sistema, utilizzata nelle operazioni di confronto
     System_Errors error;

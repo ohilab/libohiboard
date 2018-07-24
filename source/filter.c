@@ -23,6 +23,9 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
+
+#ifdef LIBOHIBOARD_FILTER
+
 #include "filter.h"
 
 void PtbyPtFilterInit(PtbyPtFilterHandle dev, uint8_t len, PtbyPtFilterMode mode)
@@ -92,7 +95,7 @@ void PtbyPtFilterRun(PtbyPtFilterHandle dev)
 			dev->out = sum / (float)dev->length;
 			break;
 		case _RMS:
-			/* TODO: valutare se è troppo pesante... in caso calcolare la radice solo al get dell'output */
+			/* TODO: valutare se ï¿½ troppo pesante... in caso calcolare la radice solo al get dell'output */
 			dev->out = sqrt(sum / (float)dev->length);
 			break;
 		}
@@ -122,7 +125,7 @@ void PtbyPtFilterRun(PtbyPtFilterHandle dev)
 
 				break;
 			case _RMS:
-				/* TODO: valutare se è troppo pesante... in caso calcolare la radice solo al get dell'output */
+				/* TODO: valutare se ï¿½ troppo pesante... in caso calcolare la radice solo al get dell'output */
 				dev->out = sqrt(sum / (float)(dev->lastSample - dev->buffer));
 				break;
 			}
@@ -153,3 +156,5 @@ void PtbyPtFilterRun(PtbyPtFilterHandle dev)
 	}
 
 }
+
+#endif

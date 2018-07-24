@@ -59,7 +59,7 @@
 
 typedef struct Flash_Device
 {
-    FTFE_MemMapPtr regMap;                          /**< Device memory pointer */
+    FTFE_Type* regMap;                          /**< Device memory pointer */
 
     uint32_t startAddr;
     uint32_t flashSize;

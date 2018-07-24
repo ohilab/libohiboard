@@ -43,6 +43,7 @@
 #define  PORTD_MAX_PIN  16
 #define  PORTE_MAX_PIN  29
 
+
 static void (*Gpio_isrPortARequestVector[PORTA_MAX_PIN]) (void);
 static void (*Gpio_isrPortBRequestVector[PORTB_MAX_PIN]) (void);
 static void (*Gpio_isrPortCRequestVector[PORTC_MAX_PIN]) (void);
@@ -182,7 +183,7 @@ static Gpio_PinDevice Gpio_availablePins[] =
 	    {GPIO_PORTS_E,28},
 };
 
-static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
+static void Gpio_getPort (Gpio_Pins pin, GPIO_Type** port)
 {
     switch (Gpio_availablePins[pin].port)
     {
@@ -208,8 +209,8 @@ static void Gpio_getPort (Gpio_Pins pin, GPIO_MemMapPtr* port)
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 {
-    PORT_MemMapPtr port;
-    GPIO_MemMapPtr gpioPort;
+	PORT_Type* port;
+    GPIO_Type* gpioPort;
     uint32_t controlBits = 0;
 
     /* Enable clock */
@@ -296,7 +297,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
 void Gpio_set (Gpio_Pins pin)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     port->PSOR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
@@ -304,7 +305,7 @@ void Gpio_set (Gpio_Pins pin)
 
 void Gpio_clear (Gpio_Pins pin)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     port->PCOR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
@@ -312,7 +313,7 @@ void Gpio_clear (Gpio_Pins pin)
 
 void Gpio_toggle (Gpio_Pins pin)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     port->PTOR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
@@ -320,7 +321,7 @@ void Gpio_toggle (Gpio_Pins pin)
 
 Gpio_Level Gpio_get (Gpio_Pins pin)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     return ((port->PDIR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
@@ -328,7 +329,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
 
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     switch(Gpio_availablePins[pin].port)
@@ -364,7 +365,7 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     switch(Gpio_availablePins[pin].port)
@@ -410,7 +411,7 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
-    GPIO_MemMapPtr port;
+    GPIO_Type* port;
     Gpio_getPort(pin,&port);
 
     switch(Gpio_availablePins[pin].port)

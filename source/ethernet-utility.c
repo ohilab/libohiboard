@@ -40,7 +40,7 @@ void Ethernet_networkConfig (struct netif *netif, Ethernet_NetworkConfig *config
 	defined (LIBOHIBOARD_ETHERNET_LWIP_2_0_3)
 
     // Disable MPU
-    MPU_CESR &=~ MPU_CESR_VLD_MASK;
+    MPU_CESR &=~ SYSMPU_CESR_VLD_MASK;
 
     LWIPPorting_setMacAddress(config->mac);
     // Set PHY initialization callback

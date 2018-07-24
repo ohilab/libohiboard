@@ -40,7 +40,7 @@
 
 typedef struct Pdb_Device
 {
-    PDB_MemMapPtr regMap;
+    PDB_Type* regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */

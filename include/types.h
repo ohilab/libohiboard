@@ -46,7 +46,11 @@ typedef long               int32_t;
 #endif
 typedef long long          int64_t;
 
-typedef uint8_t            bool;
+#ifndef __MCUXPRESSO
+typedef unsigned char      bool;
+#else
+#include "stdbool.h"
+#endif
 #define TRUE               1
 #define FALSE              0
 

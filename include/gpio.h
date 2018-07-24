@@ -822,6 +822,7 @@ typedef enum
     GPIO_EVENT_ON_BOOTH   = 0xB,
 } Gpio_EventType;
 
+
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
 
 void Gpio_set (Gpio_Pins pin);

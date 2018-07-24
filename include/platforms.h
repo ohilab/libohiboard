@@ -151,6 +151,7 @@
 #include "platforms/MKL25Z4.h"
 #elif defined(LIBOHIBOARD_K64F12)
 #include "platforms/MK64F12.h"
+#include "platforms/MK64F12_portability.h"
 #elif defined(LIBOHIBOARD_FRDMKL02Z)
 #include "platforms/MKL02Z4.h"
 #elif defined(LIBOHIBOARD_FRDMKL03Z)

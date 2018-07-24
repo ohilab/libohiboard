@@ -43,7 +43,7 @@
 
 typedef struct Pit_Device
 {
-    PIT_MemMapPtr regMap;
+	PIT_Type* regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
