@@ -336,8 +336,6 @@ void LWIPPorting_statusCallback(struct netif *netif)
 
 void LWIPPorting_linkCallback(struct netif *netif)
 {
-	int a;
-	a= 1;
 }
 #endif
 

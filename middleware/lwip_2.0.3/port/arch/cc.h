@@ -72,16 +72,9 @@ typedef uintptr_t   mem_ptr_t;
 
 /* Plaform specific diagnostic output */
 #define LWIP_PLATFORM_DIAG(x)
-//#define LWIP_PLATFORM_DIAG(x)   do {                \
-//        mch_printf x;                   \
-//    } while (0)
+
 
 #define LWIP_PLATFORM_ASSERT(x)
-//#define LWIP_PLATFORM_ASSERT(x) do {                \
-//        mch_printf("Assert \"%s\" failed at line %d in %s\n",   \
-//                x, __LINE__, __FILE__);             \
-//        mch_abort();                        \
-//    } while (0)
 
 #endif /* __ARCH_CC_H__ */
 
