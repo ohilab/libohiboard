@@ -486,20 +486,65 @@ void Iic_readRegister (Iic_DeviceHandle dev,
 }
 
 void Iic_readMultipleRegisters (Iic_DeviceHandle dev,
-                       uint8_t writeAddress,
-                       uint8_t readAddress,
-                       uint8_t firstRegisterAddress,
-                       uint8_t *data,
-					   uint8_t length)
+                                uint8_t writeAddress,
+                                uint8_t readAddress,
+                                uint8_t firstRegisterAddress,
+                                uint8_t *data,
+					            uint8_t length)
 {
+    uint8_t read = 0;
+    uint8_t i = 0;
 
+    Iic_start(dev);
+
+    Iic_writeByte(dev,writeAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_writeByte(dev,firstRegisterAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_repeatedStart(dev);
+
+    Iic_writeByte(dev, readAddress);
+    Iic_waitTransfer(dev);
+    Iic_getAck(dev);
+
+    Iic_setReceiveMode(dev);
+    Iic_sendAck(dev);
+
+    /* dummy read */
+    Iic_readByte(dev, &read);
+    Iic_waitTransfer(dev);
+
+    for (i = 0; i < length - 2; i++)
+    {
+        Iic_readByte(dev,&data[i]);
+        Iic_waitTransfer(dev);
+    }
+    Iic_sendNack(dev);
+
+    Iic_readByte(dev,&data[i++]);
+    Iic_waitTransfer(dev);
+
+    Iic_stop(dev);
+
+    // Read last byte
+    Iic_readByte(dev,&data[i]);
+
+    /* small delay */
+    for(uint8_t i=0; i<50; i++)
+    {
+        __asm("nop");
+    }
 }
 
 void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
-                        uint8_t writeAddress,
-                        uint8_t firstRegisterAddress,
-                        uint8_t* data,
-						uint8_t length)
+                                 uint8_t writeAddress,
+                                 uint8_t firstRegisterAddress,
+                                 uint8_t* data,
+						         uint8_t length)
 
 {
 	Iic_start(dev);
@@ -512,7 +557,7 @@ void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
 	Iic_waitTransfer(dev);
 	Iic_getAck(dev);
 
-	for(int i=0;i<length;i++)
+	for (uint8_t i = 0; i < length; i++)
 	{
 		Iic_writeByte(dev,data[i]);
 		Iic_waitTransfer(dev);
