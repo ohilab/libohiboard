@@ -49,7 +49,7 @@
 
 /* Minimal changes to opt.h required for tcp unit tests: */
 #define TCP_MSS							4288//2144
-#define MEM_SIZE                        24000/**the size of ram_heap**/
+#define MEM_SIZE                        32000/**the size of ram_heap**/
 #define TCP_SND_QUEUELEN                40
 #define MEMP_NUM_TCP_SEG                TCP_SND_QUEUELEN
 #define TCP_SND_BUF                     (12 * TCP_MSS)
@@ -64,8 +64,8 @@
 #define LWIP_DBG_OFF	   		0x00U
 #define LWIP_PERF   			0
 
-#define LWIP_NETIF_STATUS_CALLBACK	1
-#define LWIP_NETIF_LINK_CALLBACK	1
+#define LWIP_NETIF_STATUS_CALLBACK	0
+#define LWIP_NETIF_LINK_CALLBACK	0
 
 #endif /* __LWIPOPTS_H__ */
 

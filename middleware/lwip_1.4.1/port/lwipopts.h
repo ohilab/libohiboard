@@ -29,6 +29,9 @@
  * Author: Simon Goldschmidt
  *
  */
+
+#ifdef LIBOHIBOARD_ETHERNET_LWIP_1_4_1
+
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
@@ -50,3 +53,5 @@
 #define ETHARP_SUPPORT_STATIC_ENTRIES   1
 
 #endif /* __LWIPOPTS_H__ */
+
+#endif
