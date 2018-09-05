@@ -180,8 +180,7 @@ System_Errors Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dac_InterruptEvent eve
 void DAC0_IRQHandler(void)
 {
 	OB_DAC0->callback();
-
-
+}
 
 void DAC0_IRQHandler(void)
 {
