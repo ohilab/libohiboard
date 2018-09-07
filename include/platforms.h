@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -129,7 +129,7 @@
  */
 
 
-#if defined(LIBOHIBOARD_K10DZ10)
+#if defined(LIBOHIBOARD_K10DZ10) // NXP/Freescale Microcontrollers
 #include "platforms/MK10DZ10.h"
 #elif defined(LIBOHIBOARD_K10D10)
 #include "platforms/MK10D10.h"
@@ -170,6 +170,10 @@
 #include "platforms/MKV31F51212.h"
 #elif defined(LIBOHIBOARD_KV46F) || defined(LIBOHIBOARD_TWRKV46F)
 #include "platforms/MKV46F16.h"
+#elif defined(LIBOHIBOARD_STM32L476) // ST Microcontrollers
+#include "platforms/STM32L476/stm32l476xx.h"
+#include "platforms/STM32L476/stm32l4xx.h"
+#include "platforms/STM32L476/system_stm32l4xx.h"
 #endif
 
 // Features files
