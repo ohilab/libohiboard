@@ -1,4 +1,4 @@
-/******************************************************************************
+/*
  * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/clock_KL15Z4.c
@@ -1824,7 +1824,7 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
  * @param busDivider: value of bus_clock divider
  * @return Error code.
  */
-System_Errors Clock_Init (Clock_Config *config)
+System_Errors Clock_init (Clock_Config *config)
 {
 	MCG_MemMapPtr regmap = Clock_device.regmap;
 	uint32_t fext = config->fext;

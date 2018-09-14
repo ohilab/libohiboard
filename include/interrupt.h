@@ -1,4 +1,5 @@
-/* Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -23,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/interrupt.h
@@ -393,7 +394,20 @@ typedef enum {
 	INTERRUPT_ETHERNET_RX  = 84,
 	INTERRUPT_ETHERNET_ERR = 85,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+    INTERRUPT_WWDG             = 0,
+    INTERRUPT_RTC_TAMP_STAMP   = 2,
+    INTERRUPT_RTC_WKUP         = 3,
+
+    INTERRUPT_UART1            = 37,
+    INTERRUPT_UART2            = 38,
+    INTERRUPT_UART3            = 39,
+
+    // TODO: Add all interrupts
+
 #endif
+
 } Interrupt_Vector;
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
@@ -402,6 +416,6 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);
 System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber,
                                      uint8_t priority);
 
-#endif /* __INTERRUPT_H */
+#endif // __INTERRUPT_H
 
 

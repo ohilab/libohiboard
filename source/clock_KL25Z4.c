@@ -70,7 +70,7 @@
 
 typedef struct Clock_Device
 {
-	MCG_MemMapPtr regmap;
+    MCG_MemMapPtr regmap;
 
     uint32_t foutMcg;
     Clock_State mcgState;
@@ -78,17 +78,17 @@ typedef struct Clock_Device
     uint8_t devInitialized;
     
     System_Errors mcgError;
-}Clock_Device; 
+} Clock_Device;
 
 static Clock_Device Clock_device = {
-	.regmap = MCG_BASE_PTR,
+    .regmap = MCG_BASE_PTR,
 
-	.foutMcg = 0,
-	.mcgState = CLOCK_FEI,
+    .foutMcg = 0,
+    .mcgState = CLOCK_FEI,
 
 	.devInitialized = 0,
 
-	.mcgError = ERRORS_NO_ERROR,
+    .mcgError = ERRORS_NO_ERROR,
 };
 
 /* Functions of single state transition */
@@ -104,7 +104,7 @@ static Clock_Device Clock_device = {
  */
 static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, uint8_t range0, uint8_t frdiv)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+    MCG_MemMapPtr regmap = Clock_device.regmap;
     uint32_t foutMcg = 0;
     uint32_t fllRefClock;
     uint8_t dmx32Tmp;
@@ -201,7 +201,7 @@ static uint32_t Clock_fei2fee (uint32_t fext, uint8_t dmx32, uint8_t drstDrs, ui
  */
 static uint32_t Clock_fee2fei (uint8_t dmx32, uint8_t drstDrs)
 {
-	MCG_MemMapPtr regmap = Clock_device.regmap;
+    MCG_MemMapPtr regmap = Clock_device.regmap;
     uint32_t foutMcg = 0;
     uint8_t dmx32Tmp;
     uint8_t drstDrsTmp;
@@ -1823,7 +1823,7 @@ System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint
  * @param busDivider: value of bus_clock divider
  * @return Error code.
  */
-System_Errors Clock_Init (Clock_Config *config)
+System_Errors Clock_init (Clock_Config *config)
 {
 	MCG_MemMapPtr regmap = Clock_device.regmap;
 	uint32_t fext = config->fext;

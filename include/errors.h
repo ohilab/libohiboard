@@ -113,6 +113,9 @@ typedef enum _System_Errors
     ERRORS_MCG_ERRATA_DIVIDER,
     ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
 
+    ERRORS_CLOCK_NO_CONFIG,
+    ERRORS_CLOCK_WRONG_CONFIGURATION,
+
     ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
@@ -156,6 +159,6 @@ typedef enum _System_Errors
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
-#define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+#define ohiassert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
 
 #endif /* __ERRORS_H */

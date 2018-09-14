@@ -49,6 +49,9 @@
 #define IS_LOWERLETTER(c)           ((c <= 'z') && (c >= 'a'))
 #define IS_UPPERLETTER(c)           ((c <= 'Z') && (c >= 'A'))
 
+#define UTILITY_CLEAR_REGISTER_BIT(REGISTER,BIT) ((REGISTER) &= ~(BIT))
+#define UTILITY_SET_REGISTER_BIT(REGISTER,BIT)   ((REGISTER) |= (BIT))
+
 extern const char hexDigits[];
 
 System_Errors xdigit (uint8_t digit, uint8_t* result);
