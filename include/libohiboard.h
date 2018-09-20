@@ -122,4 +122,6 @@
 
 #include "timeday.h"
 
+#include "comm-utility.h"
+
 #endif /* __LIBOHIBOARD_H */
