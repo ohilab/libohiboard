@@ -13,7 +13,7 @@
 
 #ifdef LIBOHIBOARD_IIC
 #include "i2c.h"
-uint8_t CommUtility_IicBusScanner (Iic_DeviceHandle dev, uint8_t* result);
+uint8_t CommUtility_iicBusScanner (Iic_DeviceHandle dev, uint8_t* result);
 #endif
 
 #endif // __COMM_UTILITY_H
