@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/gpio.h
@@ -808,6 +808,21 @@ typedef enum
 	GPIO_PINS_PTE5,
 	GPIO_PINS_PTE6,
 	GPIO_PINS_PTE7,
+
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    GPIO_PINS_PC0,
+    GPIO_PINS_PC1,
+	GPIO_PINS_PC13,
+    GPIO_PINS_PC14,
+    GPIO_PINS_PC15,
+
+    GPIO_PINS_PH0,
+    GPIO_PINS_PH1,
+
+#endif
 
 #endif
 
