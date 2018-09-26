@@ -115,6 +115,13 @@ typedef enum _System_Errors
 
     ERRORS_CLOCK_NO_CONFIG,
     ERRORS_CLOCK_WRONG_CONFIGURATION,
+    ERRORS_CLOCK_NOT_READY,
+#if defined (LIBOHIBOARD_ST_STM32)
+    ERRORS_CLOCK_PLL_NOT_READY,
+    ERRORS_CLOCK_HSE_NOT_READY,
+    ERRORS_CLOCK_HSI_NOT_READY,
+    ERRORS_CLOCK_MSI_NOT_READY,
+#endif
 
     ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */

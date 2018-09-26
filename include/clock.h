@@ -164,6 +164,47 @@ typedef enum
     CLOCK_OSCILLATORSTATE_OFF,
     CLOCK_OSCILLATORSTATE_ON,
 } Clock_OscillatorState;
+
+typedef enum
+{
+    CLOCK_SYSTEMSOURCE_HSE = 0x0001,
+    CLOCK_SYSTEMSOURCE_MSI = 0x0002,
+    CLOCK_SYSTEMSOURCE_HSI = 0x0004,
+    CLOCK_SYSTEMSOURCE_PLL = 0x0008,
+} Clock_SystemSource;
+
+typedef enum
+{
+    CLOCK_OUTPUT_SYSCLK = 0x0001,
+    CLOCK_OUTPUT_HCLK   = 0x0002,
+    CLOCK_OUTPUT_PCLK1  = 0x0004,
+    CLOCK_OUTPUT_PCLK2  = 0x0008,
+} Clock_Output;
+
+typedef enum
+{
+    CLOCK_AHBDIVIDER_1    = 0,
+    CLOCK_AHBDIVIDER_2    = 1,
+    CLOCK_AHBDIVIDER_4    = 2,
+    CLOCK_AHBDIVIDER_8    = 3,
+    CLOCK_AHBDIVIDER_16   = 4,
+    CLOCK_AHBDIVIDER_64   = 5,
+    CLOCK_AHBDIVIDER_128  = 6,
+    CLOCK_AHBDIVIDER_256  = 7,
+    CLOCK_AHBDIVIDER_512  = 8,
+
+} Clock_AHBDivider;
+
+typedef enum
+{
+    CLOCK_APBDIVIDER_1    = 0,
+    CLOCK_APBDIVIDER_2    = 1,
+    CLOCK_APBDIVIDER_4    = 2,
+    CLOCK_APBDIVIDER_8    = 3,
+    CLOCK_APBDIVIDER_16   = 4,
+
+} Clock_APBDivider;
+
 #endif
 
 typedef struct _Clock_Config
@@ -197,6 +238,14 @@ typedef struct _Clock_Config
     Clock_OscillatorState hseState;
     Clock_OscillatorState hsiState;
 
+    Clock_SystemSource sysSource;
+
+    Clock_Output output;
+
+    Clock_AHBDivider ahbDivider;
+    Clock_APBDivider apb1Divider;
+    Clock_APBDivider apb2Divider;
+
 // END IF: LIBOHIBOARD_ST_STM32
 #endif
 
@@ -204,7 +253,20 @@ typedef struct _Clock_Config
 
 
 System_Errors Clock_init (Clock_Config *config);
-System_Errors Clock_setDividers(uint8_t busDivider, uint8_t flexbusDivider, uint8_t flashDivider);
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+System_Errors Clock_setDividers (uint8_t busDivider, uint8_t flexbusDivider, uint8_t flashDivider);
+#elif defined (LIBOHIBOARD_ST_STM32)
+System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint32_t apb2Divider);
+/**
+ * Return the selected output clock.
+ *
+ * @param[in] output The selected output clock
+ * @return The clock frequency in Hz
+ */
+uint32_t Clock_getOutputClock (Clock_Output output);
+#endif
+
 
 uint32_t Clock_getFrequency (Clock_Source source);
 
