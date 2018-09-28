@@ -188,38 +188,39 @@ static Gpio_PinDevice Gpio_availablePins[] =
 #endif
 };
 
-static uint8_t Gpio_availablePinsCount = sizeof(Gpio_availablePins)/sizeof(Gpio_availablePins[0]);
+static uint8_t Gpio_availablePinsCount = 0;
 
-static void Gpio_getPort (Gpio_Pins pin, GPIO_TypeDef* port)
+static GPIO_TypeDef* Gpio_getPort (Gpio_Pins pin)
 {
     switch (Gpio_availablePins[pin].port)
     {
     case GPIO_PORTS_A:
-        port = GPIOA;
-        break;
+        return GPIOA;
+
     case GPIO_PORTS_B:
-        port = GPIOB;
-        break;
+        return GPIOB;
+
     case GPIO_PORTS_C:
-        port = GPIOC;
-        break;
+        return GPIOC;
+
     case GPIO_PORTS_D:
-        port = GPIOD;
-        break;
+        return GPIOD;
+
     case GPIO_PORTS_E:
-        port = GPIOE;
-        break;
+        return GPIOE;
+
     case GPIO_PORTS_F:
-        port = GPIOF;
-        break;
+        return GPIOF;
+
     case GPIO_PORTS_G:
-        port = GPIOG;
-        break;
+        return GPIOG;
+
     case GPIO_PORTS_H:
-        port = GPIOH;
-        break;
+        return GPIOH;
+
     default:
         ohiassert(0);
+        return 0;
     }
 }
 
@@ -234,6 +235,12 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
     // Only one type of configuration is possible
     ohiassert(((options & GPIO_PINS_OUTPUT) == GPIO_PINS_OUTPUT) ^
               ((options & GPIO_PINS_INPUT) == GPIO_PINS_INPUT));
+
+
+    if (Gpio_availablePinsCount == 0)
+        Gpio_availablePinsCount = sizeof(Gpio_availablePins)/sizeof(Gpio_availablePins[0]);
+    //Check if pin definition exist
+    ohiassert(pin < Gpio_availablePinsCount);
 
     number = Gpio_availablePins[pin].pinNumber;
 
@@ -289,9 +296,10 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
                   ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN));
 
         // Configure IO output type
+        // One value must be selected, anyway use PUSH-PULL as default value
         temp = port->OTYPER;
         temp &= ~(GPIO_OTYPER_OT0 << number) ;
-        temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) ? 0x00 : 0x01) << number);
+        temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
         port->OTYPER = temp;
 
         // Configure output speed
@@ -322,7 +330,6 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         ohiassert(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) ^
                   ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN));
 
-
         temp = port->PUPDR;
         temp &= ~(GPIO_PUPDR_PUPD0 << (number * 2));
         temp |= (((options & GPIO_PINS_ENABLE_PULLUP) ? 0x01 : 0x02) << (number * 2));
@@ -334,45 +341,37 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
 void Gpio_set (Gpio_Pins pin)
 {
-    GPIO_TypeDef* port;
-
-    // Check if pin definition exist
+    //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    Gpio_getPort(pin,port);
+    GPIO_TypeDef* port = Gpio_getPort(pin);
     port->BSRR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
 void Gpio_clear (Gpio_Pins pin)
 {
-    GPIO_TypeDef* port;
-
-    // Check if pin definition exist
+    //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    Gpio_getPort(pin,port);
+    GPIO_TypeDef* port = Gpio_getPort(pin);
     port->BRR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
 void Gpio_toggle (Gpio_Pins pin)
 {
-    GPIO_TypeDef* port;
-
-    // Check if pin definition exist
+    //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    Gpio_getPort(pin,port);
-    port->ODR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
+    GPIO_TypeDef* port = Gpio_getPort(pin);
+    port->ODR ^= GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
 Gpio_Level Gpio_get (Gpio_Pins pin)
 {
-    GPIO_TypeDef* port;
-
-    // Check if pin definition exist
+    //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    Gpio_getPort(pin,port);
+    GPIO_TypeDef* port = Gpio_getPort(pin);
     return ((port->IDR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 

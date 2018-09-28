@@ -31,9 +31,13 @@
  * @brief Errors definition
  */
 
+#include "platforms.h"
 #include "errors.h"
 
 void Errors_assert (const char* file, const int line)
 {
     /* Set breakpoint to control the execution! */
+#if defined LIBOHIBOARD_ST_STM32
+    asm("nop");
+#endif
 }
