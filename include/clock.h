@@ -97,7 +97,7 @@ typedef enum
 #if defined (LIBOHIBOARD_STM32L476)
 
     CLOCK_INTERNAL_32K     = 0x0004,
-    CLOCK_INTERNAL_16M     = 0x0008,
+    CLOCK_INTERNAL_HSI     = 0x0008,
     CLOCK_INTERNAL_MSI     = 0x0010,
     CLOCK_INTERNAL_PLL     = 0x0020,
 

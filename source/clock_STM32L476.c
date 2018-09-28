@@ -37,16 +37,20 @@
 
 #define CLOCK_MIN_FREQ_HSE                     4000000
 #define CLOCK_MAX_FREQ_HSE                    48000000
+#define CLOCK_FREQ_HSI                        16000000
 
 #define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                            && \
                                         (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)         || \
                                          ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)           || \
                                          ((OSC & CLOCK_INTERNAL_32K) == CLOCK_INTERNAL_32K) || \
-                                         ((OSC & CLOCK_INTERNAL_16M) == CLOCK_INTERNAL_16M) || \
+                                         ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI) || \
                                          ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI))
 
 #define CLOCK_IS_VALID_HSE_STATE(HSESTATE) (((HSESTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
                                             ((HSESTATE) == CLOCK_OSCILLATORSTATE_ON))
+
+#define CLOCK_IS_VALID_HSI_STATE(HSISTATE) (((HSISTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
+                                            ((HSISTATE) == CLOCK_OSCILLATORSTATE_ON))
 
 #define CLOCK_IS_VALID_EXTERNAL_RANGE(VALUE) ((VALUE >= CLOCK_MIN_FREQ_HSE) && (VALUE <= CLOCK_MAX_FREQ_HSE))
 
@@ -76,7 +80,7 @@
                                              ((DIVIDER) == CLOCK_APBDIVIDER_8)   || \
                                              ((DIVIDER) == CLOCK_APBDIVIDER_16))
 
-static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[8] =
+static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[9] =
 {
         RCC_CFGR_HPRE_DIV1,
         RCC_CFGR_HPRE_DIV2,
@@ -190,7 +194,7 @@ static void Clock_updateOutputClock (void)
     }
     else if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI)
     {
-        // TODO
+        Clock_device.systemCoreClock = CLOCK_FREQ_HSI;
     }
     else if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_MSI)
     {
@@ -301,6 +305,43 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
                 while ((Clock_device.regmap->CR & RCC_CR_HSERDY) == 0);
+                return ERRORS_NO_ERROR;
+            }
+        }
+    }
+    else if ((config->source & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)
+    {
+        // Check the HSI state value
+        ohiassert(CLOCK_IS_VALID_HSI_STATE(config->hsiState));
+
+        // Check if HSI is just used as SYSCLK or as PLL source
+        // In this case we can't disable it
+        if (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) ||
+            (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+             ((Clock_device.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSI)))
+        {
+            return ERRORS_CLOCK_WRONG_CONFIGURATION;
+        }
+        else
+        {
+            if (config->hsiState == CLOCK_OSCILLATORSTATE_OFF)
+            {
+                // Switch off the oscillator
+                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSION);
+
+                // Wait until the HSERDY bit is cleared
+                // FIXME: Add timeout...
+                while ((Clock_device.regmap->CR & RCC_CR_HSIRDY) > 0);
+                return ERRORS_NO_ERROR;
+            }
+            else
+            {
+                // Switch on the oscillator
+                UTILITY_SET_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSION);
+
+                // Wait until the HSERDY bit is set
+                // FIXME: Add timeout...
+                while ((Clock_device.regmap->CR & RCC_CR_HSIRDY) == 0);
                 return ERRORS_NO_ERROR;
             }
         }
@@ -446,6 +487,8 @@ uint32_t Clock_getOutputClock (Clock_Output output)
         return Clock_device.pclk1Clock;
     case CLOCK_OUTPUT_PCLK2:
         return Clock_device.pclk2Clock;
+    default:
+        return 0;
     }
 }
 
