@@ -93,7 +93,7 @@ static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[9] =
         RCC_CFGR_HPRE_DIV512,
 };
 
-static const uint32_t CLOCK_AHB_PRESCALE_SHIFT_TABLE[16] =
+static const uint8_t CLOCK_AHB_PRESCALE_SHIFT_TABLE[16] =
 {
         0U, // DIV1 - NOT USED
         0U, // DIV1 - NOT USED
@@ -131,7 +131,7 @@ static const uint32_t CLOCK_APB2_PRESCALE_REGISTER_TABLE[5] =
         RCC_CFGR_PPRE2_DIV16
 };
 
-static const uint32_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
+static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 {
         0U, // DIV1 - NOT USED
         0U, // DIV1 - NOT USED
@@ -207,14 +207,14 @@ static void Clock_updateOutputClock (void)
 
     // Compute HCLK, PCLK1 and PCLK2
     uint32_t cfgr = Clock_device.regmap->CFGR;
-    Clock_device.hclkClock = Clock_device.systemCoreClock >>
-            CLOCK_AHB_PRESCALE_SHIFT_TABLE[UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos];
+    uint32_t shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
+    Clock_device.hclkClock = (Clock_device.systemCoreClock >> CLOCK_AHB_PRESCALE_SHIFT_TABLE[shifter]);
 
-    Clock_device.pclk1Clock = Clock_device.hclkClock >>
-            CLOCK_APB_PRESCALE_SHIFT_TABLE[UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos];
+    shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
+    Clock_device.pclk1Clock = (Clock_device.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
 
-    Clock_device.pclk2Clock = Clock_device.hclkClock >>
-            CLOCK_APB_PRESCALE_SHIFT_TABLE[UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos];
+    shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos;
+    Clock_device.pclk2Clock = (Clock_device.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
 }
 
 static System_Errors Clock_oscillatorConfig (Clock_Config* config)
@@ -410,7 +410,8 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
 
         // FIXME: add timeout!
     }
-    else if ((config->output & CLOCK_OUTPUT_HCLK) == CLOCK_OUTPUT_HCLK)
+
+    if ((config->output & CLOCK_OUTPUT_HCLK) == CLOCK_OUTPUT_HCLK)
     {
         // Check if divider is valid
         ohiassert(CLOCK_IS_VALID_AHB_DIVIDER(config->ahbDivider));
@@ -419,7 +420,8 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         Clock_device.regmap->CFGR &= ~(RCC_CFGR_HPRE_Msk);
         Clock_device.regmap->CFGR |= CLOCK_AHB_PRESCALE_REGISTER_TABLE[config->ahbDivider];
     }
-    else if ((config->output & CLOCK_OUTPUT_PCLK1) == CLOCK_OUTPUT_PCLK1)
+
+    if ((config->output & CLOCK_OUTPUT_PCLK1) == CLOCK_OUTPUT_PCLK1)
     {
         // Check if divider is valid
         ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb1Divider));
@@ -428,7 +430,8 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         Clock_device.regmap->CFGR &= ~(RCC_CFGR_PPRE1_Msk);
         Clock_device.regmap->CFGR |= CLOCK_APB1_PRESCALE_REGISTER_TABLE[config->apb1Divider];
     }
-    else if ((config->output & CLOCK_OUTPUT_PCLK2) == CLOCK_OUTPUT_PCLK2)
+
+    if ((config->output & CLOCK_OUTPUT_PCLK2) == CLOCK_OUTPUT_PCLK2)
     {
         // Check if divider is valid
         ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb2Divider));
@@ -458,8 +461,9 @@ System_Errors Clock_init (Clock_Config* config)
 
     // Check if both EXTERN and CRYSTAL are selected
     // HSE support only one of these condition
-    ohiassert(((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL) ^
-              ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL));
+    // FIXME
+//    ohiassert(((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL) ^
+//              ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL));
 
     err = Clock_oscillatorConfig(config);
 
