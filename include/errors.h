@@ -153,6 +153,9 @@ typedef enum _System_Errors
     ERRORS_FLASH_COMPLETION_STATUS,
     ERRORS_FLASH_JUST_INIT,
 
+    ERRORS_COMMUTILITY_MAX_DEVICE_ACHIEVE,
+    ERRORS_COMMUTILITY_DEVICE_NOT_FOUND,
+
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
