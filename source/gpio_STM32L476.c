@@ -34,6 +34,7 @@
 #include "gpio.h"
 #include "platforms.h"
 #include "interrupt.h"
+#include "clock.h"
 #include "utility.h"
 
 #define GPIO_ENABLE_CLOCK_PORTA() do { \
@@ -84,17 +85,11 @@
                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOHEN); \
                                   } while (0)
 
-#if 0
-//* TODO: Verificare che siano giuste le define */
-#define  PORTA_MAX_PIN  21
-#define  PORTD_MAX_PIN  8
+#define  PORT_MAX_PIN  16
 
-static void (*Gpio_isrPortARequestVector[PORTA_MAX_PIN]) (void);
-static void (*Gpio_isrPortDRequestVector[PORTD_MAX_PIN]) (void);
+static void (*Gpio_isrPortRequestVector[PORT_MAX_PIN]) (void);
+static uint32_t Gpio_isrRegister = 0x0;
 
-static uint32_t INT_REG_A = 0x0;
-static uint32_t INT_REG_D = 0x0;
-#endif
 
 typedef enum
 {
@@ -113,77 +108,77 @@ typedef struct _Gpio_PinDevice
 {
     Gpio_Ports port;                      /**< The port of the selected pins */
     uint8_t pinNumber;       /**< The number of the pin of the relative port */
+    uint8_t portIndex;       /**< Current port number for interrupt managing */
 } Gpio_PinDevice;
 
 static Gpio_PinDevice Gpio_availablePins[] =
 {
-    {0xFF,0xFF},
+    {0xFF,0xFF,0},
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
-    {GPIO_PORTS_A,0},
-    {GPIO_PORTS_A,1},
-    {GPIO_PORTS_A,2},
-    {GPIO_PORTS_A,3},
-    {GPIO_PORTS_A,4},
-    {GPIO_PORTS_A,5},
-    {GPIO_PORTS_A,6},
-    {GPIO_PORTS_A,7},
-    {GPIO_PORTS_A,8},
-    {GPIO_PORTS_A,9},
-    {GPIO_PORTS_A,10},
-    {GPIO_PORTS_A,11},
-    {GPIO_PORTS_A,12},
-    {GPIO_PORTS_A,13},
-    {GPIO_PORTS_A,14},
-    {GPIO_PORTS_A,15},
+    {GPIO_PORTS_A,0,0},
+    {GPIO_PORTS_A,1,0},
+    {GPIO_PORTS_A,2,0},
+    {GPIO_PORTS_A,3,0},
+    {GPIO_PORTS_A,4,0},
+    {GPIO_PORTS_A,5,0},
+    {GPIO_PORTS_A,6,0},
+    {GPIO_PORTS_A,7,0},
+    {GPIO_PORTS_A,8,0},
+    {GPIO_PORTS_A,9,0},
+    {GPIO_PORTS_A,10,0},
+    {GPIO_PORTS_A,11,0},
+    {GPIO_PORTS_A,12,0},
+    {GPIO_PORTS_A,13,0},
+    {GPIO_PORTS_A,14,0},
+    {GPIO_PORTS_A,15,0},
 
-    {GPIO_PORTS_B,0},
-    {GPIO_PORTS_B,1},
-    {GPIO_PORTS_B,2},
-    {GPIO_PORTS_B,3},
-    {GPIO_PORTS_B,4},
-    {GPIO_PORTS_B,5},
-    {GPIO_PORTS_B,6},
-    {GPIO_PORTS_B,7},
-    {GPIO_PORTS_B,8},
-    {GPIO_PORTS_B,9},
-    {GPIO_PORTS_B,10},
-    {GPIO_PORTS_B,11},
-    {GPIO_PORTS_B,12},
-    {GPIO_PORTS_B,13},
-    {GPIO_PORTS_B,14},
-    {GPIO_PORTS_B,15},
+    {GPIO_PORTS_B,0,1},
+    {GPIO_PORTS_B,1,1},
+    {GPIO_PORTS_B,2,1},
+    {GPIO_PORTS_B,3,1},
+    {GPIO_PORTS_B,4,1},
+    {GPIO_PORTS_B,5,1},
+    {GPIO_PORTS_B,6,1},
+    {GPIO_PORTS_B,7,1},
+    {GPIO_PORTS_B,8,1},
+    {GPIO_PORTS_B,9,1},
+    {GPIO_PORTS_B,10,1},
+    {GPIO_PORTS_B,11,1},
+    {GPIO_PORTS_B,12,1},
+    {GPIO_PORTS_B,13,1},
+    {GPIO_PORTS_B,14,1},
+    {GPIO_PORTS_B,15,1},
 
-    {GPIO_PORTS_C,0},
-    {GPIO_PORTS_C,1},
-    {GPIO_PORTS_C,2},
-    {GPIO_PORTS_C,3},
-    {GPIO_PORTS_C,4},
-    {GPIO_PORTS_C,5},
-    {GPIO_PORTS_C,6},
-    {GPIO_PORTS_C,7},
-    {GPIO_PORTS_C,8},
-    {GPIO_PORTS_C,9},
-    {GPIO_PORTS_C,10},
-    {GPIO_PORTS_C,11},
-    {GPIO_PORTS_C,12},
-    {GPIO_PORTS_C,13},
-    {GPIO_PORTS_C,14},
-    {GPIO_PORTS_C,15},
+    {GPIO_PORTS_C,0,2},
+    {GPIO_PORTS_C,1,2},
+    {GPIO_PORTS_C,2,2},
+    {GPIO_PORTS_C,3,2},
+    {GPIO_PORTS_C,4,2},
+    {GPIO_PORTS_C,5,2},
+    {GPIO_PORTS_C,6,2},
+    {GPIO_PORTS_C,7,2},
+    {GPIO_PORTS_C,8,2},
+    {GPIO_PORTS_C,9,2},
+    {GPIO_PORTS_C,10,2},
+    {GPIO_PORTS_C,11,2},
+    {GPIO_PORTS_C,12,2},
+    {GPIO_PORTS_C,13,2},
+    {GPIO_PORTS_C,14,2},
+    {GPIO_PORTS_C,15,2},
 
-    {GPIO_PORTS_D,2},
+    {GPIO_PORTS_D,2,3},
 
-    {GPIO_PORTS_G,9},
-    {GPIO_PORTS_G,10},
-    {GPIO_PORTS_G,11},
-    {GPIO_PORTS_G,12},
-    {GPIO_PORTS_G,13},
-    {GPIO_PORTS_G,14},
+    {GPIO_PORTS_G,9,6},
+    {GPIO_PORTS_G,10,6},
+    {GPIO_PORTS_G,11,6},
+    {GPIO_PORTS_G,12,6},
+    {GPIO_PORTS_G,13,6},
+    {GPIO_PORTS_G,14,6},
 
-
-    {GPIO_PORTS_H,0},
-    {GPIO_PORTS_H,1},
+    {GPIO_PORTS_H,0,7},
+    {GPIO_PORTS_H,1,7},
 
 #endif
 };
@@ -375,53 +370,118 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->IDR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-#if 0
-
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 {
-    GPIO_MemMapPtr port;
-    Gpio_getPort(pin,&port);
+    //Check if pin definition exist
+    ohiassert(pin < Gpio_availablePinsCount);
+    if (pin < Gpio_availablePinsCount)
+        return ERRORS_GPIO_WRONG_PIN;
 
-    switch(Gpio_availablePins[pin].port)
-    {
-    case GPIO_PORTS_A:
-        Gpio_isrPortARequestVector[Gpio_availablePins[pin].pinNumber] = callback;
-        INT_REG_A |= 1 << Gpio_availablePins[pin].pinNumber;
-        break;
-    case GPIO_PORTS_D:
-        Gpio_isrPortDRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
-        INT_REG_D |= 1 << Gpio_availablePins[pin].pinNumber;
-        break;
-    default:
-        assert(0);
-        return ERRORS_GPIO_WRONG_PORT;
-    }
+    Gpio_isrPortRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
+    Gpio_isrRegister |= 1 << Gpio_availablePins[pin].pinNumber;
 
     return ERRORS_NO_ERROR;
 }
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 {
-    GPIO_MemMapPtr port;
-    Gpio_getPort(pin,&port);
+    uint32_t pinNumber = Gpio_availablePins[pin].pinNumber;
+    uint32_t portIndex = Gpio_availablePins[pin].portIndex;
+    uint32_t temp = 0x00;
 
-    switch(Gpio_availablePins[pin].port)
+    //Check if pin definition exist
+    ohiassert(pin < Gpio_availablePinsCount);
+    if (pin < Gpio_availablePinsCount)
+        return ERRORS_GPIO_WRONG_PIN;
+
+    // At least one type of controller must be choose
+    ohiassert(((event & GPIO_EVENT_USE_INTERRUPT) == GPIO_EVENT_USE_INTERRUPT) ||
+              ((event & GPIO_EVENT_USE_EVENT) == GPIO_EVENT_USE_EVENT));
+    if (!(((event & GPIO_EVENT_USE_INTERRUPT) == GPIO_EVENT_USE_INTERRUPT) ||
+         ((event & GPIO_EVENT_USE_EVENT) == GPIO_EVENT_USE_EVENT)))
+        return ERRORS_GPIO_WRONG_CONFIG;
+
+    // At least one type of configuration must be choose
+    ohiassert(((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING) ||
+              ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING));
+
+    // Enable clock to SYSCFG module
+    CLOCK_ENABLE_SYSCFG();
+
+    // Set the current pin as interrupt source for the corresponding channel
+    temp = SYSCFG->EXTICR[pinNumber >> 2];
+    temp &= ~(((uint32_t)0x0F) << (4 * (pinNumber & 0x03)));
+    temp |= portIndex << (4 * (pinNumber & 0x03));
+    SYSCFG->EXTICR[pinNumber >> 2] = temp;
+
+    // Enable interrupt if request
+    temp = EXTI->IMR1;
+    temp &= ~((uint32_t)GPIO_PIN(pinNumber));
+    if ((event & GPIO_EVENT_USE_INTERRUPT) == GPIO_EVENT_USE_INTERRUPT)
     {
-    case GPIO_PORTS_A:
-        PORTA_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
-        PORTA_PCR(Gpio_availablePins[pin].pinNumber)|=PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        INT_REG_A |= 1 << Gpio_availablePins[pin].pinNumber;
-        Interrupt_enable (INTERRUPT_PORTA);
+      temp |= (uint32_t)GPIO_PIN(pinNumber);
+    }
+    EXTI->IMR1 = temp;
+
+    // Enable event if request
+    temp = EXTI->EMR1;
+    temp &= ~((uint32_t)GPIO_PIN(pinNumber));
+    if ((event & GPIO_EVENT_USE_EVENT) == GPIO_EVENT_USE_EVENT)
+    {
+      temp |= (uint32_t)GPIO_PIN(pinNumber);
+    }
+    EXTI->EMR1 = temp;
+
+    // Set-up falling and rising edge
+    temp = EXTI->RTSR1;
+    temp &= ~((uint32_t)GPIO_PIN(pinNumber));
+    if ((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING)
+    {
+      temp |= (uint32_t)GPIO_PIN(pinNumber);
+    }
+    EXTI->RTSR1 = temp;
+
+    temp = EXTI->FTSR1;
+    temp &= ~((uint32_t)GPIO_PIN(pinNumber));
+    if ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING)
+    {
+      temp |= (uint32_t)GPIO_PIN(pinNumber);
+    }
+    EXTI->FTSR1 = temp;
+
+    // Enable NVIC interrupt
+    switch (pinNumber)
+    {
+    case 0:
+        Interrupt_enable(INTERRUPT_EXTI0);
         break;
-    case GPIO_PORTS_D:
-        PORTD_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
-        PORTD_PCR(Gpio_availablePins[pin].pinNumber) |= PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        INT_REG_D |= 1 << Gpio_availablePins[pin].pinNumber;
-        Interrupt_enable (INTERRUPT_PORTD);
+    case 1:
+        Interrupt_enable(INTERRUPT_EXTI1);
         break;
-    default:
-        assert(0);
-        return ERRORS_GPIO_WRONG_PORT;
+    case 2:
+        Interrupt_enable(INTERRUPT_EXTI2);
+        break;
+    case 3:
+        Interrupt_enable(INTERRUPT_EXTI3);
+        break;
+    case 4:
+        Interrupt_enable(INTERRUPT_EXTI4);
+        break;
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+        Interrupt_enable(INTERRUPT_EXTI9_5);
+        break;
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+        Interrupt_enable(INTERRUPT_EXTI15_10);
+        break;
     }
 
     return ERRORS_NO_ERROR;
@@ -429,28 +489,121 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
-    GPIO_MemMapPtr port;
-    Gpio_getPort(pin,&port);
+    uint32_t pinNumber = Gpio_availablePins[pin].pinNumber;
+    uint32_t portIndex = Gpio_availablePins[pin].portIndex;
+    uint32_t temp = 0x00;
 
-    switch(Gpio_availablePins[pin].port)
+    //Check if pin definition exist
+    ohiassert(pin < Gpio_availablePinsCount);
+    if (pin < Gpio_availablePinsCount)
+        return ERRORS_GPIO_WRONG_PIN;
+
+    temp = SYSCFG->EXTICR[pinNumber >> 2];
+    temp &= (((uint32_t)0x0F) << (4 * (pinNumber & 0x03)));
+    // Disable interrupt only if this pin is enable
+    if(temp == (portIndex << (4 * (pinNumber & 0x03))))
     {
-    case GPIO_PORTS_A:
-        PORTA_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
-        INT_REG_A &= ~(1 << Gpio_availablePins[pin].pinNumber);
-        if (!INT_REG_A) Interrupt_disable(INTERRUPT_PORTA);
-        break;
-    case GPIO_PORTS_D:
-        PORTD_PCR(Gpio_availablePins[pin].pinNumber) &= ~PORT_PCR_IRQC_MASK;
-        INT_REG_D &= ~(1 << Gpio_availablePins[pin].pinNumber);
-        if (!INT_REG_D) Interrupt_disable(INTERRUPT_PORTD);
-        break;
-    default:
-        assert(0);
-        return ERRORS_GPIO_WRONG_PORT;
-    }
+        temp = ((uint32_t)0x0F) << (4 * (pinNumber & 0x03));
+        SYSCFG->EXTICR[pinNumber >> 2] &= ~temp;
 
+        // Clear EXTI line configuration
+        EXTI->IMR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->EMR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+
+        // Clear Rising-Falling edge configuration
+        EXTI->RTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->FTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+
+        // Disable NVIC interrupt
+        switch (pinNumber)
+        {
+        case 0:
+            Interrupt_disable(INTERRUPT_EXTI0);
+            break;
+        case 1:
+            Interrupt_disable(INTERRUPT_EXTI1);
+            break;
+        case 2:
+            Interrupt_disable(INTERRUPT_EXTI2);
+            break;
+        case 3:
+            Interrupt_disable(INTERRUPT_EXTI3);
+            break;
+        case 4:
+            Interrupt_disable(INTERRUPT_EXTI4);
+            break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            Interrupt_disable(INTERRUPT_EXTI9_5);
+            break;
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+            Interrupt_disable(INTERRUPT_EXTI15_10);
+            break;
+        }
+    }
     return ERRORS_NO_ERROR;
 }
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI0
+void EXTI0_IRQHandler (void)
+{
+
+}
+#endif
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI1
+void EXTI1_IRQHandler (void)
+{
+
+}
+#endif
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI2
+void EXTI2_IRQHandler (void)
+{
+
+}
+#endif
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI3
+void EXTI3_IRQHandler (void)
+{
+
+}
+#endif
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI4
+void EXTI4_IRQHandler (void)
+{
+
+}
+#endif
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI9_5
+void EXTI9_5_IRQHandler (void)
+{
+
+}
+#endif
+
+#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI15_10
+void EXTI15_10_IRQHandler (void)
+{
+
+}
+#endif
+
+
+#if 0
+
 
 void PORTA_IRQHandler (void)
 {

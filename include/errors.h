@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/errors.h
@@ -33,6 +33,10 @@
 
 #ifndef __ERRORS_H
 #define __ERRORS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum _System_Errors
 {
@@ -47,6 +51,7 @@ typedef enum _System_Errors
 	
 	ERRORS_GPIO_WRONG_PORT,
 	ERRORS_GPIO_WRONG_CONFIG,
+    ERRORS_GPIO_WRONG_PIN,
 	
     ERRORS_UART_DEVICE_NOT_INIT,
     ERRORS_UART_DEVICE_JUST_INIT,
@@ -167,5 +172,9 @@ typedef enum _System_Errors
 
 void Errors_assert (const char* file, const int line);
 #define ohiassert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __ERRORS_H */

@@ -897,11 +897,23 @@ typedef enum
 
 typedef enum
 {
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
     GPIO_EVENT_WHEN_0     = 0x8,
     GPIO_EVENT_ON_RISING  = 0x9,
     GPIO_EVENT_ON_FALLING = 0xA,
     GPIO_EVENT_WHEN_1     = 0xC,
     GPIO_EVENT_ON_BOOTH   = 0xB,
+
+#elif defined (LIBOHIBOARD_ST_STM32)
+
+    GPIO_EVENT_ON_RISING       = 0x01,
+    GPIO_EVENT_ON_FALLING      = 0x02,
+
+    GPIO_EVENT_USE_INTERRUPT   = 0x04,
+    GPIO_EVENT_USE_EVENT       = 0x08,
+
+#endif
 } Gpio_EventType;
 
 

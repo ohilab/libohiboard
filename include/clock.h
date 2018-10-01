@@ -267,7 +267,6 @@ System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint
 uint32_t Clock_getOutputClock (Clock_Output output);
 #endif
 
-
 uint32_t Clock_getFrequency (Clock_Source source);
 
 #if defined (LIBOHIBOARD_K10D10)       || \
@@ -284,5 +283,22 @@ uint32_t Clock_getFrequency (Clock_Source source);
 uint8_t Clock_getCoreDivider();
 
 #endif
+
+/*
+ * Usefull define to enable/disable clock to some peripherals
+ */
+#if defined (LIBOHIBOARD_ST_STM32)
+
+#if defined (LIBOHIBOARD_STM32L476)
+
+#define CLOCK_ENABLE_SYSCFG() do { \
+                                UTILITY_SET_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+                                asm("nop"); \
+                                (void) UTILITY_READ_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+                              } while (0)
+
+#endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_ST_STM32
 
 #endif // __CLOCK_H
