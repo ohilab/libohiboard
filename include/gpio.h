@@ -34,6 +34,10 @@
 #ifndef __GPIO_H
 #define __GPIO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
@@ -934,5 +938,10 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
 #endif
 
-#endif /* __GPIO_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __GPIO_H
+
 

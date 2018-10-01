@@ -29,6 +29,10 @@
  * @brief GPIO implementations for STM32L476.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined (LIBOHIBOARD_STM32L476)
 
 #include "gpio.h"
@@ -552,96 +556,81 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
     return ERRORS_NO_ERROR;
 }
 
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI0
-void EXTI0_IRQHandler (void)
+_weak void EXTI0_IRQHandler (void)
 {
-
+    if (Gpio_isrPortRequestVector[0] != NULL)
+        Gpio_isrPortRequestVector[0]();
+    EXTI->PR1 = GPIO_PIN(0);
 }
-#endif
 
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI1
-void EXTI1_IRQHandler (void)
+_weak void EXTI1_IRQHandler (void)
 {
-
+    if (Gpio_isrPortRequestVector[1] != NULL)
+        Gpio_isrPortRequestVector[1]();
+    EXTI->PR1 = GPIO_PIN(1);
 }
-#endif
 
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI2
-void EXTI2_IRQHandler (void)
+_weak void EXTI2_IRQHandler (void)
 {
-
+    if (Gpio_isrPortRequestVector[2] != NULL)
+        Gpio_isrPortRequestVector[2]();
+    EXTI->PR1 = GPIO_PIN(2);
 }
-#endif
 
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI3
-void EXTI3_IRQHandler (void)
+_weak void EXTI3_IRQHandler (void)
 {
-
+    if (Gpio_isrPortRequestVector[3] != NULL)
+        Gpio_isrPortRequestVector[3]();
+    EXTI->PR1 = GPIO_PIN(3);
 }
-#endif
 
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI4
-void EXTI4_IRQHandler (void)
+_weak void EXTI4_IRQHandler (void)
 {
-
+    if (Gpio_isrPortRequestVector[4] != NULL)
+        Gpio_isrPortRequestVector[4]();
+    EXTI->PR1 = GPIO_PIN(4);
 }
-#endif
 
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI9_5
-void EXTI9_5_IRQHandler (void)
-{
-
-}
-#endif
-
-#ifndef LIBOHIBOARD_CUSTOMINTERRUPT_EXTI15_10
-void EXTI15_10_IRQHandler (void)
-{
-
-}
-#endif
-
-
-#if 0
-
-
-void PORTA_IRQHandler (void)
+_weak void EXTI9_5_IRQHandler (void)
 {
     uint8_t i=0;
 
-    while (i < PORTA_MAX_PIN)
+    for (i = 5; i < 10; i++)
     {
-        if(INT_REG_A & (1 << i))
+        if (Gpio_isrRegister & (1 << i))
         {
-            if (PORTA_PCR(i) & PORT_PCR_ISF_MASK)
+            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i] != NULL))
             {
-                Gpio_isrPortARequestVector[i]();
-                //reset interrupt
-                PORTA_PCR(i) |= PORT_PCR_ISF_MASK;
+                Gpio_isrPortRequestVector[i]();
+                // Clear flag interrupt
+                EXTI->PR1 = GPIO_PIN(i);
             }
         }
         i++;
     }
 }
 
-void PORTD_IRQHandler (void)
+_weak void EXTI15_10_IRQHandler (void)
 {
     uint8_t i=0;
 
-    while (i < PORTD_MAX_PIN)
+    for (i = 10; i < 16; i++)
     {
-        if(INT_REG_D & (1 << i))
+        if (Gpio_isrRegister & (1 << i))
         {
-            if (PORTD_PCR(i) & PORT_PCR_ISF_MASK)
+            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i] != NULL))
             {
-                Gpio_isrPortDRequestVector[i]();
-                //reset interrupt
-                PORTD_PCR(i) |= PORT_PCR_ISF_MASK;
+                Gpio_isrPortRequestVector[i]();
+                // Clear flag interrupt
+                EXTI->PR1 = GPIO_PIN(i);
             }
         }
         i++;
     }
 }
-#endif
 
 #endif // LIBOHIBOARD_STM32L476
+
+#ifdef __cplusplus
+}
+#endif

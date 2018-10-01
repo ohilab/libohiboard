@@ -98,7 +98,7 @@ uint8_t Interrupt_getPriority (Interrupt_Vector vectorNumber)
     return (uint8_t) NVIC_GetPriority((IRQn_Type)vectorNumber);
 }
 
-#endif /* LIBOHIBOARD_STM32L476 */
+#endif // LIBOHIBOARD_STM32L476
 
 #ifdef __cplusplus
 }
