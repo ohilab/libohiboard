@@ -59,6 +59,7 @@ typedef enum _System_Errors
     ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG,
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
+    ERRORS_UART_NO_DEVICE,
 	
 	ERRORS_IIC_OK,
 	ERRORS_IIC_TX_OK,

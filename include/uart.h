@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -25,7 +25,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/uart.h
@@ -42,6 +42,10 @@
 #ifndef __UART_H
 #define __UART_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
@@ -50,24 +54,45 @@
 #include "dma.h"
 #endif
 
-typedef enum {
+typedef enum
+{
     UART_PARITY_NONE,
     UART_PARITY_EVEN,
     UART_PARITY_ODD
 } Uart_ParityMode;
 
-typedef enum {
+typedef enum
+{
+#if defined (LIBOHIBOARD_ST_STM32)
+    UART_DATABITS_SEVEN,
+#endif
+
     UART_DATABITS_EIGHT,
     UART_DATABITS_NINE,
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
     UART_DATABITS_TEN,
+#endif
+
 } Uart_DataBits;
 
-typedef enum {
+typedef enum
+{
     UART_STOPBITS_ONE,
     UART_STOPBITS_TWO,
+
+#if defined (LIBOHIBOARD_ST_STM32)
+    UART_STOPBITS_HALF,
+    UART_STOPBITS_ONE_AND_HALF,
+#endif
+
 } Uart_StopBits;
 
-typedef enum {
+typedef enum
+{
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
 #if defined (LIBOHIBOARD_KL15Z4)     || \
     defined (LIBOHIBOARD_KL25Z4)     || \
     defined (LIBOHIBOARD_FRDMKL25Z)  || \
@@ -97,12 +122,22 @@ typedef enum {
     UART_CLOCKSOURCE_FAST_PERIPHERALS,
 
 #endif
+
+#elif defined (LIBOHIBOARD_ST_STM32)
+
+    UART_CLOCKSOURCE_PCLK1      = 0x00U,              /**< PCLK1 clock source */
+    UART_CLOCKSOURCE_PCLK2      = 0x01U,              /**< PCLK2 clock source */
+    UART_CLOCKSOURCE_HSI        = 0x02U,                /**< HSI clock source */
+    UART_CLOCKSOURCE_SYSCLK     = 0x04U,             /**< SYSCLK clock source */
+    UART_CLOCKSOURCE_LSE        = 0x08U,                /**< LSE clock source */
+
+#endif
+
 } Uart_ClockSource;
 
 
 typedef enum
 {
-    
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
 
@@ -544,6 +579,14 @@ void UART1_RX_TX_IRQHandler ();
 extern Uart_DeviceHandle OB_UART0;
 extern Uart_DeviceHandle OB_UART1;
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+extern Uart_DeviceHandle OB_UART1;
+
+#endif
+
 #endif
 
 typedef struct _Uart_Config
@@ -583,20 +626,7 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
 
-#if defined (LIBOHIBOARD_KL15Z4)     || \
-    defined (LIBOHIBOARD_KL25Z4)     || \
-	defined (LIBOHIBOARD_FRDMKL25Z)  || \
-	defined (LIBOHIBOARD_K12D5)      || \
-    defined (LIBOHIBOARD_K64F12)     || \
-	defined (LIBOHIBOARD_FRDMK64F)   || \
-    defined (LIBOHIBOARD_KV31F12)    || \
-	defined (LIBOHIBOARD_KV46F)      || \
-	defined (LIBOHIBOARD_TRWKV46F)
-
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
-#else
-System_Errors Uart_open (Uart_DeviceHandle dev, void *callback, Uart_Config *config);
-#endif
 
 System_Errors Uart_close (Uart_DeviceHandle dev);
 
@@ -620,6 +650,10 @@ uint8_t Uart_enableDmaTrigger (Uart_DeviceHandle dev, Dma_RequestSource request)
 uint32_t* Uart_getRxRegisterAddress (Uart_DeviceHandle dev);
 #endif
 
-#endif /* __UART_H */
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* LIBOHIBOARD_UART */
+#endif // __UART_H
+
+#endif // LIBOHIBOARD_UART
