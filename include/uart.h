@@ -90,6 +90,26 @@ typedef enum
 
 typedef enum
 {
+    UART_FLOWCONTROL_NONE,
+
+#if defined (LIBOHIBOARD_ST_STM32)
+    UART_FLOWCONTROL_CTS,
+    UART_FLOWCONTROL_RTS,
+    UART_FLOWCONTROL_CTS_RTS,
+#endif
+
+} Uart_FlowControl;
+
+typedef enum
+{
+    UART_MODE_TRANSMIT,
+    UART_MODE_RECEIVE,
+    UART_MODE_BOTH,
+
+} Uart_Mode;
+
+typedef enum
+{
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
@@ -593,14 +613,19 @@ typedef struct _Uart_Config
 {
     Uart_RxPins rxPin;
     Uart_TxPins txPin;
+    Uart_Mode   mode;
     
     Uart_ClockSource clockSource;
     
     Uart_DataBits dataBits;
     Uart_ParityMode parity;
     Uart_StopBits stop;
+    Uart_FlowControl flowControl;
     
     uint32_t baudrate;
+    uint8_t oversampling; /**< Into NXP microcontroller must be a value between 4 to 32,
+                               otherwise, into ST microcontroller must be 16 or 8. In the value differ
+                               from this two value, the default is used. */
 
     void (*callbackRx)(void);  /**< Callback Function to handle RX Interrupt.*/
     void (*callbackTx)(void);  /**< Callback Function to handle TX Interrupt.*/
@@ -608,14 +633,12 @@ typedef struct _Uart_Config
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
 
-    uint8_t oversampling; /* 4 to 32 */
     uint32_t extClk;      /* external frequency or crystal value if clockSource = UART_CLOCKSOURCE_EXT */
 
 #elif defined (LIBOHIBOARD_KL15Z4)     || \
       defined (LIBOHIBOARD_KL25Z4)     || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)
 
-    uint8_t oversampling; /* 4 to 32 */
     bool invertTx; /* invert Tx logical value */
 #endif
 

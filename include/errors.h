@@ -40,7 +40,7 @@ extern "C" {
 
 typedef enum _System_Errors
 {
-	ERRORS_NO_ERROR,                                  /**< There is no error. */
+	ERRORS_NO_ERROR = 0,                              /**< There is no error. */
 	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
 	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
 	
@@ -60,6 +60,7 @@ typedef enum _System_Errors
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
     ERRORS_UART_NO_DEVICE,
+    ERRORS_UART_WRONG_PARAM,
 	
 	ERRORS_IIC_OK,
 	ERRORS_IIC_TX_OK,
@@ -169,6 +170,7 @@ typedef enum _System_Errors
     ERRORS_FLASH_COMPLETION_STATUS,
     ERRORS_FLASH_JUST_INIT,
 
+    ERRORS_ASSERT,
 } System_Errors;
 
 void Errors_assert (const char* file, const int line);
