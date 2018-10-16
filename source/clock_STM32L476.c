@@ -29,15 +29,15 @@
  * @brief Clock implementations for STM32L476 family
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "clock.h"
 #include "utility.h"
 
 #if defined (LIBOHIBOARD_STM32L476)
-
-#define CLOCK_MIN_FREQ_HSE                     4000000
-#define CLOCK_MAX_FREQ_HSE                    48000000
-#define CLOCK_FREQ_HSI                        16000000
 
 #define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                            && \
                                         (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)         || \
@@ -497,3 +497,7 @@ uint32_t Clock_getOutputClock (Clock_Output output)
 }
 
 #endif // LIBOHIBOARD_STM32L476
+
+#ifdef __cplusplus
+}
+#endif

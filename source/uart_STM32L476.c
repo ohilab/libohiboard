@@ -42,12 +42,19 @@ extern "C" {
 #include "interrupt.h"
 #include "clock.h"
 #include "utility.h"
+#include "gpio.h"
 
 #define UART_DEVICE_ENABLE(REGMAP)        (REGMAP->CR1 |= USART_CR1_UE)
 #define UART_DEVICE_DISABLE(REGMAP)       (REGMAP->CR1 &= ~USART_CR1_UE)
 
 #define UART_MAX_PINS                     10
 #define UART_MAX_BAUDRATE                 10000000U
+
+#define UART_LP_BRR_MIN                   0x00000300U
+#define UART_LP_BRR_MAX                   0x000FFFFFU
+
+#define UART_BRR_MIN                      0x10U
+#define UART_BRR_MAX                      0x0000FFFFU
 
 #define UART_CLOCK_ENABLE(REG,MASK)       do { \
                                             UTILITY_SET_REGISTER_BIT(REG,MASK); \
@@ -95,7 +102,21 @@ extern "C" {
                                ((MODE) == UART_MODE_RECEIVE)  || \
                                ((MODE) == UART_MODE_BOTH))
 
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                ((DEVICE) == OB_UART2)  || \
+                                ((DEVICE) == OB_UART3)  || \
+                                ((DEVICE) == OB_UART4)  || \
+                                ((DEVICE) == OB_UART5))
+#endif
+
 #define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
+
+#define UART_IS_VALID_CLOCK_SOURCE(DEVICE,CLOCKSOURCE) (((CLOCKSOURCE) == UART_CLOCKSOURCE_PCLK)  || \
+                                                        ((CLOCKSOURCE) == UART_CLOCKSOURCE_LSE)   || \
+                                                        ((CLOCKSOURCE) == UART_CLOCKSOURCE_HSI)   || \
+                                                        ((CLOCKSOURCE) == UART_CLOCKSOURCE_SYSCLK))
 
 /**
  * @brief Check the baudrate value
@@ -109,15 +130,19 @@ typedef struct Uart_Device
     volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
     uint32_t rccRegisterEnable;        /**< Register mask for current device. */
 
+    volatile uint32_t* rccTypeRegisterPtr;  /**< Register for clock enabling. */
+    uint32_t rccTypeRegisterMask;      /**< Register mask for user selection. */
+
     Uart_RxPins rxPins[UART_MAX_PINS];
     Uart_TxPins txPins[UART_MAX_PINS];
 
-    volatile uint32_t* rxPinsPtr[UART_MAX_PINS];
-    volatile uint32_t* txPinsPtr[UART_MAX_PINS];
-    uint8_t rxPinsMux[UART_MAX_PINS];
-    uint8_t txPinsMux[UART_MAX_PINS];
+    Gpio_Pins rxPinsGpio[UART_MAX_PINS];
+    Gpio_Pins txPinsGpio[UART_MAX_PINS];
+    Gpio_Alternate rxPinsMux[UART_MAX_PINS];
+    Gpio_Alternate txPinsMux[UART_MAX_PINS];
 
     Uart_ClockSource clockSource;
+    bool oversmpling8;
 //
 //    void (*isr)(void);                     /**< The function pointer for ISR. */
     void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
@@ -127,21 +152,268 @@ typedef struct Uart_Device
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
-static Uart_Device uart1 = {
-        .regmap            = USART1,
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
-        .rccRegisterPtr    = &RCC->APB2ENR,
-        .rccRegisterEnable = RCC_APB2ENR_USART1EN,
+static Uart_Device uart1 = {
+        .regmap              = USART1,
+
+        .rccRegisterPtr      = &RCC->APB2ENR,
+        .rccRegisterEnable   = RCC_APB2ENR_USART1EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_USART1SEL,
+
+        .rxPins              =
+        {
+                               UART_PINS_PA10,
+                               UART_PINS_PB7,
+                               UART_PINS_PG10,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA10,
+                               GPIO_PINS_PB7,
+                               GPIO_PINS_PG10,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PA9,
+                               UART_PINS_PB6,
+                               UART_PINS_PG9,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA9,
+                               GPIO_PINS_PB6,
+                               GPIO_PINS_PG9,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+        },
+
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
+
+static Uart_Device uart2 = {
+        .regmap            = USART2,
+
+        .rccRegisterPtr    = &RCC->APB1ENR1,
+        .rccRegisterEnable = RCC_APB1ENR1_USART2EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_USART2SEL,
+
+        .rxPins              =
+        {
+                               UART_PINS_PA3,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA3,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_7,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PA2,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA2,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_7,
+        },
+};
+Uart_DeviceHandle OB_UART2 = &uart2;
+
+static Uart_Device uart3 = {
+        .regmap            = USART3,
+
+        .rccRegisterPtr    = &RCC->APB1ENR1,
+        .rccRegisterEnable = RCC_APB1ENR1_USART3EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_USART3SEL,
+
+        .rxPins              =
+        {
+                               UART_PINS_PB11_RX,
+                               UART_PINS_PC5,
+                               UART_PINS_PC11,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PB11,
+                               GPIO_PINS_PC5,
+                               GPIO_PINS_PC11,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PB10_TX,
+                               UART_PINS_PC4,
+                               UART_PINS_PC10,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PC4,
+                               GPIO_PINS_PC10,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_7,
+        },
+};
+Uart_DeviceHandle OB_UART3 = &uart3;
+
+static Uart_Device uart4 = {
+        .regmap            = UART4,
+
+        .rccRegisterPtr    = &RCC->APB1ENR1,
+        .rccRegisterEnable = RCC_APB1ENR1_UART4EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_UART4SEL,
+
+        .rxPins              =
+        {
+                               UART_PINS_PA1,
+                               UART_PINS_PC11,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PC11,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_8,
+                               GPIO_ALTERNATE_8,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PA0,
+                               UART_PINS_PC10,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PC10,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_8,
+                               GPIO_ALTERNATE_8,
+        },
+};
+Uart_DeviceHandle OB_UART4 = &uart4;
+
+static Uart_Device uart5 = {
+        .regmap            = UART5,
+
+        .rccRegisterPtr    = &RCC->APB1ENR1,
+        .rccRegisterEnable = RCC_APB1ENR1_UART5EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_UART5SEL,
+
+        .rxPins              =
+        {
+                               UART_PINS_PD2,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PD2,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_8,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PC12,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PC12,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_8,
+        },
+};
+Uart_DeviceHandle OB_UART5 = &uart5;
 
 static Uart_Device lpuart1 = {
         .regmap            = LPUART1,
 
-        .rccRegisterPtr    = &RCC->APB2ENR,//FIXME
-        .rccRegisterEnable = RCC_APB2ENR_USART1EN,//FIXME
+        .rccRegisterPtr    = &RCC->APB1ENR2,
+        .rccRegisterEnable = RCC_APB1ENR2_LPUART1EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_LPUART1SEL,
+
+        .rxPins              =
+        {
+                               UART_PINS_PB10_RX,
+                               UART_PINS_PC0,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PC0,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_8,
+                               GPIO_ALTERNATE_8,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PB11_TX,
+                               UART_PINS_PC1,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PB11,
+                               GPIO_PINS_PC1,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_8,
+                               GPIO_ALTERNATE_8,
+        },
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
+
+#endif
 
 System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 {
@@ -201,7 +473,7 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure peripheral mode with TE and RE bits into CR1
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_TE_Msk | USART_CR1_RE_Msk));
-    switch (config->stop)
+    switch (config->mode)
     {
     case UART_MODE_TRANSMIT:
         dev->regmap->CR1 |= USART_CR1_TE_Msk;
@@ -219,6 +491,10 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
     if (config->oversampling == 8)
     {
         dev->regmap->CR1 |= USART_CR1_OVER8_Msk;
+        dev->oversmpling8 = TRUE;
+    }
+    {
+        dev->oversmpling8 = FALSE;
     }
 
     // Configure stop bits with STOP[13:12] bits into CR2
@@ -241,7 +517,7 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure hardware flow control with CTS and RTS bits into CR3
     dev->regmap->CR3 = dev->regmap->CR3 & (~(USART_CR3_CTSE_Msk | USART_CR3_RTSE_Msk));
-    switch (config->stop)
+    switch (config->flowControl)
     {
     case UART_FLOWCONTROL_NONE:
         dev->regmap->CR3 |= 0x0U;
@@ -268,28 +544,164 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
     return ERRORS_NO_ERROR;
 }
 
-void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
+System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 {
-//    switch ()
+    uint32_t frequency = 0;
+
+    // Get current parent clock
+    switch (dev->clockSource)
+    {
+    case UART_CLOCKSOURCE_HSI:
+        frequency = (uint32_t)CLOCK_FREQ_HSI;
+        break;
+    case UART_CLOCKSOURCE_LSE:
+        frequency = (uint32_t)CLOCK_FREQ_LSE;
+        break;
+    case UART_CLOCKSOURCE_SYSCLK:
+        frequency = Clock_getOutputClock(CLOCK_OUTPUT_SYSCLK);
+        break;
+    case UART_CLOCKSOURCE_PCLK:
+        if (dev == OB_UART1)
+            frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK2);
+        else
+            frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK1);
+        break;
+    }
+
+    // Current clock is different from 0
+    if (frequency != 0u)
+    {
+        // FIXME
+        if (UART_IS_LOWPOWER_DEVICE(dev))
+        {
+            // Check the range of current clock
+            // The range is [3 * baudrate, 4096 * baudrate]
+            if (((frequency < ( 3 * baudrate))) && (frequency > ( 4096 * baudrate)))
+            {
+                return ERRORS_UART_WRONG_BAUDRATE;
+            }
+            else
+            {
+
+            }
+        }
+        else if (dev->oversmpling8)
+        {
+            uint32_t uartdiv = (frequency * 2) / baudrate;
+            if ((uartdiv >= UART_BRR_MIN) && (uartdiv <= UART_BRR_MAX))
+            {
+                // Fix BRR value
+                // see page 1348 of RM0351 (Rev6)
+                uint32_t brr = uartdiv & 0xFFF0U;
+                brr |= (uint16_t)((uartdiv & (uint16_t)0x000FU) >> 1U);
+                brr &= 0xFFF7; // Clear BRR3
+                dev->regmap->BRR = brr;
+            }
+            else
+            {
+                return ERRORS_UART_WRONG_BAUDRATE;
+            }
+        }
+        else
+        {
+            uint32_t uartdiv = frequency / baudrate;
+            if ((uartdiv >= UART_BRR_MIN) && (uartdiv <= UART_BRR_MAX))
+            {
+                dev->regmap->BRR = uartdiv;
+            }
+            else
+            {
+                return ERRORS_UART_WRONG_BAUDRATE;
+            }
+        }
+    }
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
 {
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
     if (dev == NULL)
     {
         return ERRORS_UART_NO_DEVICE;
     }
+    // Check the UART instance
+    err = ohiassert((UART_IS_DEVICE(dev)) || (UART_IS_LOWPOWER_DEVICE(dev)));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+    // Check clock source selections
+    err = ohiassert(UART_IS_VALID_CLOCK_SOURCE(dev,config->clockSource));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_PARAM;
+    }
+    // Save selected clock source
+    dev->clockSource = config->clockSource;
 
     // FIXME: FLOW CONTROL=???
 
+    // Select clock source
+    UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,config->clockSource);
     // Enable peripheral clock
     UART_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
-    // ENABLE PIN e CLOCK
+
+    // Enable pins
+    if (config->rxPin != UART_PINS_RXNONE)
+        Uart_setRxPin(dev, config->rxPin);
+
+    if (config->txPin != UART_PINS_TXNONE)
+        Uart_setTxPin(dev, config->txPin);
 
     // Configure the peripheral
-    Uart_config(dev,config);
+    err = Uart_config(dev,config);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return err;
+    }
 
     return ERRORS_NO_ERROR;
+}
+
+System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_UART_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < UART_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->rxPins[devPinIndex] == rxPin)
+        {
+            Gpio_configAlternate(dev->rxPinsGpio[devPinIndex],
+                                 dev->rxPinsMux[devPinIndex]);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_UART_NO_PIN_FOUND;
+}
+
+System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_UART_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < UART_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->txPins[devPinIndex] == txPin)
+        {
+            Gpio_configAlternate(dev->txPinsGpio[devPinIndex],
+                                 dev->txPinsMux[devPinIndex]);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_UART_NO_PIN_FOUND;
 }
 
 #endif // LIBOHIBOARD_STM32L476

@@ -145,11 +145,10 @@ typedef enum
 
 #elif defined (LIBOHIBOARD_ST_STM32)
 
-    UART_CLOCKSOURCE_PCLK1      = 0x00U,              /**< PCLK1 clock source */
-    UART_CLOCKSOURCE_PCLK2      = 0x01U,              /**< PCLK2 clock source */
-    UART_CLOCKSOURCE_HSI        = 0x02U,                /**< HSI clock source */
-    UART_CLOCKSOURCE_SYSCLK     = 0x04U,             /**< SYSCLK clock source */
-    UART_CLOCKSOURCE_LSE        = 0x08U,                /**< LSE clock source */
+    UART_CLOCKSOURCE_PCLK    = 0x00U,                 /**< PCLK clock source */
+    UART_CLOCKSOURCE_SYSCLK  = 0x01U,               /**< SYSCLK clock source */
+    UART_CLOCKSOURCE_HSI     = 0x02U,                  /**< HSI clock source */
+    UART_CLOCKSOURCE_LSE     = 0x03U,                  /**< LSE clock source */
 
 #endif
 
@@ -321,6 +320,28 @@ typedef enum
     UART_PINS_PTE1,
     UART_PINS_PTE17,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    UART_PINS_PA1,
+    UART_PINS_PA3,
+    UART_PINS_PA10,
+
+    UART_PINS_PB7,
+    UART_PINS_PB10_RX,
+    UART_PINS_PB11_RX,
+
+    UART_PINS_PC0,
+    UART_PINS_PC5,
+    UART_PINS_PC11,
+
+    UART_PINS_PD2,
+
+    UART_PINS_PG10,
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
 
     UART_PINS_RXNONE,
@@ -491,6 +512,28 @@ typedef enum
     UART_PINS_PTC4,
     UART_PINS_PTE0,
     UART_PINS_PTE16,
+
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    UART_PINS_PA0,
+    UART_PINS_PA2,
+    UART_PINS_PA9,
+
+    UART_PINS_PB6,
+    UART_PINS_PB10_TX,
+    UART_PINS_PB11_TX,
+
+    UART_PINS_PC1,
+    UART_PINS_PC4,
+    UART_PINS_PC10,
+    UART_PINS_PC12,
+
+    UART_PINS_PG9,
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
 
     UART_PINS_TXNONE,
@@ -604,6 +647,11 @@ extern Uart_DeviceHandle OB_UART1;
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
 extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART3;
+extern Uart_DeviceHandle OB_UART4;
+extern Uart_DeviceHandle OB_UART5;
+extern Uart_DeviceHandle OB_LPUART1;
 
 #endif
 
@@ -659,6 +707,8 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
     defined (LIBOHIBOARD_KL25Z4)     || \
     defined (LIBOHIBOARD_FRDMKL25Z)
 void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling);
+#elif defined (LIBOHIBOARD_STM32L476)
+System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
 #else
 void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
 #endif

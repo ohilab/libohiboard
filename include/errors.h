@@ -60,7 +60,9 @@ typedef enum _System_Errors
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
     ERRORS_UART_NO_DEVICE,
+    ERRORS_UART_WRONG_DEVICE,
     ERRORS_UART_WRONG_PARAM,
+    ERRORS_UART_WRONG_BAUDRATE,
 	
 	ERRORS_IIC_OK,
 	ERRORS_IIC_TX_OK,
@@ -173,8 +175,8 @@ typedef enum _System_Errors
     ERRORS_ASSERT,
 } System_Errors;
 
-void Errors_assert (const char* file, const int line);
-#define ohiassert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+System_Errors Errors_assert (const char* file, const int line);
+#define ohiassert(condition) ((condition) ? ERRORS_NO_ERROR : Errors_assert(__FILE__,__LINE__))
 
 #ifdef __cplusplus
 }

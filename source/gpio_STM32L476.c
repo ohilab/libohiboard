@@ -223,6 +223,77 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Pins pin)
     }
 }
 
+GPIO_TypeDef* Gpio_enablePortClock (Gpio_Ports port)
+{
+    switch (port)
+    {
+    case GPIO_PORTS_A:
+        GPIO_ENABLE_CLOCK_PORTA();
+        return GPIOA;
+
+    case GPIO_PORTS_B:
+        GPIO_ENABLE_CLOCK_PORTB();
+        return GPIOB;
+
+    case GPIO_PORTS_C:
+        GPIO_ENABLE_CLOCK_PORTC();
+        return GPIOC;
+
+    case GPIO_PORTS_D:
+        GPIO_ENABLE_CLOCK_PORTD();
+        return GPIOD;
+
+    case GPIO_PORTS_E:
+        GPIO_ENABLE_CLOCK_PORTE();
+        return GPIOE;
+
+    case GPIO_PORTS_F:
+        GPIO_ENABLE_CLOCK_PORTF();
+        return GPIOF;
+
+    case GPIO_PORTS_G:
+        GPIO_ENABLE_CLOCK_PORTG();
+        return GPIOG;
+
+    case GPIO_PORTS_H:
+        GPIO_ENABLE_CLOCK_PORTH();
+        return GPIOH;
+
+    default:
+        ohiassert(0);
+        return 0;
+    }
+
+}
+
+void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate)
+{
+    GPIO_TypeDef* port;
+    uint32_t temp = 0x00;
+    // Pin number into the current port
+    uint8_t number = 0;
+
+    if (Gpio_availablePinsCount == 0)
+        Gpio_availablePinsCount = sizeof(Gpio_availablePins)/sizeof(Gpio_availablePins[0]);
+    //Check if pin definition exist
+    ohiassert(pin < Gpio_availablePinsCount);
+
+    // Check the alternate value: it have 16 possibility
+    ohiassert(alternate < 16);
+
+    // Enable clock and save current port
+    port = Gpio_enablePortClock(Gpio_availablePins[pin].port);
+
+    number = Gpio_availablePins[pin].pinNumber;
+
+    // Configure alternate function
+    // Select AFR0 or AFR1
+    temp = port->AFR[number >> 3];
+    temp &= ~((uint32_t)0xF << ((uint32_t)(number & (uint32_t)0x07) * 4)) ;
+    temp |= ((uint32_t)(alternate) << (((uint32_t)number & (uint32_t)0x07) * 4));
+    port->AFR[number >> 3] = temp;
+}
+
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 {
     GPIO_TypeDef* port;
@@ -243,44 +314,8 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
     number = Gpio_availablePins[pin].pinNumber;
 
-    // Enable clock and save current port */
-    switch (Gpio_availablePins[pin].port)
-    {
-    case GPIO_PORTS_A:
-        GPIO_ENABLE_CLOCK_PORTA();
-        port = GPIOA;
-        break;
-    case GPIO_PORTS_B:
-        GPIO_ENABLE_CLOCK_PORTB();
-        port = GPIOB;
-        break;
-    case GPIO_PORTS_C:
-        GPIO_ENABLE_CLOCK_PORTC();
-        port = GPIOC;
-        break;
-    case GPIO_PORTS_D:
-        GPIO_ENABLE_CLOCK_PORTD();
-        port = GPIOD;
-        break;
-    case GPIO_PORTS_E:
-        GPIO_ENABLE_CLOCK_PORTE();
-        port = GPIOE;
-        break;
-    case GPIO_PORTS_F:
-        GPIO_ENABLE_CLOCK_PORTF();
-        port = GPIOF;
-        break;
-    case GPIO_PORTS_G:
-        GPIO_ENABLE_CLOCK_PORTG();
-        port = GPIOG;
-        break;
-    case GPIO_PORTS_H:
-        GPIO_ENABLE_CLOCK_PORTH();
-        port = GPIOH;
-        break;
-    default:
-        ohiassert(0);
-    }
+    // Enable clock and save current port
+    port = Gpio_enablePortClock(Gpio_availablePins[pin].port);
 
     // Configure direction mode
     temp = port->MODER;

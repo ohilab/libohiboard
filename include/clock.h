@@ -33,10 +33,22 @@
 #ifndef __CLOCK_H
 #define __CLOCK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
 
+#if defined (LIBOHIBOARD_STM32L476)
+
+#define CLOCK_MIN_FREQ_HSE                     4000000U
+#define CLOCK_MAX_FREQ_HSE                    48000000U
+#define CLOCK_FREQ_HSI                        16000000U
+#define CLOCK_FREQ_LSE                           32768U
+
+#endif
 
 typedef enum
 {
@@ -300,5 +312,9 @@ uint8_t Clock_getCoreDivider();
 #endif // LIBOHIBOARD_STM32L476
 
 #endif // LIBOHIBOARD_ST_STM32
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __CLOCK_H

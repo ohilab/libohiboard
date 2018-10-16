@@ -920,8 +920,35 @@ typedef enum
 #endif
 } Gpio_EventType;
 
+/**
+ * Enumeration for all possible alternate function of each pin
+ */
+typedef enum
+{
+    GPIO_ALTERNATE_0 = 0,
+    GPIO_ALTERNATE_1,
+    GPIO_ALTERNATE_2,
+    GPIO_ALTERNATE_3,
+    GPIO_ALTERNATE_4,
+    GPIO_ALTERNATE_5,
+    GPIO_ALTERNATE_6,
+    GPIO_ALTERNATE_7,
+    GPIO_ALTERNATE_8,
+    GPIO_ALTERNATE_9,
+    GPIO_ALTERNATE_10,
+    GPIO_ALTERNATE_11,
+    GPIO_ALTERNATE_12,
+    GPIO_ALTERNATE_13,
+    GPIO_ALTERNATE_14,
+    GPIO_ALTERNATE_15,
+
+} Gpio_Alternate;
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
+/**
+ * Configure the selected pin with alternate function.
+ */
+void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate);
 
 void Gpio_set (Gpio_Pins pin);
 void Gpio_clear (Gpio_Pins pin);
