@@ -692,10 +692,81 @@ typedef struct _Uart_Config
 
 } Uart_Config;
 
+/** @name Packet Management
+ *  All the functions useful for one packet managing.
+ */
+///@{
+
+/**
+ * This function wait (blocking mode) until a new char was
+ * received into selected Uart.
+ *
+ * @deprecated Use @ref Uart_get function
+ *
+ * @note In the last microcontroller implementation this function is not implemented
+ *
+ * @param[in] dev Uart device handle
+ * @param[out] out Pointer where store the received char
+ * @return
+ */
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
+
+/**
+ * This function send a character into serial bus.
+ * In particular wait for space in the UART Tx FIFO and then send the character.
+ *
+ * @note In the last microcontroller implementation this function is not implemented
+ *
+ * @deprecated Use @ref Uart_put function
+ *
+ * @param[in] dev Uart device handle
+ * @param[in] c Character to send
+ */
 void Uart_putChar (Uart_DeviceHandle dev, char c);
+
+/**
+ * Check the receiving queue to see if packet has arrived.
+ *
+ * @param[in] dev Uart device handle
+ * @return uint8_t
+ *  0 No character received
+ *  1 Character has been received
+ */
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
+
+/**
+ * Check the transmission queue to see if is empty and the last char
+ * was send,-
+ *
+ * @param[in] dev Uart device handle
+ * @return uint8_t
+ *  0 The transmission has not been completed
+ *  1 The transmission is over
+ */
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
+
+/**
+ * This function wait (blocking mode) until a new packet was
+ * received into selected Uart.
+ *
+ * @param[in] dev Uart device handle
+ * @param[out] data Pointer to data buffer with only one element (two for 9bit message)
+ * @param[in] timeout Max timeout in millisecond
+ * @return
+ */
+System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout);
+
+/**
+ * This function send a packet into serial bus.
+ * In particular wait for empty space in the UART Tx FIFO and then send the data.
+ *
+ * @param[in] dev Uart device handle
+ * @param[in] data Pointer to data buffer with only one element (two for 9bit message)
+ * @param[in] timeout Max timeout in millisecond
+ */
+System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout);
+
+///@}
 
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
 

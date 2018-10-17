@@ -43,6 +43,7 @@ extern "C" {
 #include "clock.h"
 #include "utility.h"
 #include "gpio.h"
+#include "system.h"
 
 #define UART_DEVICE_ENABLE(REGMAP)        (REGMAP->CR1 |= USART_CR1_UE)
 #define UART_DEVICE_DISABLE(REGMAP)       (REGMAP->CR1 &= ~USART_CR1_UE)
@@ -143,6 +144,10 @@ typedef struct Uart_Device
 
     Uart_ClockSource clockSource;
     bool oversmpling8;
+
+    Uart_DataBits databits;
+    Uart_ParityMode parity;
+
 //
 //    void (*isr)(void);                     /**< The function pointer for ISR. */
     void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
@@ -443,6 +448,7 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
     // Config peripheral
     // Configure data bits with the M bits
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_M_Msk));
+    dev->databits = config->dataBits;
     switch (config->dataBits)
     {
     case UART_DATABITS_SEVEN:
@@ -458,6 +464,7 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure parity type with PCE and PS bit
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_PCE_Msk | USART_CR1_PS_Msk));
+    dev->parity = config->parity;
     switch (config->parity)
     {
     case UART_PARITY_NONE:
@@ -566,12 +573,14 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
         else
             frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK1);
         break;
+    default:
+        ohiassert(0);
+        return ERRORS_UART_NO_CLOCKSOURCE;
     }
 
     // Current clock is different from 0
     if (frequency != 0u)
     {
-        // FIXME
         if (UART_IS_LOWPOWER_DEVICE(dev))
         {
             // Check the range of current clock
@@ -582,12 +591,21 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
             }
             else
             {
+                uint32_t uartdiv = ((uint64_t)frequency * 256u) / baudrate;
+                if ((uartdiv >= UART_LP_BRR_MIN) && (uartdiv <= UART_LP_BRR_MAX))
+                {
+                    dev->regmap->BRR = uartdiv;
+                }
+                else
+                {
+                    return ERRORS_UART_WRONG_BAUDRATE;
+                }
 
             }
         }
         else if (dev->oversmpling8)
         {
-            uint32_t uartdiv = (frequency * 2) / baudrate;
+            uint32_t uartdiv = (frequency * 2u) / baudrate;
             if ((uartdiv >= UART_BRR_MIN) && (uartdiv <= UART_BRR_MAX))
             {
                 // Fix BRR value
@@ -615,6 +633,9 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
             }
         }
     }
+    {
+        return ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW;
+    }
 
     return ERRORS_NO_ERROR;
 }
@@ -639,10 +660,6 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
     {
         return ERRORS_UART_WRONG_PARAM;
     }
-    // Save selected clock source
-    dev->clockSource = config->clockSource;
-
-    // FIXME: FLOW CONTROL=???
 
     // Select clock source
     UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,config->clockSource);
@@ -663,7 +680,14 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
         return err;
     }
 
+    // TODO: Configure interrupt!
+
     return ERRORS_NO_ERROR;
+}
+
+System_Errors Uart_close (Uart_DeviceHandle dev)
+{
+    // TODO
 }
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
@@ -702,6 +726,97 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
         }
     }
     return ERRORS_UART_NO_PIN_FOUND;
+}
+
+System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
+{
+    // deprecated
+    ohiassert(0);
+}
+
+void Uart_putChar (Uart_DeviceHandle dev, char c)
+{
+    // deprecated
+    ohiassert(0);
+}
+
+uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
+{
+
+}
+
+uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
+{
+
+}
+
+System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
+{
+    uint16_t* temp;
+
+    uint32_t timeoutEnd = System_currentTick() + timeout;
+
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            return ERRORS_UART_TIMEOUT_RX;
+        }
+    }
+
+    // In case of 9B and parity NONE, the message is split into two byte
+    if ((dev->databits == UART_DATABITS_NINE) && (dev->parity == UART_PARITY_NONE))
+    {
+        // Cast the pointer
+        temp = (uint16_t *) data;
+        *temp = (uint16_t) (dev->regmap->RDR);// FIXME: Add mask?!
+    }
+    else
+    {
+        *data = (uint8_t)(dev->regmap->RDR);// FIXME: add mask?!
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout)
+{
+    uint16_t* temp;
+
+    uint32_t timeoutEnd = System_currentTick() + timeout;
+
+    // Wait until the buffer is empty
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_TXE) == 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            return ERRORS_UART_TIMEOUT_RX;
+        }
+    }
+
+    // In case of 9B and parity NONE, the message is split into two byte
+    if ((dev->databits == UART_DATABITS_NINE) && (dev->parity == UART_PARITY_NONE))
+    {
+        // Cast the pointer
+        temp = (uint16_t *) data;
+        dev->regmap->TDR = (*temp & 0x01FFu);
+    }
+    else
+    {
+        dev->regmap->TDR = (*temp & 0x00FFu);
+    }
+    // Start-up new timeout
+    timeoutEnd = System_currentTick() + timeout;
+    // Wait until the transmission is complete
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_TC) == 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            return ERRORS_UART_TIMEOUT_RX;
+        }
+    }
+
+    return ERRORS_NO_ERROR;
 }
 
 #endif // LIBOHIBOARD_STM32L476
