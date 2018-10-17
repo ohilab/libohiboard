@@ -44,6 +44,9 @@ typedef enum _System_Errors
 	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
 	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
 	
+	ERRORS_SYSTEM_TICK_INIT_FAILED,
+	ERRORS_SYSTEM_NO_CLOCK,
+
 	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
 	
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
@@ -57,12 +60,15 @@ typedef enum _System_Errors
     ERRORS_UART_DEVICE_JUST_INIT,
     ERRORS_UART_NO_PIN_FOUND,
     ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG,
+    ERRORS_UART_NO_CLOCKSOURCE,
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
     ERRORS_UART_NO_DEVICE,
     ERRORS_UART_WRONG_DEVICE,
     ERRORS_UART_WRONG_PARAM,
     ERRORS_UART_WRONG_BAUDRATE,
+    ERRORS_UART_TIMEOUT_RX,
+    ERRORS_UART_TIMEOUT_TX,
 	
 	ERRORS_IIC_OK,
 	ERRORS_IIC_TX_OK,
@@ -182,4 +188,4 @@ System_Errors Errors_assert (const char* file, const int line);
 }
 #endif
 
-#endif /* __ERRORS_H */
+#endif // __ERRORS_H

@@ -400,6 +400,7 @@ typedef enum {
 
 #elif defined (LIBOHIBOARD_STM32L476)
 
+	INTERRUPT_SYSTICK          = -1,
     INTERRUPT_WWDG             = 0,
     INTERRUPT_RTC_TAMP_STAMP   = 2,
     INTERRUPT_RTC_WKUP         = 3,

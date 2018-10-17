@@ -36,6 +36,7 @@ extern "C" {
 #include "platforms.h"
 #include "clock.h"
 #include "utility.h"
+#include "system.h"
 
 #if defined (LIBOHIBOARD_STM32L476)
 
@@ -475,6 +476,9 @@ System_Errors Clock_init (Clock_Config* config)
     {
         // TODO:
     }
+
+    // Initialize SysTick
+    System_sysickInit(0);
 
     return err;
 }
