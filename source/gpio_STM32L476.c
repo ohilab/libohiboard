@@ -292,6 +292,12 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate)
     temp &= ~((uint32_t)0xF << ((uint32_t)(number & (uint32_t)0x07) * 4)) ;
     temp |= ((uint32_t)(alternate) << (((uint32_t)number & (uint32_t)0x07) * 4));
     port->AFR[number >> 3] = temp;
+
+    // Configure pin as alternate mode
+    temp = port->MODER;
+    temp &= ~(GPIO_MODER_MODE0 << (number * 2));
+    temp |= ((0x2u) << (number * 2));
+    port->MODER = temp;
 }
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)

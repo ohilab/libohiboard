@@ -703,7 +703,8 @@ typedef struct _Uart_Config
  *
  * @deprecated Use @ref Uart_get function
  *
- * @note In the last microcontroller implementation this function is not implemented
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
  *
  * @param[in] dev Uart device handle
  * @param[out] out Pointer where store the received char
@@ -715,9 +716,10 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
  * This function send a character into serial bus.
  * In particular wait for space in the UART Tx FIFO and then send the character.
  *
- * @note In the last microcontroller implementation this function is not implemented
- *
  * @deprecated Use @ref Uart_put function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
  *
  * @param[in] dev Uart device handle
  * @param[in] c Character to send
@@ -726,6 +728,12 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
 
 /**
  * Check the receiving queue to see if packet has arrived.
+ *
+ * @deprecated This functionality is included into @ref Uart_get function and
+ * it is replaced by @ref Uart_isPresent function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
  *
  * @param[in] dev Uart device handle
  * @return uint8_t
@@ -736,7 +744,7 @@ uint8_t Uart_isCharPresent (Uart_DeviceHandle dev);
 
 /**
  * Check the transmission queue to see if is empty and the last char
- * was send,-
+ * was send.
  *
  * @param[in] dev Uart device handle
  * @return uint8_t
@@ -764,9 +772,22 @@ System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout);
  * @param[in] data Pointer to data buffer with only one element (two for 9bit message)
  * @param[in] timeout Max timeout in millisecond
  */
-System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout);
+System_Errors Uart_put (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
+
+/**
+ * Check the receiving queue to see if packet has arrived.
+ *
+ * @param[in] dev Uart device handle
+ * @return TRUE if packet is present, FALSE otherwise.
+ */
+bool Uart_isPresent (Uart_DeviceHandle dev);
 
 ///@}
+
+/** @name Configuration functions
+ *  Functions to open, close and configure a UART peripheral.
+ */
+///@{
 
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
 
@@ -784,10 +805,19 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
 void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
 #endif
 
+///@}
+
+/** @name String management functions
+ *  Functions to string over the UART peripheral.
+ */
+///@{
+
 void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendStringln (Uart_DeviceHandle dev, const char* text);
 void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
 void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
+
+///@}
 
 #ifdef LIBOHIBOARD_DMA
 uint8_t Uart_enableDmaTrigger (Uart_DeviceHandle dev, Dma_RequestSource request);

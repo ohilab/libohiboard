@@ -133,6 +133,7 @@ typedef struct Uart_Device
 
     volatile uint32_t* rccTypeRegisterPtr;  /**< Register for clock enabling. */
     uint32_t rccTypeRegisterMask;      /**< Register mask for user selection. */
+    uint32_t rccTypeRegisterPos;       /**< Mask position for user selection. */
 
     Uart_RxPins rxPins[UART_MAX_PINS];
     Uart_TxPins txPins[UART_MAX_PINS];
@@ -167,6 +168,7 @@ static Uart_Device uart1 = {
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_USART1SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_USART1SEL_Pos,
 
         .rxPins              =
         {
@@ -217,6 +219,7 @@ static Uart_Device uart2 = {
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_USART2SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_USART2SEL_Pos,
 
         .rxPins              =
         {
@@ -254,6 +257,7 @@ static Uart_Device uart3 = {
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_USART3SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_USART3SEL_Pos,
 
         .rxPins              =
         {
@@ -303,6 +307,7 @@ static Uart_Device uart4 = {
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_UART4SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_UART4SEL_Pos,
 
         .rxPins              =
         {
@@ -346,6 +351,7 @@ static Uart_Device uart5 = {
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_UART5SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_UART5SEL_Pos,
 
         .rxPins              =
         {
@@ -383,6 +389,7 @@ static Uart_Device lpuart1 = {
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_LPUART1SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_LPUART1SEL_Pos,
 
         .rxPins              =
         {
@@ -543,7 +550,9 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
     // TODO: ONEBIT One sample bit method enable
 
     // Configure Baudrate
-    Uart_setBaudrate(dev,config->baudrate);
+    err = Uart_setBaudrate(dev,config->baudrate);
+    if (err != ERRORS_NO_ERROR)
+        return ERRORS_UART_WRONG_PARAM;
 
     // Enable the peripheral
     UART_DEVICE_ENABLE(dev->regmap);
@@ -633,6 +642,7 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
             }
         }
     }
+    else
     {
         return ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW;
     }
@@ -660,9 +670,10 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
     {
         return ERRORS_UART_WRONG_PARAM;
     }
+    dev->clockSource = config->clockSource;
 
     // Select clock source
-    UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,config->clockSource);
+    UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,(config->clockSource << dev->rccTypeRegisterPos));
     // Enable peripheral clock
     UART_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
@@ -742,15 +753,17 @@ void Uart_putChar (Uart_DeviceHandle dev, char c)
 
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
 {
-
+    // deprecated
+    ohiassert(0);
 }
 
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
 {
-
+    // deprecated
+    ohiassert(0);
 }
 
-System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
+System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
     uint16_t* temp;
 
@@ -779,9 +792,9 @@ System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout)
+System_Errors Uart_put (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
 {
-    uint16_t* temp;
+    uint16_t* temp = 0;
 
     uint32_t timeoutEnd = System_currentTick() + timeout;
 
@@ -790,7 +803,7 @@ System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout)
     {
         if (System_currentTick() > timeoutEnd)
         {
-            return ERRORS_UART_TIMEOUT_RX;
+            return ERRORS_UART_TIMEOUT_TX;
         }
     }
 
@@ -803,7 +816,7 @@ System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout)
     }
     else
     {
-        dev->regmap->TDR = (*temp & 0x00FFu);
+        dev->regmap->TDR = (*data & 0x00FFu);
     }
     // Start-up new timeout
     timeoutEnd = System_currentTick() + timeout;
@@ -812,11 +825,16 @@ System_Errors Uart_put (Uart_DeviceHandle dev, uint8_t data, uint32_t timeout)
     {
         if (System_currentTick() > timeoutEnd)
         {
-            return ERRORS_UART_TIMEOUT_RX;
+            return ERRORS_UART_TIMEOUT_TX;
         }
     }
 
     return ERRORS_NO_ERROR;
+}
+
+bool Uart_isPresent (Uart_DeviceHandle dev)
+{
+    return (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0) ? FALSE : TRUE;
 }
 
 #endif // LIBOHIBOARD_STM32L476

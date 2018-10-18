@@ -42,7 +42,7 @@ extern "C" {
 #define NVIC_NUM_MCU_VECTORS                   91
 #define NVIC_NUM_VECTORS                       NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
 
-#define INTERRUPT_IS_NVIC_IRQ(IRQ)             (((IRQ) >= 0x00) && ((IRQ) <= NVIC_NUM_VECTORS))
+#define INTERRUPT_IS_NVIC_IRQ(IRQ)             (((IRQ) >= -16) && ((IRQ) <= NVIC_NUM_VECTORS))
 #define INTERRUPT_IS_VALID_PRIORITY(PRIORITY)  ((PRIORITY >= 0x00) && (PRIORITY < 16))
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
