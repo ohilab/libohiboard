@@ -650,6 +650,13 @@ extern Uart_DeviceHandle OB_UART1;
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
+void LPUART1_IRQHandler(void);
+void USART1_IRQHandler(void);
+void USART2_IRQHandler(void);
+void USART3_IRQHandler(void);
+void UART4_IRQHandler(void);
+void UART5_IRQHandler(void);
+
 extern Uart_DeviceHandle OB_UART1;
 extern Uart_DeviceHandle OB_UART2;
 extern Uart_DeviceHandle OB_UART3;
