@@ -417,6 +417,11 @@ typedef enum {
     INTERRUPT_UART3            = 39,
     INTERRUPT_EXTI15_10        = 40,
 
+    INTERRUPT_UART4            = 52,
+    INTERRUPT_UART5            = 53,
+
+    INTERRUPT_LPUART1          = 70,
+
     // TODO: Add all interrupts
 
 #endif

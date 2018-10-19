@@ -40,6 +40,13 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 
+#define LIBOHIBOARD_VERSION_MAJOR         (0x2u)
+#define LIBOHIBOARD_VERSION_MINOR         (0x0u)
+#define LIBOHIBOARD_VERSION_BUG           (0x0u)
+#define LIBOHIBOARD_VERSION               ((LIBOHIBOARD_VERSION_MAJOR << 24)\
+                                          |(LIBOHIBOARD_VERSION_MINOR << 16)\
+                                          |(LIBOHIBOARD_VERSION_BUG   << 8 ))
+
 /**
  *
  */

@@ -49,6 +49,7 @@ extern "C" {
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "system.h"
 
 #ifdef LIBOHIBOARD_DMA
 #include "dma.h"
@@ -540,8 +541,11 @@ typedef enum
 
 } Uart_TxPins;
 
+#if (LIBOHIBOARD_VERSION >= 0x200)
+typedef struct _Uart_Device* Uart_DeviceHandle;
+#else
 typedef struct Uart_Device* Uart_DeviceHandle;
-
+#endif
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -675,8 +679,15 @@ typedef struct _Uart_Config
                                otherwise, into ST microcontroller must be 16 or 8. In the value differ
                                from this two value, the default is used. */
 
+#if (LIBOHIBOARD_VERSION >= 0x200u)
+    /** Callback Function to handle RX Interrupt.*/
+    void (*callbackRx)(struct _Uart_Device* dev);
+    /** Callback Function to handle TX Interrupt.*/
+    void (*callbackTx)(struct _Uart_Device* dev);
+#else
     void (*callbackRx)(void);  /**< Callback Function to handle RX Interrupt.*/
     void (*callbackTx)(void);  /**< Callback Function to handle TX Interrupt.*/
+#endif
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)

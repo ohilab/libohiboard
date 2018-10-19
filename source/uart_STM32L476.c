@@ -124,7 +124,7 @@ extern "C" {
  */
 #define UART_VALID_BAUDRATE(BAUDRATE) ((BAUDRATE) <= UART_MAX_BAUDRATE)
 
-typedef struct Uart_Device
+typedef struct _Uart_Device
 {
     USART_TypeDef* regmap;                         /**< Device memory pointer */
 
@@ -149,12 +149,14 @@ typedef struct Uart_Device
     Uart_DataBits databits;
     Uart_ParityMode parity;
 
-//
-//    void (*isr)(void);                     /**< The function pointer for ISR. */
-    void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
-    void (*callbackTx)(void); /**< The function pointer for user Tx callback. */
-//    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
-//
+    uint16_t mask;              /**< Computed mask to use with received data. */
+
+    /** The function pointer for user Rx callback. */
+    void (*callbackRx)(struct _Uart_Device* dev);
+    /** The function pointer for user Tx callback. */
+    void (*callbackTx)(struct _Uart_Device* dev);
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
@@ -208,6 +210,7 @@ static Uart_Device uart1 = {
                                GPIO_ALTERNATE_7,
         },
 
+        .isrNumber           = INTERRUPT_UART1,
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
@@ -246,6 +249,8 @@ static Uart_Device uart2 = {
         {
                                GPIO_ALTERNATE_7,
         },
+
+        .isrNumber           = INTERRUPT_UART2,
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
@@ -296,6 +301,8 @@ static Uart_Device uart3 = {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
         },
+
+        .isrNumber           = INTERRUPT_UART3,
 };
 Uart_DeviceHandle OB_UART3 = &uart3;
 
@@ -340,6 +347,8 @@ static Uart_Device uart4 = {
                                GPIO_ALTERNATE_8,
                                GPIO_ALTERNATE_8,
         },
+
+        .isrNumber           = INTERRUPT_UART4,
 };
 Uart_DeviceHandle OB_UART4 = &uart4;
 
@@ -378,6 +387,8 @@ static Uart_Device uart5 = {
         {
                                GPIO_ALTERNATE_8,
         },
+
+        .isrNumber           = INTERRUPT_UART5,
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
 
@@ -422,12 +433,41 @@ static Uart_Device lpuart1 = {
                                GPIO_ALTERNATE_8,
                                GPIO_ALTERNATE_8,
         },
+
+        .isrNumber           = INTERRUPT_LPUART1,
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
 #endif
 
-System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
+static inline __attribute__((always_inline)) void Uart_computeRxMask (Uart_DeviceHandle dev)
+{
+    switch (dev->databits)
+    {
+    case UART_DATABITS_SEVEN:
+        if (dev->parity == UART_PARITY_NONE)
+            dev->mask = 0x007Fu;
+        else
+            dev->mask = 0x003Fu;
+        break;
+
+    case UART_DATABITS_EIGHT:
+        if (dev->parity == UART_PARITY_NONE)
+            dev->mask = 0x00FFu;
+        else
+            dev->mask = 0x007Fu;
+        break;
+
+    case UART_DATABITS_NINE:
+        if (dev->parity == UART_PARITY_NONE)
+            dev->mask = 0x01FFu;
+        else
+            dev->mask = 0x00FFu;
+        break;
+    }
+}
+
+static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 {
     System_Errors err = ERRORS_NO_ERROR;
     // Check all parameters with asserts
@@ -546,6 +586,9 @@ System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
         dev->regmap->CR3 |= USART_CR3_CTSE_Msk | USART_CR3_RTSE_Msk;
         break;
     }
+
+    // Compute RX mask
+    Uart_computeRxMask(dev);
 
     // TODO: ONEBIT One sample bit method enable
 
@@ -691,7 +734,25 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
         return err;
     }
 
-    // TODO: Configure interrupt!
+    // Configure interrupt
+    if (config->callbackRx)
+    {
+        dev->callbackRx = config->callbackRx;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+        // Enable the UART Error Interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR3, USART_CR3_EIE);
+        //FIXME: Enable UART Parity Error interrupt and Data Register Not Empty interrupt
+//        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+    }
+
+    if (config->callbackTx)
+    {
+        dev->callbackTx = config->callbackTx;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,USART_CR1_TXEIE);
+    }
 
     return ERRORS_NO_ERROR;
 }
@@ -782,11 +843,11 @@ System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
     {
         // Cast the pointer
         temp = (uint16_t *) data;
-        *temp = (uint16_t) (dev->regmap->RDR);// FIXME: Add mask?!
+        *temp = (uint16_t) (dev->regmap->RDR & dev->mask);
     }
     else
     {
-        *data = (uint8_t)(dev->regmap->RDR);// FIXME: add mask?!
+        *data = (uint8_t)(dev->regmap->RDR & (uint8_t)dev->mask);
     }
 
     return ERRORS_NO_ERROR;
@@ -835,6 +896,71 @@ System_Errors Uart_put (Uart_DeviceHandle dev, const uint8_t* data, uint32_t tim
 bool Uart_isPresent (Uart_DeviceHandle dev)
 {
     return (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0) ? FALSE : TRUE;
+}
+
+static void Uart_isrHandler (Uart_DeviceHandle dev)
+{
+    uint32_t isrreg = dev->regmap->ISR;
+    uint32_t cr1reg = dev->regmap->CR1;
+//    uint32_t cr3reg = dev->regmap->CR3;
+
+    // Check errors:
+    //  - Parity Error
+    //  - Framing Error
+    //  - START bit Noise detection
+    //  - Overrun Error
+    uint32_t errorFlag = isrreg & (USART_ISR_PE | USART_ISR_FE | USART_ISR_ORE | USART_ISR_NE);
+    // No Errors...
+    if (errorFlag == 0)
+    {
+        // Check if the interrupt is in reception
+        if (((isrreg & USART_ISR_RXNE) != 0) && ((cr1reg & USART_CR1_RXNEIE) > 0))
+        {
+            dev->callbackRx(dev);
+            // Clear flag, just to increase the safety
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RQR,USART_RQR_RXFRQ);
+        }
+    }
+    else
+    {
+        // TODO: managing errors
+    }
+
+    // Check if the interrupt is in transmission
+    if (((isrreg & USART_ISR_TXE) != 0) && ((cr1reg & USART_CR1_TXEIE) > 0))
+    {
+        dev->callbackTx(dev);
+    }
+}
+
+_weak void LPUART1_IRQHandler(void)
+{
+    Uart_isrHandler(OB_LPUART1);
+}
+
+_weak void USART1_IRQHandler(void)
+{
+    Uart_isrHandler(OB_UART1);
+}
+
+_weak void USART2_IRQHandler(void)
+{
+    Uart_isrHandler(OB_UART2);
+}
+
+_weak void USART3_IRQHandler(void)
+{
+    Uart_isrHandler(OB_UART3);
+}
+
+_weak void UART4_IRQHandler(void)
+{
+    Uart_isrHandler(OB_UART4);
+}
+
+_weak void UART5_IRQHandler(void)
+{
+    Uart_isrHandler(OB_UART5);
 }
 
 #endif // LIBOHIBOARD_STM32L476
