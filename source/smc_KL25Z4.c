@@ -84,7 +84,7 @@ System_Errors Smc_init (Smc_DevideHandle dev, Smc_Config *config)
 
     SMC_PMPROT = enabledStatus;
 
-    dev->actualStatus = SMCSTATUS_RUN;
+    dev->actualStatus = SMC_STATUS_RUN;
 
     return ERRORS_NO_ERROR;
 }
@@ -93,27 +93,32 @@ void Smc_interrupt (Smc_DevideHandle dev)
 {
     switch (dev->actualStatus)
     {
-    case SMCSTATUS_WAIT:
-        dev->actualStatus = SMCSTATUS_RUN;
-        dev->lastStatus = SMCSTATUS_WAIT;
+    case SMC_STATUS_WAIT:
+        dev->actualStatus = SMC_STATUS_RUN;
+        dev->lastStatus   = SMC_STATUS_WAIT;
         break;
-    case SMCSTATUS_STOP:
-        dev->actualStatus = SMCSTATUS_RUN;
-        dev->lastStatus = SMCSTATUS_STOP;
+    case SMC_STATUS_STOP:
+        dev->actualStatus = SMC_STATUS_RUN;
+        dev->lastStatus   = SMC_STATUS_STOP;
         break;
-    case SMCSTATUS_VLPW:
-        dev->actualStatus = SMCSTATUS_VLPR;
-        dev->lastStatus = SMCSTATUS_VLPW;
+    case SMC_STATUS_VLPW:
+        dev->actualStatus = SMC_STATUS_VLPR;
+        dev->lastStatus   = SMC_STATUS_VLPW;
         break;
-    case SMCSTATUS_VLPS:
+    case SMC_STATUS_VLPS:
         dev->actualStatus = dev->lastStatus;
-        dev->lastStatus = SMCSTATUS_VLPS;
+        dev->lastStatus   = SMC_STATUS_VLPS;
         break;
-    case SMCSTATUS_LLS:
+    case SMC_STATUS_LLS:
         dev->actualStatus = dev->lastStatus;
-        dev->lastStatus = SMCSTATUS_LLS;
+        dev->lastStatus = SMC_STATUS_LLS;
         break;
     }
+}
+
+Smc_Status Smc_getActualStatus (Smc_DevideHandle dev)
+{
+    return dev->actualStatus;
 }
 
 Smc_PowerModeStatus Smc_getPowerMode (Smc_DevideHandle dev)
@@ -144,10 +149,10 @@ void Smc_deepsleep (Smc_DevideHandle dev)
 
 System_Errors Smc_run2wait (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_RUN)
+    if (dev->actualStatus == SMC_STATUS_RUN)
     {
-        dev->lastStatus = SMCSTATUS_RUN;
-        dev->actualStatus = SMCSTATUS_WAIT;
+        dev->lastStatus = SMC_STATUS_RUN;
+        dev->actualStatus = SMC_STATUS_WAIT;
         Smc_sleep(dev);
 
         return ERRORS_SMC_NO_ERROR;
@@ -160,10 +165,10 @@ System_Errors Smc_run2wait (Smc_DevideHandle dev)
 
 System_Errors Smc_vlpr2vlpw (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_VLPR)
+    if (dev->actualStatus == SMC_STATUS_VLPR)
     {
-        dev->lastStatus = SMCSTATUS_VLPR;
-        dev->actualStatus = SMCSTATUS_VLPW;
+        dev->lastStatus = SMC_STATUS_VLPR;
+        dev->actualStatus = SMC_STATUS_VLPW;
         Smc_sleep(dev);
 
         return ERRORS_SMC_NO_ERROR;
@@ -176,10 +181,10 @@ System_Errors Smc_vlpr2vlpw (Smc_DevideHandle dev)
 
 System_Errors Smc_run2stop (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_RUN)
+    if (dev->actualStatus == SMC_STATUS_RUN)
     {
-        dev->lastStatus = SMCSTATUS_RUN;
-        dev->actualStatus = SMCSTATUS_STOP;
+        dev->lastStatus = SMC_STATUS_RUN;
+        dev->actualStatus = SMC_STATUS_STOP;
         volatile unsigned int dummyread;
         // The PMPROT register may have already been written by init code.
         // Set the STOPM field to 0b000 for normal STOP mode
@@ -201,12 +206,12 @@ System_Errors Smc_run2stop (Smc_DevideHandle dev)
 
 System_Errors Smc_vlpr2vlps (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_VLPR)
+    if (dev->actualStatus == SMC_STATUS_VLPR)
     {
         if (dev->enabledStatus.AVLP == 1)
         {
-            dev->lastStatus = SMCSTATUS_VLPR;
-            dev->actualStatus = SMCSTATUS_VLPS;
+            dev->lastStatus = SMC_STATUS_VLPR;
+            dev->actualStatus = SMC_STATUS_VLPS;
             volatile unsigned int dummyread;
             // The PMPROT register may have already been written by init code.
             // Set the STOPM field to 0b000 for normal STOP mode
@@ -231,12 +236,12 @@ System_Errors Smc_vlpr2vlps (Smc_DevideHandle dev)
 
 System_Errors Smc_run2vlps (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_RUN)
+    if (dev->actualStatus == SMC_STATUS_RUN)
     {
         if (dev->enabledStatus.AVLP == 1)
         {
-            dev->lastStatus = SMCSTATUS_RUN;
-            dev->actualStatus = SMCSTATUS_VLPS;
+            dev->lastStatus = SMC_STATUS_RUN;
+            dev->actualStatus = SMC_STATUS_VLPS;
             volatile unsigned int dummyread;
             // The PMPROT register may have already been written by init code.
             // Set the STOPM field to 0b000 for normal STOP mode
@@ -261,12 +266,12 @@ System_Errors Smc_run2vlps (Smc_DevideHandle dev)
 
 System_Errors Smc_run2vlpr (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_RUN)
+    if (dev->actualStatus == SMC_STATUS_RUN)
     {
         if (dev->enabledStatus.AVLP == 1)
         {
-            dev->lastStatus = SMCSTATUS_RUN;
-            dev->actualStatus = SMCSTATUS_VLPR;
+            dev->lastStatus = SMC_STATUS_RUN;
+            dev->actualStatus = SMC_STATUS_VLPR;
 
             // Am I already in VLPR?
             if ((SMC_PMSTAT_REG(dev->regMap) & SMC_PMSTAT_PMSTAT_MASK) == 0x04)
@@ -309,10 +314,10 @@ System_Errors Smc_run2vlpr (Smc_DevideHandle dev)
 
 System_Errors Smc_vlpr2run (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_VLPR)
+    if (dev->actualStatus == SMC_STATUS_VLPR)
     {
-        dev->lastStatus = SMCSTATUS_VLPR;
-        dev->actualStatus = SMCSTATUS_RUN;
+        dev->lastStatus = SMC_STATUS_VLPR;
+        dev->actualStatus = SMC_STATUS_RUN;
         volatile unsigned int dummyread;
         SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_RUNM_MASK;
         SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_RUNM(0x0);
@@ -328,10 +333,10 @@ System_Errors Smc_vlpr2run (Smc_DevideHandle dev)
 
 System_Errors Smc_run2lls (Smc_DevideHandle dev)
 {
-    if (dev->actualStatus == SMCSTATUS_RUN)
+    if (dev->actualStatus == SMC_STATUS_RUN)
     {
-        dev->lastStatus = SMCSTATUS_RUN;
-        dev->actualStatus = SMCSTATUS_LLS;
+        dev->lastStatus = SMC_STATUS_RUN;
+        dev->actualStatus = SMC_STATUS_LLS;
         volatile unsigned int dummyread;
         SMC_PMCTRL_REG(dev->regMap) &= ~SMC_PMCTRL_STOPM_MASK;
         SMC_PMCTRL_REG(dev->regMap) |= SMC_PMCTRL_STOPM(0x3);
