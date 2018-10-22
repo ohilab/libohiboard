@@ -1,4 +1,6 @@
 /*
+ * This file is part of the libohiboard project.
+ *
  * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
@@ -91,6 +93,10 @@ typedef enum _System_Errors
     ERRORS_SPI_DEVICE_NOT_INIT,
     ERRORS_SPI_DEVICE_JUST_INIT,
     ERRORS_SPI_NO_PIN_FOUND,
+    ERRORS_SPI_NO_DEVICE,
+    ERRORS_SPI_WRONG_DEVICE,
+    ERRORS_SPI_WRONG_PARAM,
+    ERRORS_SPI_CLOCKSOURCE_FREQUENCY_TOO_LOW,
 	
 	ERRORS_ADC_CHANNEL_WRONG,
     ERRORS_ADC_CHANNEL_BUSY,
