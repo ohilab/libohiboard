@@ -721,7 +721,7 @@ typedef struct _Uart_Config
  * This function wait (blocking mode) until a new char was
  * received into selected Uart.
  *
- * @deprecated Use @ref Uart_get function
+ * @deprecated Use @ref Uart_read function
  *
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L476
@@ -736,7 +736,7 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
  * This function send a character into serial bus.
  * In particular wait for space in the UART Tx FIFO and then send the character.
  *
- * @deprecated Use @ref Uart_put function
+ * @deprecated Use @ref Uart_write function
  *
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L476
@@ -782,7 +782,7 @@ uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev);
  * @param[in] timeout Max timeout in millisecond
  * @return
  */
-System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout);
+System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout);
 
 /**
  * This function send a packet into serial bus.
@@ -792,7 +792,7 @@ System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout);
  * @param[in] data Pointer to data buffer with only one element (two for 9bit message)
  * @param[in] timeout Max timeout in millisecond
  */
-System_Errors Uart_put (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
+System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
 
 /**
  * Check the receiving queue to see if packet has arrived.
@@ -809,12 +809,49 @@ bool Uart_isPresent (Uart_DeviceHandle dev);
  */
 ///@{
 
+/**
+ * This function initialize the selected peripheral.
+ *
+ * @deprecated Use @ref Uart_init function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
+ *
+ * @param[in] dev Uart device handle
+ * @param[in] config Configuration parameters for the Uart
+ */
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
 
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @deprecated Use @ref Uart_deInit function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
+ *
+ * @param[in] dev Uart device handle
+ */
 System_Errors Uart_close (Uart_DeviceHandle dev);
+
+/**
+ * This function initialize the selected peripheral.
+ *
+ * @param[in] dev Uart device handle
+ * @param[in] config Configuration parameters for the Uart
+ */
+System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config);
+
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @param[in] dev Uart device handle
+ */
+System_Errors Uart_deInit (Uart_DeviceHandle dev);
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
+
 #if defined (LIBOHIBOARD_KL15Z4)     || \
     defined (LIBOHIBOARD_KL25Z4)     || \
     defined (LIBOHIBOARD_FRDMKL25Z)

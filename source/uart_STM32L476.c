@@ -697,6 +697,11 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
 {
+    return ohiassert(0);
+}
+
+System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
+{
     System_Errors err = ERRORS_NO_ERROR;
     // Check the UART device
     if (dev == NULL)
@@ -761,6 +766,11 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
 
 System_Errors Uart_close (Uart_DeviceHandle dev)
 {
+    return ohiassert(0);
+}
+
+System_Errors Uart_deInit (Uart_DeviceHandle dev)
+{
     // TODO
 }
 
@@ -805,28 +815,30 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
 System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
 {
     // deprecated
-    ohiassert(0);
+    return ohiassert(0);
 }
 
 void Uart_putChar (Uart_DeviceHandle dev, char c)
 {
     // deprecated
-    ohiassert(0);
+    return ohiassert(0);
 }
 
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
 {
     // deprecated
     ohiassert(0);
+    return 0;
 }
 
 uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
 {
     // deprecated
     ohiassert(0);
+    return 0;
 }
 
-System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
+System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
     uint16_t* temp;
 
@@ -855,7 +867,7 @@ System_Errors Uart_get (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Uart_put (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
+System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
 {
     uint16_t* temp = 0;
 
