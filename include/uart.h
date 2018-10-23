@@ -323,7 +323,7 @@ typedef enum
     UART_PINS_PTE1,
     UART_PINS_PTE17,
 
-#elif defined (LIBOHIBOARD_STM32L476)
+#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
@@ -516,7 +516,7 @@ typedef enum
     UART_PINS_PTE0,
     UART_PINS_PTE16,
 
-#elif defined (LIBOHIBOARD_STM32L476)
+#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
@@ -648,7 +648,7 @@ void UART1_RX_TX_IRQHandler ();
 extern Uart_DeviceHandle OB_UART0;
 extern Uart_DeviceHandle OB_UART1;
 
-#elif defined (LIBOHIBOARD_STM32L476)
+#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
@@ -666,7 +666,7 @@ extern Uart_DeviceHandle OB_UART4;
 extern Uart_DeviceHandle OB_UART5;
 extern Uart_DeviceHandle OB_LPUART1;
 
-#endif
+#endif // LIBOHIBOARD_STM32L476Jx
 
 #endif
 

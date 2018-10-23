@@ -37,8 +37,6 @@
 extern "C" {
 #endif
 
-#if defined (LIBOHIBOARD_STM32L476)
-
 #include "uart.h"
 
 #include "interrupt.h"
@@ -46,6 +44,8 @@ extern "C" {
 #include "utility.h"
 #include "gpio.h"
 #include "system.h"
+
+#if defined (LIBOHIBOARD_STM32L4)
 
 #define UART_DEVICE_ENABLE(REGMAP)        (REGMAP->CR1 |= USART_CR1_UE)
 #define UART_DEVICE_DISABLE(REGMAP)       (REGMAP->CR1 &= ~USART_CR1_UE)
@@ -440,7 +440,7 @@ static Uart_Device lpuart1 = {
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
-#endif
+#endif // LIBOHIBOARD_STM32L476Jx - WLCSP72 ballout
 
 static inline __attribute__((always_inline)) void Uart_computeRxMask (Uart_DeviceHandle dev)
 {
@@ -977,7 +977,7 @@ _weak void UART5_IRQHandler(void)
     Uart_isrHandler(OB_UART5);
 }
 
-#endif // LIBOHIBOARD_STM32L476
+#endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }
