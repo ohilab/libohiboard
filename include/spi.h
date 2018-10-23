@@ -193,7 +193,7 @@ typedef enum
 
 #endif // LIBOHIBOARD_ST_STM32
 
-typedef enum
+typedef enum _Spi_PcsPins
 {
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -378,12 +378,27 @@ typedef enum
 
     SPI_PINS_PTE16,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    SPI_PINS_PA4,
+    SPI_PINS_PA15,
+
+    SPI_PINS_PB9,
+    SPI_PINS_PB12,
+
+    SPI_PINS_PG12,
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
 
 	SPI_PINS_PCSNONE,
+
 } Spi_PcsPins;
 
-typedef enum
+typedef enum _Spi_SoutPins
 {
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -515,12 +530,29 @@ typedef enum
 
 	SPI_PINS_PTE18,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    SPI_PINS_PA7,
+
+    SPI_PINS_PB5,
+    SPI_PINS_PB15,
+
+    SPI_PINS_PC3,
+    SPI_PINS_PC12,
+
+    SPI_PINS_PG11,
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
 
 	SPI_PINS_SOUTNONE,
+
 } Spi_SoutPins;
 
-typedef enum
+typedef enum _Spi_SinPins
 {
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -653,11 +685,29 @@ typedef enum
 
 	SPI_PINS_PTE19,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+	SPI_PINS_PA6,
+
+	SPI_PINS_PB4,
+	SPI_PINS_PB14,
+
+    SPI_PINS_PC2,
+    SPI_PINS_PC11,
+
+    SPI_PINS_PG10,
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
+
 	SPI_PINS_SINNONE,
+
 } Spi_SinPins;
 
-typedef enum
+typedef enum _Spi_SckPins
 {
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -773,18 +823,40 @@ typedef enum
 
     SPI_PINS_PTE17,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    SPI_PINS_PA5,
+
+    SPI_PINS_PB3,
+    SPI_PINS_PB10,
+    SPI_PINS_PB13,
+
+    SPI_PINS_PC10,
+
+    SPI_PINS_PG9,
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
 
 	SPI_PINS_SCKNONE,
+
 } Spi_SckPins;
 
 typedef struct _Spi_Config
 {
     Spi_PcsPins       pcs0Pin;
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
     Spi_PcsPins       pcs1Pin;
     Spi_PcsPins       pcs2Pin;
     Spi_PcsPins       pcs3Pin;
     Spi_PcsPins       pcs4Pin;
+
+#endif
 
     Spi_SoutPins      soutPin;
     Spi_SinPins       sinPin;
@@ -799,9 +871,11 @@ typedef struct _Spi_Config
     Spi_ClockPhase    sckPhase;
 
 #if defined (LIBOHIBOARD_ST_STM32)
+
     Spi_Direction     direction;
     Spi_FrameFormat   frameFormat;
     Spi_SSManagement  ssManagement;
+
 #endif
 
 #if defined (LIBOHIBOARD_K10D10)      || \
@@ -919,8 +993,53 @@ System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
 
 #else
 
+/**
+ * This function wait (blocking mode) until a new byte was
+ * received into selected SPI.
+ *
+ * @deprecated Use @ref Spi_read function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
+ *
+ * @param[in] dev Spi device handle
+ * @param[out] out Pointer where store the received byte
+ * @return
+ */
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
+
+/**
+ * This function send a byte into SPI bus.
+ *
+ * @deprecated Use @ref Spi_write function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L476
+ *
+ * @param[in] dev Spi device handle
+ * @param[in] data Byte to send
+ */
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
+
+/**
+ * This function send a packet into SPI bus.
+ *
+ * @param[in] dev Spi device handle
+ * @param[in] data Pointer to data buffer with only one element (two for 16bit message)
+ * @param[in] timeout Max timeout in millisecond
+ */
+System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
+
+/**
+ * This function wait (blocking mode) until a new packet was
+ * received into selected Spi.
+ *
+ * @param[in] dev Spi device handle
+ * @param[out] data Pointer to data buffer with only one element (two for 16bit message)
+ * @param[in] timeout Max timeout in millisecond
+ * @return
+ */
+System_Errors Spi_write (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout);
 
 #endif
 

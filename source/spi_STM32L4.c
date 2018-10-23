@@ -37,12 +37,15 @@
 extern "C" {
 #endif
 
+#include "spi.h"
+
 #include "platforms.h"
 #include "utility.h"
-#include "spi.h"
+#include "gpio.h"
 #include "clock.h"
 
 #if defined (LIBOHIBOARD_STM32L4)
+
 
 /**
  * @brief Enable the SPI peripheral
@@ -145,9 +148,19 @@ typedef struct _Spi_Device
     volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
     uint32_t rccRegisterEnable;        /**< Register mask for current device. */
 
-//    volatile uint32_t* rccTypeRegisterPtr;  /**< Register for clock enabling. */
-//    uint32_t rccTypeRegisterMask;      /**< Register mask for user selection. */
-//    uint32_t rccTypeRegisterPos;       /**< Mask position for user selection. */
+    Spi_SinPins sinPins[SPI_MAX_PINS];
+    Spi_SoutPins soutPins[SPI_MAX_PINS];
+    Spi_SckPins sckPins[SPI_MAX_PINS];
+    Spi_PcsPins nssPins[SPI_MAX_PINS];
+
+    Gpio_Pins sinPinsGpio[SPI_MAX_PINS];
+    Gpio_Pins soutPinsGpio[SPI_MAX_PINS];
+    Gpio_Pins sckPinsGpio[SPI_MAX_PINS];
+    Gpio_Pins nssPinsGpio[SPI_MAX_PINS];
+    Gpio_Alternate sinPinsMux[SPI_MAX_PINS];
+    Gpio_Alternate soutPinsMux[SPI_MAX_PINS];
+    Gpio_Alternate sckPinsMux[SPI_MAX_PINS];
+    Gpio_Alternate nssPinsMux[SPI_MAX_PINS];
 
     Spi_DeviceType devType;
     uint32_t baudrate;
@@ -168,9 +181,69 @@ static Spi_Device spi1 = {
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_SPI1EN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_USART1SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_USART1SEL_Pos,
+        .sinPins              =
+        {
+                               SPI_PINS_PA6,
+                               SPI_PINS_PB4,
+        },
+        .sinPinsGpio          =
+        {
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PB4,
+        },
+        .sinPinsMux           =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .soutPins             =
+        {
+                               SPI_PINS_PA7,
+                               SPI_PINS_PB5,
+        },
+        .soutPinsGpio         =
+        {
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB5,
+        },
+        .soutPinsMux          =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .sckPins              =
+        {
+                               SPI_PINS_PA5,
+                               SPI_PINS_PB3,
+        },
+        .sckPinsGpio          =
+        {
+                               GPIO_PINS_PA5,
+                               GPIO_PINS_PB3,
+        },
+        .sckPinsMux           =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .nssPins              =
+        {
+                               SPI_PINS_PA4,
+                               SPI_PINS_PA15,
+        },
+        .nssPinsGpio          =
+        {
+                               GPIO_PINS_PA4,
+                               GPIO_PINS_PA15,
+        },
+        .nssPinsMux           =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
 };
 Spi_DeviceHandle OB_SPI1 = &spi1;
 
@@ -180,25 +253,234 @@ static Spi_Device spi2 = {
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_SPI2EN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_USART1SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_USART1SEL_Pos,
+        .sinPins              =
+        {
+                               SPI_PINS_PB14,
+                               SPI_PINS_PC2,
+        },
+        .sinPinsGpio          =
+        {
+                               GPIO_PINS_PB14,
+                               GPIO_PINS_PC2,
+        },
+        .sinPinsMux           =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .soutPins             =
+        {
+                               SPI_PINS_PB15,
+                               SPI_PINS_PC3,
+        },
+        .soutPinsGpio         =
+        {
+                               GPIO_PINS_PB15,
+                               GPIO_PINS_PC3,
+        },
+        .soutPinsMux          =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .sckPins              =
+        {
+                               SPI_PINS_PB10,
+                               SPI_PINS_PB13,
+        },
+        .sckPinsGpio          =
+        {
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PB13,
+        },
+        .sckPinsMux           =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .nssPins              =
+        {
+                               SPI_PINS_PB9,
+                               SPI_PINS_PB12,
+        },
+        .nssPinsGpio          =
+        {
+                               GPIO_PINS_PB9,
+                               GPIO_PINS_PB12,
+        },
+        .nssPinsMux           =
+        {
+                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_5,
+        },
 };
 Spi_DeviceHandle OB_SPI2 = &spi2;
 
-static Spi_Device spi3 = {
+static Spi_Device spi3 =
+{
         .regmap              = SPI3,
 
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_SPI3EN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_USART1SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_USART1SEL_Pos,
+        .sinPins              =
+        {
+                               SPI_PINS_PB4,
+                               SPI_PINS_PC11,
+                               SPI_PINS_PG10,
+        },
+        .sinPinsGpio          =
+        {
+                               GPIO_PINS_PB4,
+                               GPIO_PINS_PC11,
+                               GPIO_PINS_PG10,
+        },
+        .sinPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+        },
+
+        .soutPins             =
+        {
+                               SPI_PINS_PB5,
+                               SPI_PINS_PC11,
+                               SPI_PINS_PG11,
+        },
+        .soutPinsGpio         =
+        {
+                               GPIO_PINS_PB5,
+                               GPIO_PINS_PC11,
+                               GPIO_PINS_PG11,
+        },
+        .soutPinsMux          =
+        {
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+        },
+
+        .sckPins              =
+        {
+                               SPI_PINS_PB3,
+                               SPI_PINS_PC10,
+                               SPI_PINS_PG9,
+        },
+        .sckPinsGpio          =
+        {
+                               GPIO_PINS_PB3,
+                               GPIO_PINS_PC10,
+                               GPIO_PINS_PG9,
+        },
+        .sckPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+        },
+
+        .nssPins              =
+        {
+                               SPI_PINS_PA4,
+                               SPI_PINS_PA15,
+                               SPI_PINS_PG12,
+        },
+        .nssPinsGpio          =
+        {
+                               GPIO_PINS_PA4,
+                               GPIO_PINS_PA15,
+                               GPIO_PINS_PG12,
+        },
+        .nssPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+        },
 };
 Spi_DeviceHandle OB_SPI3 = &spi3;
 
 #endif // LIBOHIBOARD_STM32L476Jx - WLCSP72 ballout
+
+static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->soutPins[devPinIndex] == soutPin)
+        {
+            Gpio_configAlternate(dev->soutPinsGpio[devPinIndex],
+                                 dev->soutPinsMux[devPinIndex]);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_SPI_NO_PIN_FOUND;
+}
+
+static System_Errors Spi_setSinPin(Spi_DeviceHandle dev, Spi_SinPins sinPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->sinPins[devPinIndex] == sinPin)
+        {
+            Gpio_configAlternate(dev->sinPinsGpio[devPinIndex],
+                                 dev->sinPinsMux[devPinIndex]);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_SPI_NO_PIN_FOUND;
+}
+
+static System_Errors Spi_setSckPin(Spi_DeviceHandle dev, Spi_SckPins sckPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->sckPins[devPinIndex] == sckPin)
+        {
+            Gpio_configAlternate(dev->sckPinsGpio[devPinIndex],
+                                 dev->sckPinsMux[devPinIndex]);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_SPI_NO_PIN_FOUND;
+}
+
+static System_Errors Spi_setNssPin(Spi_DeviceHandle dev, Spi_PcsPins nssPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < SPI_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->nssPins[devPinIndex] == nssPin)
+        {
+            Gpio_configAlternate(dev->nssPinsGpio[devPinIndex],
+                                 dev->nssPinsMux[devPinIndex]);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_SPI_NO_PIN_FOUND;
+}
 
 /**
  * Useful constant to compute baudrate prescaler (see SPIx_CR1 register, BR bits)
@@ -307,6 +589,10 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
     case SPI_DIRECTION_RX_ONLY:
         dev->regmap->CR1 |= SPI_CR1_RXONLY_Msk;
         break;
+
+    case SPI_DIRECTION_TX_ONLY:
+        // Nothing to do!
+        break;
     }
 
     // Configure First Bit type
@@ -393,12 +679,18 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     // Enable peripheral clock
     SPI_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
-    // FIXME: Enable pins
-//    if (config->rxPin != UART_PINS_RXNONE)
-//        Uart_setRxPin(dev, config->rxPin);
-//
-//    if (config->txPin != UART_PINS_TXNONE)
-//        Uart_setTxPin(dev, config->txPin);
+    // Enable pins
+    if (config->sinPin != SPI_PINS_SINNONE)
+        Spi_setSinPin(dev, config->sinPin);
+
+    if (config->soutPin != SPI_PINS_SOUTNONE)
+        Spi_setSoutPin(dev, config->soutPin);
+
+    if (config->sckPin != SPI_PINS_SCKNONE)
+        Spi_setSckPin(dev, config->sckPin);
+
+    if ((config->pcs0Pin != SPI_PINS_PCSNONE) && (config->ssManagement != SPI_SSMANAGEMENT_SOFTWARE))
+        Spi_setNssPin(dev, config->pcs0Pin);
 
     // Configure the peripheral
     err = Spi_config(dev,config);
@@ -411,6 +703,27 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     return ERRORS_NO_ERROR;
 }
 
+System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
+{
+    // deprecated
+    ohiassert(0);
+}
+
+System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
+{
+    // deprecated
+    ohiassert(0);
+}
+
+System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
+{
+
+}
+
+System_Errors Spi_write (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
+{
+
+}
 
 #endif // LIBOHIBOARD_STM32L4
 
