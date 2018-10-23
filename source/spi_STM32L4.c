@@ -46,7 +46,6 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-
 /**
  * @brief Enable the SPI peripheral
  */
@@ -107,6 +106,10 @@ extern "C" {
                                         ((DIRECTION) == SPI_DIRECTION_HALF_DUPLEX) || \
                                         ((DIRECTION) == SPI_DIRECTION_RX_ONLY)     || \
                                         ((DIRECTION) == SPI_DIRECTION_TX_ONLY))
+
+#define SPI_VALID_TX_DIRECTION(DIRECTION) (((DIRECTION) == SPI_DIRECTION_FULL_DUPLEX) || \
+                                           ((DIRECTION) == SPI_DIRECTION_HALF_DUPLEX) || \
+                                           ((DIRECTION) == SPI_DIRECTION_TX_ONLY))
 
 /**
  * Checks if the SPI first bit type value is in allowed range.
@@ -706,23 +709,117 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data)
 {
     // deprecated
-    ohiassert(0);
+    return ohiassert(0);
 }
 
 System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 {
     // deprecated
-    ohiassert(0);
+    return ohiassert(0);
 }
 
 System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
 {
+    System_Errors err = ERRORS_NO_ERROR;
 
+    // Set FIFO RX threshold
+    if (dev->datasize > SPI_DATASIZE_8BIT)
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
+    }
+    else
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
+    }
+
+    // Check if the device is enabled
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_SPE) == 0)
+    {
+        SPI_DEVICE_ENABLE(dev->regmap);
+    }
+
+    // Check the connection type
+    if ((dev->devType == SPI_MASTER_MODE) && (dev->direction == SPI_DIRECTION_FULL_DUPLEX))
+    {
+
+    }
+    else
+    {
+
+    }
 }
 
 System_Errors Spi_write (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
+    System_Errors err = ERRORS_NO_ERROR;
 
+    // Check the chosen direction for the peripheral
+    err = ohiassert(SPI_VALID_TX_DIRECTION(dev->direction));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_SPI_WRONG_PARAM;
+    }
+
+    // Save timeout
+    uint32_t timeoutEnd = System_currentTick() + timeout;
+
+    // If one line transmission, setup the device
+    if (dev->direction == SPI_DIRECTION_HALF_DUPLEX)
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
+    }
+
+    // Check if the device is enabled
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_SPE) == 0)
+    {
+        SPI_DEVICE_ENABLE(dev->regmap);
+    }
+
+    // Wait until the buffer is empty
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE) == 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            err = ERRORS_SPI_TIMEOUT_TX;
+            // Release the device.
+            goto spierror;
+        }
+    }
+
+    // In case of datasize is grater the 8B cast the relative value
+    if (dev->datasize > SPI_DATASIZE_8BIT)
+    {
+        dev->regmap->DR = *((uint16_t *)data);
+    }
+    else
+    {
+        dev->regmap->DR = (*data & 0x00FFu);
+    }
+
+    // Read dummy element from RX FIFO
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_FRLVL_Msk) != 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            err = ERRORS_SPI_TIMEOUT_TX;
+            // Release the device.
+            goto spierror;
+        }
+
+        (void) dev->regmap->DR;
+    }
+
+    // Clear overrun flag in two lines direction mode
+    // The received data is not read
+    if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+    {
+        (void) dev->regmap->DR;
+        (void) dev->regmap->SR;
+    }
+
+spierror:
+    // FIXME: Disable SPI?
+    return err;
 }
 
 #endif // LIBOHIBOARD_STM32L4
