@@ -1028,7 +1028,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data);
  * @param[in] data Pointer to data buffer with only one element (two for 16bit message)
  * @param[in] timeout Max timeout in millisecond
  */
-System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
+System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
 
 /**
  * This function wait (blocking mode) until a new packet was
@@ -1039,7 +1039,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t time
  * @param[in] timeout Max timeout in millisecond
  * @return
  */
-System_Errors Spi_write (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout);
+System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout);
 
 #endif
 

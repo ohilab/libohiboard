@@ -718,7 +718,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     return ohiassert(0);
 }
 
-System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
+System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
     System_Errors err = ERRORS_NO_ERROR;
 
@@ -732,24 +732,98 @@ System_Errors Spi_read (Spi_DeviceHandle dev, const uint8_t* data, uint32_t time
         UTILITY_SET_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
     }
 
+    // If one line transmission, setup the device
+    if (dev->direction == SPI_DIRECTION_HALF_DUPLEX)
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
+    }
+
     // Check if the device is enabled
     if (UTILITY_READ_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_SPE) == 0)
     {
         SPI_DEVICE_ENABLE(dev->regmap);
     }
 
+    // Save timeout
+    uint32_t timeoutEnd = System_currentTick() + timeout;
+
     // Check the connection type
     if ((dev->devType == SPI_MASTER_MODE) && (dev->direction == SPI_DIRECTION_FULL_DUPLEX))
     {
+        // Send dummy data
+        // Wait until the buffer is empty
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                err = ERRORS_SPI_TIMEOUT_TX;
+                // Release the device.
+                goto spierror;
+            }
+        }
 
+        // In case of datasize is grater the 8B cast the relative value
+        if (dev->datasize > SPI_DATASIZE_8BIT)
+        {
+            dev->regmap->DR = 0xFFFF;
+        }
+        else
+        {
+            dev->regmap->DR = 0xFF;
+        }
+
+        // Now read the data
+        // Wait until the buffer is not empty
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                err = ERRORS_SPI_TIMEOUT_RX;
+                // Release the device.
+                goto spierror;
+            }
+        }
+
+        // In case of datasize is grater the 8B cast the relative value
+        if (dev->datasize > SPI_DATASIZE_8BIT)
+        {
+            *((uint16_t *)data) = dev->regmap->DR;
+        }
+        else
+        {
+            *data = *(volatile uint8_t*)&dev->regmap->DR;
+        }
     }
     else
     {
+        // Wait until the buffer is not empty
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                err = ERRORS_SPI_TIMEOUT_RX;
+                // Release the device.
+                goto spierror;
+            }
+        }
 
+        // In case of datasize is grater the 8B cast the relative value
+        if (dev->datasize > SPI_DATASIZE_8BIT)
+        {
+            *((uint16_t *)data) = dev->regmap->DR;
+        }
+        else
+        {
+            *data = *(volatile uint8_t*)&dev->regmap->DR;
+        }
     }
+
+spierror:
+    // FIXME: Disable SPI?
+    return err;
 }
 
-System_Errors Spi_write (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
+System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
 {
     System_Errors err = ERRORS_NO_ERROR;
 
