@@ -1,4 +1,6 @@
 /*
+ * This file is part of the libohiboard project.
+ *
  * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
