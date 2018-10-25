@@ -1,4 +1,7 @@
-/* Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -20,7 +23,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/i2c.h
@@ -33,29 +36,64 @@
 #ifndef __I2C_H
 #define __I2C_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "system.h"
 
-typedef enum {
+/**
+ * Definition for possible device behavioral.
+ */
+typedef enum
+{
     IIC_MASTER_MODE,
-    IIC_SLAVE_MODE
+    IIC_SLAVE_MODE,
+
 } Iic_DeviceType;
 
-typedef enum {
+/**
+ * Definition for possible address mode.
+ */
+typedef enum
+{
     IIC_SEVEN_BIT,
-    IIC_TEN_BIT
+    IIC_TEN_BIT,
+
 } Iic_AddressMode;
 
-typedef enum {
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
+typedef enum
+{
     IIC_NO_STOP,
     IIC_STOP
+
 } Iic_StopMode;
 
-typedef enum {
+typedef enum
+{
     IIC_LAST_BYTE,
     IIC_NO_LAST_BYTE
+
 } Iic_LastByteMode;
+
+#endif // LIBOHIBOARD_NXP_KINETIS
+
+#if defined (LIBOHIBOARD_ST_STM32)
+
+typedef enum _Iic_ClockSource
+{
+    IIC_CLOCKSOURCE_PCLK    = 0x00U,                  /**< PCLK clock source */
+    IIC_CLOCKSOURCE_SYSCLK  = 0x01U,                /**< SYSCLK clock source */
+    IIC_CLOCKSOURCE_HSI     = 0x02U,                   /**< HSI clock source */
+
+} Iic_ClockSource;
+
+#endif // LIBOHIBOARD_ST_STM32
 
 typedef enum
 {
@@ -253,11 +291,43 @@ typedef struct _Iic_Config
 
     uint16_t              sclTimeout;
 
+#if defined LIBOHIBOARD_ST_STM32
+
+    Iic_ClockSource clockSource;
+
+#endif
+
 } Iic_Config;
 
+#if (LIBOHIBOARD_VERSION >= 0x200)
+typedef struct _Iic_Device* Iic_DeviceHandle;
+#else
 typedef struct Iic_Device* Iic_DeviceHandle;
+#endif
 
+/** @name Configuration functions
+ *  Functions to open, close and configure a I2C peripheral.
+ */
+
+///@{
+
+/**
+  * @brief Initialize the I2C according to the specified parameters
+  *         in the @ref Iic_Config and initialize the associated handle.
+  * @param[in] dev I2C device handle
+  * @param[in] config Configuration parameters list.
+  * @return ERRORS_NO_ERROR The initialization is ok.
+  */
 System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config);
+
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @param[in] dev I2C device handle
+ */
+System_Errors Iic_deInit (Iic_DeviceHandle dev);
+
+///@}
 
 #if defined (LIBOHIBOARD_KL25Z4)    || \
     defined (LIBOHIBOARD_FRDMKL25Z) || \
@@ -316,12 +386,6 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
 
 #endif
 
-#if 0
-System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay);
-void Iic_resetSclTimeout (Iic_DeviceHandle dev);
-System_Errors Iic_isToggleSclTimeout (Iic_DeviceHandle dev);
-#endif
-
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
 
@@ -356,8 +420,22 @@ extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
 extern Iic_DeviceHandle IIC2;
 
+#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+extern Iic_DeviceHandle OB_IIC1;
+extern Iic_DeviceHandle OB_IIC2;
+extern Iic_DeviceHandle OB_IIC3;
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
 #endif
 
-#endif /* __I2C_H */
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* LIBOHIBOARD_IIC */
+#endif // __I2C_H
+
+#endif // LIBOHIBOARD_IIC
