@@ -24,18 +24,19 @@
  */
 
 /**
- * @file libohiboard/source/interrupt_STM32L476.c
+ * @file libohiboard/source/interrupt_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Interrupt implementations for STM32L476.
+ * @brief Interrupt implementations for STM32L4 Series.
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined (LIBOHIBOARD_STM32L476)
-
 #include "platforms.h"
+
+#if defined (LIBOHIBOARD_STM32L4)
+
 #include "interrupt.h"
 
 #define NVIC_NUM_CORE_VECTORS                  16
@@ -98,7 +99,7 @@ uint8_t Interrupt_getPriority (Interrupt_Vector vectorNumber)
     return (uint8_t) NVIC_GetPriority((IRQn_Type)vectorNumber);
 }
 
-#endif // LIBOHIBOARD_STM32L476
+#endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }

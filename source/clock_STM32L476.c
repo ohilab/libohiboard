@@ -24,9 +24,9 @@
  */
 
 /**
- * @file libohiboard/include/clock_STM32L476.c
+ * @file libohiboard/include/clock_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Clock implementations for STM32L476 family
+ * @brief Clock implementations for STM32L4 Series
  */
 
 #ifdef __cplusplus
@@ -38,7 +38,7 @@ extern "C" {
 #include "utility.h"
 #include "system.h"
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4)
 
 #define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                            && \
                                         (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)         || \
@@ -500,7 +500,7 @@ uint32_t Clock_getOutputClock (Clock_Output output)
     }
 }
 
-#endif // LIBOHIBOARD_STM32L476
+#endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }

@@ -26,19 +26,21 @@
  */
 
 /**
- * @file libohiboard/source/gpio_STM32L476.c
+ * @file libohiboard/source/gpio_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief GPIO implementations for STM32L476.
+ * @brief GPIO implementations for STM32L4 Series.
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined (LIBOHIBOARD_STM32L476)
+#include "platforms.h"
+
+#if defined (LIBOHIBOARD_STM32L4)
 
 #include "gpio.h"
-#include "platforms.h"
+
 #include "interrupt.h"
 #include "clock.h"
 #include "utility.h"
@@ -672,7 +674,7 @@ _weak void EXTI15_10_IRQHandler (void)
     }
 }
 
-#endif // LIBOHIBOARD_STM32L476
+#endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }
