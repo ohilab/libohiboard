@@ -48,7 +48,9 @@ extern "C" {
 #include "clock.h"
 
 
-#define IIC_MAX_PINS           8
+#define IIC_MAX_PINS                      8
+#define IIC_MAX_BAUDRATE                  1000000u
+#define IIC_MAX_SCL_TICK                  256
 
 #define IIC_CLOCK_ENABLE(REG,MASK) do { \
                                      UTILITY_SET_REGISTER_BIT(REG,MASK); \
@@ -71,6 +73,30 @@ extern "C" {
 
 #define IIC_VALID_ADDRESSMODE(ADDRESSMODE) (((ADDRESSMODE) == IIC_SEVEN_BIT)  || \
                                             ((ADDRESSMODE) == IIC_TEN_BIT))
+
+#define IIC_VALID_DUALADDRESS(DUALADDRESS) (((DUALADDRESS) == IIC_DUALADDRESS_ENABLE)  || \
+                                            ((DUALADDRESS) == IIC_DUALADDRESS_DISABLE))
+
+#define IIC_VALID_DUALMASK(DUALMASK) (((DUALMASK) == IIC_DUALADDRESSMASK_NO_MASK)  || \
+		                              ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_01)  || \
+                                      ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_02)  || \
+                                      ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_03)  || \
+                                      ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_04)  || \
+                                      ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_05)  || \
+                                      ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_06)  || \
+                                      ((DUALMASK) == IIC_DUALADDRESSMASK_MASK_07))
+
+#define IIC_VALID_NOSTRETCH(STRETCH) (((STRETCH) == IIC_NOSTRETCH_ENABLE)  || \
+                                      ((STRETCH) == IIC_NOSTRETCH_DISABLE))
+
+#define IIC_VALID_OWN_ADDRESS1(ADDRESS1) ((ADDRESS1) <= 0x000003FFu)
+
+#define IIC_VALID_OWN_ADDRESS2(ADDRESS2) ((ADDRESS2) <= (uint16_t)0x00FFu)
+
+/**
+ * @brief Check the baudrate value
+ */
+#define IIC_VALID_BAUDRATE(BAUDRATE) ((BAUDRATE) <= IIC_MAX_BAUDRATE)
 
 #define IIC_VALID_MODE(MODE) (((MODE) == IIC_MASTER_MODE) || \
                               ((MODE) == IIC_SLAVE_MODE))
@@ -106,6 +132,13 @@ typedef struct _Iic_Device
     Iic_ClockSource clockSource;
     Iic_AddressMode addressMode;
     Iic_DeviceType deviceType;
+
+    // Slave mode
+    uint32_t address1;
+    uint32_t address2;
+    Iic_DualAddress dualAddressMode;
+    Iic_DualAddressMask dualAddressMask;
+    Iic_NoStrech noStretch;
 
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Iic_Device;
@@ -153,12 +186,140 @@ Iic_DeviceHandle OB_IIC3 = &iic3;
 
 #endif // LIBOHIBOARD_STM32L476Jx
 
+static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
+{
+    uint32_t frequency = 0;
+    uint32_t scaled = 0;
+
+    // Get current parent clock
+    switch (dev->clockSource)
+    {
+    case IIC_CLOCKSOURCE_HSI:
+        frequency = (uint32_t)CLOCK_FREQ_HSI;
+        break;
+    case IIC_CLOCKSOURCE_SYSCLK:
+        frequency = Clock_getOutputClock(CLOCK_OUTPUT_SYSCLK);
+        break;
+    case IIC_CLOCKSOURCE_PCLK:
+        frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK2);
+        break;
+    default:
+        ohiassert(0);
+        return ERRORS_IIC_NO_CLOCKSOURCE;
+    }
+
+    // Current clock is different from 0
+    if (frequency != 0u)
+    {
+        for (uint8_t i = 0; i < 16; ++i)
+        {
+            // Divide by possible prescaler
+            scaled = frequency / (i + 1);
+
+            // Check if frequency scaled is grater then baudrate
+            if (scaled < baudrate)
+            {
+                // Exit from for...
+                return ERRORS_IIC_WRONG_PARAM;
+            }
+            else
+            {
+                // Compute tick for each SCL level
+                // 4 ticks is for TSYNC1 and TSYNC2
+                uint16_t tick = (uint16_t)(((scaled / baudrate) - 4 ) / 2);
+                // Save ticks if it is usable
+                if (tick < IIC_MAX_SCL_TICK)
+                {
+                    dev->regmap->TIMINGR = (i << I2C_TIMINGR_PRESC_Pos)               |
+                                           (((tick - 1) & 0x00FFu) << I2C_TIMINGR_SCLH_Pos) |
+                                           (((tick - 1) & 0x00FFu) << I2C_TIMINGR_SCLL_Pos);
+                    break;
+                }
+                else
+                {
+                    // Try with the next prescaler!
+                    continue;
+                }
+            }
+        }
+    }
+    else
+    {
+        return ERRORS_IIC_CLOCKSOURCE_FREQUENCY_TOO_LOW;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
 static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
 {
     System_Errors err = ERRORS_NO_ERROR;
 
     err |= ohiassert(IIC_VALID_MODE(config->devType));
     err |= ohiassert(IIC_VALID_ADDRESSMODE(config->addressMode));
+    err |= ohiassert(IIC_VALID_OWN_ADDRESS1(config->address1));
+    err |= ohiassert(IIC_VALID_OWN_ADDRESS2(config->address2));
+    err |= ohiassert(IIC_VALID_DUALADDRESS(config->dualAddressMode));
+    err |= ohiassert(IIC_VALID_DUALMASK(config->dualAddressMask));
+    err |= ohiassert(IIC_VALID_NOSTRETCH(config->noStretch));
+    err |= ohiassert(IIC_VALID_BAUDRATE(config->baudRate));
+    if (err != ERRORS_NO_ERROR)
+        return ERRORS_IIC_WRONG_PARAM;
+
+    // Disable the device
+    IIC_DEVICE_DISABLE(dev->regmap);
+
+    // Configure Baudrate
+    err = Iic_setBaudrate(dev,config->baudRate);
+    if (err != ERRORS_NO_ERROR)
+        return ERRORS_IIC_WRONG_PARAM;
+
+
+    // Save address mode (7-bit or 10-bit)
+    dev->addressMode = config->addressMode;
+    dev->regmap->CR2 = dev->regmap->CR2 & (~(I2C_CR2_ADD10_Msk));
+    if (config->addressMode == IIC_TEN_BIT)
+    {
+        dev->regmap->CR2 |= I2C_CR2_ADD10_Msk;
+    }
+
+    // Enable by default AUTOEND and NACK (NOT usable in master mode)
+    dev->regmap->CR2 |= (I2C_CR2_AUTOEND_Msk | I2C_CR2_NACK_Msk);
+
+    // Disable own address1 before set new one
+    dev->regmap->OAR1 = dev->regmap->OAR1 & (~(I2C_OAR1_OA1EN_Msk));
+    dev->address1 = config->address1;
+    // Configure own address 1
+    if (config->addressMode == IIC_SEVEN_BIT)
+    {
+        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | ((config->address1 << 1) & 0x000000FEu);
+    }
+    else
+    {
+        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | I2C_OAR1_OA1MODE_Msk | config->address1;
+    }
+
+    // Disable own address 2 and check the user config
+    dev->regmap->OAR2 = dev->regmap->OAR2 & (~(I2C_OAR2_OA2EN_Msk));
+    dev->address2 = config->address2;
+    dev->dualAddressMode = config->dualAddressMode;
+    dev->dualAddressMask = config->dualAddressMask;
+    if (config->dualAddressMode == IIC_DUALADDRESS_ENABLE)
+    {
+        dev->regmap->OAR2 = I2C_OAR2_OA2EN_Msk | (((uint8_t)config->dualAddressMask) << I2C_OAR2_OA2MSK_Pos) | config->address2;
+    }
+
+    // Configure no-stretch mode
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(I2C_CR1_NOSTRETCH_Msk));
+    dev->noStretch = config->noStretch;
+    if (config->noStretch == IIC_NOSTRETCH_ENABLE)
+    {
+        dev->regmap->CR1 |= I2C_CR1_NOSTRETCH_Msk;
+    }
+
+    // Configuration ended... enable device
+    IIC_DEVICE_ENABLE(dev->regmap);
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
@@ -176,7 +337,7 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
         return ERRORS_IIC_WRONG_DEVICE;
     }
     // Check clock source selections
-    err = ohiassert(IIC_IS_VALID_CLOCK_SOURCE(dev,config->clockSource));
+    err = ohiassert(IIC_VALID_CLOCK_SOURCE(config->clockSource));
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_IIC_WRONG_PARAM;
@@ -188,8 +349,6 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     // Enable peripheral clock
     IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
-    // Disable the device
-    IIC_DEVICE_DISABLE(dev->regmap);
 
     // FIXME: define pins!!
 

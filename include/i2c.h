@@ -93,7 +93,52 @@ typedef enum _Iic_ClockSource
 
 } Iic_ClockSource;
 
+/**
+ * Useful define for choosing the dual address mode.
+ */
+typedef enum _Iic_DualAddress
+{
+    IIC_DUALADDRESS_ENABLE,
+    IIC_DUALADDRESS_DISABLE,
+
+} Iic_DualAddress;
+
+/**
+ * List of usable mask for second address.
+ */
+typedef enum _Iic_DualAddressMask
+{
+    IIC_DUALADDRESSMASK_NO_MASK = 0x00,
+    IIC_DUALADDRESSMASK_MASK_01 = 0x01,
+    IIC_DUALADDRESSMASK_MASK_02 = 0x02,
+    IIC_DUALADDRESSMASK_MASK_03 = 0x03,
+    IIC_DUALADDRESSMASK_MASK_04 = 0x04,
+    IIC_DUALADDRESSMASK_MASK_05 = 0x05,
+    IIC_DUALADDRESSMASK_MASK_06 = 0x06,
+    IIC_DUALADDRESSMASK_MASK_07 = 0x07,
+
+} Iic_DualAddressMask;
+
+typedef enum _Iic_NoStretch
+{
+    IIC_NOSTRETCH_ENABLE,
+    IIC_NOSTRETCH_DISABLE,
+
+} Iic_NoStrech;
+
 #endif // LIBOHIBOARD_ST_STM32
+
+#if (LIBOHIBOARD_VERSION >= 0x200)
+typedef struct _Iic_Device* Iic_DeviceHandle;
+#else
+typedef struct Iic_Device* Iic_DeviceHandle;
+#endif
+
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/i2c_STM32L4.h"
+
+#else
 
 typedef enum
 {
@@ -278,6 +323,8 @@ typedef enum
 
 } Iic_SdaPins;
 
+#endif
+
 typedef struct _Iic_Config
 {
     Iic_SclPins           sclPin;
@@ -295,15 +342,15 @@ typedef struct _Iic_Config
 
     Iic_ClockSource clockSource;
 
+    uint32_t address1;
+    uint32_t address2;
+    Iic_DualAddress dualAddressMode;
+    Iic_DualAddressMask dualAddressMask;
+    Iic_NoStrech noStretch;
+
 #endif
 
 } Iic_Config;
-
-#if (LIBOHIBOARD_VERSION >= 0x200)
-typedef struct _Iic_Device* Iic_DeviceHandle;
-#else
-typedef struct Iic_Device* Iic_DeviceHandle;
-#endif
 
 /** @name Configuration functions
  *  Functions to open, close and configure a I2C peripheral.

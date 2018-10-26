@@ -191,15 +191,25 @@
 #elif defined(LIBOHIBOARD_KV46F) || defined(LIBOHIBOARD_TWRKV46F)
 #include "platforms/MKV46F16.h"
 #define LIBOHIBOARD_NXP_KINETIS
+
 #elif defined(LIBOHIBOARD_STM32L476Jx)
+
 #include "platforms/STM32L476/stm32l476xx.h"
 #include "platforms/STM32L476/stm32l4xx.h"
 #include "platforms/STM32L476/system_stm32l4xx.h"
+
+#ifndef LIBOHIBOARD_STM32L4
 #define LIBOHIBOARD_STM32L4
+#endif
+
 #ifndef LIBOHIBOARD_STM32L476
 #define LIBOHIBOARD_STM32L476
 #endif
+
+#ifndef LIBOHIBOARD_ST_STM32
 #define LIBOHIBOARD_ST_STM32
+#endif
+
 #endif
 
 // Features files

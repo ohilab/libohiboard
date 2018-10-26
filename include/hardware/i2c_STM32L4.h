@@ -1,0 +1,78 @@
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ *
+ * Authors:
+ *   Marco Giammarini <m.giammarini@warcomeb.it>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/**
+ * @file libohiboard/include/hardware/i2c_STM32L4.h
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief I2C pins and device definitions for STM32L4 series
+ */
+
+#ifndef __I2C_STM32L4_H
+#define __I2C_STM32L4_H
+
+#include "platforms.h"
+
+#if defined(LIBOHIBOARD_IIC) & defined(LIBOHIBOARD_STM32L4)
+
+
+typedef enum _Iic_SclPins
+{
+#if defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
+#endif
+
+    IIC_PINS_SCLNONE,
+
+} Iic_SclPins;
+
+typedef enum _Iic_SdaPins
+{
+#if defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
+#endif
+
+    IIC_PINS_SDANONE,
+
+} Iic_SdaPins;
+
+
+
+#endif // LIBOHIBOARD_IIC & LIBOHIBOARD_STM32L4
+
+#endif // __I2C_STM32L4_H
