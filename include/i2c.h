@@ -376,6 +376,51 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev);
 
 ///@}
 
+#if (LIBOHIBOARD_VERSION >= 0x200)
+
+/** @name Master Packet Management
+ *  All the functions useful for packet managing by a Master device.
+ */
+///@{
+
+/**
+ * This function send a specified number of bytes to a selected
+ * slave device into I2C bus.
+ * This function is blocking.
+ *
+ * @param[in] dev I2C device handle
+ * @param[in] address Slave device address
+ * @param[in] data Pointer to data buffer
+ * @param[in] length the number of byte to write
+ * @param[in] timeout Max timeout in millisecond
+ */
+System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
+                               uint16_t address,
+                               const uint8_t* data,
+                               uint16_t length,
+                               uint32_t timeout);
+
+/**
+ * This function read a specified number of bytes from a selected
+ * slave device into I2C bus.
+ * This function is blocking.
+ *
+ * @param[in] dev I2C device handle
+ * @param[in] address Slave device address
+ * @param[in] data Pointer to data buffer
+ * @param[in] length the number of byte to read
+ * @param[in] timeout Max timeout in millisecond
+ */
+System_Errors Iic_readMaster (Iic_DeviceHandle dev,
+                              uint16_t address,
+                              uint8_t* data,
+                              uint8_t length,
+                              uint32_t timeout);
+
+///@}
+
+#else
+
 #if defined (LIBOHIBOARD_KL25Z4)    || \
     defined (LIBOHIBOARD_FRDMKL25Z) || \
 	defined (LIBOHIBOARD_KL15Z4)    || \
@@ -433,6 +478,8 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
 
 #endif
 
+#endif // ELSE LIBOHIBOARD_VERSION >= 0x200
+
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
 
@@ -467,15 +514,6 @@ extern Iic_DeviceHandle IIC0;
 extern Iic_DeviceHandle IIC1;
 extern Iic_DeviceHandle IIC2;
 
-#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-extern Iic_DeviceHandle OB_IIC1;
-extern Iic_DeviceHandle OB_IIC2;
-extern Iic_DeviceHandle OB_IIC3;
-
-#endif // LIBOHIBOARD_STM32L476Jx
 
 #endif
 

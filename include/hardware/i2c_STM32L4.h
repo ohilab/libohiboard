@@ -72,6 +72,15 @@ typedef enum _Iic_SdaPins
 } Iic_SdaPins;
 
 
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+extern Iic_DeviceHandle OB_IIC1;
+extern Iic_DeviceHandle OB_IIC2;
+extern Iic_DeviceHandle OB_IIC3;
+
+#endif // LIBOHIBOARD_STM32L476Jx
+
+
 
 #endif // LIBOHIBOARD_IIC & LIBOHIBOARD_STM32L4
 
