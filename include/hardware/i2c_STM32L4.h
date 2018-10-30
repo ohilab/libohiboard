@@ -45,7 +45,14 @@ typedef enum _Iic_SclPins
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
+    IIC_PINS_PB6,
+    IIC_PINS_PB8,
+    IIC_PINS_PB10,
+    IIC_PINS_PB13,
 
+    IIC_PINS_PC0,
+
+    IIC_PINS_PG14,
 
 #endif // LIBOHIBOARD_STM32L476Jx
 
@@ -61,7 +68,14 @@ typedef enum _Iic_SdaPins
 
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
+    IIC_PINS_PB7,
+    IIC_PINS_PB9,
+    IIC_PINS_PB11,
+    IIC_PINS_PB14,
 
+    IIC_PINS_PC1,
+
+    IIC_PINS_PG13,
 
 #endif // LIBOHIBOARD_STM32L476Jx
 

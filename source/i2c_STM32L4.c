@@ -161,6 +161,44 @@ static Iic_Device iic1 =
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_I2C1SEL,
         .rccTypeRegisterPos  = RCC_CCIPR_I2C1SEL_Pos,
+
+        .sclPins              =
+        {
+                               IIC_PINS_PB6,
+                               IIC_PINS_PB8,
+                               IIC_PINS_PG14,
+        },
+        .sclPinsGpio          =
+        {
+                               GPIO_PINS_PB6,
+                               GPIO_PINS_PB8,
+                               GPIO_PINS_PG14,
+        },
+        .sclPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+        },
+
+        .sdaPins              =
+        {
+                               IIC_PINS_PB7,
+                               IIC_PINS_PB9,
+                               IIC_PINS_PG13,
+        },
+        .sdaPinsGpio          =
+        {
+                               GPIO_PINS_PB7,
+                               GPIO_PINS_PB9,
+                               GPIO_PINS_PG13,
+        },
+        .sdaPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+        },
 };
 Iic_DeviceHandle OB_IIC1 = &iic1;
 
@@ -174,6 +212,38 @@ static Iic_Device iic2 =
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_I2C2SEL,
         .rccTypeRegisterPos  = RCC_CCIPR_I2C2SEL_Pos,
+
+        .sclPins              =
+        {
+                               IIC_PINS_PB10,
+                               IIC_PINS_PB13,
+        },
+        .sclPinsGpio          =
+        {
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PB13,
+        },
+        .sclPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+        },
+
+        .sdaPins              =
+        {
+                               IIC_PINS_PB11,
+                               IIC_PINS_PB14,
+        },
+        .sdaPinsGpio          =
+        {
+                               GPIO_PINS_PB11,
+                               GPIO_PINS_PB14,
+        },
+        .sdaPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+        },
 };
 Iic_DeviceHandle OB_IIC2 = &iic2;
 
@@ -187,10 +257,82 @@ static Iic_Device iic3 =
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_I2C3SEL,
         .rccTypeRegisterPos  = RCC_CCIPR_I2C3SEL_Pos,
+
+        .sclPins              =
+        {
+                               IIC_PINS_PC0,
+        },
+        .sclPinsGpio          =
+        {
+                               GPIO_PINS_PC0,
+        },
+        .sclPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+        },
+
+        .sdaPins              =
+        {
+                               IIC_PINS_PC1,
+        },
+        .sdaPinsGpio          =
+        {
+                               GPIO_PINS_PC1,
+        },
+        .sdaPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+        },
 };
 Iic_DeviceHandle OB_IIC3 = &iic3;
 
 #endif // LIBOHIBOARD_STM32L476Jx
+
+#define IIC_PIN_CONFIGURATION             (GPIO_PINS_PULL                    | \
+		                                   GPIO_PINS_ENABLE_PULLUP           | \
+		                                   GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
+
+static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->sdaPins[devPinIndex] == sdaPin)
+        {
+            Gpio_configAlternate(dev->sdaPinsGpio[devPinIndex],
+                                 dev->sdaPinsMux[devPinIndex],
+                                 IIC_PIN_CONFIGURATION);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_IIC_NO_PIN_FOUND;
+}
+
+static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
+{
+    uint8_t devPinIndex;
+
+//    if (dev->devInitialized == 0)
+//        return ERRORS_SPI_DEVICE_NOT_INIT;
+
+    for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->sclPins[devPinIndex] == sclPin)
+        {
+            Gpio_configAlternate(dev->sclPinsGpio[devPinIndex],
+                                 dev->sclPinsMux[devPinIndex],
+                                 IIC_PIN_CONFIGURATION);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_IIC_NO_PIN_FOUND;
+}
+
+
 
 static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
 {
@@ -355,8 +497,12 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     // Enable peripheral clock
     IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
+    // Enable pins
+    if (config->sclPin != IIC_PINS_SCLNONE)
+        Iic_setSclPin(dev, config->sclPin);
 
-    // FIXME: define pins!!
+    if (config->sdaPin != IIC_PINS_SDANONE)
+        Iic_setSdaPin(dev, config->sdaPin);
 
     // Configure the peripheral
     err = Iic_config(dev,config);
@@ -527,7 +673,7 @@ System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
     }
     else
     {
-        dev->bufferCount = bufferLength;
+        dev->bufferCount = dev->bufferSize;
         UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                 (IIC_TRANSFER_CONFIG_MASK),                                                \
                                 (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
