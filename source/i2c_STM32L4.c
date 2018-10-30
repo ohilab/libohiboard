@@ -100,6 +100,9 @@ extern "C" {
  */
 #define IIC_VALID_BAUDRATE(BAUDRATE) ((BAUDRATE) <= IIC_MAX_BAUDRATE)
 
+#define IIC_VALID_REGISTERADDRESSSIZE(SIZE) (((SIZE) == IIC_REGISTERADDRESSSIZE_8BIT)  || \
+                                             ((SIZE) == IIC_REGISTERADDRESSSIZE_16BIT))
+
 #define IIC_VALID_MODE(MODE) (((MODE) == IIC_MASTER_MODE) || \
                               ((MODE) == IIC_SLAVE_MODE))
 
@@ -376,13 +379,13 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
             {
                 // Compute tick for each SCL level
                 // 4 ticks is for TSYNC1 and TSYNC2
-                uint16_t tick = (uint16_t)(((scaled / baudrate) - 4 ) / 2);
+                uint16_t tick = (uint16_t)((scaled / baudrate) / 2);
                 // Save ticks if it is usable
-                if (tick < IIC_MAX_SCL_TICK)
+                if ((tick < IIC_MAX_SCL_TICK) && (tick > 4))
                 {
-                    dev->regmap->TIMINGR = (i << I2C_TIMINGR_PRESC_Pos)               |
+                    dev->regmap->TIMINGR = (i << I2C_TIMINGR_PRESC_Pos)                     |
                                            (((tick - 1) & 0x00FFu) << I2C_TIMINGR_SCLH_Pos) |
-                                           (((tick - 1) & 0x00FFu) << I2C_TIMINGR_SCLL_Pos);
+                                           (((tick - 5) & 0x00FFu) << I2C_TIMINGR_SCLL_Pos);
                     break;
                 }
                 else
@@ -514,6 +517,12 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
         return err;
     }
 
+    // Clear NACK flag
+    dev->regmap->ICR |= I2C_ICR_NACKCF_Msk;
+
+    // Clear STOPF flag
+    dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
+
     return ERRORS_NO_ERROR;
 }
 
@@ -578,10 +587,10 @@ static inline System_Errors __attribute__((always_inline)) Iic_waitUntilRXNE (Ii
     while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,I2C_ISR_RXNE) == 0)
     {
         // Check if received NACK
-        if ((dev->regmap->ISR & I2C_ISR_NACKF) != 0)
-        {
-            return ERRORS_IIC_RX_WRONG_EVENT;
-        }
+//        if ((dev->regmap->ISR & I2C_ISR_NACKF) != 0)
+//        {
+//            return ERRORS_IIC_RX_WRONG_EVENT;
+//        }
 
         // Check if received STOP
         if ((dev->regmap->ISR & I2C_ISR_STOPF) != 0)
@@ -594,7 +603,7 @@ static inline System_Errors __attribute__((always_inline)) Iic_waitUntilRXNE (Ii
             }
             else
             {
-                return ERRORS_IIC_RX_WRONG_EVENT;
+//                return ERRORS_IIC_RX_WRONG_EVENT;
             }
         }
 
@@ -647,7 +656,7 @@ System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
     {
         return ERRORS_IIC_NO_DEVICE;
     }
-    // Check the SPI instance
+    // Check the I2C instance
     if (ohiassert(IIC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
     {
         return ERRORS_IIC_WRONG_DEVICE;
@@ -767,7 +776,7 @@ System_Errors Iic_readMaster (Iic_DeviceHandle dev,
     {
         return ERRORS_IIC_NO_DEVICE;
     }
-    // Check the SPI instance
+    // Check the I2C instance
     err = ohiassert(IIC_IS_DEVICE(dev));
     if (err != ERRORS_NO_ERROR)
     {
@@ -849,6 +858,169 @@ System_Errors Iic_readMaster (Iic_DeviceHandle dev,
 
         }
     }
+
+    // Wait until STOPF flag is set (with AUTOEND the STOP bit is generated automatically)
+    err = Iic_waitUntilClear(dev,I2C_ISR_STOPF,(tickStart+timeout));
+
+    // Check the NACK status
+    if ((dev->regmap->ISR & I2C_ISR_NACKF) != 0)
+    {
+        err = ERRORS_IIC_RX_WRONG_EVENT;
+    }
+
+i2cerror:
+
+    // Clear NACK flag
+    dev->regmap->ICR |= I2C_ICR_NACKCF_Msk;
+
+    // Clear STOPF flag
+    dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
+
+    // Clear configuration register
+    UTILITY_MODIFY_REGISTER(dev->regmap->CR2,(IIC_TRANSFER_CONFIG_MASK),0u);
+
+    return err;
+}
+
+System_Errors Iic_readRegister (Iic_DeviceHandle dev,
+                                uint16_t devAddress,
+                                uint16_t regAddress,
+                                Iic_RegisterAddressSize addressSize,
+                                uint8_t* data,
+                                uint16_t length,
+                                uint32_t timeout)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the I2C device
+    if (dev == NULL)
+    {
+        return ERRORS_IIC_NO_DEVICE;
+    }
+    // Check the I2C instance
+    err = ohiassert(IIC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_DEVICE;
+    }
+    err = ohiassert(IIC_VALID_REGISTERADDRESSSIZE(addressSize));
+    // Check the data buffer
+    err = ohiassert(data != NULL);
+    // Check the number of byte requested
+    err = ohiassert(length != 0);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_PARAM;
+    }
+
+    // Check if the device is busy
+    // Wait 25ms before enter into timeout!
+    err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+    // Init timeout
+    uint32_t tickStart = System_currentTick();
+
+    // Save transfer parameter
+    dev->data = data;
+    dev->bufferCount = length;
+
+    // Send register address
+    // Configure transfer
+    UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                     \
+                            (IIC_TRANSFER_CONFIG_MASK),                                           \
+                            (((uint32_t)devAddress  << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                            (((uint32_t)addressSize << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                            ((I2C_CR2_START_Msk)));
+    // Check TXE status
+    err = Iic_waitUntilClear(dev,I2C_ISR_TXE,(tickStart + timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    // Write device address
+    if (addressSize == IIC_REGISTERADDRESSSIZE_8BIT)
+    {
+        dev->regmap->TXDR = (uint8_t)(devAddress & 0x00FFu);
+    }
+    else
+    {
+        // Write MSB part of address
+        dev->regmap->TXDR = (uint8_t)((devAddress & 0xFF00u) >> 8u);
+        err = Iic_waitUntilTXSI(dev,(tickStart+ timeout));
+        if (err != ERRORS_NO_ERROR) goto i2cerror;
+        // Write LSB part of address
+        dev->regmap->TXDR = (uint8_t)(devAddress & 0x00FFu);
+    }
+    // Wait until the transmission ends
+    Iic_waitUntilClear(dev,I2C_ISR_TC,(tickStart + timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+    // Now read the data from the selected register
+    // Set NBYTES to read and reload if length is grater then NBYTE max size
+    if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
+    {
+        dev->bufferSize = IIC_MAX_NBYTE_SIZE;
+        UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (I2C_CR2_RELOAD_Msk)                                                     | \
+                                (I2C_CR2_START_Msk)                                                      | \
+                                (I2C_CR2_RD_WRN_Msk));
+    }
+    else
+    {
+        dev->bufferSize =  dev->bufferCount;
+        UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (I2C_CR2_AUTOEND_Msk)                                                    | \
+                                (I2C_CR2_START_Msk)                                                      | \
+                                (I2C_CR2_RD_WRN_Msk));
+    }
+
+    // Start reading bytes
+    do
+    {
+        // Wait until Receive Data Register Not Empty
+        err = Iic_waitUntilClear(dev,I2C_ISR_RXNE,tickStart+timeout);
+        if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+        // Read data from RXDR
+        (*dev->data++) = dev->regmap->RXDR;
+        dev->bufferSize--;
+        dev->bufferCount--;
+
+        // Check if new packet is request
+        if ((dev->bufferCount != 0u) && (dev->bufferSize == 0u))
+        {
+            // Wait until reception is complete
+            err = Iic_waitUntilClear(dev,I2C_ISR_TCR,(tickStart+timeout));
+            if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+            // Configure new packet without start and stop bits
+            // Set NBYTES to read and reload if length is grater then NBYTE max size
+            if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
+            {
+                dev->bufferSize = IIC_MAX_NBYTE_SIZE;
+                UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                        (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                        (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (I2C_CR2_RELOAD_Msk));
+            }
+            else
+            {
+                dev->bufferSize = dev->bufferCount;
+                UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                        (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                        (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (I2C_CR2_AUTOEND_Msk));
+            }
+
+        }
+    }
+    while (dev->bufferCount > 0u);
+
 
     // Wait until STOPF flag is set (with AUTOEND the STOP bit is generated automatically)
     err = Iic_waitUntilClear(dev,I2C_ISR_STOPF,(tickStart+timeout));
