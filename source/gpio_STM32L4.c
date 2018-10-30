@@ -270,7 +270,7 @@ GPIO_TypeDef* Gpio_enablePortClock (Gpio_Ports port)
 
 }
 
-void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate)
+void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
 {
     GPIO_TypeDef* port;
     uint32_t temp = 0x00;
@@ -302,6 +302,33 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate)
     temp &= ~(GPIO_MODER_MODE0 << (number * 2));
     temp |= ((0x2u) << (number * 2));
     port->MODER = temp;
+
+    if (options)
+    {
+        // Only one type of configuration is possible
+        ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
+                    ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
+
+        // Configure IO output type
+        // One value must be selected, anyway use PUSH-PULL as default value
+        temp = port->OTYPER;
+        temp &= ~(GPIO_OTYPER_OT0 << number) ;
+        temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
+        port->OTYPER = temp;
+
+        // Set pull-up or pull-down resistor if requested
+        if (options & GPIO_PINS_PULL)
+        {
+            // One type must be configured
+            ohiassert(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) ^
+                      ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN));
+
+            temp = port->PUPDR;
+            temp &= ~(GPIO_PUPDR_PUPD0 << (number * 2));
+            temp |= (((options & GPIO_PINS_ENABLE_PULLUP) ? 0x01 : 0x02) << (number * 2));
+            port->PUPDR = temp;
+        }
+    }
 }
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
@@ -336,7 +363,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
     if (options & GPIO_PINS_OUTPUT)
     {
         // Only one type of configuration is possible
-        ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &
+        ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
                     ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
 
         // Configure IO output type

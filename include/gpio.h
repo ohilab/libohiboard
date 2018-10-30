@@ -947,10 +947,20 @@ typedef enum
 } Gpio_Alternate;
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
+
 /**
  * Configure the selected pin with alternate function.
+ *
+ * @param[in] pin The selected pins
+ * @param[in] alternate The alternate functions
+ * @param[in] options Particular configurations for the pins
+ *     @arg @ref GPIO_PINS_PULL Enable pull-up/down
+ *     @arg @ref GPIO_PINS_ENABLE_PULLUP Select pull-up
+ *     @arg @ref GPIO_PINS_ENABLE_PULLDOWN Select pull-down
+ *     @arg @ref GPIO_PINS_ENABLE_OUTPUT_PUSHPULL Configure output with push-pull
+ *     @arg @ref GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN Configure output with open-drain
  */
-void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate);
+void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options);
 
 void Gpio_set (Gpio_Pins pin);
 void Gpio_clear (Gpio_Pins pin);
