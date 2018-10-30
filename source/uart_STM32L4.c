@@ -786,7 +786,8 @@ System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
         if (dev->rxPins[devPinIndex] == rxPin)
         {
             Gpio_configAlternate(dev->rxPinsGpio[devPinIndex],
-                                 dev->rxPinsMux[devPinIndex]);
+                                 dev->rxPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
@@ -805,7 +806,8 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
         if (dev->txPins[devPinIndex] == txPin)
         {
             Gpio_configAlternate(dev->txPinsGpio[devPinIndex],
-                                 dev->txPinsMux[devPinIndex]);
+                                 dev->txPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
@@ -821,7 +823,7 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
 void Uart_putChar (Uart_DeviceHandle dev, char c)
 {
     // deprecated
-    return ohiassert(0);
+    ohiassert(0);
 }
 
 uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)

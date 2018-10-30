@@ -421,7 +421,8 @@ static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
         if (dev->soutPins[devPinIndex] == soutPin)
         {
             Gpio_configAlternate(dev->soutPinsGpio[devPinIndex],
-                                 dev->soutPinsMux[devPinIndex]);
+                                 dev->soutPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
@@ -440,7 +441,8 @@ static System_Errors Spi_setSinPin(Spi_DeviceHandle dev, Spi_SinPins sinPin)
         if (dev->sinPins[devPinIndex] == sinPin)
         {
             Gpio_configAlternate(dev->sinPinsGpio[devPinIndex],
-                                 dev->sinPinsMux[devPinIndex]);
+                                 dev->sinPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
@@ -459,7 +461,8 @@ static System_Errors Spi_setSckPin(Spi_DeviceHandle dev, Spi_SckPins sckPin)
         if (dev->sckPins[devPinIndex] == sckPin)
         {
             Gpio_configAlternate(dev->sckPinsGpio[devPinIndex],
-                                 dev->sckPinsMux[devPinIndex]);
+                                 dev->sckPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
@@ -478,7 +481,8 @@ static System_Errors Spi_setNssPin(Spi_DeviceHandle dev, Spi_PcsPins nssPin)
         if (dev->nssPins[devPinIndex] == nssPin)
         {
             Gpio_configAlternate(dev->nssPinsGpio[devPinIndex],
-                                 dev->nssPinsMux[devPinIndex]);
+                                 dev->nssPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
