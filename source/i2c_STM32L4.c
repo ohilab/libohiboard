@@ -292,9 +292,10 @@ Iic_DeviceHandle OB_IIC3 = &iic3;
 		                                   GPIO_PINS_ENABLE_PULLUP           | \
 		                                   GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
 
-static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin)
+static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
+    uint16_t configuration = (pullupEnable == TRUE) ? IIC_PIN_CONFIGURATION : GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN;
 
 //    if (dev->devInitialized == 0)
 //        return ERRORS_SPI_DEVICE_NOT_INIT;
@@ -305,16 +306,17 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin)
         {
             Gpio_configAlternate(dev->sdaPinsGpio[devPinIndex],
                                  dev->sdaPinsMux[devPinIndex],
-                                 IIC_PIN_CONFIGURATION);
+                                 configuration);
             return ERRORS_NO_ERROR;
         }
     }
     return ERRORS_IIC_NO_PIN_FOUND;
 }
 
-static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
+static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
+    uint16_t configuration = (pullupEnable == TRUE) ? IIC_PIN_CONFIGURATION : GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN;
 
 //    if (dev->devInitialized == 0)
 //        return ERRORS_SPI_DEVICE_NOT_INIT;
@@ -325,7 +327,7 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
         {
             Gpio_configAlternate(dev->sclPinsGpio[devPinIndex],
                                  dev->sclPinsMux[devPinIndex],
-                                 IIC_PIN_CONFIGURATION);
+                                 configuration);
             return ERRORS_NO_ERROR;
         }
     }
@@ -410,7 +412,7 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
     err |= ohiassert(IIC_VALID_DUALADDRESS(config->dualAddressMode));
     err |= ohiassert(IIC_VALID_DUALMASK(config->dualAddressMask));
     err |= ohiassert(IIC_VALID_NOSTRETCH(config->noStretch));
-    err |= ohiassert(IIC_VALID_BAUDRATE(config->baudRate));
+    err |= ohiassert(IIC_VALID_BAUDRATE(config->baudrate));
     if (err != ERRORS_NO_ERROR)
         return ERRORS_IIC_WRONG_PARAM;
 
@@ -418,7 +420,7 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
     IIC_DEVICE_DISABLE(dev->regmap);
 
     // Configure Baudrate
-    err = Iic_setBaudrate(dev,config->baudRate);
+    err = Iic_setBaudrate(dev,config->baudrate);
     if (err != ERRORS_NO_ERROR)
         return ERRORS_IIC_WRONG_PARAM;
 
@@ -499,10 +501,10 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
 
     // Enable pins
     if (config->sclPin != IIC_PINS_SCLNONE)
-        Iic_setSclPin(dev, config->sclPin);
+        Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
 
     if (config->sdaPin != IIC_PINS_SDANONE)
-        Iic_setSdaPin(dev, config->sdaPin);
+        Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
 
     // Configure the peripheral
     err = Iic_config(dev,config);

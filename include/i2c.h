@@ -330,7 +330,7 @@ typedef struct _Iic_Config
     Iic_SclPins           sclPin;
     Iic_SdaPins           sdaPin;
 
-    uint32_t              baudRate;
+    uint32_t              baudrate;
     Iic_DeviceType        devType;
     Iic_AddressMode       addressMode;
 
