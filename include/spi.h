@@ -193,6 +193,18 @@ typedef enum
 
 #endif // LIBOHIBOARD_ST_STM32
 
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+typedef struct _Spi_Device* Spi_DeviceHandle;
+#else
+typedef struct Spi_Device* Spi_DeviceHandle;
+#endif
+
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/spi_STM32L4.h"
+
+#else
+
 typedef enum _Spi_PcsPins
 {
 #if defined (LIBOHIBOARD_KL03Z4)     || \
@@ -378,20 +390,6 @@ typedef enum _Spi_PcsPins
 
     SPI_PINS_PTE16,
 
-#elif defined (LIBOHIBOARD_STM32L476)
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-    SPI_PINS_PA4,
-    SPI_PINS_PA15,
-
-    SPI_PINS_PB9,
-    SPI_PINS_PB12,
-
-    SPI_PINS_PG12,
-
-#endif // LIBOHIBOARD_STM32L476Jx
-
 #endif
 
 	SPI_PINS_PCSNONE,
@@ -529,22 +527,6 @@ typedef enum _Spi_SoutPins
 	SPI_PINS_PTD6_SOUT,
 
 	SPI_PINS_PTE18,
-
-#elif defined (LIBOHIBOARD_STM32L476)
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-    SPI_PINS_PA7,
-
-    SPI_PINS_PB5,
-    SPI_PINS_PB15,
-
-    SPI_PINS_PC3,
-    SPI_PINS_PC12,
-
-    SPI_PINS_PG11,
-
-#endif // LIBOHIBOARD_STM32L476Jx
 
 #endif
 
@@ -685,22 +667,6 @@ typedef enum _Spi_SinPins
 
 	SPI_PINS_PTE19,
 
-#elif defined (LIBOHIBOARD_STM32L476)
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-	SPI_PINS_PA6,
-
-	SPI_PINS_PB4,
-	SPI_PINS_PB14,
-
-    SPI_PINS_PC2,
-    SPI_PINS_PC11,
-
-    SPI_PINS_PG10,
-
-#endif // LIBOHIBOARD_STM32L476Jx
-
 #endif
 
 	SPI_PINS_SINNONE,
@@ -823,27 +789,13 @@ typedef enum _Spi_SckPins
 
     SPI_PINS_PTE17,
 
-#elif defined (LIBOHIBOARD_STM32L476)
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-    SPI_PINS_PA5,
-
-    SPI_PINS_PB3,
-    SPI_PINS_PB10,
-    SPI_PINS_PB13,
-
-    SPI_PINS_PC10,
-
-    SPI_PINS_PG9,
-
-#endif // LIBOHIBOARD_STM32L476Jx
-
 #endif
 
 	SPI_PINS_SCKNONE,
 
 } Spi_SckPins;
+
+#endif
 
 typedef struct _Spi_Config
 {
@@ -930,13 +882,6 @@ typedef struct _Spi_Config
 #endif
 
 } Spi_Config;
-
-#if (LIBOHIBOARD_VERSION >= 0x20000)
-typedef struct _Spi_Device* Spi_DeviceHandle;
-#else
-typedef struct Spi_Device* Spi_DeviceHandle;
-#endif
-
 
 /** @name Configuration functions
  *  Functions to open, close and configure a SPI peripheral.
@@ -1089,16 +1034,6 @@ extern Spi_DeviceHandle OB_SPI2;
 extern Spi_DeviceHandle OB_SPI0;
 
 void  SPI0_IRQHandler(void);
-
-#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-extern Spi_DeviceHandle OB_SPI1;
-extern Spi_DeviceHandle OB_SPI2;
-extern Spi_DeviceHandle OB_SPI3;
-
-#endif // LIBOHIBOARD_STM32L476Jx
 
 #endif
 

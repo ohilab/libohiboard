@@ -134,13 +134,16 @@ extern "C" {
 									 ((NSS) == SPI_SSMANAGEMENT_HARDWARE_OUTPUT)       || \
 									 ((NSS) == SPI_SSMANAGEMENT_HARDWARE_OUTPUT_PULSE))
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
 #define SPI_IS_DEVICE(DEVICE) (((DEVICE) == OB_SPI1)  || \
                                ((DEVICE) == OB_SPI2)  || \
                                ((DEVICE) == OB_SPI3))
 
-#endif // LIBOHIBOARD_STM32L476Jx - WLCSP72 ballout
+#endif
 
 #define SPI_MAX_PINS           8
 
@@ -176,7 +179,10 @@ typedef struct _Spi_Device
 
 } Spi_Device;
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
 static Spi_Device spi1 = {
         .regmap              = SPI1,
@@ -333,81 +339,105 @@ static Spi_Device spi3 =
         {
                                SPI_PINS_PB4,
                                SPI_PINS_PC11,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                SPI_PINS_PG10,
+#endif
         },
         .sinPinsGpio          =
         {
                                GPIO_PINS_PB4,
                                GPIO_PINS_PC11,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG10,
+#endif
         },
         .sinPinsMux           =
         {
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_6,
+#endif
         },
 
         .soutPins             =
         {
                                SPI_PINS_PB5,
                                SPI_PINS_PC11,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                SPI_PINS_PG11,
+#endif
         },
         .soutPinsGpio         =
         {
                                GPIO_PINS_PB5,
                                GPIO_PINS_PC11,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG11,
+#endif
         },
         .soutPinsMux          =
         {
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_6,
+#endif
         },
 
         .sckPins              =
         {
                                SPI_PINS_PB3,
                                SPI_PINS_PC10,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                SPI_PINS_PG9,
+#endif
         },
         .sckPinsGpio          =
         {
                                GPIO_PINS_PB3,
                                GPIO_PINS_PC10,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG9,
+#endif
         },
         .sckPinsMux           =
         {
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_6,
+#endif
         },
 
         .nssPins              =
         {
                                SPI_PINS_PA4,
                                SPI_PINS_PA15,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                SPI_PINS_PG12,
+#endif
         },
         .nssPinsGpio          =
         {
                                GPIO_PINS_PA4,
                                GPIO_PINS_PA15,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG12,
+#endif
         },
         .nssPinsMux           =
         {
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_6,
+#endif
         },
 };
 Spi_DeviceHandle OB_SPI3 = &spi3;
 
-#endif // LIBOHIBOARD_STM32L476Jx - WLCSP72 ballout
+#endif
 
 static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
 {
