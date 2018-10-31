@@ -148,7 +148,8 @@ typedef struct _Iic_Device
     Iic_NoStrech noStretch;
 
     // Write/Read useful buffer and counter
-    uint8_t *data;                        /**< Pointer to I2C transfer buffer */
+    uint8_t* rdata;                      /**< Pointer to I2C reception buffer */
+    const uint8_t* tdata;             /**< Pointer to I2C transmission buffer */
     uint16_t bufferSize;                        /**< I2C buffer transfer size */
     volatile uint16_t bufferCount;           /**< I2C buffer transfer counter */
 
@@ -605,10 +606,10 @@ static inline System_Errors __attribute__((always_inline)) Iic_waitUntilRXNE (Ii
     while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,I2C_ISR_RXNE) == 0)
     {
         // Check if received NACK
-//        if ((dev->regmap->ISR & I2C_ISR_NACKF) != 0)
-//        {
-//            return ERRORS_IIC_RX_WRONG_EVENT;
-//        }
+        if ((dev->regmap->ISR & I2C_ISR_NACKF) != 0)
+        {
+            return ERRORS_IIC_RX_WRONG_EVENT;
+        }
 
         // Check if received STOP
         if ((dev->regmap->ISR & I2C_ISR_STOPF) != 0)
@@ -621,7 +622,7 @@ static inline System_Errors __attribute__((always_inline)) Iic_waitUntilRXNE (Ii
             }
             else
             {
-//                return ERRORS_IIC_RX_WRONG_EVENT;
+                return ERRORS_IIC_RX_WRONG_EVENT;
             }
         }
 
@@ -685,35 +686,34 @@ System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
     err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
 
-    dev->bufferSize = length;
-    dev->bufferCount = 0;
-    dev->data = data;
+    dev->bufferCount = length;
+    dev->tdata = data;
 
     // Set NBYTES to write and reload if length is grater then NBYTE max size
-    if (dev->bufferSize > IIC_MAX_NBYTE_SIZE)
+    if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
     {
-        dev->bufferCount = IIC_MAX_NBYTE_SIZE;
+        dev->bufferSize = IIC_MAX_NBYTE_SIZE;
         UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                 (IIC_TRANSFER_CONFIG_MASK),                                                \
                                 (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                 (I2C_CR2_RELOAD_Msk)                                                     | \
                                 (I2C_CR2_START_Msk));
     }
     else
     {
-        dev->bufferCount = dev->bufferSize;
+        dev->bufferSize = dev->bufferCount;
         UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                 (IIC_TRANSFER_CONFIG_MASK),                                                \
                                 (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                 (I2C_CR2_AUTOEND_Msk)                                                    | \
                                 (I2C_CR2_START_Msk));
     }
 
 
     // Start sending bytes
-    while (dev->bufferSize > 0u)
+    while (dev->bufferCount > 0u)
     {
         err = Iic_waitUntilTXSI(dev,(System_currentTick() + timeout));
         if (err != ERRORS_NO_ERROR) goto i2cerror;
@@ -724,7 +724,7 @@ System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
         dev->bufferCount--;
 
         // Check if new packet is request
-        if ((dev->bufferSize != 0u) && (dev->bufferCount == 0u))
+        if ((dev->bufferCount != 0u) && (dev->bufferSize == 0u))
         {
             // Wait until transmission is complete
             err = Iic_waitUntilClear(dev,I2C_ISR_TCR,(System_currentTick() + timeout));
@@ -732,26 +732,24 @@ System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
 
             // Configure new packet without start and stop bits
             // Set NBYTES to write and reload if length is grater then NBYTE max size
-            if (dev->bufferSize > IIC_MAX_NBYTE_SIZE)
+            if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
             {
-                dev->bufferCount = IIC_MAX_NBYTE_SIZE;
+                dev->bufferSize = IIC_MAX_NBYTE_SIZE;
                 UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                         (IIC_TRANSFER_CONFIG_MASK),                                                \
                                         (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                        (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                         (I2C_CR2_RELOAD_Msk));
             }
             else
             {
-                dev->bufferCount = dev->bufferSize;
+                dev->bufferSize = dev->bufferSize;
                 UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                         (IIC_TRANSFER_CONFIG_MASK),                                                \
                                         (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                        (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                         (I2C_CR2_AUTOEND_Msk));
             }
-
-
         }
     }
 
@@ -806,43 +804,42 @@ System_Errors Iic_readMaster (Iic_DeviceHandle dev,
     err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
 
-    dev->bufferSize = length;
-    dev->bufferCount = 0;
-    dev->data = data;
+    dev->bufferCount = length;
+    dev->rdata = data;
 
     // Set NBYTES to write and reload if length is grater then NBYTE max size
-    if (dev->bufferSize > IIC_MAX_NBYTE_SIZE)
+    if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
     {
-        dev->bufferCount = IIC_MAX_NBYTE_SIZE;
+        dev->bufferSize = IIC_MAX_NBYTE_SIZE;
         UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                 (IIC_TRANSFER_CONFIG_MASK),                                                \
                                 (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                 (I2C_CR2_RELOAD_Msk)                                                     | \
                                 (I2C_CR2_START_Msk)                                                      | \
                                 (I2C_CR2_RD_WRN_Msk));
     }
     else
     {
-        dev->bufferCount =  dev->bufferSize;
+        dev->bufferSize = dev->bufferCount;
         UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                 (IIC_TRANSFER_CONFIG_MASK),                                                \
                                 (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                 (I2C_CR2_AUTOEND_Msk)                                                    | \
                                 (I2C_CR2_START_Msk)                                                      | \
                                 (I2C_CR2_RD_WRN_Msk));
     }
 
     // Start reading bytes
-    while (dev->bufferSize > 0u)
+    while (dev->bufferCount > 0u)
     {
         // Wait until Receive Data Register Not Empty
         err = Iic_waitUntilRXNE(dev,tickStart+timeout);
         if (err != ERRORS_NO_ERROR) goto i2cerror;
 
         // Read data from RXDR
-        (*dev->data++) = dev->regmap->RXDR;
+        (*dev->rdata++) = dev->regmap->RXDR;
         dev->bufferSize--;
         dev->bufferCount--;
 
@@ -855,27 +852,192 @@ System_Errors Iic_readMaster (Iic_DeviceHandle dev,
 
             // Configure new packet without start and stop bits
             // Set NBYTES to read and reload if length is grater then NBYTE max size
-            if (dev->bufferSize > IIC_MAX_NBYTE_SIZE)
+            if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
             {
-                dev->bufferCount = IIC_MAX_NBYTE_SIZE;
+                dev->bufferSize = IIC_MAX_NBYTE_SIZE;
                 UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                         (IIC_TRANSFER_CONFIG_MASK),                                                \
                                         (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                        (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                         (I2C_CR2_RELOAD_Msk));
             }
             else
             {
-                dev->bufferCount = dev->bufferSize;
+                dev->bufferSize = dev->bufferCount;
                 UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
                                         (IIC_TRANSFER_CONFIG_MASK),                                                \
                                         (((uint32_t)address          << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
-                                        (((uint32_t)dev->bufferCount << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                                         (I2C_CR2_AUTOEND_Msk));
             }
 
         }
     }
+
+    // Wait until STOPF flag is set (with AUTOEND the STOP bit is generated automatically)
+    err = Iic_waitUntilClear(dev,I2C_ISR_STOPF,(tickStart+timeout));
+
+    // Check the NACK status
+    if ((dev->regmap->ISR & I2C_ISR_NACKF) != 0)
+    {
+        err = ERRORS_IIC_RX_WRONG_EVENT;
+    }
+
+i2cerror:
+
+    // Clear NACK flag
+    dev->regmap->ICR |= I2C_ICR_NACKCF_Msk;
+
+    // Clear STOPF flag
+    dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
+
+    // Clear configuration register
+    UTILITY_MODIFY_REGISTER(dev->regmap->CR2,(IIC_TRANSFER_CONFIG_MASK),0u);
+
+    return err;
+}
+
+System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
+                                 uint16_t devAddress,
+                                 uint16_t regAddress,
+                                 Iic_RegisterAddressSize addressSize,
+                                 const uint8_t* data,
+                                 uint16_t length,
+                                 uint32_t timeout)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the I2C device
+    if (dev == NULL)
+    {
+        return ERRORS_IIC_NO_DEVICE;
+    }
+    // Check the I2C instance
+    err = ohiassert(IIC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_DEVICE;
+    }
+    err = ohiassert(IIC_VALID_REGISTERADDRESSSIZE(addressSize));
+    // Check the data buffer
+    err = ohiassert(data != NULL);
+    // Check the number of byte requested
+    err = ohiassert(length != 0);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_PARAM;
+    }
+
+    // Shift 7-bit address
+    if (dev->addressMode == IIC_SEVEN_BIT)
+    {
+        devAddress = ((devAddress << 1u) & 0x00FFu);
+    }
+
+    // Check if the device is busy
+    // Wait 25ms before enter into timeout!
+    err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+    // Init timeout
+    uint32_t tickStart = System_currentTick();
+
+    // Save transfer parameter
+    dev->tdata = data;
+    dev->bufferCount = length;
+
+    // Setup write transmission, first step is send register address
+    // Configure transfer
+    UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                     \
+                            (IIC_TRANSFER_CONFIG_MASK),                                           \
+                            (((uint32_t)devAddress  << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                            (((uint32_t)addressSize << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                            (I2C_CR2_RELOAD_Msk)                                                | \
+                            (I2C_CR2_START_Msk));
+    // Check TXE status
+    err = Iic_waitUntilClear(dev,I2C_ISR_TXE,(tickStart + timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+    // Write register/memory address
+    if (addressSize == IIC_REGISTERADDRESSSIZE_8BIT)
+    {
+        dev->regmap->TXDR = (uint8_t)(regAddress & 0x00FFu);
+    }
+    else
+    {
+        // Write MSB part of address
+        dev->regmap->TXDR = (uint8_t)((regAddress & 0xFF00u) >> 8u);
+        err = Iic_waitUntilTXSI(dev,(tickStart+ timeout));
+        if (err != ERRORS_NO_ERROR) goto i2cerror;
+        // Write LSB part of address
+        dev->regmap->TXDR = (uint8_t)(regAddress & 0x00FFu);
+    }
+    // Wait until the transmission ends
+    Iic_waitUntilClear(dev,I2C_ISR_TCR,(tickStart + timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+    // Now write data to the selected register/memory
+    // Set NBYTES to write and reload if length is grater then NBYTE max size
+    if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
+    {
+        dev->bufferSize = IIC_MAX_NBYTE_SIZE;
+        UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (I2C_CR2_RELOAD_Msk));
+    }
+    else
+    {
+        dev->bufferSize =  dev->bufferCount;
+        UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                (I2C_CR2_AUTOEND_Msk));
+    }
+
+    // Start writing bytes
+    do
+    {
+        // Wait until transmission buffer is empty
+        err = Iic_waitUntilTXSI(dev,(tickStart+ timeout));
+        if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+        // Write data from RXDR
+        dev->regmap->TXDR = (*dev->tdata++);
+        dev->bufferSize--;
+        dev->bufferCount--;
+
+        // Check if new packet is request
+        if ((dev->bufferCount != 0u) && (dev->bufferSize == 0u))
+        {
+            // Wait until reception is complete
+            err = Iic_waitUntilClear(dev,I2C_ISR_TCR,(tickStart+timeout));
+            if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+            // Configure new packet without start and stop bits
+            // Set NBYTES to write and reload if length is grater then NBYTE max size
+            if (dev->bufferCount > IIC_MAX_NBYTE_SIZE)
+            {
+                dev->bufferSize = IIC_MAX_NBYTE_SIZE;
+                UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                        (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                        (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (I2C_CR2_RELOAD_Msk));
+            }
+            else
+            {
+                dev->bufferSize = dev->bufferCount;
+                UTILITY_MODIFY_REGISTER(dev->regmap->CR2,                                                          \
+                                        (IIC_TRANSFER_CONFIG_MASK),                                                \
+                                        (((uint32_t)devAddress       << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
+                                        (((uint32_t)dev->bufferSize  << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
+                                        (I2C_CR2_AUTOEND_Msk));
+            }
+        }
+    }
+    while (dev->bufferCount > 0u);
 
     // Wait until STOPF flag is set (with AUTOEND the STOP bit is generated automatically)
     err = Iic_waitUntilClear(dev,I2C_ISR_STOPF,(tickStart+timeout));
@@ -945,7 +1107,7 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
     uint32_t tickStart = System_currentTick();
 
     // Save transfer parameter
-    dev->data = data;
+    dev->rdata = data;
     dev->bufferCount = length;
 
     // Send register address
@@ -1010,7 +1172,7 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
         if (err != ERRORS_NO_ERROR) goto i2cerror;
 
         // Read data from RXDR
-        (*dev->data++) = dev->regmap->RXDR;
+        (*dev->rdata++) = dev->regmap->RXDR;
         dev->bufferSize--;
         dev->bufferCount--;
 

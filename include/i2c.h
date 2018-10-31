@@ -428,19 +428,41 @@ System_Errors Iic_readMaster (Iic_DeviceHandle dev,
                               uint8_t length,
                               uint32_t timeout);
 
+/**
+ * This function write a register or memory location to the selected
+ * slave device into I2C bus.
+ * This function is blocking.
+ *
+ * @param[in] dev I2C device handle
+ * @param[in] devAddress Slave device address 7bit or 10bit
+ * @param[in] regAddress The address of slave register/memory location
+ * @param[in] addressSize The dimension, in byte, of register address
+ * @param[in] data Pointer to data buffer
+ * @param[in] length the number of byte to write
+ * @param[in] timeout Max timeout in millisecond
+ * @return ERRORS_NO_ERROR in case of success, specific errors otherwise
+ */
+System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
+                                 uint16_t devAddress,
+                                 uint16_t regAddress,
+                                 Iic_RegisterAddressSize addressSize,
+                                 const uint8_t* data,
+                                 uint16_t length,
+                                 uint32_t timeout);
 
 /**
  * This function read a register or memory location from the selected
  * slave device into I2C bus.
  * This function is blocking.
  *
- * @param[in] dev I2C device handle
- * @param[in] devAddress Slave device address
- * @param[in] regAddress The address of slave register/memory location
- * @param[in] addressSize The dimension, in byte, of register address
+ * @param[in]  dev I2C device handle
+ * @param[in]  devAddress Slave device address 7bit or 10bit
+ * @param[in]  regAddress The address of slave register/memory location
+ * @param[in]  addressSize The dimension, in byte, of register address
  * @param[out] data Pointer to data buffer
- * @param[in] length the number of byte to read
- * @param[in] timeout Max timeout in millisecond
+ * @param[in]  length the number of byte to read
+ * @param[in]  timeout Max timeout in millisecond
+ * @return ERRORS_NO_ERROR in case of success, specific errors otherwise
  */
 System_Errors Iic_readRegister (Iic_DeviceHandle dev,
                                 uint16_t devAddress,
