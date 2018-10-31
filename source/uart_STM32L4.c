@@ -105,7 +105,10 @@ extern "C" {
                                ((MODE) == UART_MODE_RECEIVE)  || \
                                ((MODE) == UART_MODE_BOTH))
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
 #define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
                                 ((DEVICE) == OB_UART2)  || \
@@ -162,7 +165,10 @@ typedef struct _Uart_Device
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Uart_Device;
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
 static Uart_Device uart1 = {
         .regmap              = USART1,
@@ -178,38 +184,50 @@ static Uart_Device uart1 = {
         {
                                UART_PINS_PA10,
                                UART_PINS_PB7,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                UART_PINS_PG10,
+#endif
         },
         .rxPinsGpio          =
         {
                                GPIO_PINS_PA10,
                                GPIO_PINS_PB7,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG10,
+#endif
         },
         .rxPinsMux           =
         {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_7,
+#endif
         },
 
         .txPins              =
         {
                                UART_PINS_PA9,
                                UART_PINS_PB6,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                UART_PINS_PG9,
+#endif
         },
         .txPinsGpio          =
         {
                                GPIO_PINS_PA9,
                                GPIO_PINS_PB6,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG9,
+#endif
         },
         .txPinsMux           =
         {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_7,
+#endif
         },
 
         .isrNumber           = INTERRUPT_UART1,
@@ -440,7 +458,7 @@ static Uart_Device lpuart1 = {
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
-#endif // LIBOHIBOARD_STM32L476Jx - WLCSP72 ballout
+#endif
 
 static inline __attribute__((always_inline)) void Uart_computeRxMask (Uart_DeviceHandle dev)
 {

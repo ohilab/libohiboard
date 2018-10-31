@@ -157,6 +157,17 @@ typedef enum
 
 } Uart_ClockSource;
 
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
+typedef struct _Uart_Device* Uart_DeviceHandle;
+#else
+typedef struct Uart_Device* Uart_DeviceHandle;
+#endif
+
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/uart_STM32L4.h"
+
+#else
 
 typedef enum
 {
@@ -322,28 +333,6 @@ typedef enum
     UART_PINS_PTC3,
     UART_PINS_PTE1,
     UART_PINS_PTE17,
-
-#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-    UART_PINS_PA1,
-    UART_PINS_PA3,
-    UART_PINS_PA10,
-
-    UART_PINS_PB7,
-    UART_PINS_PB10_RX,
-    UART_PINS_PB11_RX,
-
-    UART_PINS_PC0,
-    UART_PINS_PC5,
-    UART_PINS_PC11,
-
-    UART_PINS_PD2,
-
-    UART_PINS_PG10,
-
-#endif // LIBOHIBOARD_STM32L476Jx
 
 #endif
 
@@ -516,37 +505,12 @@ typedef enum
     UART_PINS_PTE0,
     UART_PINS_PTE16,
 
-#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-    UART_PINS_PA0,
-    UART_PINS_PA2,
-    UART_PINS_PA9,
-
-    UART_PINS_PB6,
-    UART_PINS_PB10_TX,
-    UART_PINS_PB11_TX,
-
-    UART_PINS_PC1,
-    UART_PINS_PC4,
-    UART_PINS_PC10,
-    UART_PINS_PC12,
-
-    UART_PINS_PG9,
-
-#endif // LIBOHIBOARD_STM32L476Jx
-
 #endif
 
     UART_PINS_TXNONE,
 
 } Uart_TxPins;
 
-#if (LIBOHIBOARD_VERSION >= 0x20000u)
-typedef struct _Uart_Device* Uart_DeviceHandle;
-#else
-typedef struct Uart_Device* Uart_DeviceHandle;
 #endif
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
@@ -647,26 +611,6 @@ void UART1_RX_TX_IRQHandler ();
 
 extern Uart_DeviceHandle OB_UART0;
 extern Uart_DeviceHandle OB_UART1;
-
-#elif defined (LIBOHIBOARD_STM32L4) // STM32 Microcontroller - L4 Series
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-void LPUART1_IRQHandler(void);
-void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
-void USART3_IRQHandler(void);
-void UART4_IRQHandler(void);
-void UART5_IRQHandler(void);
-
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-extern Uart_DeviceHandle OB_UART3;
-extern Uart_DeviceHandle OB_UART4;
-extern Uart_DeviceHandle OB_UART5;
-extern Uart_DeviceHandle OB_LPUART1;
-
-#endif // LIBOHIBOARD_STM32L476Jx
 
 #endif
 

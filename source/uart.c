@@ -51,8 +51,8 @@ void Uart_sendString (Uart_DeviceHandle dev, const char* text)
     {
         while (*text)
         {
-#if defined (LIBOHIBOARD_STM32L476)
-            Uart_put(dev,text++,300);
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,text++,300);
 #else
             Uart_putChar(dev, *text++);
 #endif
@@ -67,15 +67,15 @@ void Uart_sendStringln (Uart_DeviceHandle dev, const char* text)
     {
         while (*text)
         {
-#if defined (LIBOHIBOARD_STM32L476)
-            Uart_put(dev,text++,300);
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,text++,300);
 #else
             Uart_putChar(dev, *text++);
 #endif
         }
-#if defined (LIBOHIBOARD_STM32L476)
-            Uart_put(dev,&Uart_cr,300);
-            Uart_put(dev,&Uart_lf,300);
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,&Uart_cr,300);
+            Uart_write(dev,&Uart_lf,300);
 #else
             Uart_putChar(dev, Uart_cr);
             Uart_putChar(dev, Uart_lf);
@@ -89,8 +89,8 @@ void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length)
     {
         while (length--)
         {
-#if defined (LIBOHIBOARD_STM32L476)
-            Uart_put(dev,data++,300);
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,data++,300);
 #else
             Uart_putChar(dev, *data++);
 #endif
@@ -105,9 +105,9 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length)
         while (length--)
         {
             uint8_t value = *data++;
-#if defined (LIBOHIBOARD_STM32L476)
-            Uart_put(dev,&Uart_hexDigits[(value >> 4) & 0x0F],300);
-            Uart_put(dev,&Uart_hexDigits[(value >> 0) & 0x0F],300);
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,&Uart_hexDigits[(value >> 4) & 0x0F],300);
+            Uart_write(dev,&Uart_hexDigits[(value >> 0) & 0x0F],300);
 #else
             Uart_putChar(dev, Uart_hexDigits[(value >> 4) & 0x0F]);
             Uart_putChar(dev, Uart_hexDigits[(value >> 0) & 0x0F]);
