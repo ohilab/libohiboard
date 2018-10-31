@@ -40,18 +40,19 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 
-#define LIBOHIBOARD_VERSION_MAJOR         (0x2u)
+#define LIBOHIBOARD_VERSION_MAJOR         (0x1u)
 #define LIBOHIBOARD_VERSION_MINOR         (0x0u)
 #define LIBOHIBOARD_VERSION_BUG           (0x0u)
-#define LIBOHIBOARD_VERSION               ((LIBOHIBOARD_VERSION_MAJOR << 24)\
-                                          |(LIBOHIBOARD_VERSION_MINOR << 16)\
-                                          |(LIBOHIBOARD_VERSION_BUG   << 8 ))
+#define LIBOHIBOARD_VERSION               ((LIBOHIBOARD_VERSION_MAJOR << 16)\
+                                          |(LIBOHIBOARD_VERSION_MINOR << 8 )\
+                                          |(LIBOHIBOARD_VERSION_BUG        ))
 
 /**
  *
  */
 System_Errors System_controlDevice (void);
 
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
 
 /**
  * Initialize and start the System Tick with interrupt enabled
@@ -94,6 +95,8 @@ void System_delay (uint32_t msec);
  * Interrupt handler for SysTick interrupt.
  */
 void SysTick_Handler(void);
+
+#endif // LIBOHIBOARD_VERSION >= 0x20000
 
 #ifdef __cplusplus
 }

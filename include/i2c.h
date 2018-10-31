@@ -139,7 +139,7 @@ typedef enum _Iic_NoStretch
 
 #endif // LIBOHIBOARD_ST_STM32
 
-#if (LIBOHIBOARD_VERSION >= 0x200)
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
 typedef struct _Iic_Device* Iic_DeviceHandle;
 #else
 typedef struct Iic_Device* Iic_DeviceHandle;
@@ -387,7 +387,7 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev);
 
 ///@}
 
-#if (LIBOHIBOARD_VERSION >= 0x200)
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
 
 /** @name Master Packet Management
  *  All the functions useful for packet managing by a Master device.
@@ -511,7 +511,7 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
 
 #endif
 
-#endif // ELSE LIBOHIBOARD_VERSION >= 0x200
+#endif // ELSE LIBOHIBOARD_VERSION >= 0x20000
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
