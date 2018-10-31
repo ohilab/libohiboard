@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -22,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/gpio.h
@@ -34,22 +36,39 @@
 #ifndef __GPIO_H
 #define __GPIO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
 
-#define GPIO_PINS_OUTPUT                    0x01
-#define GPIO_PINS_INPUT                     0x02
-#define GPIO_PINS_PULL                      0x04
-#define GPIO_PINS_ENABLE_PULLUP             0x08
-#define GPIO_PINS_ENABLE_PULLDOWN           0x10
-#define GPIO_PINS_ENABLE_DRIVE_STRENGTH     0x20
-#define GPIO_PINS_ENABLE_SLEW_RATE          0x40
-#define GPIO_PINS_ENABLE_PASSIVE_FILTER     0x80
+#define GPIO_PINS_OUTPUT                    0x0001
+#define GPIO_PINS_INPUT                     0x0002
+#define GPIO_PINS_PULL                      0x0004
+#define GPIO_PINS_ENABLE_PULLUP             0x0008
+#define GPIO_PINS_ENABLE_PULLDOWN           0x0010
+#if defined LIBOHIBOARD_NXP_KINETIS
+#define GPIO_PINS_ENABLE_DRIVE_STRENGTH     0x0020
+#define GPIO_PINS_ENABLE_SLEW_RATE          0x0040
+#define GPIO_PINS_ENABLE_PASSIVE_FILTER     0x0080
+#elif defined LIBOHIBOARD_ST_STM32
+#define GPIO_PINS_ENABLE_OUTPUT_PUSHPULL    0x0020
+#define GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN   0x0040
+#define GPIO_PINS_SPEED_LOW                 0x0080
+#define GPIO_PINS_SPEED_MEDIUM              0x0100
+#define GPIO_PINS_SPEED_HIGH                0x0280
+#define GPIO_PINS_SPEED_VERY_HIGH           0x0400
+#endif
 
 /* Useful define */
-#define GPIO_PIN_MASK                       0x1Fu
-#define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK)))
+#if defined LIBOHIBOARD_NXP_KINETIS
+#define GPIO_PIN_MASK_NUMBER                0x1Fu
+#elif defined LIBOHIBOARD_ST_STM32
+#define GPIO_PIN_MASK_NUMBER                0x0Fu
+#endif
+#define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK_NUMBER)))
 
 typedef enum 
 {
@@ -809,21 +828,139 @@ typedef enum
 	GPIO_PINS_PTE6,
 	GPIO_PINS_PTE7,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+
+    GPIO_PINS_PA0,
+    GPIO_PINS_PA1,
+    GPIO_PINS_PA2,
+    GPIO_PINS_PA3,
+    GPIO_PINS_PA4,
+    GPIO_PINS_PA5,
+    GPIO_PINS_PA6,
+    GPIO_PINS_PA7,
+    GPIO_PINS_PA8,
+    GPIO_PINS_PA9,
+    GPIO_PINS_PA10,
+    GPIO_PINS_PA11,
+    GPIO_PINS_PA12,
+    GPIO_PINS_PA13, // JTMS-SWDIO
+    GPIO_PINS_PA14, // JTCK-SWCLK
+    GPIO_PINS_PA15, // JTDI
+
+    GPIO_PINS_PB0,
+    GPIO_PINS_PB1,
+    GPIO_PINS_PB2,
+    GPIO_PINS_PB3, // JTDO-TRACE SWO
+    GPIO_PINS_PB4, // NJTRST
+    GPIO_PINS_PB5,
+    GPIO_PINS_PB6,
+    GPIO_PINS_PB7,
+    GPIO_PINS_PB8,
+    GPIO_PINS_PB9,
+    GPIO_PINS_PB10,
+    GPIO_PINS_PB11,
+    GPIO_PINS_PB12,
+    GPIO_PINS_PB13,
+    GPIO_PINS_PB14,
+    GPIO_PINS_PB15,
+
+    GPIO_PINS_PC0,
+    GPIO_PINS_PC1,
+    GPIO_PINS_PC2,
+    GPIO_PINS_PC3,
+    GPIO_PINS_PC4,
+    GPIO_PINS_PC5,
+    GPIO_PINS_PC6,
+    GPIO_PINS_PC7,
+    GPIO_PINS_PC8,
+    GPIO_PINS_PC9,
+    GPIO_PINS_PC10,
+    GPIO_PINS_PC11,
+    GPIO_PINS_PC12,
+	GPIO_PINS_PC13,
+    GPIO_PINS_PC14,
+    GPIO_PINS_PC15,
+
+    GPIO_PINS_PD2,
+
+    GPIO_PINS_PG9,
+    GPIO_PINS_PG10,
+    GPIO_PINS_PG11,
+    GPIO_PINS_PG12,
+    GPIO_PINS_PG13,
+    GPIO_PINS_PG14,
+
+    GPIO_PINS_PH0,
+    GPIO_PINS_PH1,
+
+#endif
+
 #endif
 
 } Gpio_Pins;
 
 typedef enum
 {
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
     GPIO_EVENT_WHEN_0     = 0x8,
     GPIO_EVENT_ON_RISING  = 0x9,
     GPIO_EVENT_ON_FALLING = 0xA,
     GPIO_EVENT_WHEN_1     = 0xC,
     GPIO_EVENT_ON_BOOTH   = 0xB,
+
+#elif defined (LIBOHIBOARD_ST_STM32)
+
+    GPIO_EVENT_ON_RISING       = 0x01,
+    GPIO_EVENT_ON_FALLING      = 0x02,
+
+    GPIO_EVENT_USE_INTERRUPT   = 0x04,
+    GPIO_EVENT_USE_EVENT       = 0x08,
+
+#endif
 } Gpio_EventType;
 
+/**
+ * Enumeration for all possible alternate function of each pin
+ */
+typedef enum
+{
+    GPIO_ALTERNATE_0 = 0,
+    GPIO_ALTERNATE_1,
+    GPIO_ALTERNATE_2,
+    GPIO_ALTERNATE_3,
+    GPIO_ALTERNATE_4,
+    GPIO_ALTERNATE_5,
+    GPIO_ALTERNATE_6,
+    GPIO_ALTERNATE_7,
+    GPIO_ALTERNATE_8,
+    GPIO_ALTERNATE_9,
+    GPIO_ALTERNATE_10,
+    GPIO_ALTERNATE_11,
+    GPIO_ALTERNATE_12,
+    GPIO_ALTERNATE_13,
+    GPIO_ALTERNATE_14,
+    GPIO_ALTERNATE_15,
+
+} Gpio_Alternate;
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
+
+/**
+ * Configure the selected pin with alternate function.
+ *
+ * @param[in] pin The selected pins
+ * @param[in] alternate The alternate functions
+ * @param[in] options Particular configurations for the pins
+ *     @arg @ref GPIO_PINS_PULL Enable pull-up/down
+ *     @arg @ref GPIO_PINS_ENABLE_PULLUP Select pull-up
+ *     @arg @ref GPIO_PINS_ENABLE_PULLDOWN Select pull-down
+ *     @arg @ref GPIO_PINS_ENABLE_OUTPUT_PUSHPULL Configure output with push-pull
+ *     @arg @ref GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN Configure output with open-drain
+ */
+void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options);
 
 void Gpio_set (Gpio_Pins pin);
 void Gpio_clear (Gpio_Pins pin);
@@ -840,5 +977,10 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
 #endif
 
-#endif /* __GPIO_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __GPIO_H
+
 

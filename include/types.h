@@ -1,4 +1,4 @@
-/******************************************************************************
+/*
  * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/types.h
@@ -31,6 +31,11 @@
 
 #ifndef __TYPES_H
 #define __TYPES_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef unsigned char      uint8_t;
 typedef unsigned short     uint16_t;
@@ -57,5 +62,17 @@ typedef unsigned char      bool;
 typedef void (*voidFuncPtr)(void);
 typedef void (*voidArgumentFuncPtr)(void *);
 
-#endif /* TYPES_H_ */
+#if defined ( __GNUC__ ) && !defined (__CC_ARM)
+
+#ifndef _weak
+#define _weak   __attribute__((weak))
+#endif // _weak
+
+#endif // defined ( __GNUC__ ) && !defined (__CC_ARM)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __TYPES_H
 

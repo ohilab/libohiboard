@@ -1,4 +1,5 @@
-/* Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -23,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/interrupt.h
@@ -34,12 +35,16 @@
  * @brief Interrupt definitions.
  */
 
+#ifndef __INTERRUPT_H
+#define __INTERRUPT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
-
-#ifndef __INTERRUPT_H
-#define __INTERRUPT_H
 
 typedef enum {
     INTERRUPT_ENABLE_OFF,
@@ -393,15 +398,55 @@ typedef enum {
 	INTERRUPT_ETHERNET_RX  = 84,
 	INTERRUPT_ETHERNET_ERR = 85,
 
+#elif defined (LIBOHIBOARD_STM32L476)
+
+	INTERRUPT_SYSTICK          = -1,
+    INTERRUPT_WWDG             = 0,
+    INTERRUPT_RTC_TAMP_STAMP   = 2,
+    INTERRUPT_RTC_WKUP         = 3,
+    INTERRUPT_EXTI0            = 6,
+    INTERRUPT_EXTI1            = 7,
+    INTERRUPT_EXTI2            = 8,
+    INTERRUPT_EXTI3            = 9,
+    INTERRUPT_EXTI4            = 10,
+
+    INTERRUPT_EXTI9_5          = 23,
+
+    INTERRUPT_UART1            = 37,
+    INTERRUPT_UART2            = 38,
+    INTERRUPT_UART3            = 39,
+    INTERRUPT_EXTI15_10        = 40,
+
+    INTERRUPT_UART4            = 52,
+    INTERRUPT_UART5            = 53,
+
+    INTERRUPT_LPUART1          = 70,
+
+    // TODO: Add all interrupts
+
 #endif
+
 } Interrupt_Vector;
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
 System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);
 
+/**
+ * Set interrupt priority.
+ * Note priority 0 is the higher priority level.
+ */
 System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber,
                                      uint8_t priority);
 
-#endif /* __INTERRUPT_H */
+/**
+ * Return the current priority level.
+ */
+uint8_t Interrupt_getPriority (Interrupt_Vector vectorNumber);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __INTERRUPT_H
 
 
