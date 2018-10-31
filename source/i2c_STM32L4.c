@@ -106,13 +106,16 @@ extern "C" {
 #define IIC_VALID_MODE(MODE) (((MODE) == IIC_MASTER_MODE) || \
                               ((MODE) == IIC_SLAVE_MODE))
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
 #define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
                                ((DEVICE) == OB_IIC2)  || \
                                ((DEVICE) == OB_IIC3))
 
-#endif // LIBOHIBOARD_STM32L476Jx - WLCSP72 ballout
+#endif
 
 typedef struct _Iic_Device
 {
@@ -152,7 +155,10 @@ typedef struct _Iic_Device
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Iic_Device;
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
 static Iic_Device iic1 =
 {
@@ -169,38 +175,50 @@ static Iic_Device iic1 =
         {
                                IIC_PINS_PB6,
                                IIC_PINS_PB8,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                IIC_PINS_PG14,
+#endif
         },
         .sclPinsGpio          =
         {
                                GPIO_PINS_PB6,
                                GPIO_PINS_PB8,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG14,
+#endif
         },
         .sclPinsMux           =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_4,
+#endif
         },
 
         .sdaPins              =
         {
                                IIC_PINS_PB7,
                                IIC_PINS_PB9,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                IIC_PINS_PG13,
+#endif
         },
         .sdaPinsGpio          =
         {
                                GPIO_PINS_PB7,
                                GPIO_PINS_PB9,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_PINS_PG13,
+#endif
         },
         .sdaPinsMux           =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L476Jx)
                                GPIO_ALTERNATE_4,
+#endif
         },
 };
 Iic_DeviceHandle OB_IIC1 = &iic1;
@@ -289,7 +307,7 @@ static Iic_Device iic3 =
 };
 Iic_DeviceHandle OB_IIC3 = &iic3;
 
-#endif // LIBOHIBOARD_STM32L476Jx
+#endif
 
 #define IIC_PIN_CONFIGURATION             (GPIO_PINS_PULL                    | \
 		                                   GPIO_PINS_ENABLE_PULLUP           | \
@@ -912,6 +930,12 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
         return ERRORS_IIC_WRONG_PARAM;
     }
 
+    // Shift 7-bit address
+    if (dev->addressMode == IIC_SEVEN_BIT)
+    {
+        devAddress = ((devAddress << 1u) & 0x00FFu);
+    }
+
     // Check if the device is busy
     // Wait 25ms before enter into timeout!
     err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
@@ -934,19 +958,20 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
     // Check TXE status
     err = Iic_waitUntilClear(dev,I2C_ISR_TXE,(tickStart + timeout));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
-    // Write device address
+
+    // Write register/memory address
     if (addressSize == IIC_REGISTERADDRESSSIZE_8BIT)
     {
-        dev->regmap->TXDR = (uint8_t)(devAddress & 0x00FFu);
+        dev->regmap->TXDR = (uint8_t)(regAddress & 0x00FFu);
     }
     else
     {
         // Write MSB part of address
-        dev->regmap->TXDR = (uint8_t)((devAddress & 0xFF00u) >> 8u);
+        dev->regmap->TXDR = (uint8_t)((regAddress & 0xFF00u) >> 8u);
         err = Iic_waitUntilTXSI(dev,(tickStart+ timeout));
         if (err != ERRORS_NO_ERROR) goto i2cerror;
         // Write LSB part of address
-        dev->regmap->TXDR = (uint8_t)(devAddress & 0x00FFu);
+        dev->regmap->TXDR = (uint8_t)(regAddress & 0x00FFu);
     }
     // Wait until the transmission ends
     Iic_waitUntilClear(dev,I2C_ISR_TC,(tickStart + timeout));
