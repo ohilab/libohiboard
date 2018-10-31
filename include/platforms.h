@@ -192,7 +192,8 @@
 #include "platforms/MKV46F16.h"
 #define LIBOHIBOARD_NXP_KINETIS
 
-#elif defined(LIBOHIBOARD_STM32L476Jx)
+#elif defined (LIBOHIBOARD_STM32L476Jx) || \
+      defined (LIBOHIBOARD_STM32L476Rx)
 
 #include "platforms/STM32L476/stm32l476xx.h"
 #include "platforms/STM32L476/stm32l4xx.h"
