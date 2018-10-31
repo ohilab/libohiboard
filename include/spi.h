@@ -931,7 +931,7 @@ typedef struct _Spi_Config
 
 } Spi_Config;
 
-#if (LIBOHIBOARD_VERSION >= 0x200)
+#if (LIBOHIBOARD_VERSION >= 0x20000)
 typedef struct _Spi_Device* Spi_DeviceHandle;
 #else
 typedef struct Spi_Device* Spi_DeviceHandle;

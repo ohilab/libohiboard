@@ -200,7 +200,18 @@ typedef enum _System_Errors
 } System_Errors;
 
 System_Errors Errors_assert (const char* file, const int line);
+
+#include "system.h"
+
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
+
 #define ohiassert(condition) ((condition) ? ERRORS_NO_ERROR : Errors_assert(__FILE__,__LINE__))
+
+#else
+
+#define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+
+#endif
 
 #ifdef __cplusplus
 }

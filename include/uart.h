@@ -543,7 +543,7 @@ typedef enum
 
 } Uart_TxPins;
 
-#if (LIBOHIBOARD_VERSION >= 0x200)
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
 typedef struct _Uart_Device* Uart_DeviceHandle;
 #else
 typedef struct Uart_Device* Uart_DeviceHandle;
@@ -688,7 +688,7 @@ typedef struct _Uart_Config
                                otherwise, into ST microcontroller must be 16 or 8. In the value differ
                                from this two value, the default is used. */
 
-#if (LIBOHIBOARD_VERSION >= 0x200u)
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
     /** Callback Function to handle RX Interrupt.*/
     void (*callbackRx)(struct _Uart_Device* dev);
     /** Callback Function to handle TX Interrupt.*/

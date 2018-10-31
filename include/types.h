@@ -68,6 +68,10 @@ typedef void (*voidArgumentFuncPtr)(void *);
 #define _weak   __attribute__((weak))
 #endif // _weak
 
+#ifndef __weak
+#define __weak   __attribute__((weak))
+#endif // __weak
+
 #endif // defined ( __GNUC__ ) && !defined (__CC_ARM)
 
 #ifdef __cplusplus

@@ -47,6 +47,8 @@ System_Errors System_controlDevice (void)
     return ERRORS_NO_ERROR;
 }
 
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
+
 System_Errors System_systickConfig (uint32_t ticks)
 {
     return (SysTick_Config(ticks) ? ERRORS_SYSTEM_TICK_INIT_FAILED : ERRORS_NO_ERROR);
@@ -87,6 +89,8 @@ void System_delay (uint32_t msec)
 
     while (timeout > System_currentTick());
 }
+
+#endif // LIBOHIBOARD_VERSION >= 0x20000
 
 #ifdef __cplusplus
 }
