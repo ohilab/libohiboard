@@ -466,7 +466,7 @@ void Iic_repeatedStart (Iic_DeviceHandle dev);
 void Iic_stop (Iic_DeviceHandle dev);
 void Iic_sendNack (Iic_DeviceHandle dev);
 void Iic_sendAck (Iic_DeviceHandle dev);
-bool Iic_getAck (Iic_DeviceHandle dev);
+System_Errors Iic_getAck (Iic_DeviceHandle dev);
 void Iic_setReceiveMode (Iic_DeviceHandle dev);
 void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data);
 void Iic_readByte (Iic_DeviceHandle dev, uint8_t *data);

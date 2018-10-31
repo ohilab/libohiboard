@@ -44,7 +44,7 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
     NVIC->ICPR[0] = 1 << (vectorNumber%32);
-    NVIC->ICPR[0] = 1 << (vectorNumber%32);
+    NVIC->ISER[0] = 1 << (vectorNumber%32);
 
     return ERRORS_NO_ERROR;
 }

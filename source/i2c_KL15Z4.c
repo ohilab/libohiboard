@@ -193,7 +193,7 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
     return ERRORS_IIC_NO_PIN_FOUND;
 }
 
-static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SclPins sdaPin)
+static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin)
 {
     uint8_t devPinIndex;
 
