@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,7 +23,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/rtc.h
@@ -31,46 +33,94 @@
 
 #ifdef LIBOHIBOARD_RTC
 
-#include "platforms.h"
-
 #ifndef __RTC_H
 #define __RTC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "platforms.h"
 #include "errors.h"
 #include "types.h"
 #include "interrupt.h"
+#include "gpio.h"
 
-typedef enum {
+/**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Rtc_DeviceState
+{
+    RTC_DEVICESTATE_RESET,
+    RTC_DEVICESTATE_READY,
+    RTC_DEVICESTATE_BUSY,
+    RTC_DEVICESTATE_ERROR,
+
+} Rtc_DeviceState;
+
+typedef enum _Rtc_ClockSource
+{
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
     RTC_CLOCK_SYSTEM,
     RTC_CLOCK_CLKIN,
     RTC_CLOCK_LPO
+
+#elif defined (LIBOHIBOARD_ST_STM32)
+
+    RTC_CLOCK_LSE     = 0x1u,
+    RTC_CLOCK_LSI     = 0x2u,
+    RTC_CLOCK_HSE_RTC = 0x3u,
+
+#endif
+
 } Rtc_ClockSource;
 
-typedef struct _Rtc_Config
+#if defined (LIBOHIBOARD_ST_STM32)
+
+typedef enum _Rtc_HourFormat
 {
-    Rtc_ClockSource clockSource;
+    RTC_HOURFORMAT_12H,
+    RTC_HOURFORMAT_24H,
 
-    uint32_t alarm;
-    void (*callbackAlarm)(void);    /**< The pointer for user alarm callback. */
+} Rtc_HourFormat;
 
-    void (*callbackSecond)(void);  /**< The pointer for user second callback. */
+typedef enum _Rtc_OutputMode
+{
+    RTC_OUTPUTMODE_DISABLE,
+    RTC_OUTPUTMODE_ALARM_A,
+    RTC_OUTPUTMODE_ALARM_B,
+    RTC_OUTPUTMODE_WAKEUP,
 
-} Rtc_Config;
+} Rtc_OutputMode;
 
-typedef uint32_t Rtc_Time;
+typedef enum _Rtc_OutputType
+{
+    RTC_OUTPUTTYPE_PUSH_PULL,
+    RTC_OUTPUTTYPE_OPEN_DRAIN,
 
+} Rtc_OutputType;
+
+typedef enum _Rtc_OutputRemap
+{
+    RTC_OUTPUTREMAP_DEFAULT,
+    RTC_OUTPUTREMAP_REMAP,
+
+} Rtc_OutputRemap;
+
+#endif // LIBOHIBOARD_ST_STM32
+
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
+typedef struct _Rtc_Device* Rtc_DeviceHandle;
+#else
 typedef struct Rtc_Device* Rtc_DeviceHandle;
+#endif
 
-System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config);
+#if defined (LIBOHIBOARD_STM32L4)
 
-void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
-Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
+#include "hardware/rtc_STM32L4.h"
 
-void Rtc_enableAlarm (Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
-void Rtc_disableAlarm (Rtc_DeviceHandle dev);
-
-void Rtc_enableSecond (Rtc_DeviceHandle dev, void *callback);
-void Rtc_disableSecond (Rtc_DeviceHandle dev);
+#else
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -88,6 +138,67 @@ extern Rtc_DeviceHandle OB_RTC0;
 
 #endif
 
-#endif /* __RTC_H */
+#endif
 
-#endif /* LIBOHIBOARD_RTC */
+typedef struct _Rtc_Config
+{
+    Rtc_ClockSource clockSource;
+
+    uint32_t alarm;
+    void (*callbackAlarm)(void);    /**< The pointer for user alarm callback. */
+
+    void (*callbackSecond)(void);  /**< The pointer for user second callback. */
+
+#if defined (LIBOHIBOARD_ST_STM32)
+
+    Rtc_HourFormat hourFormat;
+
+    Rtc_OutputMode outputMode;
+    Rtc_OutputType outputType;
+    Rtc_OutputRemap outputRemap;
+    Gpio_Level outputPolarity;
+
+#endif
+
+} Rtc_Config;
+
+typedef uint32_t Rtc_Time;
+
+/** @name RTC Configuration functions
+ *  Functions to initialize and de-initialize the  peripheral.
+ */
+///@{
+
+/**
+ * This function initialize the selected peripheral, with the specified parameters.
+ *
+ * @param[in] dev Rtc device handle
+ * @param[in] config Configuration parameters for the Rtc
+ */
+System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config);
+
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @param[in] dev Rtc device handle
+ */
+System_Errors Rtc_deInit (Rtc_DeviceHandle dev);
+
+///@}
+
+void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
+Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
+
+void Rtc_enableAlarm (Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
+void Rtc_disableAlarm (Rtc_DeviceHandle dev);
+
+void Rtc_enableSecond (Rtc_DeviceHandle dev, void *callback);
+void Rtc_disableSecond (Rtc_DeviceHandle dev);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __RTC_H
+
+#endif // LIBOHIBOARD_RTC

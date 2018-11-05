@@ -119,10 +119,10 @@ extern "C" {
 
 #define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
 
-#define UART_IS_VALID_CLOCK_SOURCE(DEVICE,CLOCKSOURCE) (((CLOCKSOURCE) == UART_CLOCKSOURCE_PCLK)  || \
-                                                        ((CLOCKSOURCE) == UART_CLOCKSOURCE_LSE)   || \
-                                                        ((CLOCKSOURCE) == UART_CLOCKSOURCE_HSI)   || \
-                                                        ((CLOCKSOURCE) == UART_CLOCKSOURCE_SYSCLK))
+#define UART_IS_VALID_CLOCK_SOURCE(CLOCKSOURCE) (((CLOCKSOURCE) == UART_CLOCKSOURCE_PCLK)  || \
+                                                 ((CLOCKSOURCE) == UART_CLOCKSOURCE_LSE)   || \
+                                                 ((CLOCKSOURCE) == UART_CLOCKSOURCE_HSI)   || \
+                                                 ((CLOCKSOURCE) == UART_CLOCKSOURCE_SYSCLK))
 
 /**
  * @brief Check the baudrate value
@@ -733,7 +733,7 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
         return ERRORS_UART_WRONG_DEVICE;
     }
     // Check clock source selections
-    err = ohiassert(UART_IS_VALID_CLOCK_SOURCE(dev,config->clockSource));
+    err = ohiassert(UART_IS_VALID_CLOCK_SOURCE(config->clockSource));
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_UART_WRONG_PARAM;
