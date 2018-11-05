@@ -78,6 +78,12 @@ typedef enum
 } Gpio_Level;
 
 
+#if defined LIBOHIBOARD_STM32L4
+
+#include "hardware/gpio_STM32L4.h"
+
+#else
+
 typedef enum
 {
     GPIO_PINS_NONE = 0,
@@ -828,78 +834,11 @@ typedef enum
 	GPIO_PINS_PTE6,
 	GPIO_PINS_PTE7,
 
-#elif defined (LIBOHIBOARD_STM32L476)
-
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
-
-    GPIO_PINS_PA0,
-    GPIO_PINS_PA1,
-    GPIO_PINS_PA2,
-    GPIO_PINS_PA3,
-    GPIO_PINS_PA4,
-    GPIO_PINS_PA5,
-    GPIO_PINS_PA6,
-    GPIO_PINS_PA7,
-    GPIO_PINS_PA8,
-    GPIO_PINS_PA9,
-    GPIO_PINS_PA10,
-    GPIO_PINS_PA11,
-    GPIO_PINS_PA12,
-    GPIO_PINS_PA13, // JTMS-SWDIO
-    GPIO_PINS_PA14, // JTCK-SWCLK
-    GPIO_PINS_PA15, // JTDI
-
-    GPIO_PINS_PB0,
-    GPIO_PINS_PB1,
-    GPIO_PINS_PB2,
-    GPIO_PINS_PB3, // JTDO-TRACE SWO
-    GPIO_PINS_PB4, // NJTRST
-    GPIO_PINS_PB5,
-    GPIO_PINS_PB6,
-    GPIO_PINS_PB7,
-    GPIO_PINS_PB8,
-    GPIO_PINS_PB9,
-    GPIO_PINS_PB10,
-    GPIO_PINS_PB11,
-    GPIO_PINS_PB12,
-    GPIO_PINS_PB13,
-    GPIO_PINS_PB14,
-    GPIO_PINS_PB15,
-
-    GPIO_PINS_PC0,
-    GPIO_PINS_PC1,
-    GPIO_PINS_PC2,
-    GPIO_PINS_PC3,
-    GPIO_PINS_PC4,
-    GPIO_PINS_PC5,
-    GPIO_PINS_PC6,
-    GPIO_PINS_PC7,
-    GPIO_PINS_PC8,
-    GPIO_PINS_PC9,
-    GPIO_PINS_PC10,
-    GPIO_PINS_PC11,
-    GPIO_PINS_PC12,
-	GPIO_PINS_PC13,
-    GPIO_PINS_PC14,
-    GPIO_PINS_PC15,
-
-    GPIO_PINS_PD2,
-
-    GPIO_PINS_PG9,
-    GPIO_PINS_PG10,
-    GPIO_PINS_PG11,
-    GPIO_PINS_PG12,
-    GPIO_PINS_PG13,
-    GPIO_PINS_PG14,
-
-    GPIO_PINS_PH0,
-    GPIO_PINS_PH1,
-
-#endif
-
 #endif
 
 } Gpio_Pins;
+
+#endif
 
 typedef enum
 {

@@ -123,7 +123,10 @@ static Gpio_PinDevice Gpio_availablePins[] =
 {
     {0xFF,0xFF,0},
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
 
     {GPIO_PORTS_A,0,0},
     {GPIO_PORTS_A,1,0},
@@ -178,12 +181,14 @@ static Gpio_PinDevice Gpio_availablePins[] =
 
     {GPIO_PORTS_D,2,3},
 
+#if defined (LIBOHIBOARD_STM32L476Jx)
     {GPIO_PORTS_G,9,6},
     {GPIO_PORTS_G,10,6},
     {GPIO_PORTS_G,11,6},
     {GPIO_PORTS_G,12,6},
     {GPIO_PORTS_G,13,6},
     {GPIO_PORTS_G,14,6},
+#endif
 
     {GPIO_PORTS_H,0,7},
     {GPIO_PORTS_H,1,7},
