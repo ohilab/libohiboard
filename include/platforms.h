@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/platforms.h
@@ -129,47 +129,88 @@
  */
 
 
-#if defined(LIBOHIBOARD_K10DZ10)
+#if defined(LIBOHIBOARD_K10DZ10) // NXP/Freescale Microcontrollers
 #include "platforms/MK10DZ10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K10D10)
 #include "platforms/MK10D10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K10D7)
 #include "platforms/MK10D7.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K12D5)
 #include "platforms/MK12D5.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K60DZ10)
 #include "platforms/MK60DZ10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K60F15)
 #include "platforms/MK60F15.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL02Z4)
 #include "platforms/MKL02Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL03Z4)
 #include "platforms/MKL03Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL15Z4)
 #include "platforms/MKL15Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL25Z4)
 #include "platforms/MKL25Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K64F12)
 #include "platforms/MK64F12.h"
 #include "platforms/MK64F12_portability.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL02Z)
 #include "platforms/MKL02Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL03Z)
 #include "platforms/MKL03Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL05Z)
 #include "platforms/MKL05Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL25Z) || defined(LIBOHIBOARD_KL25Z4)
 #include "platforms/MKL25Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMK20D50M)
 #include "platforms/MK20D5.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMK64F)
 #include "platforms/MK64F12.h"
+#include "platforms/MK64F12_portability.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_OHIBOARD_R1)
 #include "platforms/MK60DZ10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KV31F12)
 #include "platforms/MKV31F51212.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KV46F) || defined(LIBOHIBOARD_TWRKV46F)
 #include "platforms/MKV46F16.h"
+#define LIBOHIBOARD_NXP_KINETIS
+
+#elif defined (LIBOHIBOARD_STM32L476Jx) || \
+      defined (LIBOHIBOARD_STM32L476Rx)
+
+#include "platforms/STM32L476/stm32l476xx.h"
+#include "platforms/STM32L476/stm32l4xx.h"
+#include "platforms/STM32L476/system_stm32l4xx.h"
+
+#ifndef LIBOHIBOARD_STM32L4
+#define LIBOHIBOARD_STM32L4
+#endif
+
+#ifndef LIBOHIBOARD_STM32L476
+#define LIBOHIBOARD_STM32L476
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
 #endif
 
 // Features files
@@ -178,4 +219,4 @@
 #include "platforms/MK64F12_features.h"
 #endif
 
-#endif /* __PLATFORMS_H */
+#endif // __PLATFORMS_H

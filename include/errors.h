@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -22,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/errors.h
@@ -34,12 +36,19 @@
 #ifndef __ERRORS_H
 #define __ERRORS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum _System_Errors
 {
-	ERRORS_NO_ERROR,                                  /**< There is no error. */
+	ERRORS_NO_ERROR = 0,                              /**< There is no error. */
 	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
 	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
 	
+	ERRORS_SYSTEM_TICK_INIT_FAILED,
+	ERRORS_SYSTEM_NO_CLOCK,
+
 	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
 	
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
@@ -47,15 +56,24 @@ typedef enum _System_Errors
 	
 	ERRORS_GPIO_WRONG_PORT,
 	ERRORS_GPIO_WRONG_CONFIG,
+    ERRORS_GPIO_WRONG_PIN,
 	
     ERRORS_UART_DEVICE_NOT_INIT,
     ERRORS_UART_DEVICE_JUST_INIT,
     ERRORS_UART_NO_PIN_FOUND,
     ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG,
+    ERRORS_UART_NO_CLOCKSOURCE,
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
+    ERRORS_UART_NO_DEVICE,
+    ERRORS_UART_WRONG_DEVICE,
+    ERRORS_UART_WRONG_PARAM,
+    ERRORS_UART_WRONG_BAUDRATE,
+    ERRORS_UART_TIMEOUT_RX,
+    ERRORS_UART_TIMEOUT_TX,
 	
 	ERRORS_IIC_OK,
+	ERRORS_IIC_TIMEOUT,
 	ERRORS_IIC_TX_OK,
 	ERRORS_IIC_TX_ERROR,
 	ERRORS_IIC_TX_TIMEOUT,
@@ -63,19 +81,30 @@ typedef enum _System_Errors
 	ERRORS_IIC_TX_ACK_NOT_RECEIVED,
     ERRORS_IIC_RX_OK,
 	ERRORS_IIC_RX_TIMEOUT,
-	ERRORS_IIC_TIMEOUT,
+	ERRORS_IIC_RX_WRONG_EVENT,
 	ERRORS_IIC_SCLTIMEOUT_TOO_LARGE,
 	ERRORS_IIC_SCLTIMEOUT,
 	ERRORS_IIC_NO_SCLTIMEOUT,
     ERRORS_IIC_DEVICE_NOT_INIT,
     ERRORS_IIC_DEVICE_JUST_INIT,
     ERRORS_IIC_NO_PIN_FOUND,
+    ERRORS_IIC_NO_DEVICE,
+    ERRORS_IIC_WRONG_DEVICE,
     ERRORS_IIC_WRONG_BAUDRATE,
+    ERRORS_IIC_NO_CLOCKSOURCE,
+    ERRORS_IIC_CLOCKSOURCE_FREQUENCY_TOO_LOW,
+    ERRORS_IIC_WRONG_PARAM,
 
     ERRORS_SPI_BAUDRATE_NOT_FOUND,
     ERRORS_SPI_DEVICE_NOT_INIT,
     ERRORS_SPI_DEVICE_JUST_INIT,
     ERRORS_SPI_NO_PIN_FOUND,
+    ERRORS_SPI_NO_DEVICE,
+    ERRORS_SPI_WRONG_DEVICE,
+    ERRORS_SPI_WRONG_PARAM,
+    ERRORS_SPI_CLOCKSOURCE_FREQUENCY_TOO_LOW,
+    ERRORS_SPI_TIMEOUT_RX,
+    ERRORS_SPI_TIMEOUT_TX,
 	
 	ERRORS_ADC_CHANNEL_WRONG,
     ERRORS_ADC_CHANNEL_BUSY,
@@ -113,6 +142,16 @@ typedef enum _System_Errors
     ERRORS_MCG_ERRATA_DIVIDER,
     ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
 
+    ERRORS_CLOCK_NO_CONFIG,
+    ERRORS_CLOCK_WRONG_CONFIGURATION,
+    ERRORS_CLOCK_NOT_READY,
+#if defined (LIBOHIBOARD_ST_STM32)
+    ERRORS_CLOCK_PLL_NOT_READY,
+    ERRORS_CLOCK_HSE_NOT_READY,
+    ERRORS_CLOCK_HSI_NOT_READY,
+    ERRORS_CLOCK_MSI_NOT_READY,
+#endif
+
     ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
@@ -138,24 +177,44 @@ typedef enum _System_Errors
     ERRORS_XBAR_IN_WRONG,
     ERRORS_XBAR_OUT_WRONG,
 
-	ERRORS_LLWU_WRONG_EXTPIN,
-	ERRORS_LLWU_WRONG_WAKEUPMODULE,
+    ERRORS_LLWU_WRONG_EXTPIN,
+    ERRORS_LLWU_WRONG_WAKEUPMODULE,
 
-	ERRORS_SMC_NO_ERROR,
-	ERRORS_SMC_STATUS_NOT_ALLOWED,
-	ERRORS_SMC_STATUS_NOT_ENABLED,
-	ERRORS_SMC_STATUS_ALREADY_SET,
-	ERRORS_SMC_ERROR,
+    ERRORS_SMC_NO_ERROR,
+    ERRORS_SMC_STATUS_NOT_ALLOWED,
+    ERRORS_SMC_STATUS_NOT_ENABLED,
+    ERRORS_SMC_STATUS_ALREADY_SET,
+    ERRORS_SMC_ERROR,
 
-	ERRORS_FLASH_READ_COLLISION,
+    ERRORS_FLASH_READ_COLLISION,
     ERRORS_FLASH_ACCESS,
     ERRORS_FLASH_PROTECTION_VIOLATION,
     ERRORS_FLASH_COMPLETION_STATUS,
     ERRORS_FLASH_JUST_INIT,
 
+    ERRORS_COMMUTILITY_MAX_DEVICE_ACHIEVE,
+    ERRORS_COMMUTILITY_DEVICE_NOT_FOUND,
+  
+    ERRORS_ASSERT,
+
 } System_Errors;
 
-void Errors_assert (const char* file, const int line);
+System_Errors Errors_assert (const char* file, const int line);
+
+#include "system.h"
+
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
+
+#define ohiassert(condition) ((condition) ? ERRORS_NO_ERROR : Errors_assert(__FILE__,__LINE__))
+
+#else
+
 #define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
 
-#endif /* __ERRORS_H */
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __ERRORS_H
