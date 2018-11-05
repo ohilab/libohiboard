@@ -51,6 +51,13 @@ typedef enum {
     INTERRUPT_ENABLE_ON,
 } Interrupt_Status;
 
+
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/interrupt_STM32L4.h"
+
+#else
+
 typedef enum {
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
@@ -398,35 +405,11 @@ typedef enum {
 	INTERRUPT_ETHERNET_RX  = 84,
 	INTERRUPT_ETHERNET_ERR = 85,
 
-#elif defined (LIBOHIBOARD_STM32L476)
-
-	INTERRUPT_SYSTICK          = -1,
-    INTERRUPT_WWDG             = 0,
-    INTERRUPT_RTC_TAMP_STAMP   = 2,
-    INTERRUPT_RTC_WKUP         = 3,
-    INTERRUPT_EXTI0            = 6,
-    INTERRUPT_EXTI1            = 7,
-    INTERRUPT_EXTI2            = 8,
-    INTERRUPT_EXTI3            = 9,
-    INTERRUPT_EXTI4            = 10,
-
-    INTERRUPT_EXTI9_5          = 23,
-
-    INTERRUPT_UART1            = 37,
-    INTERRUPT_UART2            = 38,
-    INTERRUPT_UART3            = 39,
-    INTERRUPT_EXTI15_10        = 40,
-
-    INTERRUPT_UART4            = 52,
-    INTERRUPT_UART5            = 53,
-
-    INTERRUPT_LPUART1          = 70,
-
-    // TODO: Add all interrupts
-
 #endif
 
 } Interrupt_Vector;
+
+#endif
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber);
 System_Errors Interrupt_disable (Interrupt_Vector vectorNumber);

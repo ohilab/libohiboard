@@ -26,13 +26,13 @@
  */
 
 /**
- * @file libohiboard/include/hardware/i2c_STM32L4.h
+ * @file libohiboard/include/hardware/interrupt_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief I2C pins and device definitions for STM32L4 series
+ * @brief INTERRUPT vector definitions for STM32L4 series
  */
 
-#ifndef __I2C_STM32L4_H
-#define __I2C_STM32L4_H
+#ifndef __INTERRUPT_STM32L4_H
+#define __INTERRUPT_STM32L4_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,80 +40,41 @@ extern "C" {
 
 #include "platforms.h"
 
-#if defined(LIBOHIBOARD_IIC) & defined(LIBOHIBOARD_STM32L4)
+#if defined(LIBOHIBOARD_STM32L4)
 
-typedef enum _Iic_SclPins
+typedef enum  _Interrupt_Vector
 {
-#if defined (LIBOHIBOARD_STM32L476)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+    INTERRUPT_SYSTICK          = -1,
+    INTERRUPT_WWDG             = 0,
+    INTERRUPT_RTC_TAMP_STAMP   = 2,
+    INTERRUPT_RTC_WKUP         = 3,
+    INTERRUPT_EXTI0            = 6,
+    INTERRUPT_EXTI1            = 7,
+    INTERRUPT_EXTI2            = 8,
+    INTERRUPT_EXTI3            = 9,
+    INTERRUPT_EXTI4            = 10,
 
+    INTERRUPT_EXTI9_5          = 23,
 
-    IIC_PINS_PB6,
-    IIC_PINS_PB8,
-    IIC_PINS_PB10,
-    IIC_PINS_PB13,
+    INTERRUPT_UART1            = 37,
+    INTERRUPT_UART2            = 38,
+    INTERRUPT_UART3            = 39,
+    INTERRUPT_EXTI15_10        = 40,
 
-    IIC_PINS_PC0,
+    INTERRUPT_UART4            = 52,
+    INTERRUPT_UART5            = 53,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
-    IIC_PINS_PG14,
-#endif
+    INTERRUPT_LPUART1          = 70,
 
-#endif
+    // TODO: Add all interrupts
 
-#endif // LIBOHIBOARD_STM32L476
+} Interrupt_Vector;
 
-    IIC_PINS_SCLNONE,
-
-} Iic_SclPins;
-
-typedef enum _Iic_SdaPins
-{
-#if defined (LIBOHIBOARD_STM32L476)
-
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
-
-    IIC_PINS_PB7,
-    IIC_PINS_PB9,
-    IIC_PINS_PB11,
-    IIC_PINS_PB14,
-
-    IIC_PINS_PC1,
-
-#if defined (LIBOHIBOARD_STM32L476Jx)
-    IIC_PINS_PG13,
-#endif
-
-#endif
-
-#endif // LIBOHIBOARD_STM32L476
-
-    IIC_PINS_SDANONE,
-
-} Iic_SdaPins;
-
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
-
-extern Iic_DeviceHandle OB_IIC1;
-extern Iic_DeviceHandle OB_IIC2;
-extern Iic_DeviceHandle OB_IIC3;
-
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
-
-#endif // LIBOHIBOARD_IIC & LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __I2C_STM32L4_H
+#endif // __INTERRUPT_STM32L4_H

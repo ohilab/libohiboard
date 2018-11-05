@@ -34,6 +34,10 @@
 #ifndef __GPIO_STM32L4_H
 #define __GPIO_STM32L4_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 
 #if defined(LIBOHIBOARD_STM32L4)
@@ -121,5 +125,9 @@ typedef enum
 } Gpio_Pins;
 
 #endif // LIBOHIBOARD_STM32L4
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __GPIO_STM32L4_H

@@ -34,6 +34,10 @@
 #ifndef __UART_STM32L4_H
 #define __UART_STM32L4_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 
 #if defined(LIBOHIBOARD_UART) & defined(LIBOHIBOARD_STM32L4)
@@ -130,5 +134,9 @@ extern Uart_DeviceHandle OB_LPUART1;
 #endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
 
 #endif // LIBOHIBOARD_UART & LIBOHIBOARD_STM32L4
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SPI_STM32L4_H
