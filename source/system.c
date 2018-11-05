@@ -54,7 +54,7 @@ System_Errors System_systickConfig (uint32_t ticks)
     return (SysTick_Config(ticks) ? ERRORS_SYSTEM_TICK_INIT_FAILED : ERRORS_NO_ERROR);
 }
 
-__weak System_Errors System_sysickInit(uint32_t priority)
+__weak System_Errors System_systickInit (uint32_t priority)
 {
     // Configure the systick interrupt every 1ms
 #if defined (LIBOHIBOARD_STM32L476)

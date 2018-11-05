@@ -76,7 +76,7 @@ System_Errors System_systickConfig (uint32_t ticks);
  * @return ERRORS_NO_ERROR when function succeeded.
  * @return ERRORS_SYSTEM_NO_CLOCK when function failed because the lock source is zero.
  */
-System_Errors System_sysickInit(uint32_t priority);
+System_Errors System_systickInit (uint32_t priority);
 
 /**
  * This function return the current tick value in millisecond
