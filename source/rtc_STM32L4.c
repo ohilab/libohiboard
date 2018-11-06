@@ -39,6 +39,9 @@ extern "C" {
 
 #include "rtc.h"
 
+#define LIBOHIBOARD_TIMEDAY
+#include "timeday.h"
+
 #include "interrupt.h"
 #include "clock.h"
 #include "utility.h"
@@ -46,13 +49,23 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L4)
 
+/**
+ * Maximum timeout for RTC peripheral operation.
+ * It is expressed in milli-second.
+ */
+#define RTC_MAX_TIMEOUT                   1000
+
 #define RTC_CLOCK_ENABLE(REG,MASK)        do { \
                                             UTILITY_SET_REGISTER_BIT(REG,MASK); \
                                             asm("nop"); \
                                             (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
                                           } while (0)
 
-// FIXME: Clock disable!
+#define RTC_CLOCK_DISABLE(REG,MASK)       do { \
+                                            UTILITY_CLEAR_REGISTER_BIT(REG,MASK); \
+                                            asm("nop"); \
+                                            (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
+                                          } while (0)
 
 /**
  * This define enable the write-protection system
@@ -147,7 +160,10 @@ static Rtc_Device rtc0 =
 };
 Rtc_DeviceHandle OB_RTC0 = &rtc0;
 
-static inline System_Errors __attribute__((always_inline)) Rtc_setInitMode (Rtc_DeviceHandle dev)
+/**
+ *
+ */
+static inline System_Errors __attribute__((always_inline)) Rtc_enterInitialization (Rtc_DeviceHandle dev)
 {
     uint32_t timeout = 0;
 
@@ -155,7 +171,7 @@ static inline System_Errors __attribute__((always_inline)) Rtc_setInitMode (Rtc_
     if ((dev->regmap->ISR & RTC_ISR_INITF) == 0)
     {
         // Setup the timeout value
-        timeout = System_currentTick() + 1000;
+        timeout = System_currentTick() + RTC_MAX_TIMEOUT;
         // Write the initialization bit
         UTILITY_SET_REGISTER_BIT(dev->regmap->ISR,RTC_ISR_INIT);
 
@@ -172,15 +188,104 @@ static inline System_Errors __attribute__((always_inline)) Rtc_setInitMode (Rtc_
     return ERRORS_NO_ERROR;
 }
 
+/**
+ *
+ */
+static inline void __attribute__((always_inline)) Rtc_exitInitialization (Rtc_DeviceHandle dev)
+{
+    // Clear the initialization bit
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->ISR,RTC_ISR_INIT);
+}
+
+/**
+ *
+ */
+static inline System_Errors __attribute__((always_inline)) Rtc_waitSynchronization (Rtc_DeviceHandle dev)
+{
+    uint32_t timeout = 0;
+
+    // Clear RSF flag
+    dev->regmap->ISR &= RTC_ISR_RSF;
+
+    // Setup the timeout value
+    timeout = System_currentTick() + RTC_MAX_TIMEOUT;
+
+    // Wait until hardware set this bit
+    // This bit was set each time the calendar registers are copied into the shadow registers
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,RTC_ISR_RSF) == 0)
+    {
+        if (System_currentTick() > timeout)
+        {
+            return ERRORS_RTC_TIMEOUT;
+        }
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ *
+ */
+static System_Errors Rtc_config (Rtc_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Disable write-protection
+    RTC_WRITE_PROTECTION_DISABLE(dev->regmap);
+
+    err = Rtc_enterInitialization(dev);
+    // Initialization problems...
+    if (err != ERRORS_NO_ERROR)
+    {
+        return err;
+    }
+
+    // Clear output configuration for ALARM pin
+    // Clear hour format configuration
+    dev->regmap->CR = dev->regmap->CR & (~(RTC_CR_FMT_Msk | RTC_CR_OSEL_Msk | RTC_CR_POL_Msk));
+    dev->regmap->OR = dev->regmap->OR & (~(RTC_OR_ALARMOUTTYPE_Msk | RTC_OR_OUT_RMP_Msk));
+
+    // Setup hour format
+    if (dev->hourFormat == RTC_HOURFORMAT_12H)
+    {
+        dev->regmap->CR |= RTC_CR_FMT;
+    }
+
+    // Setup output pin
+    if (dev->outputMode != RTC_OUTPUTMODE_DISABLE)
+    {
+        dev->regmap->CR |= ((dev->outputMode << RTC_CR_OSEL_Pos) | ((dev->outputPolarity == GPIO_LOW) ? RTC_CR_POL : 0 ));
+    }
+    dev->regmap->OR = ((dev->outputRemap << RTC_OR_OUT_RMP_Pos) | (dev->outputType << RTC_OR_ALARMOUTTYPE_Pos));
+
+    // TODO: Compute and setup clock prescaler
+
+    // Exit from configuration mode
+    Rtc_exitInitialization(dev);
+
+    // Check Bypass-shadow bit to wait or not the synchronization
+    // Question: who set this bit?
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->CR,RTC_CR_BYPSHAD) == 0)
+    {
+        err = Rtc_waitSynchronization(dev);
+        if (err != ERRORS_NO_ERROR)
+        {
+            return err;
+        }
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
 System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config)
 {
     System_Errors err = ERRORS_NO_ERROR;
-    // Check the UART device
+    // Check the RTC device
     if (dev == NULL)
     {
         return ERRORS_RTC_NO_DEVICE;
     }
-    // Check the UART instance
+    // Check the RTC instance
     err = ohiassert(RTC_IS_DEVICE(dev));
     if (err != ERRORS_NO_ERROR)
     {
@@ -217,12 +322,8 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config)
     // Now the peripheral is busy
     dev->state = RTC_DEVICESTATE_BUSY;
 
-    // Disable write-protection
-    RTC_WRITE_PROTECTION_DISABLE(dev->regmap);
-
-    // Launch configuration sequence
-    err = Rtc_setInitMode(dev);
-    // Configuration problems...
+    // configuration sequence
+    err = Rtc_config(dev);
     if (err != ERRORS_NO_ERROR)
     {
         // Restore write-protection
@@ -230,21 +331,190 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config)
         dev->state = RTC_DEVICESTATE_ERROR;
 
         return ERRORS_RTC_INIT_FAILED;
-
     }
-    // Configure the peripheral
-    else
-    {
 
-    }
+    // Enable the write-protection
+    RTC_WRITE_PROTECTION_ENABLE(dev->regmap);
+
+    // Now the peripheral is ready
+    dev->state = RTC_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
 
 System_Errors Rtc_deInit (Rtc_DeviceHandle dev)
 {
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the RTC device
+    if (dev == NULL)
+    {
+        return ERRORS_RTC_NO_DEVICE;
+    }
+    // Check the RTC instance
+    err = ohiassert(RTC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_RTC_WRONG_DEVICE;
+    }
 
+    // Now the peripheral is busy
+    dev->state = RTC_DEVICESTATE_BUSY;
+
+    // TODO!
+
+    // Disable peripheral clock
+    RTC_CLOCK_DISABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+
+    // Now the peripheral is in the reset state
+    dev->state = RTC_DEVICESTATE_RESET;
     return ERRORS_NO_ERROR;
+}
+
+System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the RTC device
+    if (dev == NULL)
+    {
+        return ERRORS_RTC_NO_DEVICE;
+    }
+    // Check the RTC instance
+    err = ohiassert(RTC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_RTC_WRONG_DEVICE;
+    }
+    // Check the time value
+    err = ohiassert(time > 0);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_RTC_WRONG_PARAM;
+    }
+
+    dev->state = RTC_DEVICESTATE_BUSY;
+
+    Time_DateType mydate;
+    Time_TimeType mytime;
+    bool isPM = FALSE;
+    uint32_t tmpregTime = 0, tmpregDate = 0;
+
+    // Convert unix timestamp to Time and Date Structure
+    Time_unixtimeToTime(time,&mydate,&mytime);
+
+    if (dev->hourFormat == RTC_HOURFORMAT_12H)
+    {
+        if (mytime.hours > 12)
+        {
+            mytime.hours -= 12;
+            isPM = TRUE;
+        }
+    }
+
+    tmpregTime = (((uint32_t)Utility_byteToBcd2(mytime.hours)   << 16) | \
+                  ((uint32_t)Utility_byteToBcd2(mytime.minutes) << 8)  | \
+                  ((uint32_t)Utility_byteToBcd2(mytime.seconds))       | \
+                  (((dev->hourFormat == RTC_HOURFORMAT_12H) && (isPM)) ? RTC_TR_PM_Msk : 0 ));
+
+    // Only dozen and unit for year
+    mydate.year -= 2000;
+
+    tmpregDate = (((uint32_t)Utility_byteToBcd2(mydate.year)  << 16) | \
+                  ((uint32_t)Utility_byteToBcd2(mydate.month) << 8)  | \
+                  ((uint32_t)Utility_byteToBcd2(mydate.day))         | \
+                  ((uint32_t)Utility_byteToBcd2(mydate.wday)  << 13));
+
+    // The values are ready, now enter in initialization mode
+    // Disable protection mode
+    RTC_WRITE_PROTECTION_DISABLE(dev->regmap);
+
+    err = Rtc_enterInitialization(dev);
+    // Initialization problems...
+    if (err != ERRORS_NO_ERROR)
+    {
+        // Restore write-protection
+        RTC_WRITE_PROTECTION_ENABLE(dev->regmap);
+        dev->state = RTC_DEVICESTATE_ERROR;
+
+        return ERRORS_RTC_TIMEOUT;
+    }
+
+    // Set DR and TR registers
+    dev->regmap->DR = (uint32_t)(tmpregDate & RTC_DR_RESERVED_MASK);
+    dev->regmap->TR = (uint32_t)(tmpregTime & RTC_TR_RESERVED_MASK);
+
+    // Clear BCK bit into CR register... No day-light saving operation here.
+    dev->regmap->CR &= ((uint32_t)~RTC_CR_BCK);
+
+    // Exit from configuration mode
+    Rtc_exitInitialization(dev);
+
+    // Check Bypass-shadow bit to wait or not the synchronization
+    // Question: who set this bit?
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->CR,RTC_CR_BYPSHAD) == 0)
+    {
+        err = Rtc_waitSynchronization(dev);
+        if (err != ERRORS_NO_ERROR)
+        {
+            // Restore write-protection
+            RTC_WRITE_PROTECTION_ENABLE(dev->regmap);
+            dev->state = RTC_DEVICESTATE_ERROR;
+
+            return ERRORS_RTC_TIMEOUT;
+        }
+    }
+
+    // Restore write-protection
+    RTC_WRITE_PROTECTION_ENABLE(dev->regmap);
+    dev->state = RTC_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
+{
+    Time_DateType mydate;
+    Time_TimeType mytime;
+
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the RTC device
+    if (dev == NULL)
+    {
+        return 0;
+    }
+    // Check the RTC instance
+    err = ohiassert(RTC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return 0;
+    }
+
+    // Read TR and DR registers
+    uint32_t tmpregTime = (uint32_t)(dev->regmap->TR & RTC_TR_RESERVED_MASK);
+    uint32_t tmpregDate = (uint32_t)(dev->regmap->DR & RTC_DR_RESERVED_MASK);
+
+    // Save values
+    mytime.hours   = (uint8_t)((tmpregTime & (RTC_TR_HT_Msk  | RTC_TR_HU_Msk))  >> 16);
+    mytime.minutes = (uint8_t)((tmpregTime & (RTC_TR_MNT_Msk | RTC_TR_MNU_Msk)) >> 8);
+    mytime.seconds = (uint8_t)(tmpregTime  & (RTC_TR_ST_Msk  | RTC_TR_SU_Msk));
+    // Convert BCD to binary
+    mytime.hours   = Utility_bcd2ToByte(mytime.hours);
+    mytime.minutes = Utility_bcd2ToByte(mytime.minutes);
+    mytime.seconds = Utility_bcd2ToByte(mytime.seconds);
+
+    // Check AM/PM status
+    if (((tmpregTime & RTC_TR_PM) == RTC_TR_PM) && (dev->hourFormat == RTC_HOURFORMAT_12H))
+    {
+        mytime.hours += 12;
+    }
+
+    mydate.year  = (uint8_t)((tmpregDate & (RTC_DR_YT_Msk | RTC_DR_YU_Msk)) >> 16);
+    mydate.month = (uint8_t)((tmpregDate & (RTC_DR_MT_Msk | RTC_DR_MU_Msk)) >> 8);
+    mydate.day   = (uint8_t)(tmpregDate  & (RTC_DR_DT_Msk | RTC_DR_DU_Msk));
+    // Convert BCD to binary
+    mydate.year  = (uint16_t)Utility_bcd2ToByte((uint8_t)mydate.year) + 2000;
+    mydate.month = Utility_bcd2ToByte(mydate.month);
+    mydate.day   = Utility_bcd2ToByte(mydate.day);
+
+    return (Rtc_Time)Time_getUnixTime(&mydate,&mytime);
 }
 
 #endif // LIBOHIBOARD_STM32L4

@@ -87,24 +87,24 @@ typedef enum _Rtc_HourFormat
 
 typedef enum _Rtc_OutputMode
 {
-    RTC_OUTPUTMODE_DISABLE,
-    RTC_OUTPUTMODE_ALARM_A,
-    RTC_OUTPUTMODE_ALARM_B,
-    RTC_OUTPUTMODE_WAKEUP,
+    RTC_OUTPUTMODE_DISABLE  = 0x0u,
+    RTC_OUTPUTMODE_ALARM_A  = 0x1u,
+    RTC_OUTPUTMODE_ALARM_B  = 0x2u,
+    RTC_OUTPUTMODE_WAKEUP   = 0x3u,
 
 } Rtc_OutputMode;
 
 typedef enum _Rtc_OutputType
 {
-    RTC_OUTPUTTYPE_PUSH_PULL,
-    RTC_OUTPUTTYPE_OPEN_DRAIN,
+    RTC_OUTPUTTYPE_OPEN_DRAIN  = 0u,
+    RTC_OUTPUTTYPE_PUSH_PULL   = 1u,
 
 } Rtc_OutputType;
 
 typedef enum _Rtc_OutputRemap
 {
-    RTC_OUTPUTREMAP_DEFAULT,
-    RTC_OUTPUTREMAP_REMAP,
+    RTC_OUTPUTREMAP_DEFAULT  = 0u,
+    RTC_OUTPUTREMAP_REMAP    = 1u,
 
 } Rtc_OutputRemap;
 
@@ -186,8 +186,29 @@ System_Errors Rtc_deInit (Rtc_DeviceHandle dev);
 
 ///@}
 
-void Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
+/** @name RTC Time functions
+ *  Functions to write and read current RTC time.
+ */
+///@{
+
+/**
+ * This function set the current value of time.
+ *
+ * @param[in] dev Rtc device handle
+ * @param[in] time The current time in unix format
+ * @return
+ */
+System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
+
+/**
+ * This function return the current value of time.
+ *
+ * @param[in] dev Rtc device handle
+ * @return Current RTC time in unix timestamp format
+ */
 Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
+
+///@}
 
 void Rtc_enableAlarm (Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
 void Rtc_disableAlarm (Rtc_DeviceHandle dev);

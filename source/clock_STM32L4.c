@@ -478,7 +478,7 @@ System_Errors Clock_init (Clock_Config* config)
     }
 
     // Initialize SysTick
-    System_sysickInit(0);
+    System_systickInit(0);
 
     return err;
 }
