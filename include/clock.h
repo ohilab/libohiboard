@@ -50,7 +50,7 @@ extern "C" {
 
 #endif
 
-typedef enum
+typedef enum _Clock_Source
 {
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
@@ -83,7 +83,7 @@ typedef enum
 
 } Clock_Source;
 
-typedef enum
+typedef enum _Clock_Origin
 {
 
     CLOCK_NO_SOURCE        = 0x0000,
@@ -115,22 +115,14 @@ typedef enum
 
 #endif // LIBOHIBOARD_STM32L476
 
-#if defined (LIBOHIBOARD_STM32L496)
-
-    CLOCK_INTERNAL_32K,
-    CLOCK_INTERNAL_16M,
-    CLOCK_INTERNAL_48M,
-    CLOCK_INTERNAL_MSI,
-
-#endif // LIBOHIBOARD_STM32L476
-
 // END IF: LIBOHIBOARD_ST_STM32
 #endif
 
 } Clock_Origin;
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
-typedef enum
+
+typedef enum _Clock_State
 {
 #if defined (LIBOHIBOARD_KL03Z4) || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -164,20 +156,23 @@ typedef enum
     CLOCK_BLPE,
 
 #endif
+
 } Clock_State;
 
 Clock_State Clock_getCurrentState();
+
 #endif
 
 
 #if defined (LIBOHIBOARD_ST_STM32)
-typedef enum
+
+typedef enum _Clock_OscillatorState
 {
     CLOCK_OSCILLATORSTATE_OFF,
     CLOCK_OSCILLATORSTATE_ON,
 } Clock_OscillatorState;
 
-typedef enum
+typedef enum _Clock_SystemSource
 {
     CLOCK_SYSTEMSOURCE_HSE = 0x0001,
     CLOCK_SYSTEMSOURCE_MSI = 0x0002,
@@ -185,7 +180,7 @@ typedef enum
     CLOCK_SYSTEMSOURCE_PLL = 0x0008,
 } Clock_SystemSource;
 
-typedef enum
+typedef enum _Clock_Output
 {
     CLOCK_OUTPUT_SYSCLK = 0x0001,
     CLOCK_OUTPUT_HCLK   = 0x0002,
@@ -193,7 +188,7 @@ typedef enum
     CLOCK_OUTPUT_PCLK2  = 0x0008,
 } Clock_Output;
 
-typedef enum
+typedef enum _Clock_AHBDivider
 {
     CLOCK_AHBDIVIDER_1    = 0,
     CLOCK_AHBDIVIDER_2    = 1,
@@ -207,7 +202,7 @@ typedef enum
 
 } Clock_AHBDivider;
 
-typedef enum
+typedef enum _Clock_APBDivider
 {
     CLOCK_APBDIVIDER_1    = 0,
     CLOCK_APBDIVIDER_2    = 1,
@@ -267,9 +262,13 @@ typedef struct _Clock_Config
 System_Errors Clock_init (Clock_Config *config);
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
+
 System_Errors Clock_setDividers (uint8_t busDivider, uint8_t flexbusDivider, uint8_t flashDivider);
+
 #elif defined (LIBOHIBOARD_ST_STM32)
+
 System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint32_t apb2Divider);
+
 /**
  * Return the selected output clock.
  *
@@ -277,6 +276,7 @@ System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint
  * @return The clock frequency in Hz
  */
 uint32_t Clock_getOutputClock (Clock_Output output);
+
 #endif
 
 uint32_t Clock_getFrequency (Clock_Source source);

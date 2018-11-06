@@ -192,6 +192,25 @@
 #include "platforms/MKV46F16.h"
 #define LIBOHIBOARD_NXP_KINETIS
 
+#elif defined (LIBOHIBOARD_MKL15ZxFM) || \
+      defined (LIBOHIBOARD_MKL15ZxFT) || \
+      defined (LIBOHIBOARD_MKL15ZxLH) || \
+      defined (LIBOHIBOARD_MKL15ZxLK)
+
+#include "platforms/MKL15/MKL15Z4.h"
+
+#ifndef LIBOHIBOARD_MKL
+#define LIBOHIBOARD_MKL
+#endif
+
+#ifndef LIBOHIBOARD_MKL15
+#define LIBOHIBOARD_MKL15
+#endif
+
+#ifndef LIBOHIBOARD_NXP_KINETIS
+#define LIBOHIBOARD_NXP_KINETIS
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L476Jx) || \
       defined (LIBOHIBOARD_STM32L476Rx)
 
