@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,7 +23,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/utility.h
@@ -32,15 +34,19 @@
 #ifndef __UTILITY_H
 #define __UTILITY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
 
-
-//convert 2's complement P bit number to 16 bit signed int
+/**
+ * Convert 2's complement P bit number to 16 bit signed int
+ */
 #define C2SI(X,P)     (-((X)&(1<<(P-1)))+((X)&(~(1<<(P-1)))))
 
-//#define SET_BIT(n)                  (1<<n)&0xFF
 #define SHIFT_LEFT(X,n)             X<<n
 #define SHIFT_RIGHT(X,n)            X>>n
 
@@ -91,9 +97,28 @@ uint8_t stringCompare (const char* string1, const char* string2);
 uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t size);
 int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
 
-/*******************************************************************************
- * String validation functions
- *******************************************************************************/
+/* *****************************************************************************
+ *   BCD value management
+ * *****************************************************************************/
+
+/**
+  * Convert a 2 digit decimal to BCD format.
+  *
+  * @param[in] value Byte to be converted (must be less than 99)
+  * @return Converted byte
+  */
+uint8_t Utility_byteToBcd2 (uint8_t value);
+
+/**
+ * Convert from 2 digit BCD to binary (2 digit decimal).
+ * @param[in] value BCD value to be converted
+ * @return Converted value
+ */
+uint8_t Utility_bcd2ToByte (uint8_t value);
+
+/* *****************************************************************************
+ *   String validation functions
+ * *****************************************************************************/
 
 /**
  *
@@ -107,4 +132,8 @@ bool Utility_isValidIp4Address (char* str);
  */
 bool Utility_isValidMacAddress (char* str);
 
-#endif /* __UTILITY_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __UTILITY_H

@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,13 +23,19 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/source/timeday.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Time manage functions
  */
+
+#ifdef LIBOHIBOARD_TIMEDAY
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "timeday.h"
 #include "utility.h"
@@ -118,7 +126,7 @@ void Time_unixtimeToTime (Time_UnixTime unix, Time_DateType* date, Time_TimeType
     }
     date->day = dayNumber + 1;
     date->month++;
-
+    date->wday++;
 }
 
 void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
@@ -319,3 +327,9 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
     /* Close string */
     *dateString = '\0';
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // LIBOHIBOARD_TIMEDAY
