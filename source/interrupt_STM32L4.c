@@ -53,7 +53,7 @@ System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
     ohiassert(INTERRUPT_IS_NVIC_IRQ(vectorNumber));
 
     // Make sure that the IRQ is an allowable number.
-    if (INTERRUPT_IS_NVIC_IRQ(vectorNumber))
+    if (!INTERRUPT_IS_NVIC_IRQ(vectorNumber))
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
     NVIC_EnableIRQ((IRQn_Type)vectorNumber);
@@ -66,7 +66,7 @@ System_Errors Interrupt_disable (Interrupt_Vector vectorNumber)
     ohiassert(INTERRUPT_IS_NVIC_IRQ(vectorNumber));
 
     // Make sure that the IRQ is an allowable number.
-    if (INTERRUPT_IS_NVIC_IRQ(vectorNumber))
+    if (!INTERRUPT_IS_NVIC_IRQ(vectorNumber))
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
     NVIC_DisableIRQ((IRQn_Type)vectorNumber);
@@ -81,10 +81,10 @@ System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber,
     ohiassert(INTERRUPT_IS_VALID_PRIORITY(priority));
 
     // Make sure that the IRQ is an allowable number.
-    if (INTERRUPT_IS_NVIC_IRQ(vectorNumber))
+    if (!INTERRUPT_IS_NVIC_IRQ(vectorNumber))
         return ERRORS_IRQ_NUM_VECTOR_WRONG;
 
-    if (INTERRUPT_IS_VALID_PRIORITY(priority))
+    if (!INTERRUPT_IS_VALID_PRIORITY(priority))
         return ERRORS_IRQ_PRIORITY_LEVEL_WRONG;
 
     // Call core function
