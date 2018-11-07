@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -44,7 +46,7 @@ extern "C" {
 #define NVIC_NUM_VECTORS                       NVIC_NUM_CORE_VECTORS + NVIC_NUM_MCU_VECTORS
 
 #define INTERRUPT_IS_NVIC_IRQ(IRQ)             (((IRQ) >= -16) && ((IRQ) <= NVIC_NUM_VECTORS))
-#define INTERRUPT_IS_VALID_PRIORITY(PRIORITY)  ((PRIORITY >= 0x00) && (PRIORITY < 16))
+#define INTERRUPT_IS_VALID_PRIORITY(PRIORITY)  ((PRIORITY >= 0x00u) && (PRIORITY < 16))
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 {

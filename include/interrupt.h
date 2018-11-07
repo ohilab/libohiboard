@@ -1,4 +1,6 @@
 /*
+ * This file is part of the libohiboard project.
+ *
  * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
@@ -56,6 +58,10 @@ typedef enum {
 
 #include "hardware/interrupt_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/interrupt_MKL.h"
+
 #else
 
 typedef enum {
@@ -76,70 +82,6 @@ typedef enum {
     INTERRUPT_RTC_ALARM  = 20,
     INTERRUPT_RTC_SECOND = 21,
     INTERRUPT_LPTPM0     = 28,
-    INTERRUPT_PORTA      = 30,
-    INTERRUPT_PORTD      = 31,
-
-#elif defined(LIBOHIBOARD_KL15Z4)
-
-    INTERRUPT_DMA0       = 0,
-    INTERRUPT_DMA1       = 1,
-    INTERRUPT_DMA2       = 2,
-    INTERRUPT_DMA3       = 3,
-    INTERRUPT_FTFA       = 5,
-    INTERRUPT_PMC        = 6,
-    INTERRUPT_LLWU       = 7,
-    INTERRUPT_IIC0       = 8,
-    INTERRUPT_IIC1       = 9,
-    INTERRUPT_SPI0       = 10,
-    INTERRUPT_SPI1       = 11,
-    INTERRUPT_UART0      = 12,
-    INTERRUPT_UART1      = 13,
-    INTERRUPT_UART2      = 14,
-    INTERRUPT_ADC0       = 15,
-    INTERRUPT_CMP0       = 16,
-    INTERRUPT_TPM0       = 17,
-    INTERRUPT_TPM1       = 18,
-    INTERRUPT_TPM2       = 19,
-    INTERRUPT_RTC_ALARM  = 20,
-    INTERRUPT_RTC_SECOND = 21,
-    INTERRUPT_PIT        = 22,
-    INTERRUPT_DAC0       = 25,
-    INTERRUPT_TSI0       = 26,
-    INTERRUPT_MCG        = 27,
-    INTERRUPT_LPTMR0     = 28,
-    INTERRUPT_PORTA      = 30,
-    INTERRUPT_PORTD      = 31,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    INTERRUPT_DMA0       = 0,
-    INTERRUPT_DMA1       = 1,
-    INTERRUPT_DMA2       = 2,
-    INTERRUPT_DMA3       = 3,
-    INTERRUPT_FTFA       = 5,
-    INTERRUPT_PMC        = 6,
-    INTERRUPT_LLWU       = 7,
-    INTERRUPT_IIC0       = 8,
-    INTERRUPT_IIC1       = 9,
-    INTERRUPT_SPI0       = 10,
-    INTERRUPT_SPI1       = 11,
-    INTERRUPT_UART0      = 12,
-    INTERRUPT_UART1      = 13,
-    INTERRUPT_UART2      = 14,
-    INTERRUPT_ADC0       = 15,
-    INTERRUPT_CMP0       = 16,
-    INTERRUPT_TPM0       = 17,
-    INTERRUPT_TPM1       = 18,
-    INTERRUPT_TPM2       = 19,
-    INTERRUPT_RTC_ALARM  = 20,
-    INTERRUPT_RTC_SECOND = 21,
-    INTERRUPT_PIT        = 22,
-    INTERRUPT_USBOTG     = 24,
-    INTERRUPT_DAC0       = 25,
-    INTERRUPT_TSI0       = 26,
-    INTERRUPT_MCG        = 27,
-    INTERRUPT_LPTMR0     = 28,
     INTERRUPT_PORTA      = 30,
     INTERRUPT_PORTD      = 31,
 
