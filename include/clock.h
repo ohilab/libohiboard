@@ -87,9 +87,9 @@ typedef enum _Clock_Source
 typedef enum _Clock_Origin
 {
 
-    CLOCK_NO_SOURCE        = 0x0000,
-    CLOCK_EXTERNAL         = 0x0001,
-    CLOCK_CRYSTAL          = 0x0002,
+    CLOCK_NO_SOURCE            = 0x0000,
+    CLOCK_EXTERNAL             = 0x0001,
+    CLOCK_CRYSTAL              = 0x0002,
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
@@ -109,10 +109,11 @@ typedef enum _Clock_Origin
 
 #if defined (LIBOHIBOARD_STM32L476)
 
-    CLOCK_INTERNAL_LSI     = 0x0004,
-    CLOCK_INTERNAL_HSI     = 0x0008,
-    CLOCK_INTERNAL_MSI     = 0x0010,
-    CLOCK_INTERNAL_PLL     = 0x0020,
+    CLOCK_INTERNAL_LSI         = 0x0004,
+    CLOCK_INTERNAL_HSI         = 0x0008,
+    CLOCK_INTERNAL_MSI         = 0x0010,
+    CLOCK_INTERNAL_PLL         = 0x0020,
+    CLOCK_EXTERNAL_LSE_CRYSTAL = 0x0040,
 
 #endif // LIBOHIBOARD_STM32L476
 
@@ -245,6 +246,8 @@ typedef struct _Clock_Config
 
     Clock_OscillatorState hseState;
     Clock_OscillatorState hsiState;
+    Clock_OscillatorState lsiState;
+    Clock_OscillatorState lseState;
 
     Clock_SystemSource sysSource;
 
@@ -258,6 +261,13 @@ typedef struct _Clock_Config
 #endif
 
 } Clock_Config;
+
+// Useful define
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/clock_STM32L4.h"
+
+#endif
 
 
 System_Errors Clock_init (Clock_Config *config);
@@ -302,23 +312,6 @@ uint32_t Clock_getOscillatorValue (Clock_Source source);
 uint8_t Clock_getCoreDivider();
 
 #endif
-
-/*
- * Usefull define to enable/disable clock to some peripherals
- */
-#if defined (LIBOHIBOARD_ST_STM32)
-
-#if defined (LIBOHIBOARD_STM32L476)
-
-#define CLOCK_ENABLE_SYSCFG() do { \
-                                UTILITY_SET_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
-                                asm("nop"); \
-                                (void) UTILITY_READ_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
-                              } while (0)
-
-#endif // LIBOHIBOARD_STM32L476
-
-#endif // LIBOHIBOARD_ST_STM32
 
 #ifdef __cplusplus
 }

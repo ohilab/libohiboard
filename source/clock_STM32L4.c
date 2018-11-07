@@ -40,18 +40,25 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                            && \
-                                        (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)         || \
-                                         ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)           || \
-                                         ((OSC & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI) || \
-                                         ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI) || \
-                                         ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI))
+#define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                                            && \
+                                        (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)                         || \
+                                         ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)                           || \
+                                         ((OSC & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)                 || \
+                                         ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)                 || \
+                                         ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)                 || \
+                                         ((OSC & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL))
 
 #define CLOCK_IS_VALID_HSE_STATE(HSESTATE) (((HSESTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
                                             ((HSESTATE) == CLOCK_OSCILLATORSTATE_ON))
 
 #define CLOCK_IS_VALID_HSI_STATE(HSISTATE) (((HSISTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
                                             ((HSISTATE) == CLOCK_OSCILLATORSTATE_ON))
+
+#define CLOCK_IS_VALID_LSI_STATE(LSISTATE) (((LSISTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
+                                            ((LSISTATE) == CLOCK_OSCILLATORSTATE_ON))
+
+#define CLOCK_IS_VALID_LSE_STATE(LSESTATE) (((LSESTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
+                                            ((LSESTATE) == CLOCK_OSCILLATORSTATE_ON))
 
 #define CLOCK_IS_VALID_EXTERNAL_RANGE(VALUE) ((VALUE >= CLOCK_MIN_FREQ_HSE) && (VALUE <= CLOCK_MAX_FREQ_HSE))
 
@@ -148,6 +155,7 @@ static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 typedef struct _Clock_Device
 {
     RCC_TypeDef* regmap;
+    PWR_TypeDef* regmapPwr;
 
     uint32_t systemCoreClock; /**< Value that store current system core clock */
     uint32_t hclkClock;
@@ -168,7 +176,8 @@ typedef struct _Clock_Device
 
 static Clock_Device clk0 =
 {
-    .regmap = RCC,
+    .regmap    = RCC,
+    .regmapPwr = PWR,
 
     .systemCoreClock = 4000000U,
     .hclkClock       = 0U,
@@ -186,6 +195,25 @@ static Clock_Device clk0 =
     .rccError = ERRORS_NO_ERROR,
 };
 
+/**
+ * Useful constant to define default value of MSI oscillator in hertz.
+ */
+static const uint32_t Clock_msiRange[]  =
+{
+      100000,
+      200000,
+      400000,
+      800000,
+     1000000,
+     2000000,
+     4000000,
+     8000000,
+    16000000,
+    24000000,
+    32000000,
+    48000000,
+};
+
 
 static void Clock_updateOutputValue (void)
 {
@@ -199,7 +227,8 @@ static void Clock_updateOutputValue (void)
     }
     else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_MSI)
     {
-        // TODO
+        uint8_t msirange = (uint8_t)(UTILITY_READ_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_MSISRANGE) >> RCC_CSR_MSISRANGE_Pos);
+        clk0.systemCoreClock = Clock_msiRange[msirange];
     }
     else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL)
     {
@@ -220,11 +249,15 @@ static void Clock_updateOutputValue (void)
 
 static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 {
+    uint32_t tickstart = 0;
+
     if ((config->source & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)
     {
 
     }
-    else if ((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)
+
+    // HSE with external clock configuration
+    if ((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)
     {
         // Check the HSE state value
         ohiassert(CLOCK_IS_VALID_HSE_STATE(config->hseState));
@@ -252,7 +285,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is cleared
                 // FIXME: Add timeout...
                 while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0);
-                return ERRORS_NO_ERROR;
+//                return ERRORS_NO_ERROR;
             }
             else
             {
@@ -263,11 +296,13 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
                 while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0);
-                return ERRORS_NO_ERROR;
+//                return ERRORS_NO_ERROR;
             }
         }
     }
-    else if ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)
+
+    // HSE with crystal configuration
+    if ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)
     {
         // Check the HSE state value
         ohiassert(CLOCK_IS_VALID_HSE_STATE(config->hseState));
@@ -295,7 +330,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is cleared
                 // FIXME: Add timeout...
                 while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0);
-                return ERRORS_NO_ERROR;
+//                return ERRORS_NO_ERROR;
             }
             else
             {
@@ -306,11 +341,13 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
                 while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0);
-                return ERRORS_NO_ERROR;
+//                return ERRORS_NO_ERROR;
             }
         }
     }
-    else if ((config->source & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)
+
+    // HSI Configuration
+    if ((config->source & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)
     {
         // Check the HSI state value
         ohiassert(CLOCK_IS_VALID_HSI_STATE(config->hsiState));
@@ -333,7 +370,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is cleared
                 // FIXME: Add timeout...
                 while ((clk0.regmap->CR & RCC_CR_HSIRDY) > 0);
-                return ERRORS_NO_ERROR;
+//                return ERRORS_NO_ERROR;
             }
             else
             {
@@ -343,8 +380,106 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
                 while ((clk0.regmap->CR & RCC_CR_HSIRDY) == 0);
-                return ERRORS_NO_ERROR;
+//                return ERRORS_NO_ERROR;
             }
+        }
+    }
+
+    // LSI Configuration
+    if ((config->source & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)
+    {
+        // Check the LSI state value
+        ohiassert(CLOCK_IS_VALID_LSI_STATE(config->lsiState));
+
+        if (config->lsiState == CLOCK_OSCILLATORSTATE_OFF)
+        {
+            // Switch off the oscillator
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSION);
+
+            tickstart = System_currentTick();
+
+            // Wait until LSI is disabled
+            while ((clk0.regmap->CSR & RCC_CSR_LSIRDY) > 0)
+            {
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+        else
+        {
+            // Switch on the oscillator
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSION);
+
+            tickstart = System_currentTick();
+
+            // Wait until LSI is ready
+            while ((clk0.regmap->CSR & RCC_CSR_LSIRDY) == 0)
+            {
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+    }
+
+    // LSE Configuration
+    // See page 272 of RM0351 for informations about backup domain control
+    if ((config->source & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL)
+    {
+        bool isPwrChanged = FALSE;
+
+        // Check the LSE state value
+        ohiassert(CLOCK_IS_VALID_LSE_STATE(config->lseState));
+
+        // LSE is write protected because is under backup domain
+        // Unlock this register before write!
+        // First operation is enable PWR driver
+        if (CLOCK_IS_ENABLE_PWR() == FALSE)
+        {
+            CLOCK_ENABLE_PWR();
+            isPwrChanged = TRUE;
+        }
+
+        // Disable write protection
+        CLOCK_BACKUP_DISABLE_WRITE_PROTECTION();
+        // Wait some cycle...
+        asm("NOP");
+        asm("NOP");
+
+        if (config->lseState == CLOCK_OSCILLATORSTATE_OFF)
+        {
+            // Switch off the oscillator
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->BDCR,RCC_BDCR_LSEON);
+
+            tickstart = System_currentTick();
+
+            // Wait until LSE is disabled
+            while ((clk0.regmap->BDCR & RCC_BDCR_LSERDY) > 0)
+            {
+                // Wait 5s
+                if ((System_currentTick() - tickstart) > 5000u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+        else
+        {
+            // Switch on the oscillator
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->BDCR,RCC_BDCR_LSEON);
+
+            tickstart = System_currentTick();
+
+            // Wait until LSE is ready
+            while ((clk0.regmap->BDCR & RCC_BDCR_LSERDY) == 0)
+            {
+                // Wait 5s
+                if ((System_currentTick() - tickstart) > 5000u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+
+        // Restore PWR status
+        if (isPwrChanged == TRUE)
+        {
+            CLOCK_DISABLE_PWR();
         }
     }
 
@@ -460,6 +595,11 @@ System_Errors Clock_init (Clock_Config* config)
     // Check if selected oscillator is valid
     ohiassert(CLOCK_IS_VALID_OSCILLATOR(config->source));
 
+    // Setup default value of internal clock
+    Clock_updateOutputValue();
+    // Initialize SysTick with default clock value (MSI @ 4MHz)
+    System_systickInit(0);
+
     // Check if both EXTERN and CRYSTAL are selected
     // HSE support only one of these condition
     // FIXME
@@ -477,7 +617,7 @@ System_Errors Clock_init (Clock_Config* config)
         // TODO:
     }
 
-    // Initialize SysTick
+    // Initialize SysTick with new value of HCLK
     System_systickInit(0);
 
     return err;

@@ -151,6 +151,7 @@ typedef enum _System_Errors
     ERRORS_CLOCK_HSI_NOT_READY,
     ERRORS_CLOCK_MSI_NOT_READY,
 #endif
+    ERRORS_CLOCK_TIMEOUT,
 
     ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
