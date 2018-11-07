@@ -637,13 +637,13 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
         frequency = (uint32_t)CLOCK_FREQ_LSE;
         break;
     case UART_CLOCKSOURCE_SYSCLK:
-        frequency = Clock_getOutputClock(CLOCK_OUTPUT_SYSCLK);
+        frequency = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
         break;
     case UART_CLOCKSOURCE_PCLK:
         if (dev == OB_UART1)
-            frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK2);
+            frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
         else
-            frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK1);
+            frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK1);
         break;
     default:
         ohiassert(0);

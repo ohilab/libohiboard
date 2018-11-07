@@ -43,10 +43,11 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L476)
 
-#define CLOCK_MIN_FREQ_HSE                     4000000U
-#define CLOCK_MAX_FREQ_HSE                    48000000U
-#define CLOCK_FREQ_HSI                        16000000U
-#define CLOCK_FREQ_LSE                           32768U
+#define CLOCK_MIN_FREQ_HSE                     4000000u
+#define CLOCK_MAX_FREQ_HSE                    48000000u
+#define CLOCK_FREQ_HSI                        16000000u
+#define CLOCK_FREQ_LSE                ((uint32_t)32768u)
+#define CLOCK_FREQ_LSI                ((uint32_t)32000u)
 
 #endif
 
@@ -108,7 +109,7 @@ typedef enum _Clock_Origin
 
 #if defined (LIBOHIBOARD_STM32L476)
 
-    CLOCK_INTERNAL_32K     = 0x0004,
+    CLOCK_INTERNAL_LSI     = 0x0004,
     CLOCK_INTERNAL_HSI     = 0x0008,
     CLOCK_INTERNAL_MSI     = 0x0010,
     CLOCK_INTERNAL_PLL     = 0x0020,
@@ -275,11 +276,17 @@ System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint
  * @param[in] output The selected output clock
  * @return The clock frequency in Hz
  */
-uint32_t Clock_getOutputClock (Clock_Output output);
+uint32_t Clock_getOutputValue (Clock_Output output);
 
 #endif
 
-uint32_t Clock_getFrequency (Clock_Source source);
+/**
+ * Return the selected oscillator clock value.
+ *
+ * @param[in] source The selected oscillator value
+ * @return The clock frequency in Hz
+ */
+uint32_t Clock_getOscillatorValue (Clock_Source source);
 
 #if defined (LIBOHIBOARD_K10D10)       || \
     defined (LIBOHIBOARD_K10D7)        || \

@@ -370,10 +370,10 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
         frequency = (uint32_t)CLOCK_FREQ_HSI;
         break;
     case IIC_CLOCKSOURCE_SYSCLK:
-        frequency = Clock_getOutputClock(CLOCK_OUTPUT_SYSCLK);
+        frequency = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
         break;
     case IIC_CLOCKSOURCE_PCLK:
-        frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK2);
+        frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
         break;
     default:
         ohiassert(0);

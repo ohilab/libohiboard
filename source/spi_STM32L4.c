@@ -538,9 +538,9 @@ System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed)
 #if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
 
     if (dev == OB_SPI1)
-        frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK2);
+        frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
     else
-        frequency = Clock_getOutputClock(CLOCK_OUTPUT_PCLK1);
+        frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK1);
 
 #endif
 

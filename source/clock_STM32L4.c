@@ -43,7 +43,7 @@ extern "C" {
 #define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                            && \
                                         (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)         || \
                                          ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)           || \
-                                         ((OSC & CLOCK_INTERNAL_32K) == CLOCK_INTERNAL_32K) || \
+                                         ((OSC & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI) || \
                                          ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI) || \
                                          ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI))
 
@@ -145,7 +145,7 @@ static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 };
 
 
-typedef struct Clock_Device
+typedef struct _Clock_Device
 {
     RCC_TypeDef* regmap;
 
@@ -166,7 +166,7 @@ typedef struct Clock_Device
 
 } Clock_Device;
 
-static Clock_Device Clock_device =
+static Clock_Device clk0 =
 {
     .regmap = RCC,
 
@@ -187,35 +187,35 @@ static Clock_Device Clock_device =
 };
 
 
-static void Clock_updateOutputClock (void)
+static void Clock_updateOutputValue (void)
 {
-    if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE)
+    if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE)
     {
-        Clock_device.systemCoreClock = Clock_device.externalClock;
+        clk0.systemCoreClock = clk0.externalClock;
     }
-    else if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI)
+    else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI)
     {
-        Clock_device.systemCoreClock = CLOCK_FREQ_HSI;
+        clk0.systemCoreClock = CLOCK_FREQ_HSI;
     }
-    else if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_MSI)
+    else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_MSI)
     {
         // TODO
     }
-    else if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL)
+    else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL)
     {
         // TODO
     }
 
     // Compute HCLK, PCLK1 and PCLK2
-    uint32_t cfgr = Clock_device.regmap->CFGR;
+    uint32_t cfgr = clk0.regmap->CFGR;
     uint32_t shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
-    Clock_device.hclkClock = (Clock_device.systemCoreClock >> CLOCK_AHB_PRESCALE_SHIFT_TABLE[shifter]);
+    clk0.hclkClock = (clk0.systemCoreClock >> CLOCK_AHB_PRESCALE_SHIFT_TABLE[shifter]);
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
-    Clock_device.pclk1Clock = (Clock_device.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
+    clk0.pclk1Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos;
-    Clock_device.pclk2Clock = (Clock_device.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
+    clk0.pclk2Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
 }
 
 static System_Errors Clock_oscillatorConfig (Clock_Config* config)
@@ -231,13 +231,13 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 
         // Check and save external clock value
         ohiassert(CLOCK_IS_VALID_EXTERNAL_RANGE(config->fext));
-        Clock_device.externalClock = config->fext;
+        clk0.externalClock = config->fext;
 
         // Check if HSE is just used as SYSCLK or as PLL source
         // In this case we can't disable it
-        if (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE) ||
-            (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-             ((Clock_device.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSE)))
+        if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE) ||
+            (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+             ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSE)))
         {
             return ERRORS_CLOCK_WRONG_CONFIGURATION;
         }
@@ -246,23 +246,23 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             if (config->hseState == CLOCK_OSCILLATORSTATE_OFF)
             {
                 // Switch off this oscillator
-                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEON);
-                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEBYP);
+                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEON);
+                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is cleared
                 // FIXME: Add timeout...
-                while ((Clock_device.regmap->CR & RCC_CR_HSERDY) > 0);
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0);
                 return ERRORS_NO_ERROR;
             }
             else
             {
                 // Switch on this oscillator, and bypass functionality
-                UTILITY_SET_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEON);
-                UTILITY_SET_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEBYP);
+                UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEON);
+                UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
-                while ((Clock_device.regmap->CR & RCC_CR_HSERDY) == 0);
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0);
                 return ERRORS_NO_ERROR;
             }
         }
@@ -274,13 +274,13 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 
         // Check and save external clock value
         ohiassert(CLOCK_IS_VALID_EXTERNAL_RANGE(config->fext));
-        Clock_device.externalClock = config->fext;
+        clk0.externalClock = config->fext;
 
         // Check if HSE is just used as SYSCLK or as PLL source
         // In this case we can't disable it
-        if (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE) ||
-            (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-             ((Clock_device.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSE)))
+        if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE) ||
+            (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+             ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSE)))
         {
             return ERRORS_CLOCK_WRONG_CONFIGURATION;
         }
@@ -289,23 +289,23 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             if (config->hseState == CLOCK_OSCILLATORSTATE_OFF)
             {
                 // Switch off this oscillator
-                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEON);
-                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEBYP);
+                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEON);
+                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is cleared
                 // FIXME: Add timeout...
-                while ((Clock_device.regmap->CR & RCC_CR_HSERDY) > 0);
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0);
                 return ERRORS_NO_ERROR;
             }
             else
             {
                 // Switch on this oscillator, and disable bypass functionality just for safety
-                UTILITY_SET_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEON);
-                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSEBYP);
+                UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEON);
+                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
-                while ((Clock_device.regmap->CR & RCC_CR_HSERDY) == 0);
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0);
                 return ERRORS_NO_ERROR;
             }
         }
@@ -317,9 +317,9 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 
         // Check if HSI is just used as SYSCLK or as PLL source
         // In this case we can't disable it
-        if (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) ||
-            (((Clock_device.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-             ((Clock_device.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSI)))
+        if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) ||
+            (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+             ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSI)))
         {
             return ERRORS_CLOCK_WRONG_CONFIGURATION;
         }
@@ -328,21 +328,21 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             if (config->hsiState == CLOCK_OSCILLATORSTATE_OFF)
             {
                 // Switch off the oscillator
-                UTILITY_CLEAR_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSION);
+                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSION);
 
                 // Wait until the HSERDY bit is cleared
                 // FIXME: Add timeout...
-                while ((Clock_device.regmap->CR & RCC_CR_HSIRDY) > 0);
+                while ((clk0.regmap->CR & RCC_CR_HSIRDY) > 0);
                 return ERRORS_NO_ERROR;
             }
             else
             {
                 // Switch on the oscillator
-                UTILITY_SET_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSION);
+                UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSION);
 
                 // Wait until the HSERDY bit is set
                 // FIXME: Add timeout...
-                while ((Clock_device.regmap->CR & RCC_CR_HSIRDY) == 0);
+                while ((clk0.regmap->CR & RCC_CR_HSIRDY) == 0);
                 return ERRORS_NO_ERROR;
             }
         }
@@ -363,7 +363,7 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         if (config->sysSource == CLOCK_SYSTEMSOURCE_PLL)
         {
             // Check if the source is ready
-            if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_PLLRDY) == 0)
+            if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLRDY) == 0)
             {
                 return ERRORS_CLOCK_PLL_NOT_READY;
             }
@@ -373,7 +373,7 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_HSI)
         {
             // Check if the source is ready
-            if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSIRDY) == 0)
+            if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSIRDY) == 0)
             {
                 return ERRORS_CLOCK_HSI_NOT_READY;
             }
@@ -383,7 +383,7 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_HSE)
         {
             // Check if the source is ready
-            if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_HSERDY) == 0)
+            if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSERDY) == 0)
             {
                 return ERRORS_CLOCK_HSE_NOT_READY;
             }
@@ -394,7 +394,7 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_MSI)
         {
             // Check if the source is ready
-            if (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CR,RCC_CR_MSIRDY) == 0)
+            if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_MSIRDY) == 0)
             {
                 return ERRORS_CLOCK_MSI_NOT_READY;
             }
@@ -403,11 +403,11 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         }
 
         // Clear SW part of CFGR register and updated informations
-        Clock_device.regmap->CFGR &= ~(RCC_CFGR_SW_Msk);
-        Clock_device.regmap->CFGR |= cfgrSW;
+        clk0.regmap->CFGR &= ~(RCC_CFGR_SW_Msk);
+        clk0.regmap->CFGR |= cfgrSW;
 
         // Check if new value was setted
-        while (UTILITY_READ_REGISTER_BIT(Clock_device.regmap->CFGR,RCC_CFGR_SWS) != (cfgrSW << RCC_CFGR_SWS_Pos));
+        while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) != (cfgrSW << RCC_CFGR_SWS_Pos));
 
         // FIXME: add timeout!
     }
@@ -418,8 +418,8 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         ohiassert(CLOCK_IS_VALID_AHB_DIVIDER(config->ahbDivider));
 
         // Clear HPRE part of CFGR register and updated informations
-        Clock_device.regmap->CFGR &= ~(RCC_CFGR_HPRE_Msk);
-        Clock_device.regmap->CFGR |= CLOCK_AHB_PRESCALE_REGISTER_TABLE[config->ahbDivider];
+        clk0.regmap->CFGR &= ~(RCC_CFGR_HPRE_Msk);
+        clk0.regmap->CFGR |= CLOCK_AHB_PRESCALE_REGISTER_TABLE[config->ahbDivider];
     }
 
     if ((config->output & CLOCK_OUTPUT_PCLK1) == CLOCK_OUTPUT_PCLK1)
@@ -428,8 +428,8 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb1Divider));
 
         // Clear PPRE1 part of CFGR register and updated informations
-        Clock_device.regmap->CFGR &= ~(RCC_CFGR_PPRE1_Msk);
-        Clock_device.regmap->CFGR |= CLOCK_APB1_PRESCALE_REGISTER_TABLE[config->apb1Divider];
+        clk0.regmap->CFGR &= ~(RCC_CFGR_PPRE1_Msk);
+        clk0.regmap->CFGR |= CLOCK_APB1_PRESCALE_REGISTER_TABLE[config->apb1Divider];
     }
 
     if ((config->output & CLOCK_OUTPUT_PCLK2) == CLOCK_OUTPUT_PCLK2)
@@ -438,12 +438,12 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb2Divider));
 
         // Clear PPRE2 part of CFGR register and updated informations
-        Clock_device.regmap->CFGR &= ~(RCC_CFGR_PPRE2_Msk);
-        Clock_device.regmap->CFGR |= CLOCK_APB2_PRESCALE_REGISTER_TABLE[config->apb2Divider];
+        clk0.regmap->CFGR &= ~(RCC_CFGR_PPRE2_Msk);
+        clk0.regmap->CFGR |= CLOCK_APB2_PRESCALE_REGISTER_TABLE[config->apb2Divider];
     }
 
     // Update system core clock informations...
-    Clock_updateOutputClock();
+    Clock_updateOutputValue();
 
     return ERRORS_NO_ERROR;
 }
@@ -483,18 +483,33 @@ System_Errors Clock_init (Clock_Config* config)
     return err;
 }
 
-uint32_t Clock_getOutputClock (Clock_Output output)
+uint32_t Clock_getOutputValue (Clock_Output output)
 {
     switch (output)
     {
     case CLOCK_OUTPUT_SYSCLK:
-        return Clock_device.systemCoreClock;
+        return clk0.systemCoreClock;
     case CLOCK_OUTPUT_HCLK:
-        return Clock_device.hclkClock;
+        return clk0.hclkClock;
     case CLOCK_OUTPUT_PCLK1:
-        return Clock_device.pclk1Clock;
+        return clk0.pclk1Clock;
     case CLOCK_OUTPUT_PCLK2:
-        return Clock_device.pclk2Clock;
+        return clk0.pclk2Clock;
+    default:
+        return 0;
+    }
+}
+
+uint32_t Clock_getOscillatorValue (Clock_Source source)
+{
+    switch (source)
+    {
+    case CLOCK_EXTERNAL:
+        if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEON) == RCC_CR_HSEON)
+            return clk0.externalClock;
+        else
+            return 0;
+        break;
     default:
         return 0;
     }
