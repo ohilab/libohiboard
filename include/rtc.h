@@ -144,12 +144,14 @@ typedef struct _Rtc_Config
 {
     Rtc_ClockSource clockSource;
 
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
     uint32_t alarm;
     void (*callbackAlarm)(void);    /**< The pointer for user alarm callback. */
 
     void (*callbackSecond)(void);  /**< The pointer for user second callback. */
 
-#if defined (LIBOHIBOARD_ST_STM32)
+#elif defined (LIBOHIBOARD_ST_STM32)
 
     Rtc_HourFormat hourFormat;
 
@@ -162,6 +164,9 @@ typedef struct _Rtc_Config
 
 } Rtc_Config;
 
+/**
+ * Useful define to represent unix timestamp.
+ */
 typedef uint32_t Rtc_Time;
 
 /** @name RTC Configuration functions
@@ -210,11 +215,15 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
 
 ///@}
 
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
 void Rtc_enableAlarm (Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
 void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 
 void Rtc_enableSecond (Rtc_DeviceHandle dev, void *callback);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
+
+#endif
 
 #ifdef __cplusplus
 }

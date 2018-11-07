@@ -30,7 +30,6 @@
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Time manage functions declarations
  */
-#ifdef LIBOHIBOARD_TIMEDAY
 
 #ifndef __TIMEDAY_H
 #define __TIMEDAY_H
@@ -78,5 +77,4 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
 
 #endif // __TIMEDAY_H
 
-#endif // LIBOHIBOARD_TIMEDAY
 

@@ -39,7 +39,6 @@ extern "C" {
 
 #include "rtc.h"
 
-#define LIBOHIBOARD_TIMEDAY
 #include "timeday.h"
 
 #include "interrupt.h"
@@ -54,6 +53,9 @@ extern "C" {
  * It is expressed in milli-second.
  */
 #define RTC_MAX_TIMEOUT                   1000
+
+#define RTC_MAX_APREDIV                   128
+#define RTC_MAX_SPREDIV                   32768
 
 #define RTC_CLOCK_ENABLE(REG,MASK)        do { \
                                             UTILITY_SET_REGISTER_BIT(REG,MASK); \
@@ -161,6 +163,16 @@ static Rtc_Device rtc0 =
 Rtc_DeviceHandle OB_RTC0 = &rtc0;
 
 /**
+ * This function enter into initialization mode.
+ *
+ * From RM0351 rev6 document, page 1226, the sequence is:
+ * @li Set INIT bit to 1 in the RTC_ISR register to enter initialization mode.
+ * In this mode, the calendar counter is stopped and its value can be updated.
+ * @li Poll INITF bit of in the RTC_ISR register. The initialization phase mode
+ * is entered when INITF is set to 1. It takes around 2 RTCCLK clock cycles
+ * (due to clock synchronization).
+ *
+ * @param[in] dev Rtc device handle
  *
  */
 static inline System_Errors __attribute__((always_inline)) Rtc_enterInitialization (Rtc_DeviceHandle dev)
@@ -189,7 +201,13 @@ static inline System_Errors __attribute__((always_inline)) Rtc_enterInitializati
 }
 
 /**
+ * This function exit from initialization mode.
  *
+ * From RM0351 rev6 document, page 1226, the exit from initialization is done by
+ * clearing the INIT bit. The actual calendar counter value is then automatically
+ * loaded and the counting restarts after 4 RTCCLK clock cycles.
+ *
+ * @param[in] dev Rtc device handle
  */
 static inline void __attribute__((always_inline)) Rtc_exitInitialization (Rtc_DeviceHandle dev)
 {
@@ -198,7 +216,7 @@ static inline void __attribute__((always_inline)) Rtc_exitInitialization (Rtc_De
 }
 
 /**
- *
+ * @param[in] dev Rtc device handle
  */
 static inline System_Errors __attribute__((always_inline)) Rtc_waitSynchronization (Rtc_DeviceHandle dev)
 {
@@ -224,7 +242,13 @@ static inline System_Errors __attribute__((always_inline)) Rtc_waitSynchronizati
 }
 
 /**
+ * RTC configuration procedure.
  *
+ * @li Exit the initialization mode by clearing the INIT bit. The actual
+ * calendar counter value is then automatically loaded and the counting
+ * restarts after 4 RTCCLK clock cycles.
+ *
+ * @param[in] dev Rtc device handle
  */
 static System_Errors Rtc_config (Rtc_DeviceHandle dev)
 {
@@ -259,6 +283,39 @@ static System_Errors Rtc_config (Rtc_DeviceHandle dev)
     dev->regmap->OR = ((dev->outputRemap << RTC_OR_OUT_RMP_Pos) | (dev->outputType << RTC_OR_ALARMOUTTYPE_Pos));
 
     // TODO: Compute and setup clock prescaler
+    uint32_t frequency = 0;
+    // Get current parent clock
+    switch (dev->clockSource)
+    {
+    case RTC_CLOCK_LSI:
+        frequency = (uint32_t)CLOCK_FREQ_LSI;
+        break;
+    case RTC_CLOCK_LSE:
+        frequency = (uint32_t)CLOCK_FREQ_LSE;
+        break;
+    case RTC_CLOCK_HSE_RTC:
+        frequency = (uint32_t)(Clock_getOscillatorValue(CLOCK_EXTERNAL) / 32u);
+        break;
+    }
+    // Check if frequency is grather than 32000Hz, in this case put
+    // asynchronous divider to the maximum value (128)
+    if (frequency >= CLOCK_FREQ_LSI)
+    {
+        // Compute divided frequency
+        frequency = frequency / (RTC_MAX_APREDIV - 1);
+
+        if ((frequency > RTC_MAX_SPREDIV) || (frequency == 0))
+        {
+            // FIXME: Manage error
+        }
+
+        dev->regmap->PRER = (uint32_t)(frequency - 1);
+        dev->regmap->PRER |= (uint32_t)((RTC_MAX_APREDIV - 1) << 16);
+    }
+    else
+    {
+        // FIXME!
+    }
 
     // Exit from configuration mode
     Rtc_exitInitialization(dev);
@@ -310,6 +367,20 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config)
     dev->outputRemap = config->outputRemap;
     dev->outputPolarity = config->outputPolarity;
 
+    // Enable RTC and backup domain write
+    bool isPwrChanged = FALSE;
+    if (CLOCK_IS_ENABLE_PWR() == FALSE)
+    {
+        CLOCK_ENABLE_PWR();
+        isPwrChanged = TRUE;
+    }
+
+    // Disable write protection
+    CLOCK_BACKUP_DISABLE_WRITE_PROTECTION();
+    // Wait some cycle...
+    asm("NOP");
+    asm("NOP");
+
     // In reset condition, enable clock
     if (dev->state == RTC_DEVICESTATE_RESET)
     {
@@ -338,6 +409,12 @@ System_Errors Rtc_init (Rtc_DeviceHandle dev, Rtc_Config *config)
 
     // Now the peripheral is ready
     dev->state = RTC_DEVICESTATE_READY;
+
+    // Restore PWR status
+    if (isPwrChanged == TRUE)
+    {
+        CLOCK_DISABLE_PWR();
+    }
 
     return ERRORS_NO_ERROR;
 }

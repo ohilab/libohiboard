@@ -31,8 +31,6 @@
  * @brief Time manage functions
  */
 
-#ifdef LIBOHIBOARD_TIMEDAY
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -332,4 +330,3 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
 }
 #endif
 
-#endif // LIBOHIBOARD_TIMEDAY

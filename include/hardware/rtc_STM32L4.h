@@ -50,4 +50,4 @@ extern Rtc_DeviceHandle OB_RTC0;
 }
 #endif
 
-#endif // __GPIO_STM32L4_H
+#endif // __RTC_STM32L4_H
