@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -23,30 +25,40 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
- * @file libohiboard/include/ftm.h
+ * @file libohiboard/include/timer.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Matteo Civale <matteo.civale@gmail.com>
  * @author Simone Giacomucci <simone.giacomucci@gmail.com>
- * @brief FTM definitions and prototypes.
+ * @brief Timer definitions and prototypes.
  */
 
-#ifdef LIBOHIBOARD_FTM
+#ifdef LIBOHIBOARD_TIMER
 
-#ifndef __FTM_H
-#define __FTM_H
+#ifndef __TIMER_H
+#define __TIMER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "system.h"
 
-typedef enum 
+typedef enum _Timer_Mode
 {
-    FTM_MODE_INPUT_CAPTURE,
+    TIMER_MODE_FREE,
+    TIMER_MODE_PWM,
+    TIMER_MODE_INPUT_CAPTURE,
+    TIMER_MODE_OUTPUT_COMPARE,
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
     FTM_MODE_QUADRATURE_DECODE,
-    FTM_MODE_OUTPUT_COMPARE,
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
     defined (LIBOHIBOARD_K64F12)   || \
@@ -55,13 +67,15 @@ typedef enum
     defined (LIBOHIBOARD_TRWKV46F)
 
     FTM_MODE_COMBINE,
+
 #endif
 
-    FTM_MODE_PWM,
-    FTM_MODE_FREE
-} Ftm_Mode;
+// ENDIF: LIBOHIBOARD_NXP_KINETIS
+#endif
 
-typedef struct Ftm_Device* Ftm_DeviceHandle;
+} Timer_Mode;
+
+typedef struct _Timer_Device* Timer_DeviceHandle;
 
 /* Configuration bits */
 #define FTM_CONFIG_PWM_EDGE_ALIGNED      0x00
@@ -73,6 +87,13 @@ typedef struct Ftm_Device* Ftm_DeviceHandle;
 #define FTM_CONFIG_INPUT_RISING_EDGE	 0x04
 #define FTM_CONFIG_INPUT_FALLING_EDGE	 0x08
 #define FTM_CONFIG_INPUT_BOTH_EDGES		 0x10
+
+
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/timer_STM32L4.h"
+
+#else
 
 #if defined (LIBOHIBOARD_KL15Z4)
 
@@ -690,17 +711,19 @@ typedef struct _Ftm_FaultConfig
 
 #endif
 
-typedef struct Ftm_Config
+#endif
+
+typedef struct _Timer_Config
 {
-    Ftm_Mode mode;                                  /**< Modes of operations. */
+    Timer_Mode mode;                                /**< Modes of operations. */
     
     uint16_t modulo;             /**< The modulo value for the timer counter. */
     uint16_t initCounter;
 
     uint32_t timerFrequency;                            /**< Timer frequency. */
     
-    Ftm_Pins pins[FTM_MAX_CHANNEL + 1];
-    uint16_t duty[FTM_MAX_CHANNEL + 1];
+//    Ftm_Pins pins[FTM_MAX_CHANNEL + 1];
+//    uint16_t duty[FTM_MAX_CHANNEL + 1];
     
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
 
@@ -728,36 +751,61 @@ typedef struct Ftm_Config
 
 #endif
 
-} Ftm_Config;
+} Timer_Config;
 
-void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config);
+/** @name Configuration functions
+ *  Functions to initialize and de-initialize a Timer peripheral.
+ */
+///@{
 
-void Ftm_resetCounter (Ftm_DeviceHandle dev);
+/**
+  * @brief Initialize the Timer according to the specified parameters
+  *         in the @ref Timer_Config and initialize the associated handle.
+  * @param[in] dev Timer device handle
+  * @param[in] config Configuration parameters list.
+  * @return ERRORS_NO_ERROR The initialization is ok.
+  */
+System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config);
 
-/* Valid only in free counter mode */
-void Ftm_enableInterrupt (Ftm_DeviceHandle dev);
-void Ftm_disableInterrupt (Ftm_DeviceHandle dev);
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @param[in] dev Timer device handle
+ */
+System_Errors Timer_deInit (Timer_DeviceHandle dev);
 
-void Ftm_startCount(Ftm_DeviceHandle dev);
-void Ftm_stopCount(Ftm_DeviceHandle dev);
-uint16_t Ftm_getModule(Ftm_DeviceHandle dev);
+///@}
 
-/* Set PWM */
-System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
-void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
+//void Ftm_resetCounter (Ftm_DeviceHandle dev);
+//
+///* Valid only in free counter mode */
+//void Ftm_enableInterrupt (Ftm_DeviceHandle dev);
+//void Ftm_disableInterrupt (Ftm_DeviceHandle dev);
+//
+//void Ftm_startCount(Ftm_DeviceHandle dev);
+//void Ftm_stopCount(Ftm_DeviceHandle dev);
+//uint16_t Ftm_getModule(Ftm_DeviceHandle dev);
+//
+///* Set PWM */
+//System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
+//void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
+//
+///* Set Input Capture */
+//System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t configurations);
+//
+///* Channel function */
+//void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+//void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+//bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+//void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
+//uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel);
+//
+//uint8_t Ftm_ResetFault (Ftm_DeviceHandle dev);
 
-/* Set Input Capture */
-System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t configurations);
+#ifdef __cplusplus
+}
+#endif
 
-/* Channel function */
-void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel);
+#endif // __TIMER_H
 
-uint8_t Ftm_ResetFault (Ftm_DeviceHandle dev);
-
-#endif /* __FTM_H */
-
-#endif /* LIBOHIBOARD_FTM */
+#endif // LIBOHIBOARD_TIMER

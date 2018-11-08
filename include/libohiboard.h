@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -23,7 +25,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/libohiboard.h
@@ -35,6 +37,10 @@
 
 #ifndef __LIBOHIBOARD_H
 #define __LIBOHIBOARD_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 
@@ -50,8 +56,8 @@
 
 #include "clock.h"
 
-#ifdef LIBOHIBOARD_FTM
-#include "ftm.h"
+#ifdef LIBOHIBOARD_TIMER
+#include "timer.h"
 #endif
 
 #ifdef LIBOHIBOARD_PIT
@@ -124,4 +130,8 @@
 
 #include "comm-utility.h"
 
-#endif /* __LIBOHIBOARD_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __LIBOHIBOARD_H

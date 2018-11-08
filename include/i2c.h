@@ -366,7 +366,6 @@ typedef struct _Iic_Config
 /** @name Configuration functions
  *  Functions to open, close and configure a I2C peripheral.
  */
-
 ///@{
 
 /**
