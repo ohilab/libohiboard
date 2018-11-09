@@ -57,6 +57,9 @@ extern "C" {
 #define RTC_MAX_APREDIV                   128
 #define RTC_MAX_SPREDIV                   32768
 
+#define RTC_TR_RESERVED_MASK              0x007F7F7FU
+#define RTC_DR_RESERVED_MASK              0x00FFFF3FU
+
 #define RTC_CLOCK_ENABLE(REG,MASK)        do { \
                                             UTILITY_SET_REGISTER_BIT(REG,MASK); \
                                             asm("nop"); \
