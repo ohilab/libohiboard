@@ -56,14 +56,35 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_EXTI4            = 10,
 
     INTERRUPT_EXTI9_5          = 23,
+    INTERRUPT_TIM1BRK_TIM15    = 24,
+    INTERRUPT_TIM1UP_TIM16     = 25,
+    INTERRUPT_TIM1TRG_TIM17    = 26,
+    INTERRUPT_TIM1CC           = 27,
+    INTERRUPT_TIM2             = 28,
+    INTERRUPT_TIM3             = 29,
+    INTERRUPT_TIM4             = 30,
 
     INTERRUPT_UART1            = 37,
     INTERRUPT_UART2            = 38,
     INTERRUPT_UART3            = 39,
     INTERRUPT_EXTI15_10        = 40,
 
+    INTERRUPT_TIM8BRK          = 43,
+    INTERRUPT_TIM8UP           = 44,
+    INTERRUPT_TIM8TRG          = 45,
+    INTERRUPT_TIM8CC           = 46,
+    INTERRUPT_ADC3             = 47,
+    INTERRUPT_FMC              = 48,
+    INTERRUPT_SDMMC1           = 49,
+    INTERRUPT_TIM5             = 50,
+    INTERRUPT_SPI3             = 51,
     INTERRUPT_UART4            = 52,
     INTERRUPT_UART5            = 53,
+    INTERRUPT_TIM6DACUNDER     = 54,
+    INTERRUPT_TIM7             = 55,
+
+    INTERRUPT_LPTIM1           = 65,
+    INTERRUPT_LPTIM2           = 66,
 
     INTERRUPT_LPUART1          = 70,
 

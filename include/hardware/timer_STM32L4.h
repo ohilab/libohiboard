@@ -42,6 +42,27 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L4) && defined (LIBOHIBOARD_TIMER)
 
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
+
+extern Timer_DeviceHandle OB_TIM1;
+extern Timer_DeviceHandle OB_TIM2;
+extern Timer_DeviceHandle OB_TIM3;
+extern Timer_DeviceHandle OB_TIM4;
+extern Timer_DeviceHandle OB_TIM5;
+extern Timer_DeviceHandle OB_TIM6;
+extern Timer_DeviceHandle OB_TIM7;
+extern Timer_DeviceHandle OB_TIM8;
+extern Timer_DeviceHandle OB_TIM15;
+extern Timer_DeviceHandle OB_TIM16;
+extern Timer_DeviceHandle OB_TIM17;
+
+extern void TIM2_IRQHandler (void);
+
+#endif
+
 #endif // LIBOHIBOARD_STM32L4 && LIBOHIBOARD_TIMER
 
 #ifdef __cplusplus

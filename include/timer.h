@@ -49,6 +49,18 @@ extern "C" {
 #include "types.h"
 #include "system.h"
 
+/**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Timer_DeviceState
+{
+    TIMER_DEVICESTATE_RESET,
+    TIMER_DEVICESTATE_READY,
+    TIMER_DEVICESTATE_BUSY,
+    TIMER_DEVICESTATE_ERROR,
+
+} Timer_DeviceState;
+
 typedef enum _Timer_Mode
 {
     TIMER_MODE_FREE,
@@ -75,11 +87,66 @@ typedef enum _Timer_Mode
 
 } Timer_Mode;
 
+#if defined (LIBOHIBOARD_STM32L4)
+
+typedef enum _Timer_ClockSource
+{
+    TIMER_CLOCKSOURCE_INTERNAL,          /**< Internal clock selection CK_INT */
+    TIMER_CLOCKSOURCE_INTERNAL_ITR0,           /**< Internal trigger input #0 */
+    TIMER_CLOCKSOURCE_INTERNAL_ITR1,           /**< Internal trigger input #1 */
+    TIMER_CLOCKSOURCE_INTERNAL_ITR2,           /**< Internal trigger input #2 */
+    TIMER_CLOCKSOURCE_INTERNAL_ITR3,           /**< Internal trigger input #3 */
+    TIMER_CLOCKSOURCE_EXTERNAL_MODE_1,                /**< External input pin */
+    TIMER_CLOCKSOURCE_EXTERNAL_MODE_2,            /**< External trigger input */
+
+} Timer_ClockSource;
+
+typedef enum _Timer_ClockPolarity
+{
+    /** Inverted polarity for ETR clock source */
+    TIMER_CLOCKPOLARITY_INVERTED,
+    /** Non-inverted polarity for ETR clock source */
+    TIMER_CLOCKPOLARITY_NON_INVERTED,
+    TIMER_CLOCKPOLARITY_RISING,
+    TIMER_CLOCKPOLARITY_FALLING,
+    TIMER_CLOCKPOLARITY_BOTH_EDGE,
+
+} Timer_ClockPolarity;
+
+
+typedef enum _Timer_ClockPrescaler
+{
+    TIMER_CLOCKPRESCALER_1,
+    TIMER_CLOCKPRESCALER_2,
+    TIMER_CLOCKPRESCALER_4,
+    TIMER_CLOCKPRESCALER_8,
+
+} Timer_ClockPrescaler;
+
+#endif
+
+typedef enum _Timer_CounterMode
+{
+    TIMER_COUNTERMODE_UP,
+    TIMER_COUNTERMODE_DOWN,
+
+#if defined (LIBOHIBOARD_STM32L4)
+    TIMER_COUNTERMODE_CENTER_ALIGNED_1,
+    TIMER_COUNTERMODE_CENTER_ALIGNED_2,
+    TIMER_COUNTERMODE_CENTER_ALIGNED_3,
+#elif defined (LIBOHIBOARD_MKL)
+    TIMER_COUTERMODE_CENTER_ALIGNED,
+#endif
+
+} Timer_CounterMode;
+
+/**
+ *
+ */
 typedef struct _Timer_Device* Timer_DeviceHandle;
 
 /* Configuration bits */
-#define FTM_CONFIG_PWM_EDGE_ALIGNED      0x00
-#define FTM_CONFIG_PWM_CENTER_ALIGNED    0x01
+
 #define FTM_CONFIG_PWM_POLARITY_HIGH     0x00
 #define FTM_CONFIG_PWM_POLARITY_LOW      0x02
 
@@ -717,8 +784,8 @@ typedef struct _Timer_Config
 {
     Timer_Mode mode;                                /**< Modes of operations. */
     
-    uint16_t modulo;             /**< The modulo value for the timer counter. */
-    uint16_t initCounter;
+    uint32_t modulo;             /**< The modulo value for the timer counter. */
+    uint32_t prescaler;       /**< The prescaler value for the timer counter. */
 
     uint32_t timerFrequency;                            /**< Timer frequency. */
     
@@ -726,6 +793,22 @@ typedef struct _Timer_Config
 //    uint16_t duty[FTM_MAX_CHANNEL + 1];
     
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
+
+    Timer_ClockSource clockSource;                 /**< Selected clock source */
+#if defined (LIBOHIBOARD_STM32L4)
+    Timer_ClockPolarity clockPolarity;             /**< Clock source polarity */
+    Timer_ClockPrescaler clockPrescaler;          /**< Clock source prescaler */
+    /**< Clock source input filter: must be between 0x0 and 0xF */
+    uint32_t clockFilter;
+
+
+    bool autoreload; /**< Auto-reload preload enable, ARR register is buffered */
+#endif
+
+    void (* freeCounterCallback)(struct _Timer_Device *dev);
+
+    /**< Define the counter type for a specific operational mode */
+    Timer_CounterMode counterMode;
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
     defined (LIBOHIBOARD_K64F12)   || \
@@ -775,6 +858,10 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config);
 System_Errors Timer_deInit (Timer_DeviceHandle dev);
 
 ///@}
+
+
+System_Errors Timer_start (Timer_DeviceHandle dev);
+System_Errors Timer_stop (Timer_DeviceHandle dev);
 
 //void Ftm_resetCounter (Ftm_DeviceHandle dev);
 //
