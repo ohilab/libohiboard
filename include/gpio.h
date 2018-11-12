@@ -58,7 +58,7 @@ extern "C" {
 #define GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN   0x0040
 #define GPIO_PINS_SPEED_LOW                 0x0080
 #define GPIO_PINS_SPEED_MEDIUM              0x0100
-#define GPIO_PINS_SPEED_HIGH                0x0280
+#define GPIO_PINS_SPEED_HIGH                0x0200
 #define GPIO_PINS_SPEED_VERY_HIGH           0x0400
 #endif
 
