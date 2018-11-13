@@ -801,8 +801,11 @@ typedef struct _Timer_Config
     /**< Clock source input filter: must be between 0x0 and 0xF */
     uint32_t clockFilter;
 
-
-    bool autoreload; /**< Auto-reload preload enable, ARR register is buffered */
+    /**
+     * During counter operation this causes the counter to be loaded from its
+     * auto-reload register only at the next update event.
+     */
+    bool autoreload;
 #endif
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);

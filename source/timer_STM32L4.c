@@ -516,15 +516,15 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     }
     dev->mode = config->mode;
 
-
     // Enable peripheral clock if needed
     if (dev->state == TIMER_DEVICESTATE_RESET)
     {
         // Enable peripheral clock
         TIMER_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
-        // Configure clock source
-        Timer_configClockSource(dev,config);
     }
+
+    // Configure clock source
+    Timer_configClockSource(dev,config);
 
     // Now the peripheral is busy
     dev->state = TIMER_DEVICESTATE_BUSY;
@@ -550,15 +550,13 @@ System_Errors Timer_deInit (Timer_DeviceHandle dev)
 
 System_Errors Timer_start (Timer_DeviceHandle dev)
 {
-    System_Errors err = ERRORS_NO_ERROR;
     // Check the TIMER device
     if (dev == NULL)
     {
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    err = ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev)));
-    if (err != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -580,11 +578,40 @@ System_Errors Timer_start (Timer_DeviceHandle dev)
     }
 
     dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Timer_stop (Timer_DeviceHandle dev)
 {
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
 
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    switch (dev->mode)
+    {
+    case TIMER_MODE_FREE:
+        // In case of callback... enable interrupt
+        if (dev->freeCounterCallback != 0)
+        {
+            dev->regmap->DIER &=  ~(TIM_DIER_UIE);
+        }
+
+        // Enable device
+        TIMER_DEVICE_DISABLE(dev);
+        break;
+    }
+
+    dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
 }
 
 _weak void TIM1_BRK_TIM15_IRQHandler (void)
