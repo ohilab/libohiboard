@@ -48,6 +48,7 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 #include "system.h"
+#include "gpio.h"
 
 /**
  * The list of the possible peripheral HAL state.
@@ -789,9 +790,6 @@ typedef struct _Timer_Config
 
     uint32_t timerFrequency;                            /**< Timer frequency. */
     
-//    Ftm_Pins pins[FTM_MAX_CHANNEL + 1];
-//    uint16_t duty[FTM_MAX_CHANNEL + 1];
-    
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
 
     Timer_ClockSource clockSource;                 /**< Selected clock source */
@@ -845,12 +843,13 @@ typedef struct _Timer_Config
 ///@{
 
 /**
-  * @brief Initialize the Timer according to the specified parameters
-  *         in the @ref Timer_Config and initialize the associated handle.
-  * @param[in] dev Timer device handle
-  * @param[in] config Configuration parameters list.
-  * @return ERRORS_NO_ERROR The initialization is ok.
-  */
+ * @brief Initialize the Timer according to the specified parameters
+ * in the @ref Timer_Config and initialize the associated handle.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] config Configuration parameters list.
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
 System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config);
 
 /**
@@ -862,9 +861,102 @@ System_Errors Timer_deInit (Timer_DeviceHandle dev);
 
 ///@}
 
+/** @name Free-Counter functions
+ *  Functions to manage free counting of Timer peripheral.
+ */
+///@{
 
+/**
+ * This functions start free-counting. In case callback was defined,
+ * enable relative interrupt.
+ *
+ * @param[in] dev Timer device handle
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
 System_Errors Timer_start (Timer_DeviceHandle dev);
+
+/**
+ * This functions stop free-counting and disable relative interrupt.
+ *
+ * @param[in] dev Timer device handle
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
 System_Errors Timer_stop (Timer_DeviceHandle dev);
+
+///@}
+
+/** @name PWM functions
+ *  Functions to manage PWM pins of a Timer peripheral.
+ */
+///@{
+
+typedef enum _Timer_OutputCompareMode
+{
+#if defined (LIBOHIBOARD_ST_STM32)
+
+#endif
+
+} Timer_OutputCompareMode;
+
+typedef struct _Timer_OutputCompareConfig
+{
+    Timer_OutputCompareMode mode;
+
+    Gpio_Level polarity;
+    Gpio_Level nPolarity;
+
+    Gpio_Level idleState;
+    Gpio_Level nIdleState;
+
+} Timer_OutputCompareConfig;
+
+/**
+ * This function configure the selected pin to generate a PWM signal
+ * with the frequency chose during initialization procedure with
+ * @ref Timer_init and as duty-cicly the value into configuration list.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] config Output compare configuration parameters list.
+ * @param[in] pin Selected pin for the PWM output
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_configPwmChannel (Timer_DeviceHandle dev,
+                                      Timer_OutputCompareConfig* config,
+                                      Timer_Pins pin);
+
+/**
+ * This function modify on-fly the duty cycle of PWM signal generated into
+ * selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @param[in] duty A number 0 and 100 for duty cycle
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
+                                Timer_Channels channel,
+                                uint8_t duty);
+
+/**
+ * This function start PWM generation.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel);
+
+/**
+ * This function stop PWM generation.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel);
+
+///@}
+
 
 //void Ftm_resetCounter (Ftm_DeviceHandle dev);
 //

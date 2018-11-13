@@ -533,11 +533,13 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     switch (dev->mode)
     {
     case TIMER_MODE_FREE:
+    case TIMER_MODE_PWM:
         // Check user choices
         ohiassert((config->timerFrequency > 0) || ((config->prescaler > 0) && (config->modulo > 0)));
 
         Timer_configBase(dev,config);
         break;
+
     }
 
     return ERRORS_NO_ERROR;
