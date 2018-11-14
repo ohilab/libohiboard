@@ -894,6 +894,21 @@ typedef enum _Timer_OutputCompareMode
 {
 #if defined (LIBOHIBOARD_ST_STM32)
 
+    TIMER_OUTPUTCOMPAREMODE_COUNTING,
+    TIMER_OUTPUTCOMPAREMODE_ACTIVE_ON_MATCH,
+    TIMER_OUTPUTCOMPAREMODE_INACTIVE_ON_MATCH,
+    TIMER_OUTPUTCOMPAREMODE_TOGGLE,
+    TIMER_OUTPUTCOMPAREMODE_FORCED_INACTIVE,
+    TIMER_OUTPUTCOMPAREMODE_FORCED_ACTIVE,
+    TIMER_OUTPUTCOMPAREMODE_PWM1,
+    TIMER_OUTPUTCOMPAREMODE_PWM2,
+    TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM1,
+    TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM2,
+    TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM1,
+    TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM2,
+    TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1,
+    TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2,
+
 #endif
 
 } Timer_OutputCompareMode;
@@ -901,6 +916,15 @@ typedef enum _Timer_OutputCompareMode
 typedef struct _Timer_OutputCompareConfig
 {
     Timer_OutputCompareMode mode;
+
+    uint8_t duty;
+
+    /**
+     * This flag must be used to choice if accelerate the effect of an event
+     * on the trigger in input on the CC output or not.
+     * This flag acts only if the channel is configured in PWM1 or PWM2 mode.
+     */
+    bool fastMode;
 
     Gpio_Level polarity;
     Gpio_Level nPolarity;
@@ -920,9 +944,9 @@ typedef struct _Timer_OutputCompareConfig
  * @param[in] pin Selected pin for the PWM output
  * @return ERRORS_NO_ERROR The initialization is ok.
  */
-System_Errors Timer_configPwmChannel (Timer_DeviceHandle dev,
-                                      Timer_OutputCompareConfig* config,
-                                      Timer_Pins pin);
+System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
+                                  Timer_OutputCompareConfig* config,
+                                  Timer_Pins pin);
 
 /**
  * This function modify on-fly the duty cycle of PWM signal generated into

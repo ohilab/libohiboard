@@ -105,8 +105,31 @@ extern "C" {
                                               ((COUNTERMODE) == TIMER_COUNTERMODE_CENTER_ALIGNED_2) || \
                                               ((COUNTERMODE) == TIMER_COUNTERMODE_CENTER_ALIGNED_3))
 
+#define TIMER_VALID_CHANNEL(CHANNEL) (((CHANNEL) == TIMER_CHANNELS_CH1) || \
+                                      ((CHANNEL) == TIMER_CHANNELS_CH2) || \
+                                      ((CHANNEL) == TIMER_CHANNELS_CH3) || \
+                                      ((CHANNEL) == TIMER_CHANNELS_CH4) || \
+                                      ((CHANNEL) == TIMER_CHANNELS_CH5) || \
+                                      ((CHANNEL) == TIMER_CHANNELS_CH6) || \
+                                      ((CHANNEL) == TIMER_CHANNELS_ALL))
+
+#define TIMER_VALID_PWM_MODE(MODE) (((MODE) == TIMER_OUTPUTCOMPAREMODE_PWM1)            || \
+                                    ((MODE) == TIMER_OUTPUTCOMPAREMODE_PWM2)            || \
+                                    ((MODE) == TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM1)   || \
+                                    ((MODE) == TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM2)   || \
+                                    ((MODE) == TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1) || \
+                                    ((MODE) == TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2))
+
+#define TIMER_VALID_OC_POLARITY(POLARITY) (((POLARITY) == GPIO_HIGH) || \
+                                           ((POLARITY) == GPIO_LOW))
+
+#define TIMER_VALID_OC_FAST_MODE(FASTMODE) (((FASTMODE) == TRUE)  || \
+                                            ((FASTMODE) == FALSE))
+
 #define TIMER_VALID_AUTORELOAD_PRELOAD(AUTORELOAD) (((AUTORELOAD) == TRUE) || \
                                                     ((AUTORELOAD) == FALSE))
+
+#define TIMER_MAX_PINS                   20
 
 typedef struct _Timer_Device
 {
@@ -115,6 +138,11 @@ typedef struct _Timer_Device
 
     volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
     uint32_t rccRegisterEnable;        /**< Register mask for current device. */
+
+    Timer_Pins pwmPins[TIMER_MAX_PINS];/**< List of the pin for the timer channel. */
+    Timer_Channels pwmPinsChannel[TIMER_MAX_PINS];
+    Gpio_Pins pwmPinsGpio[TIMER_MAX_PINS];
+    Gpio_Alternate pwmPinsMux[TIMER_MAX_PINS];
 
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
@@ -133,10 +161,7 @@ typedef struct _Timer_Device
 
 } Timer_Device;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476)
 
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
                                  ((DEVICE) == OB_TIM2)   || \
@@ -178,12 +203,132 @@ typedef struct _Timer_Device
 #define TIMER_IS_32BIT_COUNTER_DEVICE(DEVICE) (((DEVICE) == OB_TIM2)   || \
                                                ((DEVICE) == OB_TIM5))
 
+#define TIMER_IS_PWM_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                     ((DEVICE) == OB_TIM2)   || \
+                                     ((DEVICE) == OB_TIM3)   || \
+                                     ((DEVICE) == OB_TIM4)   || \
+                                     ((DEVICE) == OB_TIM5)   || \
+                                     ((DEVICE) == OB_TIM8)   || \
+                                     ((DEVICE) == OB_TIM15)  || \
+                                     ((DEVICE) == OB_TIM16)  || \
+                                     ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_CHANNEL1_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
+                                          ((DEVICE) == OB_TIM2)  || \
+                                          ((DEVICE) == OB_TIM3)  || \
+                                          ((DEVICE) == OB_TIM4)  || \
+                                          ((DEVICE) == OB_TIM5)  || \
+                                          ((DEVICE) == OB_TIM8)  || \
+                                          ((DEVICE) == OB_TIM15) || \
+                                          ((DEVICE) == OB_TIM16) || \
+                                          ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_CHANNEL2_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
+                                          ((DEVICE) == OB_TIM2)  || \
+                                          ((DEVICE) == OB_TIM3)  || \
+                                          ((DEVICE) == OB_TIM4)  || \
+                                          ((DEVICE) == OB_TIM5)  || \
+                                          ((DEVICE) == OB_TIM8)  || \
+                                          ((DEVICE) == OB_TIM15))
+
+#define TIMER_IS_CHANNEL3_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
+                                          ((DEVICE) == OB_TIM2)  || \
+                                          ((DEVICE) == OB_TIM3)  || \
+                                          ((DEVICE) == OB_TIM4)  || \
+                                          ((DEVICE) == OB_TIM5)  || \
+                                          ((DEVICE) == OB_TIM8))
+
+#define TIMER_IS_CHANNEL4_DEVICE(DEVICE) (((DEVICE) == OB_TIM1) || \
+                                          ((DEVICE) == OB_TIM2) || \
+                                          ((DEVICE) == OB_TIM3) || \
+                                          ((DEVICE) == OB_TIM4) || \
+                                          ((DEVICE) == OB_TIM5) || \
+                                          ((DEVICE) == OB_TIM8))
+
+#define TIMER_IS_CHANNEL5_DEVICE(DEVICE) (((DEVICE) == OB_TIM1) || \
+                                          ((DEVICE) == OB_TIM8))
+
+#define TIMER_IS_CHANNEL6_DEVICE(DEVICE) (((DEVICE) == OB_TIM1) || \
+                                          ((DEVICE) == OB_TIM8))
+
+#define TIMER_IS_CHANNEL_DEVICE(DEVICE, CHANNEL)                                       \
+                                                ((((DEVICE) == OB_TIM1) &&             \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_4) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_5) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_6)))  || \
+                                                 (((DEVICE) == OB_TIM2) &&             \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
+                                                 (((DEVICE) == OB_TIM3) &&             \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
+                                                 (((DEVICE) == OB_TIM4) &&             \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
+                                                 (((DEVICE) == OB_TIM5) &&             \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
+												 (((DEVICE) == OB_TIM8) &&             \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_4) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_5) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_6)))  || \
+                                                 (((DEVICE) == OB_TIM15) &&            \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNEL_2)))  || \
+                                                 (((DEVICE) == OB_TIM16) &&            \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1)))  || \
+                                                 (((DEVICE) == OB_TIM17) &&            \
+                                                 (((CHANNEL) == TIMER_CHANNEL_1))))
+
 static Timer_Device tim1 =
 {
         .regmap              = TIM1,
 
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM1EN,
+
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA8,
+                               TIMER_PINS_PA9,
+                               TIMER_PINS_PA10,
+                               TIMER_PINS_PA11,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA8,
+                               GPIO_PINS_PA9,
+                               GPIO_PINS_PA10,
+                               GPIO_PINS_PA11,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+        },
 
         .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
 };
@@ -196,6 +341,55 @@ static Timer_Device tim2 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM2EN,
 
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA0,
+                               TIMER_PINS_PA1,
+                               TIMER_PINS_PA2,
+                               TIMER_PINS_PA3,
+                               TIMER_PINS_PA5,
+                               TIMER_PINS_PA15,
+                               TIMER_PINS_PB3,
+                               TIMER_PINS_PB10,
+                               TIMER_PINS_PB11,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PA5,
+                               GPIO_PINS_PA15,
+                               GPIO_PINS_PB3,
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PB11,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+        },
+
         .isrNumber           = INTERRUPT_TIM2,
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
@@ -206,6 +400,59 @@ static Timer_Device tim3 =
 
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM3EN,
+
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA6,
+                               TIMER_PINS_PA7,
+                               TIMER_PINS_PB0,
+                               TIMER_PINS_PB1,
+                               TIMER_PINS_PB4,
+                               TIMER_PINS_PB5,
+                               TIMER_PINS_PC6,
+                               TIMER_PINS_PC7,
+                               TIMER_PINS_PC8,
+                               TIMER_PINS_PC9,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB0,
+                               GPIO_PINS_PB1,
+                               GPIO_PINS_PB4,
+                               GPIO_PINS_PB5,
+                               GPIO_PINS_PC6,
+                               GPIO_PINS_PC7,
+                               GPIO_PINS_PC8,
+                               GPIO_PINS_PC9,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+        },
 
         .isrNumber           = INTERRUPT_TIM3,
 };
@@ -218,6 +465,35 @@ static Timer_Device tim4 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM4EN,
 
+        .pwmPins             =
+        {
+                               TIMER_PINS_PB6,
+                               TIMER_PINS_PB7,
+                               TIMER_PINS_PB8,
+                               TIMER_PINS_PB9,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PB6,
+                               GPIO_PINS_PB7,
+                               GPIO_PINS_PB8,
+                               GPIO_PINS_PB9,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+        },
+
         .isrNumber           = INTERRUPT_TIM4,
 };
 Timer_DeviceHandle OB_TIM4 = &tim4;
@@ -228,6 +504,36 @@ static Timer_Device tim5 =
 
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM5EN,
+
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA0,
+                               TIMER_PINS_PA1,
+                               TIMER_PINS_PA2,
+                               TIMER_PINS_PA3,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+        },
+
 
         .isrNumber           = INTERRUPT_TIM5,
 };
@@ -262,6 +568,35 @@ static Timer_Device tim8 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM8EN,
 
+        .pwmPins             =
+        {
+                               TIMER_PINS_PC6,
+                               TIMER_PINS_PC7,
+                               TIMER_PINS_PC8,
+                               TIMER_PINS_PC9,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PC6,
+                               GPIO_PINS_PC7,
+                               GPIO_PINS_PC8,
+                               GPIO_PINS_PC9,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_3,
+                               GPIO_ALTERNATE_3,
+                               GPIO_ALTERNATE_3,
+                               GPIO_ALTERNATE_3,
+        },
+
         .isrNumber           = INTERRUPT_TIM8BRK,
 };
 Timer_DeviceHandle OB_TIM8 = &tim8;
@@ -272,6 +607,51 @@ static Timer_Device tim15 =
 
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM15EN,
+
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA2,
+                               TIMER_PINS_PA3,
+                               TIMER_PINS_PB14,
+                               TIMER_PINS_PB15,
+#if defined (LIBOHIBOARD_STM32L476Jx)
+                               TIMER_PINS_PG10,
+                               TIMER_PINS_PG11,
+#endif
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+#if defined (LIBOHIBOARD_STM32L476Jx)
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+#endif
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PB14,
+                               GPIO_PINS_PB15,
+#if defined (LIBOHIBOARD_STM32L476Jx)
+                               GPIO_PINS_PG10,
+                               GPIO_PINS_PG11,
+#endif
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+#if defined (LIBOHIBOARD_STM32L476Jx)
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+#endif
+        },
 
         .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
 };
@@ -284,6 +664,27 @@ static Timer_Device tim16 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM16EN,
 
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA6,
+                               TIMER_PINS_PB8,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH1,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PB8,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+        },
+
         .isrNumber           = INTERRUPT_TIM1UP_TIM16,
 };
 Timer_DeviceHandle OB_TIM16 = &tim16;
@@ -294,6 +695,27 @@ static Timer_Device tim17 =
 
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM17EN,
+
+        .pwmPins             =
+        {
+                               TIMER_PINS_PA7,
+                               TIMER_PINS_PB9,
+        },
+        .pwmPinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH1,
+        },
+        .pwmPinsGpio         =
+        {
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB9,
+        },
+        .pwmPinsMux          =
+        {
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+        },
 
         .isrNumber           = INTERRUPT_TIM1TRG_TIM17,
 };
@@ -317,7 +739,7 @@ static Timer_Device lptim2 =
 };
 Timer_DeviceHandle OB_LPTIM2 = &lptim2;
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+#endif // LIBOHIBOARD_STM32L476
 
 static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer_DeviceHandle dev)
 {
@@ -614,6 +1036,220 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
+                                  Timer_OutputCompareConfig* config,
+                                  Timer_Pins pin)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    err  = ohiassert(TIMER_IS_PWM_DEVICE(dev));
+    err |= ohiassert(TIMER_VALID_PWM_MODE(config->mode));
+    err |= ohiassert(TIMER_VALID_OC_FAST_MODE(config->fastMode));
+    err |= ohiassert(TIMER_VALID_OC_POLARITY(config->polarity));
+    err |= ohiassert(config->duty <= 100);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // Configure alternate function on selected pin
+    // And save selected channel
+    Timer_Channels channel;
+    bool isPinFound = FALSE;
+    for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
+    {
+        if (dev->pwmPins[i] == pin)
+        {
+            Gpio_configAlternate(dev->pwmPinsGpio[i],
+                                 dev->pwmPinsMux[i],
+                                 0);
+            channel = dev->pwmPinsChannel[i];
+            isPinFound = TRUE;
+            break;
+        }
+    }
+    if (isPinFound == FALSE)
+    {
+        dev->state = TIMER_DEVICESTATE_ERROR;
+        return ERRORS_TIMER_NO_PWM_PIN_FOUND;
+    }
+
+    // Configure Output Compare functions
+    // Temporary variables
+    uint32_t tmpccmrx;
+    uint32_t tmpccer;
+
+    uint32_t shiftccmrx, shiftccer;
+
+    // Set-up registers for specific channel
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        // Disable channel
+        dev->regmap->CCER &= ~TIM_CCER_CC1E;
+        shiftccmrx = 0u;
+        shiftccer  = 0u;
+        tmpccmrx = dev->regmap->CCMR1;
+        break;
+    case TIMER_CHANNELS_CH2:
+        // Disable channel
+        dev->regmap->CCER &= ~TIM_CCER_CC2E;
+        shiftccmrx = 8u;
+        shiftccer  = 4u;
+        tmpccmrx = dev->regmap->CCMR1;
+        break;
+    case TIMER_CHANNELS_CH3:
+        // Disable channel
+        dev->regmap->CCER &= ~TIM_CCER_CC3E;
+        shiftccmrx = 0u;
+        shiftccer  = 8u;
+        tmpccmrx = dev->regmap->CCMR2;
+        break;
+    case TIMER_CHANNELS_CH4:
+        // Disable channel
+        dev->regmap->CCER &= ~TIM_CCER_CC2E;
+        shiftccmrx = 8u;
+        shiftccer  = 12u;
+        tmpccmrx = dev->regmap->CCMR2;
+        break;
+    case TIMER_CHANNELS_CH5:
+        // Disable channel
+        dev->regmap->CCER &= ~TIM_CCER_CC5E;
+        shiftccmrx = 0u;
+        shiftccer  = 16u;
+        tmpccmrx = dev->regmap->CCMR3;
+        break;
+    case TIMER_CHANNELS_CH6:
+        // Disable channel
+        dev->regmap->CCER &= ~TIM_CCER_CC6E;
+        shiftccmrx = 8u;
+        shiftccer  = 20u;
+        tmpccmrx = dev->regmap->CCMR3;
+        break;
+    default:
+        ohiassert(0);
+    }
+
+    // Get common register values
+    tmpccer = dev->regmap->CCER;
+
+    // Reset output compare mode and selection bits
+    tmpccmrx &= ~(TIM_CCMR1_OC1M_Msk << shiftccmrx);
+    tmpccmrx &= ~(TIM_CCMR1_CC1S_Msk << shiftccmrx);
+
+    // Set selected compare mode
+    switch (config->mode)
+    {
+    case TIMER_OUTPUTCOMPAREMODE_PWM1:
+        tmpccmrx |= ((TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2) << shiftccmrx);
+        break;
+    case TIMER_OUTPUTCOMPAREMODE_PWM2:
+        tmpccmrx |= ((TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2) << shiftccmrx);
+        break;
+    case TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM1:
+        tmpccmrx |= ((TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3) << shiftccmrx);
+        break;
+    case TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM2:
+        tmpccmrx |= ((TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3) << shiftccmrx);
+        break;
+    case TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1:
+        tmpccmrx |= ((TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3) << shiftccmrx);
+        break;
+    case TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2:
+        tmpccmrx |= ((TIM_CCMR1_OC1M) << shiftccmrx);
+        break;
+    }
+
+    // Set preload bit
+    tmpccmrx |= ((TIM_CCMR1_OC1PE) << shiftccmrx);
+
+    // Set fast mode
+    tmpccmrx &= ~((TIM_CCMR1_OC1FE) << shiftccmrx);
+    tmpccmrx |= (((config->fastMode == TRUE) ? TIM_CCMR1_OC1FE : 0u) << shiftccmrx);
+
+    // Set polarity
+    tmpccer &= ~(TIM_CCER_CC1P_Msk << shiftccer);
+    tmpccer |= (((config->polarity == GPIO_LOW) ? TIM_CCER_CC1P : 0u) << shiftccer);
+
+    // Save new register value
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+    case TIMER_CHANNELS_CH2:
+        dev->regmap->CCMR1 = tmpccmrx;
+        break;
+    case TIMER_CHANNELS_CH3:
+    case TIMER_CHANNELS_CH4:
+        dev->regmap->CCMR2 = tmpccmrx;
+        break;
+    case TIMER_CHANNELS_CH5:
+    case TIMER_CHANNELS_CH6:
+        dev->regmap->CCMR3 = tmpccmrx;
+        break;
+    }
+    dev->regmap->CCER = tmpccer;
+
+    // Compute duty-cycle pulsu value
+    uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * config->duty);
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        dev->regmap->CCR1 = pulse;
+        break;
+    case TIMER_CHANNELS_CH2:
+        dev->regmap->CCR2 = pulse;
+        break;
+    case TIMER_CHANNELS_CH3:
+        dev->regmap->CCR3 = pulse;
+        break;
+    case TIMER_CHANNELS_CH4:
+        dev->regmap->CCR4 = pulse;
+        break;
+    case TIMER_CHANNELS_CH5:
+        dev->regmap->CCR5 = pulse;
+        break;
+    case TIMER_CHANNELS_CH6:
+        dev->regmap->CCR6 = pulse;
+        break;
+    }
+
+    dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_PWM_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
 }
 
 _weak void TIM1_BRK_TIM15_IRQHandler (void)
