@@ -110,8 +110,7 @@ extern "C" {
                                       ((CHANNEL) == TIMER_CHANNELS_CH3) || \
                                       ((CHANNEL) == TIMER_CHANNELS_CH4) || \
                                       ((CHANNEL) == TIMER_CHANNELS_CH5) || \
-                                      ((CHANNEL) == TIMER_CHANNELS_CH6) || \
-                                      ((CHANNEL) == TIMER_CHANNELS_ALL))
+                                      ((CHANNEL) == TIMER_CHANNELS_CH6))
 
 #define TIMER_VALID_PWM_MODE(MODE) (((MODE) == TIMER_OUTPUTCOMPAREMODE_PWM1)            || \
                                     ((MODE) == TIMER_OUTPUTCOMPAREMODE_PWM2)            || \
@@ -251,48 +250,48 @@ typedef struct _Timer_Device
 #define TIMER_IS_CHANNEL6_DEVICE(DEVICE) (((DEVICE) == OB_TIM1) || \
                                           ((DEVICE) == OB_TIM8))
 
-#define TIMER_IS_CHANNEL_DEVICE(DEVICE, CHANNEL)                                       \
-                                                ((((DEVICE) == OB_TIM1) &&             \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_4) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_5) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_6)))  || \
-                                                 (((DEVICE) == OB_TIM2) &&             \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
-                                                 (((DEVICE) == OB_TIM3) &&             \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
-                                                 (((DEVICE) == OB_TIM4) &&             \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
-                                                 (((DEVICE) == OB_TIM5) &&             \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_4)))  || \
-												 (((DEVICE) == OB_TIM8) &&             \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_3) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_4) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_5) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_6)))  || \
-                                                 (((DEVICE) == OB_TIM15) &&            \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1) ||    \
-                                                  ((CHANNEL) == TIMER_CHANNEL_2)))  || \
-                                                 (((DEVICE) == OB_TIM16) &&            \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1)))  || \
-                                                 (((DEVICE) == OB_TIM17) &&            \
-                                                 (((CHANNEL) == TIMER_CHANNEL_1))))
+#define TIMER_IS_CHANNEL_DEVICE(DEVICE, CHANNEL)                                          \
+                                                ((((DEVICE) == OB_TIM1) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH5) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH6)))  || \
+                                                 (((DEVICE) == OB_TIM2) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4)))  || \
+                                                 (((DEVICE) == OB_TIM3) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4)))  || \
+                                                 (((DEVICE) == OB_TIM4) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4)))  || \
+                                                 (((DEVICE) == OB_TIM5) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4)))  || \
+												 (((DEVICE) == OB_TIM8) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH5) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH6)))  || \
+                                                 (((DEVICE) == OB_TIM15) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2)))  || \
+                                                 (((DEVICE) == OB_TIM16) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
+                                                 (((DEVICE) == OB_TIM17) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1))))
 
 static Timer_Device tim1 =
 {
@@ -987,19 +986,14 @@ System_Errors Timer_start (Timer_DeviceHandle dev)
 
     dev->state = TIMER_DEVICESTATE_BUSY;
 
-    switch (dev->mode)
+    // In case of callback... enable interrupt
+    if (dev->freeCounterCallback != 0)
     {
-    case TIMER_MODE_FREE:
-        // In case of callback... enable interrupt
-        if (dev->freeCounterCallback != 0)
-        {
-            dev->regmap->DIER |= TIM_DIER_UIE;
-        }
-
-        // Enable device
-        TIMER_DEVICE_ENABLE(dev);
-        break;
+        dev->regmap->DIER |= TIM_DIER_UIE;
     }
+
+    // Enable device
+    TIMER_DEVICE_ENABLE(dev);
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
@@ -1020,22 +1014,98 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
 
     dev->state = TIMER_DEVICESTATE_BUSY;
 
-    switch (dev->mode)
+    // In case of callback... enable interrupt
+    if (dev->freeCounterCallback != 0)
     {
-    case TIMER_MODE_FREE:
-        // In case of callback... enable interrupt
-        if (dev->freeCounterCallback != 0)
-        {
-            dev->regmap->DIER &=  ~(TIM_DIER_UIE);
-        }
-
-        // Enable device
-        TIMER_DEVICE_DISABLE(dev);
-        break;
+        dev->regmap->DIER &=  ~(TIM_DIER_UIE);
     }
+
+    // Disable device
+    TIMER_DEVICE_DISABLE(dev);
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function enable or disable the TIM Capture/Compare Channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @param[in] enable The enable status of CC channel (TRUE for the enable, FALSE otherwise)
+ */
+static inline void __attribute__((always_inline)) Timer_manageCCxChannel (Timer_DeviceHandle dev,
+                                                                          Timer_Channels channel,
+                                                                          bool enable)
+{
+    uint32_t tmp = 0;
+
+    ohiassert(TIMER_VALID_CHANNEL(channel));
+    ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel));
+
+    tmp = TIM_CCER_CC1E << channel;
+    // Reset channel state
+    dev->regmap->CCER &= ~tmp;
+
+    // Enable or disable the channel
+    dev->regmap->CCER |= (((enable == TRUE) ? TIM_CCER_CC1E : 0u) << channel);
+}
+
+/**
+ * This function return the address of CCRn register of selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return The register CCRn address
+ */
+static inline volatile uint32_t* __attribute__((always_inline)) Timer_getCCRnRegister (Timer_DeviceHandle dev,
+                                                                                       Timer_Channels channel)
+{
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        return &(dev->regmap->CCR1);
+    case TIMER_CHANNELS_CH2:
+        return &(dev->regmap->CCR2);
+    case TIMER_CHANNELS_CH3:
+        return &(dev->regmap->CCR3);
+    case TIMER_CHANNELS_CH4:
+        return &(dev->regmap->CCR4);
+    case TIMER_CHANNELS_CH5:
+        return &(dev->regmap->CCR5);
+    case TIMER_CHANNELS_CH6:
+        return &(dev->regmap->CCR6);
+    default:
+        ohiassert(0);
+        return 0;
+    }
+}
+
+/**
+ * This function return the address of CCMRn register of selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return The register CCMRn address
+ */
+static inline volatile uint32_t* __attribute__((always_inline)) Timer_getCCMRnRegister (Timer_DeviceHandle dev,
+                                                                                        Timer_Channels channel)
+{
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+    case TIMER_CHANNELS_CH2:
+        return &(dev->regmap->CCMR1);
+    case TIMER_CHANNELS_CH3:
+    case TIMER_CHANNELS_CH4:
+        return &(dev->regmap->CCMR2);
+    case TIMER_CHANNELS_CH5:
+    case TIMER_CHANNELS_CH6:
+        return &(dev->regmap->CCMR3);
+    default:
+        ohiassert(0);
+        return 0;
+    }
 }
 
 System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
@@ -1091,55 +1161,35 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
 
     // Configure Output Compare functions
     // Temporary variables
-    uint32_t tmpccmrx;
+    volatile uint32_t* regCCMRxPtr = Timer_getCCMRnRegister(dev,channel);
+    uint32_t tmpccmrx = *regCCMRxPtr;
     uint32_t tmpccer;
 
-    uint32_t shiftccmrx, shiftccer;
+    uint32_t shiftccmrx;
+
+    // Disable Channel
+    dev->regmap->CCER &= ~(TIM_CCER_CC1E << channel);
 
     // Set-up registers for specific channel
     switch (channel)
     {
     case TIMER_CHANNELS_CH1:
-        // Disable channel
-        dev->regmap->CCER &= ~TIM_CCER_CC1E;
         shiftccmrx = 0u;
-        shiftccer  = 0u;
-        tmpccmrx = dev->regmap->CCMR1;
         break;
     case TIMER_CHANNELS_CH2:
-        // Disable channel
-        dev->regmap->CCER &= ~TIM_CCER_CC2E;
         shiftccmrx = 8u;
-        shiftccer  = 4u;
-        tmpccmrx = dev->regmap->CCMR1;
         break;
     case TIMER_CHANNELS_CH3:
-        // Disable channel
-        dev->regmap->CCER &= ~TIM_CCER_CC3E;
         shiftccmrx = 0u;
-        shiftccer  = 8u;
-        tmpccmrx = dev->regmap->CCMR2;
         break;
     case TIMER_CHANNELS_CH4:
-        // Disable channel
-        dev->regmap->CCER &= ~TIM_CCER_CC2E;
         shiftccmrx = 8u;
-        shiftccer  = 12u;
-        tmpccmrx = dev->regmap->CCMR2;
         break;
     case TIMER_CHANNELS_CH5:
-        // Disable channel
-        dev->regmap->CCER &= ~TIM_CCER_CC5E;
         shiftccmrx = 0u;
-        shiftccer  = 16u;
-        tmpccmrx = dev->regmap->CCMR3;
         break;
     case TIMER_CHANNELS_CH6:
-        // Disable channel
-        dev->regmap->CCER &= ~TIM_CCER_CC6E;
         shiftccmrx = 8u;
-        shiftccer  = 20u;
-        tmpccmrx = dev->regmap->CCMR3;
         break;
     default:
         ohiassert(0);
@@ -1173,6 +1223,8 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     case TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2:
         tmpccmrx |= ((TIM_CCMR1_OC1M) << shiftccmrx);
         break;
+    default:
+        ohiassert(0);
     }
 
     // Set preload bit
@@ -1183,50 +1235,18 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     tmpccmrx |= (((config->fastMode == TRUE) ? TIM_CCMR1_OC1FE : 0u) << shiftccmrx);
 
     // Set polarity
-    tmpccer &= ~(TIM_CCER_CC1P_Msk << shiftccer);
-    tmpccer |= (((config->polarity == GPIO_LOW) ? TIM_CCER_CC1P : 0u) << shiftccer);
+    tmpccer &= ~(TIM_CCER_CC1P_Msk << channel);
+    tmpccer |= (((config->polarity == GPIO_LOW) ? TIM_CCER_CC1P : 0u) << channel);
 
     // Save new register value
-    switch (channel)
-    {
-    case TIMER_CHANNELS_CH1:
-    case TIMER_CHANNELS_CH2:
-        dev->regmap->CCMR1 = tmpccmrx;
-        break;
-    case TIMER_CHANNELS_CH3:
-    case TIMER_CHANNELS_CH4:
-        dev->regmap->CCMR2 = tmpccmrx;
-        break;
-    case TIMER_CHANNELS_CH5:
-    case TIMER_CHANNELS_CH6:
-        dev->regmap->CCMR3 = tmpccmrx;
-        break;
-    }
+    *regCCMRxPtr = tmpccmrx;
     dev->regmap->CCER = tmpccer;
 
-    // Compute duty-cycle pulsu value
+    // Compute duty-cycle pulse value
     uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * config->duty);
-    switch (channel)
-    {
-    case TIMER_CHANNELS_CH1:
-        dev->regmap->CCR1 = pulse;
-        break;
-    case TIMER_CHANNELS_CH2:
-        dev->regmap->CCR2 = pulse;
-        break;
-    case TIMER_CHANNELS_CH3:
-        dev->regmap->CCR3 = pulse;
-        break;
-    case TIMER_CHANNELS_CH4:
-        dev->regmap->CCR4 = pulse;
-        break;
-    case TIMER_CHANNELS_CH5:
-        dev->regmap->CCR5 = pulse;
-        break;
-    case TIMER_CHANNELS_CH6:
-        dev->regmap->CCR6 = pulse;
-        break;
-    }
+    volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
+    // Write new pulse value
+    *regCCRn = pulse - 1;
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
@@ -1250,6 +1270,74 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
         return ERRORS_TIMER_WRONG_PWM_CHANNEL;
     }
 
+    // Enable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,TRUE);
+
+    // Enable device
+    TIMER_DEVICE_ENABLE(dev);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_PWM_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    // Disable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,FALSE);
+
+    // Disable device if all CC channel is not active
+    TIMER_DEVICE_DISABLE(dev);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
+                                Timer_Channels channel,
+                                uint8_t duty)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_PWM_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+    // Check duty-cycle value
+    if (ohiassert(duty <= 100) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
+    // Compute duty-cycle pulse value
+    uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * duty);
+    // Write new pulse value
+    *regCCRn = pulse - 1;
+
+    return ERRORS_NO_ERROR;
 }
 
 _weak void TIM1_BRK_TIM15_IRQHandler (void)
