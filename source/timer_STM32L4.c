@@ -146,6 +146,7 @@ typedef struct _Timer_Device
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);
+    void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
 
     uint32_t inputClock;                            /**< Current CK_INT value */
 
@@ -753,6 +754,90 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
             dev->freeCounterCallback(dev);
         }
     }
+
+    // Capture/Compare Channel 1
+    if ((dev->regmap->SR & TIM_SR_CC1IF) == TIM_SR_CC1IF)
+    {
+        // Check the interrupt configuration
+        if ((dev->regmap->DIER & TIM_DIER_CC1IE) == TIM_DIER_CC1IE)
+        {
+            // Clear flag
+            dev->regmap->SR &= ~(TIM_SR_CC1IF);
+            // Callback for input compare
+            if ((dev->regmap->CCMR1 & TIM_CCMR1_CC1S) != 0u)
+            {
+                // TODO
+            }
+            // Callback for output compare
+            else
+            {
+                dev->pwmPulseFinishedCallback(dev);
+            }
+        }
+    }
+
+    // Capture/Compare Channel 2
+    if ((dev->regmap->SR & TIM_SR_CC2IF) == TIM_SR_CC2IF)
+    {
+        // Check the interrupt configuration
+        if ((dev->regmap->DIER & TIM_DIER_CC2IE) == TIM_DIER_CC2IE)
+        {
+            // Clear flag
+            dev->regmap->SR &= ~(TIM_SR_CC2IF);
+            // Callback for input compare
+            if ((dev->regmap->CCMR1 & TIM_CCMR1_CC2S) != 0u)
+            {
+                // TODO
+            }
+            // Callback for output compare
+            else
+            {
+                dev->pwmPulseFinishedCallback(dev);
+            }
+        }
+    }
+
+    // Capture/Compare Channel 3
+    if ((dev->regmap->SR & TIM_SR_CC3IF) == TIM_SR_CC3IF)
+    {
+        // Check the interrupt configuration
+        if ((dev->regmap->DIER & TIM_DIER_CC3IE) == TIM_DIER_CC3IE)
+        {
+            // Clear flag
+            dev->regmap->SR &= ~(TIM_SR_CC3IF);
+            // Callback for input compare
+            if ((dev->regmap->CCMR2 & TIM_CCMR2_CC3S) != 0u)
+            {
+                // TODO
+            }
+            // Callback for output compare
+            else
+            {
+                dev->pwmPulseFinishedCallback(dev);
+            }
+        }
+    }
+
+    // Capture/Compare Channel 4
+    if ((dev->regmap->SR & TIM_SR_CC4IF) == TIM_SR_CC4IF)
+    {
+        // Check the interrupt configuration
+        if ((dev->regmap->DIER & TIM_DIER_CC4IE) == TIM_DIER_CC4IE)
+        {
+            // Clear flag
+            dev->regmap->SR &= ~(TIM_SR_CC4IF);
+            // Callback for input compare
+            if ((dev->regmap->CCMR2 & TIM_CCMR2_CC4S) != 0u)
+            {
+                // TODO
+            }
+            // Callback for output compare
+            else
+            {
+                dev->pwmPulseFinishedCallback(dev);
+            }
+        }
+    }
 }
 
 static void Timer_computeCounterValues (Timer_DeviceHandle dev,
@@ -837,11 +922,20 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
         dev->regmap->PSC = (config->prescaler - 1);
     }
 
-    // Check callback and interrupt
+    // Check callback and interrupt for free-counter
     if (config->freeCounterCallback != 0)
     {
         // Save callback
         dev->freeCounterCallback = config->freeCounterCallback;
+        // Enable interrupt
+        Interrupt_enable(dev->isrNumber);
+    }
+
+    // Check callback and interrupt for PWM
+    if (config->pwmPulseFinishedCallback != 0)
+    {
+        // Save callback
+        dev->pwmPulseFinishedCallback = config->pwmPulseFinishedCallback;
         // Enable interrupt
         Interrupt_enable(dev->isrNumber);
     }
@@ -960,7 +1054,9 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
         Timer_configBase(dev,config);
         break;
-
+    default:
+        ohiassert(0);
+        break;
     }
 
     return ERRORS_NO_ERROR;
@@ -1270,6 +1366,25 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
         return ERRORS_TIMER_WRONG_PWM_CHANNEL;
     }
 
+    // Enable CC Interrupt
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+        break;
+    case TIMER_CHANNELS_CH2:
+        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+        break;
+    case TIMER_CHANNELS_CH3:
+        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+        break;
+    case TIMER_CHANNELS_CH4:
+        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+        break;
+    default:
+        ohiassert(0);
+    }
+
     // Enable channel in the selected pin
     Timer_manageCCxChannel(dev,channel,TRUE);
 
@@ -1295,6 +1410,25 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
     if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    // Disable CC Interrupt
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+        break;
+    case TIMER_CHANNELS_CH2:
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+        break;
+    case TIMER_CHANNELS_CH3:
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+        break;
+    case TIMER_CHANNELS_CH4:
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+        break;
+    default:
+        ohiassert(0);
     }
 
     // Disable channel in the selected pin

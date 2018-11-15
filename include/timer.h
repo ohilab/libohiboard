@@ -807,6 +807,7 @@ typedef struct _Timer_Config
 #endif
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);
+    void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
 
     /**< Define the counter type for a specific operational mode */
     Timer_CounterMode counterMode;
