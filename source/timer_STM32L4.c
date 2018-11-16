@@ -134,6 +134,19 @@ extern "C" {
 #define TIMER_VALID_OC_FAST_MODE(FASTMODE) (((FASTMODE) == TRUE)  || \
                                             ((FASTMODE) == FALSE))
 
+#define TIMER_VALID_IC_POLARITY(POLARITY) (((POLARITY) == TIMER_INPUTCAPTUREPOLARITY_RISING)  || \
+                                           ((POLARITY) == TIMER_INPUTCAPTUREPOLARITY_FALLING) || \
+                                           ((POLARITY) == TIMER_INPUTCAPTUREPOLARITY_BOTH))
+
+#define TIMER_VALID_IC_PRESCALER(PRESCALER) (((PRESCALER) == TIMER_INPUTCAPTUREPRESCALER_DIV1) || \
+                                             ((PRESCALER) == TIMER_INPUTCAPTUREPRESCALER_DIV2) || \
+                                             ((PRESCALER) == TIMER_INPUTCAPTUREPRESCALER_DIV4) || \
+                                             ((PRESCALER) == TIMER_INPUTCAPTUREPRESCALER_DIV8))
+
+#define TIMER_VALID_IC_SELECTION(SELECTION) (((SELECTION) == TIMER_INPUTCAPTURESELECTION_DIRECT)   || \
+                                             ((SELECTION) == TIMER_INPUTCAPTURESELECTION_INDIRECT) || \
+                                             ((SELECTION) == TIMER_INPUTCAPTURESELECTION_TRC))
+
 #define TIMER_VALID_AUTORELOAD_PRELOAD(AUTORELOAD) (((AUTORELOAD) == TRUE) || \
                                                     ((AUTORELOAD) == FALSE))
 
@@ -147,10 +160,10 @@ typedef struct _Timer_Device
     volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
     uint32_t rccRegisterEnable;        /**< Register mask for current device. */
 
-    Timer_Pins pwmPins[TIMER_MAX_PINS];/**< List of the pin for the timer channel. */
-    Timer_Channels pwmPinsChannel[TIMER_MAX_PINS];
-    Gpio_Pins pwmPinsGpio[TIMER_MAX_PINS];
-    Gpio_Alternate pwmPinsMux[TIMER_MAX_PINS];
+    Timer_Pins pins[TIMER_MAX_PINS];/**< List of the pin for the timer channel. */
+    Timer_Channels pinsChannel[TIMER_MAX_PINS];
+    Gpio_Pins pinsGpio[TIMER_MAX_PINS];
+    Gpio_Alternate pinsMux[TIMER_MAX_PINS];
 
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
@@ -328,28 +341,28 @@ static Timer_Device tim1 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM1EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA8,
                                TIMER_PINS_PA9,
                                TIMER_PINS_PA10,
                                TIMER_PINS_PA11,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA8,
                                GPIO_PINS_PA9,
                                GPIO_PINS_PA10,
                                GPIO_PINS_PA11,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_1,
                                GPIO_ALTERNATE_1,
@@ -368,7 +381,7 @@ static Timer_Device tim2 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM2EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA0,
                                TIMER_PINS_PA1,
@@ -380,7 +393,7 @@ static Timer_Device tim2 =
                                TIMER_PINS_PB10,
                                TIMER_PINS_PB11,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
@@ -392,7 +405,7 @@ static Timer_Device tim2 =
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA0,
                                GPIO_PINS_PA1,
@@ -404,7 +417,7 @@ static Timer_Device tim2 =
                                GPIO_PINS_PB10,
                                GPIO_PINS_PB11,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_1,
                                GPIO_ALTERNATE_1,
@@ -428,7 +441,7 @@ static Timer_Device tim3 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM3EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA6,
                                TIMER_PINS_PA7,
@@ -441,7 +454,7 @@ static Timer_Device tim3 =
                                TIMER_PINS_PC8,
                                TIMER_PINS_PC9,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
@@ -454,7 +467,7 @@ static Timer_Device tim3 =
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA6,
                                GPIO_PINS_PA7,
@@ -467,7 +480,7 @@ static Timer_Device tim3 =
                                GPIO_PINS_PC8,
                                GPIO_PINS_PC9,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
@@ -492,28 +505,28 @@ static Timer_Device tim4 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM4EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PB6,
                                TIMER_PINS_PB7,
                                TIMER_PINS_PB8,
                                TIMER_PINS_PB9,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PB6,
                                GPIO_PINS_PB7,
                                GPIO_PINS_PB8,
                                GPIO_PINS_PB9,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
@@ -532,28 +545,28 @@ static Timer_Device tim5 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_TIM5EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA0,
                                TIMER_PINS_PA1,
                                TIMER_PINS_PA2,
                                TIMER_PINS_PA3,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA0,
                                GPIO_PINS_PA1,
                                GPIO_PINS_PA2,
                                GPIO_PINS_PA3,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
@@ -595,28 +608,28 @@ static Timer_Device tim8 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM8EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PC6,
                                TIMER_PINS_PC7,
                                TIMER_PINS_PC8,
                                TIMER_PINS_PC9,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PC6,
                                GPIO_PINS_PC7,
                                GPIO_PINS_PC8,
                                GPIO_PINS_PC9,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_3,
                                GPIO_ALTERNATE_3,
@@ -635,7 +648,7 @@ static Timer_Device tim15 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM15EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA2,
                                TIMER_PINS_PA3,
@@ -646,7 +659,7 @@ static Timer_Device tim15 =
                                TIMER_PINS_PG11,
 #endif
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
@@ -657,7 +670,7 @@ static Timer_Device tim15 =
                                TIMER_CHANNELS_CH2,
 #endif
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA2,
                                GPIO_PINS_PA3,
@@ -668,7 +681,7 @@ static Timer_Device tim15 =
                                GPIO_PINS_PG11,
 #endif
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_14,
                                GPIO_ALTERNATE_14,
@@ -691,22 +704,22 @@ static Timer_Device tim16 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM16EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA6,
                                TIMER_PINS_PB8,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH1,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA6,
                                GPIO_PINS_PB8,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_14,
                                GPIO_ALTERNATE_14,
@@ -723,22 +736,22 @@ static Timer_Device tim17 =
         .rccRegisterPtr      = &RCC->APB2ENR,
         .rccRegisterEnable   = RCC_APB2ENR_TIM17EN,
 
-        .pwmPins             =
+        .pins             =
         {
                                TIMER_PINS_PA7,
                                TIMER_PINS_PB9,
         },
-        .pwmPinsChannel      =
+        .pinsChannel      =
         {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH1,
         },
-        .pwmPinsGpio         =
+        .pinsGpio         =
         {
                                GPIO_PINS_PA7,
                                GPIO_PINS_PB9,
         },
-        .pwmPinsMux          =
+        .pinsMux          =
         {
                                GPIO_ALTERNATE_14,
                                GPIO_ALTERNATE_14,
@@ -864,7 +877,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
             // Callback for output compare
             else
             {
-                dev->pwmPulseFinishedCallback(dev);
+             dev->pwmPulseFinishedCallback(dev);
                 dev->outputCompareCallback(dev);
             }
         }
@@ -974,7 +987,7 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
     if (config->outputCompareCallback != 0)
     {
         // Save callback
-        dev->pwmPulseFinishedCallback = config->outputCompareCallback;
+        dev->outputCompareCallback = config->outputCompareCallback;
         // Enable interrupt
         Interrupt_enable(dev->isrNumber);
     }
@@ -1307,12 +1320,12 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     bool isPinFound = FALSE;
     for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
     {
-        if (dev->pwmPins[i] == pin)
+        if (dev->pins[i] == pin)
         {
-            Gpio_configAlternate(dev->pwmPinsGpio[i],
-                                 dev->pwmPinsMux[i],
+            Gpio_configAlternate(dev->pinsGpio[i],
+                                 dev->pinsMux[i],
                                  0);
-            channel = dev->pwmPinsChannel[i];
+            channel = dev->pinsChannel[i];
             isPinFound = TRUE;
             break;
         }
@@ -1561,12 +1574,12 @@ System_Errors Timer_configOutputComparePin (Timer_DeviceHandle dev,
     bool isPinFound = FALSE;
     for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
     {
-        if (dev->pwmPins[i] == pin)
+        if (dev->pins[i] == pin)
         {
-            Gpio_configAlternate(dev->pwmPinsGpio[i],
-                                 dev->pwmPinsMux[i],
+            Gpio_configAlternate(dev->pinsGpio[i],
+                                 dev->pinsMux[i],
                                  0);
-            channel = dev->pwmPinsChannel[i];
+            channel = dev->pinsChannel[i];
             isPinFound = TRUE;
             break;
         }
@@ -1751,6 +1764,41 @@ System_Errors Timer_stopOutputCompare (Timer_DeviceHandle dev, Timer_Channels ch
     // Disable device if all CC channel is not active
     TIMER_DEVICE_DISABLE(dev);
 
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_configInputCapturePin (Timer_DeviceHandle dev,
+                                           Timer_InputCaptureConfig* config,
+                                           Timer_Pins pin)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    err  = ohiassert(TIMER_IS_OC_DEVICE(dev));
+    err |= ohiassert(TIMER_VALID_IC_POLARITY(config->polarity));
+    err |= ohiassert(TIMER_VALID_IC_SELECTION(config->selection));
+    err |= ohiassert(TIMER_VALID_IC_PRESCALER(config->prescaler));
+    err |= ohiassert((config->filter >= 0x0u) && (config->filter <= 0xFu));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // TODO
+
+    dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
 }
 

@@ -891,7 +891,7 @@ typedef enum _Timer_OutputCompareMode
 {
 #if defined (LIBOHIBOARD_ST_STM32)
 
-    TIMER_OUTPUTCOMPAREMODE_COUNTING           = 0u,
+    TIMER_OUTPUTCOMPAREMODE_COUNTING           = 0x00000000u,
     TIMER_OUTPUTCOMPAREMODE_ACTIVE_ON_MATCH    = TIM_CCMR1_OC1M_0,
     TIMER_OUTPUTCOMPAREMODE_INACTIVE_ON_MATCH  = TIM_CCMR1_OC1M_1,
     TIMER_OUTPUTCOMPAREMODE_TOGGLE             = (TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_1),
@@ -1031,31 +1031,91 @@ System_Errors Timer_stopOutputCompare (Timer_DeviceHandle dev, Timer_Channels ch
 
 ///@}
 
-//void Ftm_resetCounter (Ftm_DeviceHandle dev);
-//
-///* Valid only in free counter mode */
-//void Ftm_enableInterrupt (Ftm_DeviceHandle dev);
-//void Ftm_disableInterrupt (Ftm_DeviceHandle dev);
-//
-//void Ftm_startCount(Ftm_DeviceHandle dev);
-//void Ftm_stopCount(Ftm_DeviceHandle dev);
-//uint16_t Ftm_getModule(Ftm_DeviceHandle dev);
-//
-///* Set PWM */
-//System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled);
-//void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled);
-//
-///* Set Input Capture */
-//System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t configurations);
-//
-///* Channel function */
-//void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-//void Ftm_disableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-//bool Ftm_isChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-//void Ftm_clearChannelFlagInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel);
-//uint16_t Ftm_getChannelCount (Ftm_DeviceHandle dev, Ftm_Channels channel);
-//
-//uint8_t Ftm_ResetFault (Ftm_DeviceHandle dev);
+typedef enum _Timer_InputCapturePolarity
+{
+#if defined (LIBOHIBOARD_ST_STM32)
+
+    TIMER_INPUTCAPTUREPOLARITY_RISING  = 0x00000000u,
+    TIMER_INPUTCAPTUREPOLARITY_FALLING = TIM_CCER_CC1P,
+    TIMER_INPUTCAPTUREPOLARITY_BOTH    = (TIM_CCER_CC1P | TIM_CCER_CC1NP),
+
+#endif
+
+} Timer_InputCapturePolarity;
+
+typedef enum _Timer_InputCapturePrescaler
+{
+#if defined (LIBOHIBOARD_ST_STM32)
+
+    TIMER_INPUTCAPTUREPRESCALER_DIV1  = 0x00000000u,
+    TIMER_INPUTCAPTUREPRESCALER_DIV2  = TIM_CCMR1_IC1PSC_0,
+    TIMER_INPUTCAPTUREPRESCALER_DIV4  = TIM_CCMR1_IC1PSC_1,
+    TIMER_INPUTCAPTUREPRESCALER_DIV8  = TIM_CCMR1_IC1PSC,
+#endif
+
+} Timer_InputCapturePrescaler;
+
+typedef enum _Timer_InputCaptureSelection
+{
+#if defined (LIBOHIBOARD_ST_STM32)
+
+    TIMER_INPUTCAPTURESELECTION_DIRECT   = TIM_CCMR1_CC1S_0,
+    TIMER_INPUTCAPTURESELECTION_INDIRECT = TIM_CCMR1_CC1S_1,
+    TIMER_INPUTCAPTURESELECTION_TRC      = TIM_CCMR1_CC1S,
+#endif
+
+} Timer_InputCaptureSelection;
+
+
+typedef struct _Timer_InputCaptureConfig
+{
+    Timer_InputCapturePolarity polarity;
+
+    Timer_InputCapturePrescaler prescaler;
+
+    Timer_InputCaptureSelection selection;
+
+    /**
+     * The input capture filter. The number must be between 0x0 and 0xF.
+     *   - 0000: No filter, sampling is done at fDTS
+     *   - 0001: fSAMPLING=fCK_INT, N=2
+     *   - 0010: fSAMPLING=fCK_INT, N=4
+     *   - 0011: fSAMPLING=fCK_INT, N=8
+     *   - 0100: fSAMPLING=fDTS/2, N=6
+     *   - 0101: fSAMPLING=fDTS/2, N=8
+     *   - 0110: fSAMPLING=fDTS/4, N=6
+     *   - 0111: fSAMPLING=fDTS/4, N=8
+     *   - 1000: fSAMPLING=fDTS/8, N=6
+     *   - 1001: fSAMPLING=fDTS/8, N=8
+     *   - 1010: fSAMPLING=fDTS/16, N=5
+     *   - 1011: fSAMPLING=fDTS/16, N=6
+     *   - 1100: fSAMPLING=fDTS/16, N=8
+     *   - 1101: fSAMPLING=fDTS/32, N=5
+     *   - 1110: fSAMPLING=fDTS/32, N=6
+     *   - 1111: fSAMPLING=fDTS/32, N=8
+     */
+    uint8_t filter;
+
+} Timer_InputCaptureConfig;
+
+/** @name Input Capture functions
+ *  Functions to manage IC pins of a Timer peripheral.
+ */
+///@{
+
+/**
+ * This function configure the selected pin to work in Input Capture mode.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] config Input capture configuration parameters list.
+ * @param[in] pin Selected pin for the IC input
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_configInputCapturePin (Timer_DeviceHandle dev,
+                                           Timer_InputCaptureConfig* config,
+                                           Timer_Pins pin);
+
+///@}
 
 #ifdef __cplusplus
 }
