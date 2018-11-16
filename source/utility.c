@@ -688,7 +688,7 @@ System_Errors dtu32 (const uint8_t* dString, uint32_t* result, uint8_t slength)
 
 uint8_t Utility_byteToBcd2 (uint8_t value)
 {
-    ohiassert(value > 99);
+    ohiassert(value <= 99);
 
     uint8_t dozens = 0;
 
@@ -704,8 +704,8 @@ uint8_t Utility_byteToBcd2 (uint8_t value)
 uint8_t Utility_bcd2ToByte (uint8_t value)
 {
     // Check BCD format
-    ohiassert((value & 0xF0) > 0x90);
-    ohiassert((value & 0x0F) > 0x09);
+    ohiassert((value & 0xF0) <= 0x90);
+    ohiassert((value & 0x0F) <= 0x09);
 
     uint8_t tmp = 0;
     tmp = ((uint8_t)(value & 0xF0u) >> 4) * 10;
