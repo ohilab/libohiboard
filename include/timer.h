@@ -808,6 +808,7 @@ typedef struct _Timer_Config
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);
     void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
+    void (* outputCompareCallback)(struct _Timer_Device *dev);
 
     /**< Define the counter type for a specific operational mode */
     Timer_CounterMode counterMode;
@@ -886,29 +887,24 @@ System_Errors Timer_stop (Timer_DeviceHandle dev);
 
 ///@}
 
-/** @name PWM functions
- *  Functions to manage PWM pins of a Timer peripheral.
- */
-///@{
-
 typedef enum _Timer_OutputCompareMode
 {
 #if defined (LIBOHIBOARD_ST_STM32)
 
-    TIMER_OUTPUTCOMPAREMODE_COUNTING,
-    TIMER_OUTPUTCOMPAREMODE_ACTIVE_ON_MATCH,
-    TIMER_OUTPUTCOMPAREMODE_INACTIVE_ON_MATCH,
-    TIMER_OUTPUTCOMPAREMODE_TOGGLE,
-    TIMER_OUTPUTCOMPAREMODE_FORCED_INACTIVE,
-    TIMER_OUTPUTCOMPAREMODE_FORCED_ACTIVE,
-    TIMER_OUTPUTCOMPAREMODE_PWM1,
-    TIMER_OUTPUTCOMPAREMODE_PWM2,
-    TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM1,
-    TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM2,
-    TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM1,
-    TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM2,
-    TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1,
-    TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2,
+    TIMER_OUTPUTCOMPAREMODE_COUNTING           = 0u,
+    TIMER_OUTPUTCOMPAREMODE_ACTIVE_ON_MATCH    = TIM_CCMR1_OC1M_0,
+    TIMER_OUTPUTCOMPAREMODE_INACTIVE_ON_MATCH  = TIM_CCMR1_OC1M_1,
+    TIMER_OUTPUTCOMPAREMODE_TOGGLE             = (TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_1),
+    TIMER_OUTPUTCOMPAREMODE_FORCED_INACTIVE    = TIM_CCMR1_OC1M_2,
+    TIMER_OUTPUTCOMPAREMODE_FORCED_ACTIVE      = (TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_2),
+    TIMER_OUTPUTCOMPAREMODE_PWM1               = (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2),
+    TIMER_OUTPUTCOMPAREMODE_PWM2               = (TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2),
+    TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM1 = TIM_CCMR1_OC1M_3,
+    TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM2 = (TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_3),
+    TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM1      = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3),
+    TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM2      = (TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3),
+    TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1    = (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3),
+    TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2    = TIM_CCMR1_OC1M,
 
 #endif
 
@@ -918,7 +914,17 @@ typedef struct _Timer_OutputCompareConfig
 {
     Timer_OutputCompareMode mode;
 
+    /**
+     * The duty-cycle usable in PWM mode.
+     * Must be between 0 and 100.
+     */
     uint8_t duty;
+
+    /**
+     * This value is the compare value in OC or OPM.
+     * Must be between 0x0000 and 0xFFFF.
+     */
+    uint32_t pulse;
 
     /**
      * This flag must be used to choice if accelerate the effect of an event
@@ -934,6 +940,12 @@ typedef struct _Timer_OutputCompareConfig
     Gpio_Level nIdleState;
 
 } Timer_OutputCompareConfig;
+
+
+/** @name PWM functions
+ *  Functions to manage PWM pins of a Timer peripheral.
+ */
+///@{
 
 /**
  * This function configure the selected pin to generate a PWM signal
@@ -982,6 +994,42 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel);
 
 ///@}
 
+/** @name Output Compare functions
+ *  Functions to manage OC pins of a Timer peripheral.
+ */
+///@{
+
+/**
+ * This function configure the selected pin to work in Output Compare mode.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] config Output compare configuration parameters list.
+ * @param[in] pin Selected pin for the OC output
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_configOutputComparePin (Timer_DeviceHandle dev,
+                                            Timer_OutputCompareConfig* config,
+                                            Timer_Pins pin);
+
+/**
+ * This function start Output Compare on selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_startOutputCompare (Timer_DeviceHandle dev, Timer_Channels channel);
+
+/**
+ * This function stop Output Compare on selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_stopOutputCompare (Timer_DeviceHandle dev, Timer_Channels channel);
+
+///@}
 
 //void Ftm_resetCounter (Ftm_DeviceHandle dev);
 //

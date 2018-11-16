@@ -119,6 +119,15 @@ extern "C" {
                                     ((MODE) == TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1) || \
                                     ((MODE) == TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2))
 
+#define TIMER_VALID_OC_MODE(MODE) (((MODE) == TIMER_OUTPUTCOMPAREMODE_COUNTING)           || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_ACTIVE_ON_MATCH)    || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_INACTIVE_ON_MATCH)  || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_TOGGLE)             || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_FORCED_INACTIVE)    || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_FORCED_ACTIVE)      || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM1) || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_RETRIGGERABLE_OPM2))
+
 #define TIMER_VALID_OC_POLARITY(POLARITY) (((POLARITY) == GPIO_HIGH) || \
                                            ((POLARITY) == GPIO_LOW))
 
@@ -147,6 +156,7 @@ typedef struct _Timer_Device
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);
     void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
+    void (* outputCompareCallback)(struct _Timer_Device *dev);
 
     uint32_t inputClock;                            /**< Current CK_INT value */
 
@@ -203,15 +213,15 @@ typedef struct _Timer_Device
 #define TIMER_IS_32BIT_COUNTER_DEVICE(DEVICE) (((DEVICE) == OB_TIM2)   || \
                                                ((DEVICE) == OB_TIM5))
 
-#define TIMER_IS_PWM_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
-                                     ((DEVICE) == OB_TIM2)   || \
-                                     ((DEVICE) == OB_TIM3)   || \
-                                     ((DEVICE) == OB_TIM4)   || \
-                                     ((DEVICE) == OB_TIM5)   || \
-                                     ((DEVICE) == OB_TIM8)   || \
-                                     ((DEVICE) == OB_TIM15)  || \
-                                     ((DEVICE) == OB_TIM16)  || \
-                                     ((DEVICE) == OB_TIM17))
+#define TIMER_IS_OC_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                    ((DEVICE) == OB_TIM2)   || \
+                                    ((DEVICE) == OB_TIM3)   || \
+                                    ((DEVICE) == OB_TIM4)   || \
+                                    ((DEVICE) == OB_TIM5)   || \
+                                    ((DEVICE) == OB_TIM8)   || \
+                                    ((DEVICE) == OB_TIM15)  || \
+                                    ((DEVICE) == OB_TIM16)  || \
+                                    ((DEVICE) == OB_TIM17))
 
 #define TIMER_IS_CHANNEL1_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
                                           ((DEVICE) == OB_TIM2)  || \
@@ -293,6 +303,23 @@ typedef struct _Timer_Device
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
                                                  (((DEVICE) == OB_TIM17) &&               \
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1))))
+
+#define TIMER_IS_NCHANNEL_DEVICE(DEVICE, CHANNEL)                                          \
+                                                ((((DEVICE) == OB_TIM1) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3)))  || \
+                                                 (((DEVICE) == OB_TIM8) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3)))  || \
+                                                 (((DEVICE) == OB_TIM15) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
+                                                 (((DEVICE) == OB_TIM16) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
+                                                 (((DEVICE) == OB_TIM17) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1))))
+
 
 static Timer_Device tim1 =
 {
@@ -772,6 +799,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
             else
             {
                 dev->pwmPulseFinishedCallback(dev);
+                dev->outputCompareCallback(dev);
             }
         }
     }
@@ -793,6 +821,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
             else
             {
                 dev->pwmPulseFinishedCallback(dev);
+                dev->outputCompareCallback(dev);
             }
         }
     }
@@ -814,6 +843,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
             else
             {
                 dev->pwmPulseFinishedCallback(dev);
+                dev->outputCompareCallback(dev);
             }
         }
     }
@@ -835,6 +865,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
             else
             {
                 dev->pwmPulseFinishedCallback(dev);
+                dev->outputCompareCallback(dev);
             }
         }
     }
@@ -939,6 +970,18 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
         // Enable interrupt
         Interrupt_enable(dev->isrNumber);
     }
+
+    if (config->outputCompareCallback != 0)
+    {
+        // Save callback
+        dev->pwmPulseFinishedCallback = config->outputCompareCallback;
+        // Enable interrupt
+        Interrupt_enable(dev->isrNumber);
+    }
+
+    // Reset CNT and CNT_PSC, and generate an update event to reload all
+    // value immediately
+    dev->regmap->EGR = TIM_EGR_UG;
 
     return ERRORS_NO_ERROR;
 }
@@ -1054,6 +1097,14 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
         Timer_configBase(dev,config);
         break;
+
+    case TIMER_MODE_OUTPUT_COMPARE:
+        // Check user choices
+        ohiassert(config->prescaler > 0);
+
+        Timer_configBase(dev,config);
+        break;
+
     default:
         ohiassert(0);
         break;
@@ -1064,7 +1115,24 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
 System_Errors Timer_deInit (Timer_DeviceHandle dev)
 {
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
 
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // Disable the peripheral
+    TIMER_CLOCK_DISABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+
+    dev->state = TIMER_DEVICESTATE_RESET;
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Timer_start (Timer_DeviceHandle dev)
@@ -1221,7 +1289,7 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_WRONG_DEVICE;
     }
 
-    err  = ohiassert(TIMER_IS_PWM_DEVICE(dev));
+    err  = ohiassert(TIMER_IS_OC_DEVICE(dev));
     err |= ohiassert(TIMER_VALID_PWM_MODE(config->mode));
     err |= ohiassert(TIMER_VALID_OC_FAST_MODE(config->fastMode));
     err |= ohiassert(TIMER_VALID_OC_POLARITY(config->polarity));
@@ -1299,29 +1367,7 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     tmpccmrx &= ~(TIM_CCMR1_CC1S_Msk << shiftccmrx);
 
     // Set selected compare mode
-    switch (config->mode)
-    {
-    case TIMER_OUTPUTCOMPAREMODE_PWM1:
-        tmpccmrx |= ((TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2) << shiftccmrx);
-        break;
-    case TIMER_OUTPUTCOMPAREMODE_PWM2:
-        tmpccmrx |= ((TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2) << shiftccmrx);
-        break;
-    case TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM1:
-        tmpccmrx |= ((TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3) << shiftccmrx);
-        break;
-    case TIMER_OUTPUTCOMPAREMODE_COMBINED_PWM2:
-        tmpccmrx |= ((TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3) << shiftccmrx);
-        break;
-    case TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1:
-        tmpccmrx |= ((TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3) << shiftccmrx);
-        break;
-    case TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2:
-        tmpccmrx |= ((TIM_CCMR1_OC1M) << shiftccmrx);
-        break;
-    default:
-        ohiassert(0);
-    }
+    tmpccmrx |= (config->mode << shiftccmrx);
 
     // Set preload bit
     tmpccmrx |= ((TIM_CCMR1_OC1PE) << shiftccmrx);
@@ -1356,7 +1402,7 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert(TIMER_IS_PWM_DEVICE(dev)) != ERRORS_NO_ERROR)
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1366,23 +1412,26 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
         return ERRORS_TIMER_WRONG_PWM_CHANNEL;
     }
 
-    // Enable CC Interrupt
-    switch (channel)
+    // In case of callback, enable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
     {
-    case TIMER_CHANNELS_CH1:
-        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
-        break;
-    case TIMER_CHANNELS_CH2:
-        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
-        break;
-    case TIMER_CHANNELS_CH3:
-        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
-        break;
-    case TIMER_CHANNELS_CH4:
-        UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
-        break;
-    default:
-        ohiassert(0);
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
     }
 
     // Enable channel in the selected pin
@@ -1402,7 +1451,7 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert(TIMER_IS_PWM_DEVICE(dev)) != ERRORS_NO_ERROR)
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1413,22 +1462,25 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
     }
 
     // Disable CC Interrupt
-    switch (channel)
+    if (dev->pwmPulseFinishedCallback != 0)
     {
-    case TIMER_CHANNELS_CH1:
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
-        break;
-    case TIMER_CHANNELS_CH2:
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
-        break;
-    case TIMER_CHANNELS_CH3:
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
-        break;
-    case TIMER_CHANNELS_CH4:
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
-        break;
-    default:
-        ohiassert(0);
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
     }
 
     // Disable channel in the selected pin
@@ -1450,7 +1502,7 @@ System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert(TIMER_IS_PWM_DEVICE(dev)) != ERRORS_NO_ERROR)
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1470,6 +1522,234 @@ System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
     uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * duty);
     // Write new pulse value
     *regCCRn = pulse - 1;
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_configOutputComparePin (Timer_DeviceHandle dev,
+                                            Timer_OutputCompareConfig* config,
+                                            Timer_Pins pin)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    err  = ohiassert(TIMER_IS_OC_DEVICE(dev));
+    err |= ohiassert(TIMER_VALID_OC_MODE(config->mode));
+    err |= ohiassert(TIMER_VALID_OC_FAST_MODE(config->fastMode));
+    err |= ohiassert(TIMER_VALID_OC_POLARITY(config->polarity));
+    err |= ohiassert(config->pulse <= 0xFFFF);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // Configure alternate function on selected pin
+    // And save selected channel
+    Timer_Channels channel;
+    bool isPinFound = FALSE;
+    for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
+    {
+        if (dev->pwmPins[i] == pin)
+        {
+            Gpio_configAlternate(dev->pwmPinsGpio[i],
+                                 dev->pwmPinsMux[i],
+                                 0);
+            channel = dev->pwmPinsChannel[i];
+            isPinFound = TRUE;
+            break;
+        }
+    }
+    if (isPinFound == FALSE)
+    {
+        dev->state = TIMER_DEVICESTATE_ERROR;
+        return ERRORS_TIMER_NO_OC_PIN_FOUND;
+    }
+
+    // Configure Output Compare functions
+    // Temporary variables
+    volatile uint32_t* regCCMRxPtr = Timer_getCCMRnRegister(dev,channel);
+    uint32_t tmpccmrx = *regCCMRxPtr;
+    uint32_t tmpccer;
+
+    uint32_t shiftccmrx;
+
+    // Disable Channel
+    dev->regmap->CCER &= ~(TIM_CCER_CC1E << channel);
+
+    // Set-up registers for specific channel
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        shiftccmrx = 0u;
+        break;
+    case TIMER_CHANNELS_CH2:
+        shiftccmrx = 8u;
+        break;
+    case TIMER_CHANNELS_CH3:
+        shiftccmrx = 0u;
+        break;
+    case TIMER_CHANNELS_CH4:
+        shiftccmrx = 8u;
+        break;
+    case TIMER_CHANNELS_CH5:
+        shiftccmrx = 0u;
+        break;
+    case TIMER_CHANNELS_CH6:
+        shiftccmrx = 8u;
+        break;
+    default:
+        ohiassert(0);
+    }
+
+    // Get common register values
+    tmpccer = dev->regmap->CCER;
+
+    // Reset output compare mode and selection bits
+    tmpccmrx &= ~(TIM_CCMR1_OC1M_Msk << shiftccmrx);
+    tmpccmrx &= ~(TIM_CCMR1_CC1S_Msk << shiftccmrx);
+
+    // Set selected compare mode
+    tmpccmrx |= (config->mode << shiftccmrx);
+
+    // Set preload bit
+    // FIXME: is useful?
+    //tmpccmrx |= ((TIM_CCMR1_OC1PE) << shiftccmrx);
+
+    // Set polarity
+    tmpccer &= ~(TIM_CCER_CC1P_Msk << channel);
+    tmpccer |= (((config->polarity == GPIO_LOW) ? TIM_CCER_CC1P : 0u) << channel);
+
+// FIXME: which kind of microcontroller has this feature?
+#if !defined (LIBOHIBOARD_STM32L476)
+    // Enable complementary signal
+    if (TIMER_IS_NCHANNEL_DEVICE(dev,channel))
+    {
+        ohiassert(TIMER_VALID_OC_POLARITY(config->nPolarity));
+        // Set polarity
+        tmpccer &= ~(TIM_CCER_CC1NP_Msk << channel);
+        tmpccer |= (((config->nPolarity == GPIO_LOW) ? TIM_CCER_CC1NP : 0u) << channel);
+
+        // Disable the Output N State
+        tmpccer &= ~(TIM_CCER_CC1NE << channel);
+    }
+#endif
+
+    // Save new register value
+    *regCCMRxPtr = tmpccmrx;
+    volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
+    // Write the compare value
+    *regCCRn = config->pulse;
+    dev->regmap->CCER = tmpccer;
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_startOutputCompare (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_OC_CHANNEL;
+    }
+
+    // In case of callback, enable CC Interrupt
+    if (dev->outputCompareCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Enable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,TRUE);
+
+    // Enable device
+    TIMER_DEVICE_ENABLE(dev);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stopOutputCompare (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_OC_CHANNEL;
+    }
+
+    // Disable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Disable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,FALSE);
+
+    // Disable device if all CC channel is not active
+    TIMER_DEVICE_DISABLE(dev);
 
     return ERRORS_NO_ERROR;
 }
