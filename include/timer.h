@@ -142,6 +142,27 @@ typedef enum _Timer_CounterMode
 } Timer_CounterMode;
 
 /**
+ * Useful enumeration used to detect the current channel that
+ * generate an interrupt.
+ */
+typedef enum _Timer_ActiveChannels
+{
+    TIMER_ACTIVECHANNELS_NONE = 0x00u,
+
+    TIMER_ACTIVECHANNELS_CH1  = 0x01u,
+    TIMER_ACTIVECHANNELS_CH2  = 0x02u,
+    TIMER_ACTIVECHANNELS_CH3  = 0x04u,
+    TIMER_ACTIVECHANNELS_CH4  = 0x08u,
+    TIMER_ACTIVECHANNELS_CH5  = 0x10u,
+    TIMER_ACTIVECHANNELS_CH6  = 0x20u,
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+    TIMER_ACTIVECHANNELS_CH7  = 0x40u,
+    TIMER_ACTIVECHANNELS_CH8  = 0x80u,
+#endif
+
+} Timer_ActiveChannels;
+
+/**
  *
  */
 typedef struct _Timer_Device* Timer_DeviceHandle;
@@ -809,6 +830,7 @@ typedef struct _Timer_Config
     void (* freeCounterCallback)(struct _Timer_Device *dev);
     void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
     void (* outputCompareCallback)(struct _Timer_Device *dev);
+    void (* inputCaptureCallback)(struct _Timer_Device *dev);
 
     /**< Define the counter type for a specific operational mode */
     Timer_CounterMode counterMode;
@@ -1114,6 +1136,24 @@ typedef struct _Timer_InputCaptureConfig
 System_Errors Timer_configInputCapturePin (Timer_DeviceHandle dev,
                                            Timer_InputCaptureConfig* config,
                                            Timer_Pins pin);
+
+/**
+ * This function start Input Capture on selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The input channel
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_startInputCapture (Timer_DeviceHandle dev, Timer_Channels channel);
+
+/**
+ * This function stop Input Capture on selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The input channel
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels channel);
 
 ///@}
 

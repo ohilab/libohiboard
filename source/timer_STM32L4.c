@@ -167,9 +167,12 @@ typedef struct _Timer_Device
 
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
+    Timer_ActiveChannels currentChannel;
+
     void (* freeCounterCallback)(struct _Timer_Device *dev);
     void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
     void (* outputCompareCallback)(struct _Timer_Device *dev);
+    void (* inputCaptureCallback)(struct _Timer_Device *dev);
 
     uint32_t inputClock;                            /**< Current CK_INT value */
 
@@ -227,6 +230,16 @@ typedef struct _Timer_Device
                                                ((DEVICE) == OB_TIM5))
 
 #define TIMER_IS_OC_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                    ((DEVICE) == OB_TIM2)   || \
+                                    ((DEVICE) == OB_TIM3)   || \
+                                    ((DEVICE) == OB_TIM4)   || \
+                                    ((DEVICE) == OB_TIM5)   || \
+                                    ((DEVICE) == OB_TIM8)   || \
+                                    ((DEVICE) == OB_TIM15)  || \
+                                    ((DEVICE) == OB_TIM16)  || \
+                                    ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_IC_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
                                     ((DEVICE) == OB_TIM2)   || \
                                     ((DEVICE) == OB_TIM3)   || \
                                     ((DEVICE) == OB_TIM4)   || \
@@ -803,10 +816,12 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
         {
             // Clear flag
             dev->regmap->SR &= ~(TIM_SR_CC1IF);
+            // Save current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_CH1;
             // Callback for input compare
             if ((dev->regmap->CCMR1 & TIM_CCMR1_CC1S) != 0u)
             {
-                // TODO
+                dev->inputCaptureCallback(dev);
             }
             // Callback for output compare
             else
@@ -814,6 +829,8 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
                 dev->pwmPulseFinishedCallback(dev);
                 dev->outputCompareCallback(dev);
             }
+            // Clear current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_NONE;
         }
     }
 
@@ -825,10 +842,12 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
         {
             // Clear flag
             dev->regmap->SR &= ~(TIM_SR_CC2IF);
+            // Save current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_CH2;
             // Callback for input compare
             if ((dev->regmap->CCMR1 & TIM_CCMR1_CC2S) != 0u)
             {
-                // TODO
+                dev->inputCaptureCallback(dev);
             }
             // Callback for output compare
             else
@@ -836,6 +855,8 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
                 dev->pwmPulseFinishedCallback(dev);
                 dev->outputCompareCallback(dev);
             }
+            // Clear current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_NONE;
         }
     }
 
@@ -847,10 +868,12 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
         {
             // Clear flag
             dev->regmap->SR &= ~(TIM_SR_CC3IF);
+            // Save current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_CH3;
             // Callback for input compare
             if ((dev->regmap->CCMR2 & TIM_CCMR2_CC3S) != 0u)
             {
-                // TODO
+                dev->inputCaptureCallback(dev);
             }
             // Callback for output compare
             else
@@ -858,6 +881,8 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
                 dev->pwmPulseFinishedCallback(dev);
                 dev->outputCompareCallback(dev);
             }
+            // Clear current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_NONE;
         }
     }
 
@@ -869,10 +894,12 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
         {
             // Clear flag
             dev->regmap->SR &= ~(TIM_SR_CC4IF);
+            // Save current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_CH4;
             // Callback for input compare
             if ((dev->regmap->CCMR2 & TIM_CCMR2_CC4S) != 0u)
             {
-                // TODO
+                dev->inputCaptureCallback(dev);
             }
             // Callback for output compare
             else
@@ -880,6 +907,8 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
              dev->pwmPulseFinishedCallback(dev);
                 dev->outputCompareCallback(dev);
             }
+            // Clear current channel
+            dev->currentChannel = TIMER_ACTIVECHANNELS_NONE;
         }
     }
 }
@@ -988,6 +1017,14 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
     {
         // Save callback
         dev->outputCompareCallback = config->outputCompareCallback;
+        // Enable interrupt
+        Interrupt_enable(dev->isrNumber);
+    }
+
+    if (config->inputCaptureCallback != 0)
+    {
+        // Save callback
+        dev->inputCaptureCallback = config->inputCaptureCallback;
         // Enable interrupt
         Interrupt_enable(dev->isrNumber);
     }
@@ -1115,6 +1152,10 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         // Check user choices
         ohiassert(config->prescaler > 0);
 
+        Timer_configBase(dev,config);
+        break;
+
+    case TIMER_MODE_INPUT_CAPTURE:
         Timer_configBase(dev,config);
         break;
 
@@ -1784,7 +1825,7 @@ System_Errors Timer_configInputCapturePin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_WRONG_DEVICE;
     }
 
-    err  = ohiassert(TIMER_IS_OC_DEVICE(dev));
+    err  = ohiassert(TIMER_IS_IC_DEVICE(dev));
     err |= ohiassert(TIMER_VALID_IC_POLARITY(config->polarity));
     err |= ohiassert(TIMER_VALID_IC_SELECTION(config->selection));
     err |= ohiassert(TIMER_VALID_IC_PRESCALER(config->prescaler));
@@ -1796,9 +1837,203 @@ System_Errors Timer_configInputCapturePin (Timer_DeviceHandle dev,
 
     dev->state = TIMER_DEVICESTATE_BUSY;
 
-    // TODO
+    // Configure alternate function on selected pin
+    // And save selected channel
+    Timer_Channels channel;
+    bool isPinFound = FALSE;
+    for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
+    {
+        if (dev->pins[i] == pin)
+        {
+            Gpio_configAlternate(dev->pinsGpio[i],
+                                 dev->pinsMux[i],
+                                 0);
+            channel = dev->pinsChannel[i];
+            isPinFound = TRUE;
+            break;
+        }
+    }
+    if (isPinFound == FALSE)
+    {
+        dev->state = TIMER_DEVICESTATE_ERROR;
+        return ERRORS_TIMER_NO_IC_PIN_FOUND;
+    }
+
+    // Configure Input Capture functions
+    // Temporary variables
+    volatile uint32_t* regCCMRxPtr = Timer_getCCMRnRegister(dev,channel);
+    uint32_t tmpccmrx = *regCCMRxPtr;
+    uint32_t tmpccer;
+
+    uint32_t shiftccmrx;
+
+    // Disable Channel
+    dev->regmap->CCER &= ~(TIM_CCER_CC1E << channel);
+    // Get common register values
+    tmpccer = dev->regmap->CCER;
+
+    // Set-up registers for specific channel
+    // Check if complementary channel is available
+    bool isComplementary = FALSE;
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        shiftccmrx = 0u;
+        isComplementary = (TIMER_IS_CHANNEL2_DEVICE(dev) ? TRUE : FALSE);
+        break;
+    case TIMER_CHANNELS_CH2:
+        shiftccmrx = 8u;
+        isComplementary = (TIMER_IS_CHANNEL1_DEVICE(dev) ? TRUE : FALSE);
+        break;
+    case TIMER_CHANNELS_CH3:
+        shiftccmrx = 0u;
+        isComplementary = (TIMER_IS_CHANNEL4_DEVICE(dev) ? TRUE : FALSE);
+        break;
+    case TIMER_CHANNELS_CH4:
+        shiftccmrx = 8u;
+        isComplementary = (TIMER_IS_CHANNEL3_DEVICE(dev) ? TRUE : FALSE);
+        break;
+    case TIMER_CHANNELS_CH5:
+        shiftccmrx = 0u;
+        isComplementary = (TIMER_IS_CHANNEL6_DEVICE(dev) ? TRUE : FALSE);
+        break;
+    case TIMER_CHANNELS_CH6:
+        shiftccmrx = 8u;
+        isComplementary = (TIMER_IS_CHANNEL5_DEVICE(dev) ? TRUE : FALSE);
+        break;
+    default:
+        ohiassert(0);
+    }
+
+    // Select the input signal
+    // If the channel has the complementary, the user can choose the complementary
+    // channel as input
+    if (isComplementary == TRUE)
+    {
+        tmpccmrx &= ~(TIM_CCMR1_CC1S << shiftccmrx);
+        tmpccmrx |= ((config->selection & TIM_CCMR1_CC1S) << shiftccmrx);
+    }
+    else
+    {
+        // In this case, only the current channel can be choose
+        tmpccmrx |= (TIM_CCMR1_CC1S_0 << shiftccmrx);
+    }
+
+    // Select the filter
+    tmpccmrx &= ~(TIM_CCMR1_IC1F << shiftccmrx);
+    tmpccmrx |= (((config->filter << 4u) & TIM_CCMR1_IC1F) << shiftccmrx);
+
+    // Select polarity
+    tmpccer &= ~((TIM_CCER_CC1P | TIM_CCER_CC1NP) << channel);
+    tmpccer |= (config->polarity << channel);
+
+    // Select the prescaler
+    tmpccmrx &= ~(TIM_CCMR1_IC1PSC << shiftccmrx);
+    tmpccmrx |= (config->prescaler << shiftccmrx);
+
+    // Save register values
+    *regCCMRxPtr = tmpccmrx;
+    dev->regmap->CCER = tmpccer;
 
     dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_startInputCapture (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_IC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_IC_CHANNEL;
+    }
+
+    // In case of callback, enable CC Interrupt
+    if (dev->outputCompareCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Enable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,TRUE);
+
+    // Enable device
+    TIMER_DEVICE_ENABLE(dev);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_IC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_IC_CHANNEL;
+    }
+
+    // Disable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Disable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,FALSE);
+
+    // Disable device if all CC channel is not active
+    TIMER_DEVICE_DISABLE(dev);
+
     return ERRORS_NO_ERROR;
 }
 
