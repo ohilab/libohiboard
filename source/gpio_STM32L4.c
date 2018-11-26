@@ -295,44 +295,67 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
 
     number = Gpio_availablePins[pin].pinNumber;
 
-    // Configure alternate function
-    // Select AFR0 or AFR1
-    temp = port->AFR[number >> 3];
-    temp &= ~((uint32_t)0xF << ((uint32_t)(number & (uint32_t)0x07) * 4)) ;
-    temp |= ((uint32_t)(alternate) << (((uint32_t)number & (uint32_t)0x07) * 4));
-    port->AFR[number >> 3] = temp;
-
-    // Configure pin as alternate mode
-    temp = port->MODER;
-    temp &= ~(GPIO_MODER_MODE0 << (number * 2));
-    temp |= ((0x2u) << (number * 2));
-    port->MODER = temp;
-
-    if (options)
+    if (alternate >= 0)
     {
-        // Only one type of configuration is possible
-        ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
-                    ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
+        // Configure alternate function
+        // Select AFR0 or AFR1
+        temp = port->AFR[number >> 3];
+        temp &= ~((uint32_t)0xF << ((uint32_t)(number & (uint32_t)0x07) * 4)) ;
+        temp |= ((uint32_t)(alternate) << (((uint32_t)number & (uint32_t)0x07) * 4));
+        port->AFR[number >> 3] = temp;
 
-        // Configure IO output type
-        // One value must be selected, anyway use PUSH-PULL as default value
-        temp = port->OTYPER;
-        temp &= ~(GPIO_OTYPER_OT0 << number) ;
-        temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
-        port->OTYPER = temp;
+        // Configure pin as alternate mode
+        temp = port->MODER;
+        temp &= ~(GPIO_MODER_MODE0 << (number * 2));
+        temp |= ((0x2u) << (number * 2));
+        port->MODER = temp;
 
-        // Set pull-up or pull-down resistor if requested
-        if (options & GPIO_PINS_PULL)
+        if (options)
         {
-            // One type must be configured
-            ohiassert(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) ^
-                      ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN));
+            // Only one type of configuration is possible
+            ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
+                        ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
 
-            temp = port->PUPDR;
-            temp &= ~(GPIO_PUPDR_PUPD0 << (number * 2));
-            temp |= (((options & GPIO_PINS_ENABLE_PULLUP) ? 0x01 : 0x02) << (number * 2));
-            port->PUPDR = temp;
+            // Configure IO output type
+            // One value must be selected, anyway use PUSH-PULL as default value
+            temp = port->OTYPER;
+            temp &= ~(GPIO_OTYPER_OT0 << number) ;
+            temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
+            port->OTYPER = temp;
+
+            // Set pull-up or pull-down resistor if requested
+            if (options & GPIO_PINS_PULL)
+            {
+                // One type must be configured
+                ohiassert(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) ^
+                          ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN));
+
+                temp = port->PUPDR;
+                temp &= ~(GPIO_PUPDR_PUPD0 << (number * 2));
+                temp |= (((options & GPIO_PINS_ENABLE_PULLUP) ? 0x01 : 0x02) << (number * 2));
+                port->PUPDR = temp;
+            }
         }
+    }
+    else
+    {
+        // Configure pin as analog
+        temp = port->MODER;
+        temp &= ~(GPIO_MODER_MODE0 << (number * 2));
+        temp |= ((0x3u) << (number * 2));
+        port->MODER = temp;
+
+#if defined(LIBOHIBOARD_STM32L471) || \
+    defined(LIBOHIBOARD_STM32L475) || \
+    defined(LIBOHIBOARD_STM32L476) || \
+    defined(LIBOHIBOARD_STM32L485) || \
+    defined(LIBOHIBOARD_STM32L486)
+
+        // Connect pin to ADC device
+        temp = port->ASCR;
+        temp |= (GPIO_ASCR_ASC0 << number);
+        port->ASCR = temp;
+#endif
     }
 }
 
