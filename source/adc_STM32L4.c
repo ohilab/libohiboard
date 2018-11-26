@@ -53,27 +53,59 @@ extern "C" {
                                      (void) UTILITY_READ_REGISTER_BIT(REG,MASK);\
                                    } while (0)
 
-///**
-// * @brief Enable the ADC peripheral
-// */
-//#define IIC_DEVICE_ENABLE(REGMAP)        (REGMAP->CR1 |= I2C_CR1_PE)
-///**
-// * @brief Disable the ADC peripheral
-// */
-//#define IIC_DEVICE_DISABLE(REGMAP)       (REGMAP->CR1 &= ~I2C_CR1_PE)
+#define ADC_MAX_PINS                     20
 
-#define ADC_DEVICE_IS_ENABLE(DEVICE) (((DEVICE->regmap->CR & ADC_CR_ADEN) == ADC_CR_ADEN) &&   \
-		                              ((DEVICE->regmap->ISR & ADC_ISR_ADRDY) == ADC_ISR_ADRDY))
+
+#define ADC_DEVICE_ENABLE_MASK           (ADC_CR_ADCAL_Msk    | \
+                                          ADC_CR_JADSTP_Msk   | \
+                                          ADC_CR_ADSTP_Msk    | \
+                                          ADC_CR_JADSTART_Msk | \
+                                          ADC_CR_ADSTART_Msk  | \
+                                          ADC_CR_ADDIS_Msk    | \
+                                          ADC_CR_ADEN_Msk)
+/**
+ * Useful mask to detect the current abilitation status of peripheral.
+ */
+#define ADC_DEVICE_IS_ENABLE(DEVICE) (((DEVICE->regmap->CR & ADC_CR_ADEN_Msk) == ADC_CR_ADEN_Msk) &&   \
+		                              ((DEVICE->regmap->ISR & ADC_ISR_ADRDY_Msk) == ADC_ISR_ADRDY_Msk))
+
+/**
+ * Enable selected peripheral
+ */
+#define ADC_DEVICE_ENABLE(DEVICE)     \
+    UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_ADEN)
+
+/**
+ * Disable selected peripheral
+ */
+#define ADC_DEVICE_DISABLE(DEVICE)     \
+    UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_ADDIS)
+
+
+#if defined(LIBOHIBOARD_STM32L471) || \
+    defined(LIBOHIBOARD_STM32L475) || \
+    defined(LIBOHIBOARD_STM32L476) || \
+    defined(LIBOHIBOARD_STM32L485) || \
+    defined(LIBOHIBOARD_STM32L486) || \
+    defined(LIBOHIBOARD_STM32L496) || \
+    defined(LIBOHIBOARD_STM32L4A6)
+
+#define ADC_VALID_CLOCK_SOURCE(SOURCE) (((SOURCE) == ADC_CLOCKSOURCE_NONE)       || \
+                                        ((SOURCE) == ADC_CLOCKSOURCE_PLLADC1CLK) || \
+                                        ((SOURCE) == ADC_CLOCKSOURCE_PLLADC2CLK) || \
+                                        ((SOURCE) == ADC_CLOCKSOURCE_SYSCLK))
+#else
+
+#define ADC_VALID_CLOCK_SOURCE(SOURCE) (((SOURCE) == ADC_CLOCKSOURCE_NONE)       || \
+                                        ((SOURCE) == ADC_CLOCKSOURCE_PLLADC1CLK) || \
+                                        ((SOURCE) == ADC_CLOCKSOURCE_SYSCLK))
+
+#endif
 
 #define ADC_VALID_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION_12BIT) || \
                                           ((RESOLUTION) == ADC_RESOLUTION_10BIT) || \
                                           ((RESOLUTION) == ADC_RESOLUTION_8BIT)  || \
                                           ((RESOLUTION) == ADC_RESOLUTION_6BIT))
-
-#define ADC_VALID_CLOCK_SOURCE(SOURCE) (((SOURCE) == ADC_CLOCKSOURCE_SYSCLK)     || \
-                                        ((SOURCE) == ADC_CLOCKSOURCE_PLLADC1CLK) || \
-                                        ((SOURCE) == ADC_CLOCKSOURCE_PLLADC2CLK) || \
-                                        ((SOURCE) == ADC_CLOCKSOURCE_HCLK))
 
 #define ADC_VALID_PRESCALER(PRESCALER) (((PRESCALER) == ADC_PRESCALER_SYNC_DIV1)    || \
                                         ((PRESCALER) == ADC_PRESCALER_SYNC_DIV2)    || \
@@ -119,59 +151,55 @@ extern "C" {
                                                        ((POLARITY) == ADC_TRIGGERPOLARITY_FALLING) || \
                                                        ((POLARITY) == ADC_TRIGGERPOLARITY_BOTH))
 
+#define ADC_VALID_SEQUENCE_POSITION(POSITION) (((POSITION) == ADC_SEQUENCEPOSITION_1)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_2)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_3)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_4)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_5)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_6)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_7)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_8)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_9)  || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_10) || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_11) || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_12) || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_13) || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_14) || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_15) || \
+                                               ((POSITION) == ADC_SEQUENCEPOSITION_16))
+
+#define ADC_VALID_SAMPLING_TIME(SAMPLING) (((SAMPLING) == ADC_SAMPLINGTIME_2_ADCCLK_5)   || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_6_ADCCLK_5)   || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_12_ADCCLK_5)  || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_24_ADCCLK_5)  || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_47_ADCCLK_5)  || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_92_ADCCLK_5)  || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_247_ADCCLK_5) || \
+                                           ((SAMPLING) == ADC_SAMPLINGTIME_640_ADCCLK_5))
+
+#define ADC_VALID_CONVERSION_TYPE(TYPE) (((TYPE) == ADC_INPUTTYPE_SINGLE_ENDED) || \
+                                         ((TYPE) == ADC_INPUTTYPE_DIFFERENTIAL))
+
 typedef struct _Adc_Device
 {
     ADC_TypeDef* regmap;                           /**< Device memory pointer */
     ADC_Common_TypeDef* rcommon;            /**< Common device memory pointer */
 
 
-    volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
-    uint32_t rccRegisterEnable;        /**< Register mask for current device. */
+    volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
+    uint32_t rccRegisterEnable;         /**< Register mask for current device */
 
-    volatile uint32_t* rccTypeRegisterPtr;  /**< Register for clock enabling. */
-    uint32_t rccTypeRegisterMask;      /**< Register mask for user selection. */
-    uint32_t rccTypeRegisterPos;       /**< Mask position for user selection. */
+    volatile uint32_t* rccTypeRegisterPtr;   /**< Register for clock enabling */
+    uint32_t rccTypeRegisterMask;       /**< Register mask for user selection */
+    uint32_t rccTypeRegisterPos;        /**< Mask position for user selection */
 
-    Adc_DeviceState state;                     /**< Current peripheral state. */
+    Adc_Pins pins[ADC_MAX_PINS];      /**< List of the pin for the peripheral */
+    Adc_Channels pinsChannel[ADC_MAX_PINS];
+    Gpio_Pins pinsGpio[ADC_MAX_PINS];
 
-    Adc_Resolution resolution;                           /**< ADC resolutions */
-    Adc_DataAlign dataAlign;  /**< Data align position for conversion results */
+    Adc_DeviceState state;                      /**< Current peripheral state */
 
-    Adc_EndOfConversion eoc;                      /**< End-Of-Conversion type */
-
-    /**
-     * Specify whether the conversion is performed in single mode or
-     * continuous mode.
-     */
-    Utility_State continuousConversion;
-
-    /**
-     * Specify whether the conversions is performed in complete sequence or
-     * discontinuous sequence.
-     * When both continuous and discontinuous are enabled, the ADC behaves
-     * as if continuous mode was disabled.
-     */
-    Utility_State discontinuousConversion;
-    /**
-     * the number of regular channels to be converted in discontinuous mode,
-     * after receiving an external trigger.
-     * The number must be between 0 and 7, that is 1 channel to 8 channels.
-     */
-    uint8_t discontinuousConversionNumber;
-
-    /**
-     * Select the behavior in case of overrun: data overwritten (ENABLE) or preserved (DISABLE)
-     * that is the default behavior.
-     */
-    Utility_State overrun;
-    /**
-     * Select the external event source used to trigger ADC conversion start.
-     */
-    Adc_Trigger externalTrigger;
-    /**
-     * External trigger enable and polarity selection for regular channels.
-     */
-    Adc_TriggerPolarity externalTriggerPolarity;
+    Adc_Config config;                                /**< User configuration */
 
 } Adc_Device;
 
@@ -182,6 +210,8 @@ typedef struct _Adc_Device
  * after initialization. The value is in micro-seconds.
  */
 #define ADC_TIME_VOLTAGE_REGULATOR_STARTUP 20
+
+#define ADC_TIMEOUT_ENABLE                 2
 
 #define ADC_IS_DEVICE(DEVICE) (((DEVICE) == OB_ADC1)   || \
                                ((DEVICE) == OB_ADC2)   || \
@@ -195,11 +225,69 @@ static Adc_Device adc1 =
         .rccRegisterPtr      = &RCC->AHB2ENR,
         .rccRegisterEnable   = RCC_AHB2ENR_ADCEN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_I2C1SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_I2C1SEL_Pos,
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_ADCSEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_ADCSEL_Pos,
 
-        .state              = ADC_DEVICESTATE_RESET,
+        .pins                =
+        {
+                               ADC_PINS_PA0,
+                               ADC_PINS_PA1,
+                               ADC_PINS_PA2,
+                               ADC_PINS_PA3,
+                               ADC_PINS_PA4,
+                               ADC_PINS_PA5,
+                               ADC_PINS_PA6,
+                               ADC_PINS_PA7,
+                               ADC_PINS_PB0,
+                               ADC_PINS_PB1,
+                               ADC_PINS_PC0,
+                               ADC_PINS_PC1,
+                               ADC_PINS_PC2,
+                               ADC_PINS_PC3,
+                               ADC_PINS_PC4,
+                               ADC_PINS_PC5,
+        },
+        .pinsChannel         =
+        {
+                               ADC_CHANNELS_CH5,
+                               ADC_CHANNELS_CH6,
+                               ADC_CHANNELS_CH7,
+                               ADC_CHANNELS_CH8,
+                               ADC_CHANNELS_CH9,
+                               ADC_CHANNELS_CH10,
+                               ADC_CHANNELS_CH11,
+                               ADC_CHANNELS_CH12,
+                               ADC_CHANNELS_CH15,
+                               ADC_CHANNELS_CH16,
+                               ADC_CHANNELS_CH1,
+                               ADC_CHANNELS_CH2,
+                               ADC_CHANNELS_CH3,
+                               ADC_CHANNELS_CH4,
+                               ADC_CHANNELS_CH13,
+                               ADC_CHANNELS_CH14,
+        },
+        .pinsGpio            =
+        {
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PA4,
+                               GPIO_PINS_PA5,
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB0,
+                               GPIO_PINS_PB1,
+                               GPIO_PINS_PC0,
+                               GPIO_PINS_PC1,
+                               GPIO_PINS_PC2,
+                               GPIO_PINS_PC3,
+                               GPIO_PINS_PC4,
+                               GPIO_PINS_PC5,
+        },
+
+        .state               = ADC_DEVICESTATE_RESET,
 };
 Adc_DeviceHandle OB_ADC1 = &adc1;
 
@@ -211,11 +299,69 @@ static Adc_Device adc2 =
         .rccRegisterPtr      = &RCC->AHB2ENR,
         .rccRegisterEnable   = RCC_AHB2ENR_ADCEN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_I2C1SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_I2C1SEL_Pos,
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_ADCSEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_ADCSEL_Pos,
 
-        .state              = ADC_DEVICESTATE_RESET,
+        .pins                =
+        {
+                               ADC_PINS_PA0,
+                               ADC_PINS_PA1,
+                               ADC_PINS_PA2,
+                               ADC_PINS_PA3,
+                               ADC_PINS_PA4,
+                               ADC_PINS_PA5,
+                               ADC_PINS_PA6,
+                               ADC_PINS_PA7,
+                               ADC_PINS_PB0,
+                               ADC_PINS_PB1,
+                               ADC_PINS_PC0,
+                               ADC_PINS_PC1,
+                               ADC_PINS_PC2,
+                               ADC_PINS_PC3,
+                               ADC_PINS_PC4,
+                               ADC_PINS_PC5,
+        },
+        .pinsChannel         =
+        {
+                               ADC_CHANNELS_CH5,
+                               ADC_CHANNELS_CH6,
+                               ADC_CHANNELS_CH7,
+                               ADC_CHANNELS_CH8,
+                               ADC_CHANNELS_CH9,
+                               ADC_CHANNELS_CH10,
+                               ADC_CHANNELS_CH11,
+                               ADC_CHANNELS_CH12,
+                               ADC_CHANNELS_CH15,
+                               ADC_CHANNELS_CH16,
+                               ADC_CHANNELS_CH1,
+                               ADC_CHANNELS_CH2,
+                               ADC_CHANNELS_CH3,
+                               ADC_CHANNELS_CH4,
+                               ADC_CHANNELS_CH13,
+                               ADC_CHANNELS_CH14,
+        },
+        .pinsGpio            =
+        {
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PA4,
+                               GPIO_PINS_PA5,
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB0,
+                               GPIO_PINS_PB1,
+                               GPIO_PINS_PC0,
+                               GPIO_PINS_PC1,
+                               GPIO_PINS_PC2,
+                               GPIO_PINS_PC3,
+                               GPIO_PINS_PC4,
+                               GPIO_PINS_PC5,
+        },
+
+        .state               = ADC_DEVICESTATE_RESET,
 };
 Adc_DeviceHandle OB_ADC2 = &adc2;
 
@@ -227,11 +373,33 @@ static Adc_Device adc3 =
         .rccRegisterPtr      = &RCC->AHB2ENR,
         .rccRegisterEnable   = RCC_AHB2ENR_ADCEN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_I2C1SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_I2C1SEL_Pos,
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_ADCSEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_ADCSEL_Pos,
 
-        .state              = ADC_DEVICESTATE_RESET,
+        .pins                =
+        {
+                               ADC_PINS_PC0,
+                               ADC_PINS_PC1,
+                               ADC_PINS_PC2,
+                               ADC_PINS_PC3,
+        },
+        .pinsChannel         =
+        {
+                               ADC_CHANNELS_CH1,
+                               ADC_CHANNELS_CH2,
+                               ADC_CHANNELS_CH3,
+                               ADC_CHANNELS_CH4,
+        },
+        .pinsGpio            =
+        {
+                               GPIO_PINS_PC0,
+                               GPIO_PINS_PC1,
+                               GPIO_PINS_PC2,
+                               GPIO_PINS_PC3,
+        },
+
+        .state               = ADC_DEVICESTATE_RESET,
 };
 Adc_DeviceHandle OB_ADC3 = &adc3;
 
@@ -241,6 +409,155 @@ Adc_DeviceHandle OB_ADC3 = &adc3;
             (ADC_DEVICE_IS_ENABLE(OB_ADC1) || ADC_DEVICE_IS_ENABLE(OB_ADC3))                      \
         ))                                                                                        \
     )
+
+#endif
+
+#if defined (LIBOHIBOARD_STM32L431) || \
+    defined (LIBOHIBOARD_STM32L432) || \
+    defined (LIBOHIBOARD_STM32L433) || \
+    defined (LIBOHIBOARD_STM32L442) || \
+    defined (LIBOHIBOARD_STM32L443) || \
+    defined (LIBOHIBOARD_STM32L451) || \
+    defined (LIBOHIBOARD_STM32L452) || \
+    defined (LIBOHIBOARD_STM32L462) || \
+    defined (LIBOHIBOARD_STM32L4R5) || \
+    defined (LIBOHIBOARD_STM32L4R7) || \
+    defined (LIBOHIBOARD_STM32L4R9) || \
+    defined (LIBOHIBOARD_STM32L4S5) || \
+    defined (LIBOHIBOARD_STM32L4S7) || \
+    defined (LIBOHIBOARD_STM32L4S9)
+
+#define ADC_VALID_DIFFERENTIAL_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_CH1)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH2)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH3)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH4)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH5)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH6)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH7)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH8)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH9)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH10)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH11)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH12)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH13)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH14)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH15))
+
+#define ADC_VALID_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_VREFINT)    || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH1)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH2)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH3)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH4)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH5)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH6)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH7)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH8)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH9)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH10)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH11)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH12)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH13)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH14)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH15)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH16)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_TEMPERATURE)|| \
+                                        ((CHANNEL) == ADC_CHANNELS_VBAT))
+
+#elif defined(LIBOHIBOARD_STM32L471) || \
+      defined(LIBOHIBOARD_STM32L475) || \
+      defined(LIBOHIBOARD_STM32L476) || \
+      defined(LIBOHIBOARD_STM32L485) || \
+      defined(LIBOHIBOARD_STM32L486) || \
+      defined(LIBOHIBOARD_STM32L496) || \
+      defined(LIBOHIBOARD_STM32L4A6)
+
+#define ADC_VALID_DIFFERENTIAL_CHANNEL(DEV,CHANNEL)                                          \
+                                                    (((DEV) == OB_ADC1)                   || \
+                                                    (((DEV) == OB_ADC2) &&                   \
+                                                    (((CHANNEL) == ADC_CHANNELS_CH1)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH2)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH3)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH4)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH5)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH6)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH7)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH8)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH9)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH10)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH11)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH12)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH13)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH14)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH15)))   || \
+                                                    (((DEV) == OB_ADC3) &&                   \
+                                                    (((CHANNEL) == ADC_CHANNELS_CH1)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH2)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH3)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH6)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH7)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH8)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH9)   ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH10)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH11)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH12))))
+
+#define ADC_VALID_CHANNEL(DEV,CHANNEL)                                                            \
+                                                   ((((DEV) == OB_ADC1) &&                        \
+                                                    (((CHANNEL) == ADC_CHANNELS_VREFINT)    ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH1)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH2)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH3)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH4)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH5)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH6)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH7)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH8)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH9)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH10)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH11)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH12)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH13)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH14)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH15)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH16)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_TEMPERATURE)||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_VBAT)))        || \
+                                                    (((DEV) == OB_ADC2) &&                        \
+                                                    (((CHANNEL) == ADC_CHANNELS_CH1)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH2)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH3)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH4)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH5)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH6)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH7)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH8)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH9)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH10)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH11)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH12)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH13)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH14)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH15)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH16)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_DAC1_ADC2)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_DAC2_ADC2)))   || \
+                                                    (((DEV) == OB_ADC3) &&                        \
+                                                    (((CHANNEL) == ADC_CHANNELS_CH1)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH2)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH3)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH4)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH6)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH7)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH8)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH9)        ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH10)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH11)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH12)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_CH13)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_TEMPERATURE)||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_VBAT)       ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_DAC1_ADC3)  ||    \
+                                                     ((CHANNEL) == ADC_CHANNELS_DAC2_ADC3))))
 
 #endif
 
@@ -272,6 +589,114 @@ static inline void __attribute__((always_inline)) Adc_setClock (Adc_DeviceHandle
     dev->rcommon->CCR |= config->prescaler;
 }
 
+static inline void __attribute__((always_inline)) Adc_setSequencePosition (Adc_DeviceHandle dev,
+                                                                           Adc_Channels channel,
+                                                                           Adc_SequencePosition position)
+{
+    // Save offset to get correct register
+    uint32_t tmp = ((position & ADC_SQR_REGOFFSET_MASK) >> ADC_SQR_REGOFFSET_POS);
+    // Get register
+    volatile uint32_t* sqrReg = (volatile uint32_t*)((&dev->regmap->SQR1) + (tmp << 2u));
+    tmp = ((position & ADC_SQR_SHIFT_MASK) >> ADC_SQR_SHIFT_POS);
+    *sqrReg &= (~(0x0000001Fu << tmp));
+    // Save selected channel into chosen ranking
+    *sqrReg |= (((channel & ADC_CHANNEL_MASK) >> ADC_CHANNEL_POS) << tmp);
+}
+
+static inline void __attribute__((always_inline)) Adc_setSamplingTime (Adc_DeviceHandle dev,
+                                                                           Adc_Channels channel,
+                                                                           Adc_SamplingTime sampling)
+{
+    // Save offset to get correct register
+    uint32_t tmp = ((channel & ADC_SMPR_REGOFFSET_MASK) >> ADC_SMPR_REGOFFSET_POS);
+    // Get register
+    volatile uint32_t* smprReg = (volatile uint32_t*)((&dev->regmap->SMPR1) + (tmp << 2u));
+    tmp = (channel & ADC_SMPR_SMPX_MASK);
+    *smprReg &= (~(0x00000007u << tmp));
+    // Save sampling time for selected channel
+    *smprReg |= ((sampling) << tmp);
+}
+
+/**
+ * Enable the selected ADC peripheral.
+ *
+ * @param[in] dev Adc device handle
+ */
+static System_Errors Adc_enable (Adc_DeviceHandle dev)
+{
+    uint32_t tickstart = 0;
+
+    // Check if the peripheral is just enabled
+    if (ADC_DEVICE_IS_ENABLE(dev) == 0)
+    {
+        // Before enable the peripheral, we must check all CR register
+        if ((dev->regmap->CR & ADC_DEVICE_ENABLE_MASK) != 0)
+        {
+            dev->state = ADC_DEVICESTATE_ERROR;
+            return ERRORS_ADC_IS_BUSY;
+        }
+
+        // Enable the peripheral
+        ADC_DEVICE_ENABLE(dev);
+
+        // Wait for stabilization after stabilization
+        System_delay(ADC_DELAY_VOLTAGE_REGULATOR_STARTUP);
+
+        // Wait until ADC is enabled... otherwise timeout!
+        tickstart = System_currentTick();
+        while ((dev->regmap->ISR & ADC_ISR_ADRDY) == 0)
+        {
+            if((System_currentTick() - tickstart) > ADC_TIMEOUT_ENABLE)
+            {
+                dev->state = ADC_DEVICESTATE_ERROR;
+                return ERRORS_ADC_TIMEOUT;
+            }
+        }
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * Disable the selected ADC peripheral.
+ *
+ * @param[in] dev Adc device handle
+ */
+static System_Errors Adc_disable (Adc_DeviceHandle dev)
+{
+    uint32_t tickstart = 0;
+
+    // Check if the peripheral is enabled
+    if (ADC_DEVICE_IS_ENABLE(dev) != 0)
+    {
+        // Before disable the peripheral, we must check CR register
+        // If the peripheral is enabled and no on-going conversion is present,
+        // Disable the peripheral
+        if ((dev->regmap->CR & (ADC_CR_JADSTART | ADC_CR_ADSTART | ADC_CR_ADEN)) == ADC_CR_ADEN)
+        {
+            ADC_DEVICE_DISABLE(dev);
+        }
+        else
+        {
+            dev->state = ADC_DEVICESTATE_ERROR;
+            return ERRORS_ADC_IS_BUSY;
+        }
+
+        // Wait until ADC is disabled... otherwise timeout!
+        tickstart = System_currentTick();
+        while ((dev->regmap->CR & ADC_CR_ADEN) != 0)
+        {
+            if((System_currentTick() - tickstart) > ADC_TIMEOUT_ENABLE)
+            {
+                dev->state = ADC_DEVICESTATE_ERROR;
+                return ERRORS_ADC_TIMEOUT;
+            }
+        }
+    }
+    return ERRORS_NO_ERROR;
+}
+
+
 System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
 {
     System_Errors err = ERRORS_NO_ERROR;
@@ -288,7 +713,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
     }
 
     err  = ohiassert(ADC_VALID_RESOLUTION(config->resolution));
-//    err |= ohiassert(ADC_VALID_CLOCKSOURCE(config->source));
+    err |= ohiassert(ADC_VALID_CLOCK_SOURCE(config->clockSource));
     err |= ohiassert(ADC_VALID_PRESCALER(config->prescaler));
     err |= ohiassert(ADC_VALID_DATA_ALIGN(config->dataAlign));
     err |= ohiassert(ADC_VALID_EOC(config->eoc));
@@ -296,16 +721,23 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
     err |= ohiassert(ADC_VALID_EXTERNAL_TRIGGER_POLARITY(config->externalTriggerPolarity));
     err |= ohiassert(UTILITY_VALID_STATE(config->continuousConversion));
     err |= ohiassert(UTILITY_VALID_STATE(config->discontinuousConversion));
-    err |= ohiassert(config->discontinuousConversionNumber < 8);
+    err |= ohiassert(config->discontinuousConversionNumber < 0x08u);
+    err |= ohiassert(UTILITY_VALID_STATE(config->sequence));
+    err |= ohiassert(config->sequenceNumber < 0x10u);
     err |= ohiassert(UTILITY_VALID_STATE(config->overrun));
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_ADC_WRONG_PARAM;
     }
+    // Save configuration
+    dev->config = *config;
 
     // Enable peripheral clock if needed
     if (dev->state == ADC_DEVICESTATE_RESET)
     {
+        // Select clock source
+        UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,config->clockSource);
+
         // Enable peripheral clock
         ADC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
     }
@@ -346,14 +778,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
                                 ADC_CFGR_RES_Msk     |
                                 ADC_CFGR_ALIGN_Msk   |
                                 ADC_CFGR_OVRMOD_Msk));
-        // Save configuration paramenters
-        dev->resolution = config->resolution;
-        dev->overrun = config->overrun;
-        dev->dataAlign = config->dataAlign;
-        dev->discontinuousConversion = config->discontinuousConversion;
-        dev->discontinuousConversionNumber = config->discontinuousConversionNumber;
-        dev->continuousConversion = config->continuousConversion;
-        // Write user config
+        // Write user configuration
         dev->regmap->CFGR |= config->dataAlign  |
                              config->resolution |
                              ((config->continuousConversion == UTILITY_STATE_ENABLE) ? ADC_CFGR_CONT : 0u) |
@@ -366,8 +791,6 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
         }
 
         // Check external trigger choice
-        dev->externalTrigger = config->externalTrigger;
-        dev->externalTriggerPolarity = config->externalTriggerPolarity;
         // In case of external trigger enabled, update CFGR register
         if (config->externalTriggerPolarity != 0u)
         {
@@ -379,6 +802,15 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
 
         // FIXME: Add Oversampling, LowPowerAutoWait and DMA
 
+        // Configuration of sequencer. If not used SQR1_L at 0x00 (only one channel)
+        if (config->sequence == UTILITY_STATE_ENABLE)
+        {
+            UTILITY_MODIFY_REGISTER(dev->regmap->SQR1,ADC_SQR1_L,config->sequenceNumber);
+        }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->SQR1, ADC_SQR1_L);
+        }
     }
     else
     {
@@ -408,6 +840,158 @@ System_Errors Adc_deInit (Adc_DeviceHandle dev)
     // TODO
 
     return err;
+}
+
+System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin)
+{
+    // Check the ADC device
+    if (dev == NULL)
+    {
+        return ERRORS_ADC_NO_DEVICE;
+    }
+    // Check the ADC instance
+    if (ohiassert(ADC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_ADC_WRONG_DEVICE;
+    }
+
+    ohiassert(ADC_VALID_SEQUENCE_POSITION(config->position));
+    ohiassert(ADC_VALID_SAMPLING_TIME(config->samplingTime));
+    ohiassert(ADC_VALID_CONVERSION_TYPE(config->type));
+
+    // Configure Pin
+    Adc_Channels channel;
+    if ((pin == ADC_PINS_INTERNAL) && (config->isInternal == TRUE))
+    {
+        channel = config->channel;
+    }
+    else
+    {
+        // Search channel
+        bool isPinFound = FALSE;
+        for (uint16_t i = 0; i < ADC_MAX_PINS; ++i)
+        {
+            if (dev->pins[i] == pin)
+            {
+                Gpio_configAlternate(dev->pinsGpio[i],
+                                     GPIO_ALTERNATE_ANALOG,
+                                     0);
+                channel = dev->pinsChannel[i];
+                isPinFound = TRUE;
+                break;
+            }
+        }
+        if (isPinFound == FALSE)
+        {
+            dev->state = ADC_DEVICESTATE_ERROR;
+            return ERRORS_ADC_NO_PIN_FOUND;
+        }
+    }
+
+    // Check validity of selected channel (both single-ended and differential-ended)
+    if (config->type == ADC_INPUTTYPE_DIFFERENTIAL)
+    {
+        ohiassert(ADC_VALID_DIFFERENTIAL_CHANNEL(dev,channel));
+    }
+    else
+    {
+        ohiassert(ADC_VALID_CHANNEL(dev,channel));
+    }
+
+
+    // WARNING: no on-going regular conversion...
+    if ((dev->regmap->CR & ADC_CR_ADSTART) == 0u)
+    {
+        // Set sequence position
+        Adc_setSequencePosition(dev,config->position,channel);
+
+        // WARNING: no on-going regular conversion and injected conversion...
+        if (((dev->regmap->CR & ADC_CR_ADSTART) == 0u) &&
+            ((dev->regmap->CR & ADC_CR_JADSTART) == 0u))
+        {
+            // Set channel sampling time
+            Adc_setSamplingTime(dev,channel,config->samplingTime);
+
+            // FIXME: Set channel offset
+        }
+
+        // Warning: ADC must be disabled to manage SE/Differential mode
+        if (ADC_DEVICE_IS_ENABLE(dev) == FALSE)
+        {
+            if (config->type == ADC_INPUTTYPE_DIFFERENTIAL)
+            {
+                dev->regmap->DIFSEL |= (1u << ((channel & ADC_CHANNEL_MASK) >> ADC_CHANNEL_POS));
+                // Set the same sampling time for the next channel used for differential conversion
+                Adc_setSamplingTime(dev,(channel + 0x00010000u),config->samplingTime);
+            }
+        }
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Adc_start (Adc_DeviceHandle dev)
+{
+    // Check the ADC device
+    if (dev == NULL)
+    {
+        return ERRORS_ADC_NO_DEVICE;
+    }
+    // Check the ADC instance
+    if (ohiassert(ADC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_ADC_WRONG_DEVICE;
+    }
+
+    // WARNING: no on-going regular conversion...
+    if ((dev->regmap->CR & ADC_CR_ADSTART) == 0u)
+    {
+        // Enable the peripheral
+        System_Errors err = Adc_enable(dev);
+        if (err != ERRORS_NO_ERROR)
+        {
+            return err;
+        }
+
+        // Clear flag, no unknown state form previous conversion
+        dev->regmap->ISR |= (ADC_ISR_EOC | ADC_ISR_EOS | ADC_ISR_OVR);
+
+        // Start conversion
+        dev->regmap->CR |= ADC_CR_ADSTART;
+    }
+    else
+    {
+        return ERRORS_ADC_IS_BUSY;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Adc_stop (Adc_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Check the ADC device
+    if (dev == NULL)
+    {
+        return ERRORS_ADC_NO_DEVICE;
+    }
+    // Check the ADC instance
+    if (ohiassert(ADC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_ADC_WRONG_DEVICE;
+    }
+
+    // Stop on-going conversion
+
+    // Disable peripheral
+    err = Adc_disable(dev);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return err;
+    }
+
+    return ERRORS_NO_ERROR;
 }
 
 #endif // LIBOHIBOARD_STM32L4

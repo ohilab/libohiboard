@@ -739,7 +739,8 @@ typedef enum _Adc_Resolution
 #endif
 } Adc_Resolution;
 
-typedef enum {
+typedef enum _Adc_InputType
+{
     ADC_INPUTTYPE_SINGLE_ENDED = 0,
     ADC_INPUTTYPE_DIFFERENTIAL = 1,
 } Adc_InputType;
@@ -801,11 +802,19 @@ typedef enum _Adc_ClockSource
 
 #elif defined (LIBOHIBOARD_ST_STM32)
 
-    ADC_CLOCKSOURCE_SYSCLK,
-    ADC_CLOCKSOURCE_PLLADC1CLK,
-    ADC_CLOCKSOURCE_PLLADC2CLK,
-    ADC_CLOCKSOURCE_HCLK,
+    ADC_CLOCKSOURCE_NONE        = 0x00000000U,
+    ADC_CLOCKSOURCE_PLLADC1CLK  = RCC_CCIPR_ADCSEL_0,
 
+#if defined(LIBOHIBOARD_STM32L471) || \
+    defined(LIBOHIBOARD_STM32L475) || \
+    defined(LIBOHIBOARD_STM32L476) || \
+    defined(LIBOHIBOARD_STM32L485) || \
+    defined(LIBOHIBOARD_STM32L486) || \
+    defined(LIBOHIBOARD_STM32L496) || \
+    defined(LIBOHIBOARD_STM32L4A6)
+    ADC_CLOCKSOURCE_PLLADC2CLK  = RCC_CCIPR_ADCSEL_1,
+#endif
+    ADC_CLOCKSOURCE_SYSCLK      = RCC_CCIPR_ADCSEL,
 #endif
 } Adc_ClockSource;
 
@@ -889,7 +898,7 @@ typedef struct _Adc_Config
 {
     Adc_Resolution resolution;                           /**< ADC resolutions */
 
-    Adc_ClockSource source;                    /**< The clock source selected */
+    Adc_ClockSource clockSource;               /**< The clock source selected */
     Adc_Prescaler prescaler;                       /**< input clock prescaler */
 
     /**
@@ -940,6 +949,17 @@ typedef struct _Adc_Config
     Utility_State overrun;
 
     /**
+     * Configure the sequencer of ADC groups regular conversion.
+     */
+    Utility_State sequence;
+    /**
+     * Specify the number of channel that will be converted within the group sequencer.
+     * To use the sequencer and convert several channels, parameter 'sequence' must be enabled.
+     * The number must be between 0x00 and 0x0F, that is 1 channel to 16 channels.
+     */
+    uint8_t sequenceNumber;
+
+    /**
      * Select the external event source used to trigger ADC conversion start.
      */
     Adc_Trigger externalTrigger;
@@ -951,13 +971,6 @@ typedef struct _Adc_Config
 #endif
 
 } Adc_Config;
-
-typedef struct _Adc_ChannelConfig
-{
-    Adc_InputType            inputType;
-    Adc_ChannelNumber        channel;
-
-} Adc_ChannelConfig;
 
 /** @name Configuration functions
  *  Functions to initialize and de-initialize a ADC peripheral.
@@ -983,7 +996,43 @@ System_Errors Adc_deInit (Adc_DeviceHandle dev);
 
 ///@}
 
-//void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin);
+/** @name ADC read functions
+ *  Functions to configure and read data from pins or internal channel.
+ */
+///@{
+
+typedef struct _Adc_ChannelConfig
+{
+    /**
+     * Specify if the channel must be converted in single ended or differential mode.
+     */
+    Adc_InputType type;
+
+    /**
+     * Specify if the configuration is for internal channel. In this case, the configuration
+     * use the channel parameter, otherwise search the correct channel using the pin name.
+     */
+    bool isInternal;
+    /**
+     * Specify the internal channel to configure.
+     * This field can be used only for internal channel.
+     */
+    Adc_Channels channel;
+
+    Adc_SequencePosition position;
+
+    Adc_SamplingTime samplingTime;
+
+} Adc_ChannelConfig;
+
+System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin);
+
+System_Errors Adc_start (Adc_DeviceHandle dev);
+
+System_Errors Adc_stop (Adc_DeviceHandle dev);
+
+///@}
+
 //System_Errors Adc_readValue (Adc_DeviceHandle dev,
 //                             Adc_ChannelNumber channel,
 //                             uint16_t *value,
