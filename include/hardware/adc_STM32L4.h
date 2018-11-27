@@ -58,6 +58,8 @@ extern "C" {
 
 typedef enum _Adc_Pins
 {
+#if defined (LIBOHIBOARD_STM32L476)
+
     ADC_PINS_PA0,
     ADC_PINS_PA1,
     ADC_PINS_PA2,
@@ -77,7 +79,9 @@ typedef enum _Adc_Pins
     ADC_PINS_PC4,
     ADC_PINS_PC5,
 
+#endif
     ADC_PINS_INTERNAL,
+
 } Adc_Pins;
 
 typedef enum _Adc_Channels
@@ -166,7 +170,21 @@ typedef enum _Adc_SamplingTime
 
 } Adc_SamplingTime;
 
-#endif // LIBOHIBOARD_RTC & LIBOHIBOARD_STM32L4
+// WLCSP72 ballout
+// LQFP64
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
+
+extern Adc_DeviceHandle OB_ADC1;
+extern Adc_DeviceHandle OB_ADC2;
+extern Adc_DeviceHandle OB_ADC3;
+
+void ADC1_2_IRQHandler (void);
+void ADC3_IRQHandler (void);
+
+#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+
+#endif // LIBOHIBOARD_ADC & LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }

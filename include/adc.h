@@ -51,6 +51,11 @@ extern "C" {
 #include "types.h"
 #include "utility.h"
 
+/**
+ * Device handle for ADC peripheral.
+ */
+typedef struct _Adc_Device* Adc_DeviceHandle;
+
 #if defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/adc_STM32L4.h"
@@ -889,11 +894,6 @@ typedef enum _Adc_TriggerPolarity
 
 #endif
 
-/**
- * Device handle for ADC peripheral.
- */
-typedef struct _Adc_Device* Adc_DeviceHandle;
-
 typedef struct _Adc_Config
 {
     Adc_Resolution resolution;                           /**< ADC resolutions */
@@ -968,6 +968,19 @@ typedef struct _Adc_Config
      */
     Adc_TriggerPolarity externalTriggerPolarity;
 
+    /**
+     * Callback for End-of-Conversion
+     */
+    void (* eocCallback)(struct _Adc_Device *dev);
+    /**
+     * Callback for End-of-Sequence
+     */
+    void (* eosCallback)(struct _Adc_Device *dev);
+    /**
+     * Callback for Overrun
+     */
+    void (* overrunCallback)(struct _Adc_Device *dev);
+
 #endif
 
 } Adc_Config;
@@ -1025,10 +1038,30 @@ typedef struct _Adc_ChannelConfig
 
 } Adc_ChannelConfig;
 
+/**
+ * Configure pin or internal channel to be used as Adc input.
+ *
+ * @param[in] dev Adc device handle
+ * @param[in] config Configuration list for selected pin
+ * @param[in] pin Selected microcontroller pin or ADC_PIN_INTERNAL for internal channel
+ * @return ERRORS_NO_ERROR for configuration without problems, otherwise a specific error.
+ */
 System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin);
 
+/**
+ * Enable Adc and start conversion of regular group.
+ *
+ * @param[in] dev Adc device handle
+ * @return ERRORS_NO_ERROR for start conversion without problems, otherwise a specific error.
+ */
 System_Errors Adc_start (Adc_DeviceHandle dev);
 
+/**
+ * Stop Adc conversion of regular group and disable peripheral.
+ *
+ * @param[in] dev Adc device handle
+ * @return ERRORS_NO_ERROR for stop conversion without problems, otherwise a specific error.
+ */
 System_Errors Adc_stop (Adc_DeviceHandle dev);
 
 ///@}

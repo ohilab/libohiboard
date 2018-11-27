@@ -55,6 +55,8 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_EXTI3            = 9,
     INTERRUPT_EXTI4            = 10,
 
+    INTERRUPT_ADC1_2           = 18,
+
     INTERRUPT_EXTI9_5          = 23,
     INTERRUPT_TIM1BRK_TIM15    = 24,
     INTERRUPT_TIM1UP_TIM16     = 25,

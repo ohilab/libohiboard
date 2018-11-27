@@ -46,6 +46,7 @@ extern "C" {
 #include "utility.h"
 #include "gpio.h"
 #include "clock.h"
+#include "interrupt.h"
 
 #define ADC_CLOCK_ENABLE(REG,MASK) do {                                         \
                                      UTILITY_SET_REGISTER_BIT(REG,MASK);        \
@@ -197,6 +198,12 @@ typedef struct _Adc_Device
     Adc_Channels pinsChannel[ADC_MAX_PINS];
     Gpio_Pins pinsGpio[ADC_MAX_PINS];
 
+    void (* eocCallback)(struct _Adc_Device *dev);
+    void (* eosCallback)(struct _Adc_Device *dev);
+    void (* overrunCallback)(struct _Adc_Device *dev);
+
+    Interrupt_Vector isrNumber;                        /**< ISR vector number */
+
     Adc_DeviceState state;                      /**< Current peripheral state */
 
     Adc_Config config;                                /**< User configuration */
@@ -212,6 +219,14 @@ typedef struct _Adc_Device
 #define ADC_TIME_VOLTAGE_REGULATOR_STARTUP 20
 
 #define ADC_TIMEOUT_ENABLE                 2
+
+/**
+ * Fixed timeout value for conversion ending.
+ * It is computed by the sum of max sampling time and maximum conversion time,
+ * divided by the minimum ADC clock frequency.
+ * The value is expressed in milli-second.
+ */
+#define ADC_TIMEOUT_STOP_CONVERSION        5
 
 #define ADC_IS_DEVICE(DEVICE) (((DEVICE) == OB_ADC1)   || \
                                ((DEVICE) == OB_ADC2)   || \
@@ -287,6 +302,8 @@ static Adc_Device adc1 =
                                GPIO_PINS_PC5,
         },
 
+        .isrNumber           = INTERRUPT_ADC1_2,
+
         .state               = ADC_DEVICESTATE_RESET,
 };
 Adc_DeviceHandle OB_ADC1 = &adc1;
@@ -361,6 +378,8 @@ static Adc_Device adc2 =
                                GPIO_PINS_PC5,
         },
 
+        .isrNumber           = INTERRUPT_ADC1_2,
+
         .state               = ADC_DEVICESTATE_RESET,
 };
 Adc_DeviceHandle OB_ADC2 = &adc2;
@@ -398,6 +417,8 @@ static Adc_Device adc3 =
                                GPIO_PINS_PC2,
                                GPIO_PINS_PC3,
         },
+
+        .isrNumber           = INTERRUPT_ADC3,
 
         .state               = ADC_DEVICESTATE_RESET,
 };
@@ -567,6 +588,11 @@ Adc_DeviceHandle OB_ADC3 = &adc3;
  */
 #define ADC_DELAY_VOLTAGE_REGULATOR_STARTUP \
     (ADC_TIME_VOLTAGE_REGULATOR_STARTUP <= 1000) ? 1 : (ADC_TIME_VOLTAGE_REGULATOR_STARTUP / 1000)
+
+static inline void __attribute__((always_inline)) Adc_callbackInterrupt (Adc_DeviceHandle dev)
+{
+    // TODO
+}
 
 /**
  * Enable internal voltage regulator for the specific peripheral.
@@ -811,6 +837,19 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
         {
             UTILITY_CLEAR_REGISTER_BIT(dev->regmap->SQR1, ADC_SQR1_L);
         }
+
+        // Check callback and enable interrupts
+        if ((config->eocCallback != 0) ||
+            (config->eosCallback != 0) ||
+            (config->overrunCallback != 0))
+        {
+            // Save callback
+            dev->eocCallback = config->eocCallback;
+            dev->eosCallback = config->eosCallback;
+            dev->overrunCallback = config->overrunCallback;
+            // Enable interrupt
+            Interrupt_enable(dev->isrNumber);
+        }
     }
     else
     {
@@ -956,6 +995,25 @@ System_Errors Adc_start (Adc_DeviceHandle dev)
         // Clear flag, no unknown state form previous conversion
         dev->regmap->ISR |= (ADC_ISR_EOC | ADC_ISR_EOS | ADC_ISR_OVR);
 
+        // Disable all interrupt
+        dev->regmap->IER &= (~(ADC_IER_EOCIE | ADC_IER_EOSIE | ADC_IER_OVRIE));
+
+        // Check interrupt
+        if ((dev->eocCallback != 0) && (dev->config.eoc == ADC_ENDOFCONVERSION_SINGLE))
+        {
+            dev->regmap->IER |= ADC_IER_EOCIE;
+        }
+        else if ((dev->eosCallback != 0) && (dev->config.eoc == ADC_ENDOFCONVERSION_SEQUENCE))
+        {
+            dev->regmap->IER |= ADC_IER_EOSIE;
+        }
+
+        // Only when data must be preserved the interrupt was lanched!
+        if ((dev->overrunCallback != 0) && (dev->config.overrun == UTILITY_STATE_DISABLE))
+        {
+            dev->regmap->IER |= ADC_IER_OVRIE;
+        }
+
         // Start conversion
         dev->regmap->CR |= ADC_CR_ADSTART;
     }
@@ -970,6 +1028,7 @@ System_Errors Adc_start (Adc_DeviceHandle dev)
 System_Errors Adc_stop (Adc_DeviceHandle dev)
 {
     System_Errors err = ERRORS_NO_ERROR;
+    uint32_t tickstart = 0;
 
     // Check the ADC device
     if (dev == NULL)
@@ -983,6 +1042,31 @@ System_Errors Adc_stop (Adc_DeviceHandle dev)
     }
 
     // Stop on-going conversion
+    // Check some conversion are on-going
+    if ((dev->regmap->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)) != 0u)
+    {
+        // Software can set ADSTP only when ADSTART=1 and ADDIS=0
+        if ((dev->regmap->CR & (ADC_CR_ADSTART | ADC_CR_ADDIS)) == (ADC_CR_ADSTART | ADC_CR_ADDIS))
+        {
+            UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_ADSTP);
+        }
+
+        // Software can set JADSTP only when JADSTART=1 and ADDIS=0
+        if ((dev->regmap->CR & (ADC_CR_JADSTART | ADC_CR_ADDIS)) == (ADC_CR_JADSTART | ADC_CR_ADDIS))
+        {
+            UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_JADSTP);
+        }
+
+        // Wait until conversion effectively stopped
+        tickstart = System_currentTick();
+        while ((dev->regmap->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)) != 0u)
+        {
+            if ((System_currentTick() - tickstart) > ADC_TIMEOUT_STOP_CONVERSION)
+            {
+                return ERRORS_ADC_TIMEOUT;
+            }
+        }
+    }
 
     // Disable peripheral
     err = Adc_disable(dev);
@@ -991,7 +1075,21 @@ System_Errors Adc_stop (Adc_DeviceHandle dev)
         return err;
     }
 
+    // Disable all interrupt
+    dev->regmap->IER &= (~(ADC_IER_EOCIE | ADC_IER_EOSIE | ADC_IER_OVRIE));
+
     return ERRORS_NO_ERROR;
+}
+
+_weak void ADC1_2_IRQHandler (void)
+{
+    Adc_callbackInterrupt(OB_ADC1);
+    Adc_callbackInterrupt(OB_ADC2);
+}
+
+_weak void ADC3_IRQHandler (void)
+{
+    Adc_callbackInterrupt(OB_ADC3);
 }
 
 #endif // LIBOHIBOARD_STM32L4
