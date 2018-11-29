@@ -55,17 +55,7 @@ extern "C" {
 
 typedef enum _Clock_Source
 {
-
 #if defined (LIBOHIBOARD_NXP_KINETIS)
-
-#if defined(LIBOHIBOARD_KV46F)   || \
-	defined(LIBOHIBOARD_TWRKV46F)
-
-    CLOCK_CORE,
-    CLOCK_FAST_PERIPHERALS,
-    CLOCK_NANOEDGE,
-
-#else
 
     CLOCK_BUS,
     CLOCK_SYSTEM,
@@ -95,21 +85,13 @@ typedef enum _Clock_Origin
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
-	CLOCK_INTERNAL,
-
-#if defined (LIBOHIBOARD_KV31F12)    || \
-    defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
-
-    CLOCK_CRYSTAL_32K,
-    CLOCK_INTERNAL_48M
-
-#endif // LIBOHIBOARD_KV31F12 || LIBOHIBOARD_K64F12 || LIBOHIBOARD_FRDMK64F
+	CLOCK_INTERNAL_LIRC,
+	CLOCK_INTERNAL_HIRC,
 
 // END IF: LIBOHIBOARD_NXP_KINETIS
 #elif defined (LIBOHIBOARD_ST_STM32)
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4)
 
     CLOCK_INTERNAL_LSI         = 0x0004,
     CLOCK_INTERNAL_HSI         = 0x0008,
@@ -117,7 +99,7 @@ typedef enum _Clock_Origin
     CLOCK_INTERNAL_PLL         = 0x0020,
     CLOCK_EXTERNAL_LSE_CRYSTAL = 0x0040,
 
-#endif // LIBOHIBOARD_STM32L476
+#endif // LIBOHIBOARD_STM32L4
 
 // END IF: LIBOHIBOARD_ST_STM32
 #endif
@@ -128,42 +110,19 @@ typedef enum _Clock_Origin
 
 typedef enum _Clock_State
 {
-#if defined (LIBOHIBOARD_KL03Z4) || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
 
-    CLOCK_LIRC2M,
-    CLOCK_LIRC8M,
-    CLOCK_HIRC,
-    CLOCK_EXT,
-
-#elif defined (LIBOHIBOARD_KL15Z4)     || \
-      defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)  || \
-      defined (LIBOHIBOARD_K10D7)      || \
-      defined (LIBOHIBOARD_K10D10)     || \
-      defined (LIBOHIBOARD_K12D5)      || \
-      defined (LIBOHIBOARD_K60DZ10)    || \
-      defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_KV31F12)    || \
-      defined (LIBOHIBOARD_FRDMK64F)   || \
-      defined (LIBOHIBOARD_KV46F)      || \
-      defined (LIBOHIBOARD_TWRKV46F)   || \
-      defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    CLOCK_FEI,
-    CLOCK_FEE,
-    CLOCK_FBI,
-    CLOCK_FBE,
-    CLOCK_PBE,
-    CLOCK_PEE,
-    CLOCK_BLPI,
-    CLOCK_BLPE,
-
-#endif
+    CLOCK_STATE_FEI,
+    CLOCK_STATE_FEE,
+    CLOCK_STATE_FBI,
+    CLOCK_STATE_FBE,
+    CLOCK_STATE_PBE,
+    CLOCK_STATE_PEE,
+    CLOCK_STATE_BLPI,
+    CLOCK_STATE_BLPE,
 
 } Clock_State;
 
-Clock_State Clock_getCurrentState();
+Clock_State Clock_getCurrentState (void);
 
 #endif
 
@@ -269,9 +228,18 @@ typedef struct _Clock_Config
 
 #include "hardware/clock_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/clock_MKL.h"
+
 #endif
 
-
+/**
+ * Initiliaze and configure clock peripheral.
+ *
+ * @param config Configuration list parameter
+ * @retern ERRORS_NO_ERROR without problems
+ */
 System_Errors Clock_init (Clock_Config *config);
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
@@ -298,7 +266,7 @@ uint32_t Clock_getOutputValue (Clock_Output output);
  * @param[in] source The selected oscillator value
  * @return The clock frequency in Hz
  */
-uint32_t Clock_getOscillatorValue (Clock_Source source);
+uint32_t Clock_getOscillatorValue (Clock_Origin source);
 
 #if defined (LIBOHIBOARD_K10D10)       || \
     defined (LIBOHIBOARD_K10D7)        || \

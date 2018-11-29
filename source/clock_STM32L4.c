@@ -640,7 +640,7 @@ uint32_t Clock_getOutputValue (Clock_Output output)
     }
 }
 
-uint32_t Clock_getOscillatorValue (Clock_Source source)
+uint32_t Clock_getOscillatorValue (Clock_Origin source)
 {
     switch (source)
     {
