@@ -995,35 +995,16 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
         dev->regmap->PSC = (config->prescaler - 1);
     }
 
-    // Check callback and interrupt for free-counter
-    if (config->freeCounterCallback != 0)
+    // Check callback and enable interrupts
+    if ((config->freeCounterCallback != 0)      ||
+        (config->pwmPulseFinishedCallback != 0) ||
+        (config->outputCompareCallback != 0)    ||
+        (config->inputCaptureCallback != 0))
     {
         // Save callback
         dev->freeCounterCallback = config->freeCounterCallback;
-        // Enable interrupt
-        Interrupt_enable(dev->isrNumber);
-    }
-
-    // Check callback and interrupt for PWM
-    if (config->pwmPulseFinishedCallback != 0)
-    {
-        // Save callback
         dev->pwmPulseFinishedCallback = config->pwmPulseFinishedCallback;
-        // Enable interrupt
-        Interrupt_enable(dev->isrNumber);
-    }
-
-    if (config->outputCompareCallback != 0)
-    {
-        // Save callback
         dev->outputCompareCallback = config->outputCompareCallback;
-        // Enable interrupt
-        Interrupt_enable(dev->isrNumber);
-    }
-
-    if (config->inputCaptureCallback != 0)
-    {
-        // Save callback
         dev->inputCaptureCallback = config->inputCaptureCallback;
         // Enable interrupt
         Interrupt_enable(dev->isrNumber);
