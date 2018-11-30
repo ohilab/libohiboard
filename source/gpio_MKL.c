@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2014-2015 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,12 +23,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
- * @file libohiboard/source/gpio_KL15Z4.c
+ * @file libohiboard/source/gpio_MKL.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief GPIO implementations for KL15Z4.
+ * @brief GPIO implementations for NXP MKL series.
  */
 
 #if defined (LIBOHIBOARD_KL15Z4)

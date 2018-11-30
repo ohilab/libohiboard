@@ -352,9 +352,12 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
     defined(LIBOHIBOARD_STM32L486)
 
         // Connect pin to ADC device
-        temp = port->ASCR;
-        temp |= (GPIO_ASCR_ASC0 << number);
-        port->ASCR = temp;
+        if ((options & GPIO_PINS_ADC_CONNECTED) != 0)
+        {
+            temp = port->ASCR;
+            temp |= (GPIO_ASCR_ASC0 << number);
+            port->ASCR = temp;
+        }
 #endif
     }
 }
