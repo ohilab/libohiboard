@@ -1064,6 +1064,40 @@ System_Errors Adc_start (Adc_DeviceHandle dev);
  */
 System_Errors Adc_stop (Adc_DeviceHandle dev);
 
+/**
+ * Get Adc conversion result.
+ *
+ * @param[in] dev Adc device handle
+ * @return The converted values
+ */
+uint32_t Adc_read (Adc_DeviceHandle dev);
+
+/**
+ * Wait until conversion ends.
+ * Check EOC or EOS based on what the user has selected during configuration.
+ *
+ * @param[in] dev Adc device handle
+ * @param[in] timeout Maximum wait time in milli-second
+ * @return
+ */
+System_Errors Adc_poll (Adc_DeviceHandle dev, uint32_t timeout);
+
+///@}
+
+/** @name ADC utility functions
+ *  Useful functions to manage read data form Adc.
+ */
+///@{
+
+/**
+ * Convert raw data read from channel 17 to temperature, in Celsius.
+ *
+ * @param[in] dev Adc device handle
+ * @param[in] data Raw data from Adc
+ * @param[in] vref Analog reference voltage connected to microcontroller in milli-volt
+ */
+int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref);
+
 ///@}
 
 //System_Errors Adc_readValue (Adc_DeviceHandle dev,

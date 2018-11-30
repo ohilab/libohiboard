@@ -184,6 +184,23 @@ void ADC3_IRQHandler (void);
 
 #endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
 
+#define ADC_VREFINT_CAL_ADDR               ((uint16_t*)(0x1FFF75AAul))
+#define ADC_VREFINT_CAL                    (3000ul)
+
+#define ADC_TEMPERATURE_CAL1_ADDR          ((uint16_t*)(0x1FFF75A8ul))
+#define ADC_TEMPERATURE_CAL2_ADDR          ((uint16_t*)(0x1FFF75CAul))
+#define ADC_TEMPERATURE_CAL1               (30ul)
+#if defined(LIBOHIBOARD_STM32L471) || \
+    defined(LIBOHIBOARD_STM32L475) || \
+    defined(LIBOHIBOARD_STM32L476) || \
+    defined(LIBOHIBOARD_STM32L485) || \
+    defined(LIBOHIBOARD_STM32L486)
+#define ADC_TEMPERATURE_CAL2               (110ul)
+#else
+#define ADC_TEMPERATURE_CAL2               (130ul)
+#endif
+
+
 #endif // LIBOHIBOARD_ADC & LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus

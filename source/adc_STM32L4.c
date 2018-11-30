@@ -54,6 +54,12 @@ extern "C" {
                                      (void) UTILITY_READ_REGISTER_BIT(REG,MASK);\
                                    } while (0)
 
+#define ADC_CLOCK_DISABLE(REG,MASK) do {                                         \
+                                      UTILITY_CLEAR_REGISTER_BIT(REG,MASK);      \
+                                      asm("nop");                                \
+                                      (void) UTILITY_READ_REGISTER_BIT(REG,MASK);\
+                                    } while (0)
+
 #define ADC_MAX_PINS                     20
 
 
@@ -484,6 +490,10 @@ Adc_DeviceHandle OB_ADC3 = &adc3;
                                         ((CHANNEL) == ADC_CHANNELS_TEMPERATURE)|| \
                                         ((CHANNEL) == ADC_CHANNELS_VBAT))
 
+#define ADC_VALID_TEMPERATURE_CHANNEL(DEVICE) ((DEVICE) == OB_ADC1)
+
+#define ADC_VALID_BATTERY_CHANNEL(DEVICE) ((DEVICE) == OB_ADC1)
+
 #elif defined(LIBOHIBOARD_STM32L471) || \
       defined(LIBOHIBOARD_STM32L475) || \
       defined(LIBOHIBOARD_STM32L476) || \
@@ -580,7 +590,14 @@ Adc_DeviceHandle OB_ADC3 = &adc3;
                                                      ((CHANNEL) == ADC_CHANNELS_DAC1_ADC3)  ||    \
                                                      ((CHANNEL) == ADC_CHANNELS_DAC2_ADC3))))
 
+#define ADC_VALID_TEMPERATURE_CHANNEL(DEVICE) (((DEVICE) == OB_ADC1) || \
+                                               ((DEVICE) == OB_ADC3))
+
+#define ADC_VALID_BATTERY_CHANNEL(DEVICE) (((DEVICE) == OB_ADC1) || \
+                                           ((DEVICE) == OB_ADC3))
 #endif
+
+#define ADC_VALID_VREFINT_CHANNEL(DEVICE) ((DEVICE) == OB_ADC1)
 
 /**
  * Delay after voltage regulator was enabled.
@@ -608,6 +625,40 @@ static inline void __attribute__((always_inline)) Adc_enableInternalRegulator (A
     dev->regmap->CR |= ADC_CR_ADVREGEN;
 }
 
+/**
+ * Enable Deep-Power-Down mode.
+ *
+ * @param[in] dev Adc device handle
+ */
+static inline void __attribute__((always_inline)) Adc_enableDeepPowerDown (Adc_DeviceHandle dev)
+{
+    // All the operation must be disabled. See RM0351, page 589
+    dev->regmap->CR &= (~(ADC_DEVICE_ENABLE_MASK | ADC_CR_DEEPPWD));
+    dev->regmap->CR |= ADC_CR_ADVREGEN;
+}
+
+/**
+ * Disable Deep-Power-Down mode.
+ *
+ * @param[in] dev Adc device handle
+ */
+static inline void __attribute__((always_inline)) Adc_disableDeepPowerDown (Adc_DeviceHandle dev)
+{
+    // All the operation must be disabled. See RM0351, page 589
+    dev->regmap->CR &= (~(ADC_DEVICE_ENABLE_MASK | ADC_CR_DEEPPWD));
+}
+
+/**
+ * Check the current status of Deep-Power-Down mode.
+ *
+ * @param[in] dev Adc device handle
+ */
+static inline bool __attribute__((always_inline)) Adc_isDeepPowerDownEnable (Adc_DeviceHandle dev)
+{
+    // All the operation must be disabled. See RM0351, page 589
+    return (((dev->regmap->CR & ADC_CR_DEEPPWD) != 0) ? TRUE : FALSE);
+}
+
 static inline void __attribute__((always_inline)) Adc_setClock (Adc_DeviceHandle dev, Adc_Config* config)
 {
     dev->rcommon->CCR &= (~(ADC_CCR_CKMODE_Msk | ADC_CCR_PRESC_Msk));
@@ -622,7 +673,7 @@ static inline void __attribute__((always_inline)) Adc_setSequencePosition (Adc_D
     // Save offset to get correct register
     uint32_t tmp = ((position & ADC_SQR_REGOFFSET_MASK) >> ADC_SQR_REGOFFSET_POS);
     // Get register
-    volatile uint32_t* sqrReg = (volatile uint32_t*)((&dev->regmap->SQR1) + (tmp << 2u));
+    volatile uint32_t* sqrReg = (volatile uint32_t*)((uint32_t)((uint32_t)(&dev->regmap->SQR1) + (tmp << 2u)));
     tmp = ((position & ADC_SQR_SHIFT_MASK) >> ADC_SQR_SHIFT_POS);
     *sqrReg &= (~(0x0000001Fu << tmp));
     // Save selected channel into chosen ranking
@@ -636,7 +687,7 @@ static inline void __attribute__((always_inline)) Adc_setSamplingTime (Adc_Devic
     // Save offset to get correct register
     uint32_t tmp = ((channel & ADC_SMPR_REGOFFSET_MASK) >> ADC_SMPR_REGOFFSET_POS);
     // Get register
-    volatile uint32_t* smprReg = (volatile uint32_t*)((&dev->regmap->SMPR1) + (tmp << 2u));
+    volatile uint32_t* smprReg = (volatile uint32_t*)((uint32_t)((uint32_t)(&dev->regmap->SMPR1) + (tmp << 2u)));
     tmp = (channel & ADC_SMPR_SMPX_MASK);
     *smprReg &= (~(0x00000007u << tmp));
     // Save sampling time for selected channel
@@ -665,7 +716,7 @@ static System_Errors Adc_enable (Adc_DeviceHandle dev)
         // Enable the peripheral
         ADC_DEVICE_ENABLE(dev);
 
-        // Wait for stabilization after stabilization
+        // Wait for stabilization
         System_delay(ADC_DELAY_VOLTAGE_REGULATOR_STARTUP);
 
         // Wait until ADC is enabled... otherwise timeout!
@@ -768,6 +819,13 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
         ADC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
     }
 
+    // Check if the deep-power-mode is enable
+    if (Adc_isDeepPowerDownEnable(dev))
+    {
+        // Disable the deep-power-mode
+        Adc_disableDeepPowerDown(dev);
+    }
+
     // Check internal regulator status
     if ((dev->regmap->CR & ADC_CR_ADVREGEN) == 0u)
     {
@@ -818,10 +876,10 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
 
         // Check external trigger choice
         // In case of external trigger enabled, update CFGR register
+        // Mask register (disable trigger)
+        dev->regmap->CFGR &= (~(ADC_CFGR_EXTSEL_Msk | ADC_CFGR_EXTEN_Msk));
         if (config->externalTriggerPolarity != 0u)
         {
-            // Mask register
-            dev->regmap->CFGR &= (~(ADC_CFGR_EXTSEL_Msk | ADC_CFGR_EXTEN_Msk));
             // Write user config
             dev->regmap->CFGR |= config->externalTriggerPolarity | config->externalTrigger;
         }
@@ -863,22 +921,29 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
 
 System_Errors Adc_deInit (Adc_DeviceHandle dev)
 {
-    System_Errors err = ERRORS_NO_ERROR;
     // Check the ADC device
     if (dev == NULL)
     {
         return ERRORS_ADC_NO_DEVICE;
     }
     // Check the ADC instance
-//    err = ohiassert(IIC_IS_DEVICE(dev));
-    if (err != ERRORS_NO_ERROR)
+    if (ohiassert(ADC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
     {
         return ERRORS_ADC_WRONG_DEVICE;
     }
 
-    // TODO
+    // Stop on-going conversion...
+    Adc_stop(dev);
 
-    return err;
+    // TODO: disable interrupt
+
+    // TODO: Clear interrupt flags
+
+    // Disable peripheral clock
+    ADC_CLOCK_DISABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+
+    dev->state = ADC_DEVICESTATE_RESET;
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin)
@@ -914,7 +979,7 @@ System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Ad
             {
                 Gpio_configAlternate(dev->pinsGpio[i],
                                      GPIO_ALTERNATE_ANALOG,
-                                     0);
+                                     GPIO_PINS_ADC_CONNECTED);
                 channel = dev->pinsChannel[i];
                 isPinFound = TRUE;
                 break;
@@ -942,7 +1007,7 @@ System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Ad
     if ((dev->regmap->CR & ADC_CR_ADSTART) == 0u)
     {
         // Set sequence position
-        Adc_setSequencePosition(dev,config->position,channel);
+        Adc_setSequencePosition(dev,channel,config->position);
 
         // WARNING: no on-going regular conversion and injected conversion...
         if (((dev->regmap->CR & ADC_CR_ADSTART) == 0u) &&
@@ -962,8 +1027,38 @@ System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Ad
                 dev->regmap->DIFSEL |= (1u << ((channel & ADC_CHANNEL_MASK) >> ADC_CHANNEL_POS));
                 // Set the same sampling time for the next channel used for differential conversion
                 Adc_setSamplingTime(dev,(channel + 0x00010000u),config->samplingTime);
+
+                // FIXME: Enable as analog input the second pin
             }
         }
+
+        // Manage internal channel
+        // Check if the selected peripheral have this channel connected, and
+        // if the selected channel was just enabled
+        if ((config->channel == ADC_CHANNELS_TEMPERATURE) &&
+           ((dev->rcommon->CCR & ADC_CCR_TSEN_Msk) == 0u) &&
+            ADC_VALID_TEMPERATURE_CHANNEL(dev))
+        {
+            dev->rcommon->CCR |= ADC_CCR_TSEN;
+            // FIXME: Is it too much?
+            System_delay(1);
+        }
+        else if ((config->channel == ADC_CHANNELS_VBAT)          &&
+                ((dev->rcommon->CCR & ADC_CCR_VBATEN_Msk) == 0u) &&
+                 ADC_VALID_BATTERY_CHANNEL(dev))
+        {
+            dev->rcommon->CCR |= ADC_CCR_VBATEN;
+        }
+        else if ((config->channel == ADC_CHANNELS_VREFINT)       &&
+                ((dev->rcommon->CCR & ADC_CCR_VREFEN_Msk) == 0u) &&
+                 ADC_VALID_VREFINT_CHANNEL(dev))
+        {
+            dev->rcommon->CCR |= ADC_CCR_VREFEN;
+        }
+    }
+    else
+    {
+        return ERRORS_ADC_CONVERSION_ONGOING;
     }
 
     return ERRORS_NO_ERROR;
@@ -993,7 +1088,7 @@ System_Errors Adc_start (Adc_DeviceHandle dev)
         }
 
         // Clear flag, no unknown state form previous conversion
-        dev->regmap->ISR |= (ADC_ISR_EOC | ADC_ISR_EOS | ADC_ISR_OVR);
+        dev->regmap->ISR = (ADC_ISR_EOC | ADC_ISR_EOS | ADC_ISR_OVR);
 
         // Disable all interrupt
         dev->regmap->IER &= (~(ADC_IER_EOCIE | ADC_IER_EOSIE | ADC_IER_OVRIE));
@@ -1079,6 +1174,87 @@ System_Errors Adc_stop (Adc_DeviceHandle dev)
     dev->regmap->IER &= (~(ADC_IER_EOCIE | ADC_IER_EOSIE | ADC_IER_OVRIE));
 
     return ERRORS_NO_ERROR;
+}
+
+uint32_t Adc_read (Adc_DeviceHandle dev)
+{
+    // Check the ADC device
+    if (dev == NULL)
+    {
+        return ERRORS_ADC_NO_DEVICE;
+    }
+    // Check the ADC instance
+    if (ohiassert(ADC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_ADC_WRONG_DEVICE;
+    }
+
+    return (dev->regmap->DR & ADC_DR_RDATA);
+}
+
+System_Errors Adc_poll (Adc_DeviceHandle dev, uint32_t timeout)
+{
+    uint32_t flag = 0u;
+    uint32_t tickstart = 0u;
+
+    // Check the ADC device
+    if (dev == NULL)
+    {
+        return ERRORS_ADC_NO_DEVICE;
+    }
+    // Check the ADC instance
+    if (ohiassert(ADC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_ADC_WRONG_DEVICE;
+    }
+
+    if (dev->config.eoc == ADC_ENDOFCONVERSION_SINGLE)
+    {
+        flag = ADC_ISR_EOC;
+    }
+    else
+    {
+        flag = ADC_ISR_EOS;
+    }
+
+    // check conversion status
+    tickstart = System_currentTick();
+    while ((dev->regmap->ISR & flag) == 0u)
+    {
+        if ((System_currentTick() - tickstart) > timeout)
+        {
+            return ERRORS_ADC_TIMEOUT;
+        }
+    }
+
+    // Single conversion or sequence conversions flag is up!
+    return ERRORS_ADC_CONVERSION_DONE;
+}
+
+int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref)
+{
+    if (dev->config.resolution != ADC_RESOLUTION_12BIT)
+    {
+        switch (dev->config.resolution)
+        {
+        case ADC_RESOLUTION_6BIT:
+            data <<= 6u;
+            break;
+        case ADC_RESOLUTION_8BIT:
+            data <<= 4u;
+            break;
+        case ADC_RESOLUTION_10BIT:
+            data <<= 2u;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return ((((int32_t)(data * (((float)vref)/ADC_VREFINT_CAL)) - (int32_t)*ADC_TEMPERATURE_CAL1_ADDR) *
+              (int32_t)(ADC_TEMPERATURE_CAL2 - ADC_TEMPERATURE_CAL1)) /
+              (int32_t)((int32_t)*ADC_TEMPERATURE_CAL2_ADDR - (int32_t)*ADC_TEMPERATURE_CAL1_ADDR)) +
+              ADC_TEMPERATURE_CAL1;
 }
 
 _weak void ADC1_2_IRQHandler (void)
