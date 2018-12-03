@@ -62,16 +62,18 @@ extern "C" {
 #define UTILITY_WRITE_REGISTER(REGISTER,VALUE)   ((REGISTER) = (VALUE))
 
 #define UTILITY_MODIFY_REGISTER(REGISTER,CLEARMASK,SETMASK) \
-    UTILITY_WRITE_REGISTER((REGISTER), (((REGISTER) & (~(CLEARMASK))) | (SETMASK)))
+    UTILITY_WRITE_REGISTER((REGISTER), (((REGISTER) & (~(CLEARMASK))) | (SETMASK & CLEARMASK)))
 
 typedef enum _Utility_State
 {
-    UTILITY_STATE_DISABLE = 0u,
-    UTILITY_STATE_ENABLE  = 1u,
+    UTILITY_STATE_DISABLE = 0x00000000u,
+    UTILITY_STATE_ENABLE  = 0x00000001u,
 } Utility_State;
 
 #define UTILITY_VALID_STATE(STATE) (((STATE) == UTILITY_STATE_ENABLE) || \
                                     ((STATE) == UTILITY_STATE_DISABLE))
+
+#define dimof(a)                    (sizeof(a)/sizeof(a[0]))
 
 extern const char hexDigits[];
 
