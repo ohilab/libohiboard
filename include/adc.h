@@ -37,7 +37,18 @@
  * @brief ADC definitions and prototypes.
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
 #ifdef LIBOHIBOARD_ADC
+
+/**
+ * @defgroup ADC ADC
+ * @brief ADC HAL driver
+ * @{
+ */
 
 #ifndef __ADC_H
 #define __ADC_H
@@ -985,10 +996,11 @@ typedef struct _Adc_Config
 
 } Adc_Config;
 
-/** @name Configuration functions
- *  Functions to initialize and de-initialize a ADC peripheral.
+/**
+ * @defgroup ADC_Configuration_Functions ADC configuration functions
+ * @brief Functions to initialize and de-initialize a ADC peripheral.
+ * @{
  */
-///@{
 
 /**
  * This function initialize the ADC device and setup operational mode according
@@ -1007,12 +1019,15 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config);
  */
 System_Errors Adc_deInit (Adc_DeviceHandle dev);
 
-///@}
-
-/** @name ADC read functions
- *  Functions to configure and read data from pins or internal channel.
+/**
+ * @}
  */
-///@{
+
+/**
+ * @defgroup ADC_Read_Functions ADC read functions
+ * @brief Functions to configure and read data from pins or internal channel.
+ * @{
+ */
 
 typedef struct _Adc_ChannelConfig
 {
@@ -1082,12 +1097,15 @@ uint32_t Adc_read (Adc_DeviceHandle dev);
  */
 System_Errors Adc_poll (Adc_DeviceHandle dev, uint32_t timeout);
 
-///@}
-
-/** @name ADC utility functions
- *  Useful functions to manage read data form Adc.
+/**
+ * @}
  */
-///@{
+
+/**
+ * @defgroup ADC_Utility_Functions ADC utility functions
+ * @brief Useful functions to manage read data form Adc.
+ * @{
+ */
 
 /**
  * Convert raw data read from channel 17 to temperature, in Celsius.
@@ -1098,7 +1116,9 @@ System_Errors Adc_poll (Adc_DeviceHandle dev, uint32_t timeout);
  */
 int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref);
 
-///@}
+/**
+ * @}
+ */
 
 //System_Errors Adc_readValue (Adc_DeviceHandle dev,
 //                             Adc_ChannelNumber channel,
@@ -1177,4 +1197,12 @@ extern Adc_DeviceHandle OB_ADC1;
 
 #endif // __ADC_H
 
+/**
+ * @}
+ */
+
 #endif // LIBOHIBOARD_ADC
+
+/**
+ * @}
+ */

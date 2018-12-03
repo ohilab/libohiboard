@@ -1,4 +1,6 @@
 /*
+ * This file is part of the libohiboard project.
+ *
  * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
@@ -34,7 +36,7 @@
 
 /* microcontroller selection: */
 
-/**
+/*
  *
  * Can use follows microcontroller with <code>LIBOHIBOARD_KL02Z4</code> and <code>LIBOHIBOARD_FRDMKL02Z</code>:
  * <ul>
