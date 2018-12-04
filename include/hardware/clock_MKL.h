@@ -42,7 +42,39 @@ extern "C" {
 
 #if defined(LIBOHIBOARD_MKL)
 
+#define CLOCK_FREQ_INTERNAL_LIRC          ((uint32_t)32000u)
+#define CLOCK_FREQ_INTERNAL_HIRC        ((uint32_t)4000000u)
 
+#define CLOCK_FREQ_OSC_IN_RANGE0_MIN      ((uint32_t)32000u)
+#define CLOCK_FREQ_OSC_IN_RANGE0_MAX      ((uint32_t)40000u)
+#define CLOCK_FREQ_OSC_IN_RANGE1_MIN    ((uint32_t)3000000u)
+#define CLOCK_FREQ_OSC_IN_RANGE1_MAX    ((uint32_t)8000000u)
+#define CLOCK_FREQ_OSC_IN_RANGE2_MIN    ((uint32_t)8000000u)
+#define CLOCK_FREQ_OSC_IN_RANGE2_MAX   ((uint32_t)32000000u)
+
+#define CLOCK_FREQ_EXT_MAX             ((uint32_t)48000000u)
+
+#define CLOCK_FREQ_FLL_LOWRANGE_MIN    ((uint32_t)20000000u)
+#define CLOCK_FREQ_FLL_LOWRANGE_CENTER ((uint32_t)20970000u)
+#define CLOCK_FREQ_FLL_LOWRANGE_MAX    ((uint32_t)25000000u)
+#define CLOCK_FREQ_FLL_MIDRANGE_MIN    ((uint32_t)40000000u)
+#define CLOCK_FREQ_FLL_MIDRANGE_CENTER ((uint32_t)41940000u)
+#define CLOCK_FREQ_FLL_MIDRANGE_MAX    ((uint32_t)48000000u)
+
+#define CLOCK_FREQ_FLL_INPUT_MAX                   (39062.5)
+
+#define CLOCK_FREQ_PLL_INPUT_MIN        ((uint32_t)2000000u)
+#define CLOCK_FREQ_PLL_INPUT_MAX        ((uint32_t)4000000u)
+
+#define CLOCK_FREQ_MCGOUT_MAX         ((uint32_t)100000000u)
+#define CLOCK_FREQ_MCGFLL_MAX          ((uint32_t)48000000u)
+#define CLOCK_FREQ_MCGPLL_MAX         ((uint32_t)100000000u)
+
+#define CLOCK_REG_PRDIV_MIN                             (1u)
+#define CLOCK_REG_PRDIV_MAX                            (25u)
+
+#define CLOCK_REG_VDIV_MIN                             (24u)
+#define CLOCK_REG_VDIV_MAX                             (55u)
 
 #endif // LIBOHIBOARD_MKL
 

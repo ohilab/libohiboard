@@ -60,9 +60,6 @@ typedef enum _Clock_Source
     CLOCK_BUS,
     CLOCK_SYSTEM,
     CLOCK_FLEXBUS,
-
-#endif
-
     CLOCK_FLASH,
 
 // END IF: LIBOHIBOARD_NXP_KINETIS
@@ -85,8 +82,8 @@ typedef enum _Clock_Origin
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
-	CLOCK_INTERNAL_LIRC,
-	CLOCK_INTERNAL_HIRC,
+	CLOCK_INTERNAL_LIRC        = 0x0004,
+	CLOCK_INTERNAL_HIRC        = 0x0008,
 
 // END IF: LIBOHIBOARD_NXP_KINETIS
 #elif defined (LIBOHIBOARD_ST_STM32)
@@ -111,17 +108,22 @@ typedef enum _Clock_Origin
 typedef enum _Clock_State
 {
 
-    CLOCK_STATE_FEI,
-    CLOCK_STATE_FEE,
-    CLOCK_STATE_FBI,
-    CLOCK_STATE_FBE,
-    CLOCK_STATE_PBE,
-    CLOCK_STATE_PEE,
-    CLOCK_STATE_BLPI,
-    CLOCK_STATE_BLPE,
+    CLOCK_STATE_FEI  = 0u,
+    CLOCK_STATE_FBI  = 1u,
+    CLOCK_STATE_BLPI = 2u,
+    CLOCK_STATE_FEE  = 3u,
+    CLOCK_STATE_FBE  = 4u,
+    CLOCK_STATE_BLPE = 5u,
+    CLOCK_STATE_PBE  = 6u,
+    CLOCK_STATE_PEE  = 7u,
 
 } Clock_State;
 
+/**
+ * This function return the current MCG mode of operation.
+ *
+ * @return The current mode.
+ */
 Clock_State Clock_getCurrentState (void);
 
 #endif

@@ -46,18 +46,194 @@ extern "C" {
 
 typedef struct _Clock_Device
 {
-    MCG_MemMapPtr regmap;
+    MCG_Type* regmap;
 
     Clock_State  state;                                /**< Current MCG state */
 
+    uint32_t systemCoreClock; /**< Value that store current system core clock */
+
+    uint32_t externalClock;           /**< Oscillator or external clock value */
+
+    /**
+     * Configuration parameters for clock mode transaction.
+     */
+    struct
+    {
+        uint8_t range0;
+
+        uint8_t frdiv;
+        uint16_t frdivValue;
+
+        uint16_t outdiv1;
+
+        uint8_t fcrdiv;
+        uint8_t fcrdivValue;
+
+        uint8_t ircs;
+
+        uint8_t dmx_drst;
+
+        uint8_t prdiv;
+
+        uint8_t vdiv;
+
+        /**
+         * The target mode that MCG must reach after configuration.
+         */
+        Clock_State final;
+
+        /**
+         * Final frequency on MCGOUTCLK.
+         */
+        uint32_t foutMcg;
+
+    } changeParam;
+
 } Clock_Device;
 
-static Clock_Device clk0 =
+static Clock_Device clk =
 {
-    .regmap = MCG_BASE_PTR,
+    .regmap          = MCG,
 
-    .state = CLOCK_STETE_FEI,
+    // FIXME!
+    .systemCoreClock = 4000000u,
 
+    .externalClock   = 0u,
+
+    .state           = CLOCK_STATE_FEI,
+};
+
+/**
+ * This function check if the external oscillator or clock is inside the
+ * possible range.
+ *
+ * @param[in] freq The external clock frequency in Hz
+ * @return The range number if @ref freq is into one possible range, 0xFF otherwise.
+ */
+static uint8_t Clock_getOscillatorRange (uint32_t freq)
+{
+    if ((CLOCK_FREQ_OSC_IN_RANGE0_MIN <= freq) &&
+        (freq <= CLOCK_FREQ_OSC_IN_RANGE0_MAX))
+    {
+        return 0;
+    }
+    else if ((CLOCK_FREQ_OSC_IN_RANGE1_MIN <= freq) &&
+             (freq <= CLOCK_FREQ_OSC_IN_RANGE1_MAX))
+    {
+        return 1;
+    }
+    else if ((CLOCK_FREQ_OSC_IN_RANGE2_MIN <= freq) &&
+             (freq <= CLOCK_FREQ_OSC_IN_RANGE2_MAX))
+    {
+        return 2;
+    }
+    else
+    {
+        return 0xFF;
+    }
+}
+
+/**
+ * Useful array for map the FRDIV (C1 register) value.
+ * This value is correct only when RANGE0 is different from 0.
+ */
+static const uint32_t CLOCK_FRDIV_TABLE[8] =
+{
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024,
+    1280,
+    1536
+};
+
+/**
+ * Useful array for map the FCRDIV (SC register) value.
+ */
+static const uint32_t CLOCK_FCRDIV_TABLE[8] =
+{
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128
+};
+
+/**
+ * Useful array for map LIRC multiplier in FEI mode.
+ */
+static const uint32_t CLOCK_LIRC_MULTIPLIER_TABLE[3] =
+{
+    1,
+    640,
+    1280
+};
+
+/**
+ * Useful array for map FLL multiplier in FEE mode.
+ */
+static const uint32_t CLOCK_FLL_MULTIPLIER_TABLE[4] =
+{
+    640,
+    732,
+    1280,
+    1464
+};
+
+/**
+ * Useful array for map FLL register value in FEE mode
+ * based on multiplier value.
+ */
+static const uint8_t CLOCK_FLL_MULTIPLIER_REGISTER[4] =
+{
+    0,
+    MCG_C4_DMX32_MASK,
+    MCG_C4_DRST_DRS(1),
+    MCG_C4_DMX32_MASK | MCG_C4_DRST_DRS(1),
+};
+
+
+/**
+ * This function compute the FRDIV value that can be used in C1 register
+ * configuration, based on @ref freq value.
+ * The FRDIV must divide the input frequency to FLL, in order to obtain
+ * a value smaller than @ref CLOCK_FREQ_FLL_INPUT_MAX
+ *
+ * @param[in] freq The external clock frequency in Hz
+ * @return The FRDIV value, 0xFF otherwise
+ */
+static uint8_t Clock_getFllInputDivider (uint32_t freq)
+{
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        if (freq < (CLOCK_FREQ_FLL_INPUT_MAX * CLOCK_FRDIV_TABLE[i]))
+        {
+            return i;
+        }
+    }
+    return 0xFF;
+}
+
+/**
+ * The transaction status matrix. It defines the path for state switch, the row is for
+ * current state and the column is target state.
+ */
+static const Clock_State Clock_mcgStateMatrix[8][8] =
+{
+    {CLOCK_STATE_FEI, CLOCK_STATE_FBI, CLOCK_STATE_FBI,  CLOCK_STATE_FEE, CLOCK_STATE_FBE, CLOCK_STATE_FBE,  CLOCK_STATE_FBE, CLOCK_STATE_FBE}, // CLOCK_STATE_FEI
+    {CLOCK_STATE_FEI, CLOCK_STATE_FBI, CLOCK_STATE_BLPI, CLOCK_STATE_FEE, CLOCK_STATE_FBE, CLOCK_STATE_FBE,  CLOCK_STATE_FBE, CLOCK_STATE_FBE}, // CLOCK_STATE_FBI
+    {CLOCK_STATE_FBI, CLOCK_STATE_FBI, CLOCK_STATE_BLPI, CLOCK_STATE_FBI, CLOCK_STATE_FBI, CLOCK_STATE_FBI,  CLOCK_STATE_FBI, CLOCK_STATE_FBI}, // CLOCK_STATE_BLPI
+    {CLOCK_STATE_FEI, CLOCK_STATE_FBI, CLOCK_STATE_FBI,  CLOCK_STATE_FEE, CLOCK_STATE_FBE, CLOCK_STATE_FBE,  CLOCK_STATE_FBE, CLOCK_STATE_FBE}, // CLOCK_STATE_FEE
+    {CLOCK_STATE_FEI, CLOCK_STATE_FBI, CLOCK_STATE_FBI,  CLOCK_STATE_FEE, CLOCK_STATE_FBE, CLOCK_STATE_BLPE, CLOCK_STATE_PBE, CLOCK_STATE_PBE}, // CLOCK_STATE_FBE
+    {CLOCK_STATE_FBE, CLOCK_STATE_FBE, CLOCK_STATE_FBE,  CLOCK_STATE_FBE, CLOCK_STATE_FBE, CLOCK_STATE_BLPE, CLOCK_STATE_PBE, CLOCK_STATE_PBE}, // CLOCK_STATE_BLPE
+    {CLOCK_STATE_FBE, CLOCK_STATE_FBE, CLOCK_STATE_FBE,  CLOCK_STATE_FBE, CLOCK_STATE_FBE, CLOCK_STATE_BLPE, CLOCK_STATE_PBE, CLOCK_STATE_PEE}, // CLOCK_STATE_PBE
+    {CLOCK_STATE_PBE, CLOCK_STATE_PBE, CLOCK_STATE_PBE,  CLOCK_STATE_PBE, CLOCK_STATE_PBE, CLOCK_STATE_PBE,  CLOCK_STATE_PBE, CLOCK_STATE_PBE}  // CLOCK_STATE_PEE
+//   CLOCK_STATE_FEI  CLOCK_STATE_FBI  CLOCK_STATE_BLPI  CLOCK_STATE_FEE  CLOCK_STATE_FBE  CLOCK_STATE_BLPE  CLOCK_STATE_PBE  CLOCK_STATE_PEE
 };
 
 System_Errors Clock_init (Clock_Config* config)
@@ -68,6 +244,210 @@ System_Errors Clock_init (Clock_Config* config)
     {
         return ERRORS_CLOCK_NO_CONFIG;
     }
+    // Check current mode
+    Clock_getCurrentState();
+
+    // Check external range, and FLL input range
+    if ((config->source == CLOCK_CRYSTAL) || (config->source == CLOCK_EXTERNAL))
+    {
+        if (config->fext > CLOCK_FREQ_EXT_MAX)
+            return ERRORS_CLOCK_EXTERNAL_TOO_BIG;
+
+        clk.changeParam.range0 = Clock_getOscillatorRange(config->fext);
+        ohiassert(clk.changeParam.range0 != 0xFF);
+
+        if (clk.changeParam.range0 == 0)
+        {
+            clk.changeParam.frdiv      = 0;
+            clk.changeParam.frdivValue = 1;
+        }
+        else
+        {
+            clk.changeParam.frdiv = Clock_getFllInputDivider(config->fext);
+            ohiassert(clk.changeParam.frdiv != 0xFF);
+            clk.changeParam.frdivValue = CLOCK_FRDIV_TABLE[clk.changeParam.frdiv];
+        }
+
+        // Save external clock/oscillator value
+        clk.externalClock = config->fext;
+    }
+
+    // Compute the OUTDIV1 value based on source choose and desired output value
+    uint32_t foutMcg = 0;
+    for (uint8_t div = 1; div < 17; ++div)
+    {
+        foutMcg = config->foutSys * div;
+
+        if ((config->source == CLOCK_CRYSTAL) || (config->source == CLOCK_EXTERNAL))
+        {
+            if (foutMcg == config->fext)
+            {
+                clk.changeParam.final = CLOCK_STATE_BLPE;
+                clk.changeParam.outdiv1 = div - 1;
+                clk.changeParam.foutMcg = foutMcg;
+                // Exit from OUTDIV1 searching...
+                break;
+            }
+
+            // Check with FLL
+            if ((foutMcg < (CLOCK_FREQ_FLL_LOWRANGE_MIN)) ||
+               (((CLOCK_FREQ_FLL_LOWRANGE_MAX) < foutMcg) && (foutMcg < (CLOCK_FREQ_FLL_MIDRANGE_MIN))) ||
+               (foutMcg > (CLOCK_FREQ_MCGPLL_MAX)))
+            {
+                // In case of out of range
+                continue;
+            }
+            else
+            {
+                uint32_t fllfrequency = 0;
+                for (uint8_t fllmul = 0; fllmul < 4; ++fllmul)
+                {
+                    fllfrequency = config->fext/clk.changeParam.frdivValue;
+                    if (foutMcg == fllfrequency*CLOCK_FLL_MULTIPLIER_TABLE[fllmul])
+                    {
+                        clk.changeParam.final = CLOCK_STATE_FEE;
+                        clk.changeParam.outdiv1 = div - 1;
+                        clk.changeParam.foutMcg = foutMcg;
+                        clk.changeParam.dmx_drst = CLOCK_FLL_MULTIPLIER_REGISTER[fllmul];
+                        // Exit from OUTDIV1 searching...
+                        break;
+                    }
+                }
+            }
+
+            // Check with PLL
+            uint32_t pllfrequency = 0, plloutfrequency = 0, plldiff = 200000000u;
+            for (uint8_t prdiv = 1; prdiv < (CLOCK_REG_PRDIV_MAX + 1); ++prdiv)
+            {
+                pllfrequency = config->fext/prdiv;
+                // Check PLL input range
+                if ((pllfrequency >= CLOCK_FREQ_PLL_INPUT_MIN) &&
+                    (pllfrequency <= CLOCK_FREQ_PLL_INPUT_MAX))
+                {
+                    for (uint8_t vdiv = CLOCK_REG_VDIV_MIN; vdiv < (CLOCK_REG_VDIV_MAX + 1); ++vdiv)
+                    {
+                        plloutfrequency = pllfrequency * vdiv;
+                        // Check the output limit
+                        if (plloutfrequency <= CLOCK_FREQ_MCGPLL_MAX)
+                        {
+                            // Check the difference between desiderata and computed value
+                            if (foutMcg > plloutfrequency)
+                            {
+                                // Update data
+                                if (plldiff > (foutMcg - plloutfrequency))
+                                {
+                                    plldiff = foutMcg - plloutfrequency;
+                                    clk.changeParam.prdiv = MCG_C5_PRDIV0(prdiv-1);
+                                    clk.changeParam.vdiv  = MCG_C6_VDIV0(vdiv-CLOCK_REG_VDIV_MIN);
+                                }
+                            }
+                            else
+                            {
+                                // Update data
+                                if (plldiff > (plloutfrequency - foutMcg))
+                                {
+                                    plldiff = plloutfrequency -
+                                            foutMcg;
+                                    clk.changeParam.prdiv = MCG_C5_PRDIV0(prdiv-1);
+                                    clk.changeParam.vdiv  = MCG_C6_VDIV0(vdiv-CLOCK_REG_VDIV_MIN);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Check whether the found value is usable or not (3%)
+            if (plldiff > ((foutMcg * 3) / 100))
+            {
+                clk.changeParam.prdiv = 0;
+                clk.changeParam.vdiv  = 0;
+            }
+
+        }
+        else if (config->source == CLOCK_INTERNAL_LIRC)
+        {
+            // TODO
+        }
+        else if (config->source == CLOCK_INTERNAL_HIRC)
+        {
+            uint32_t hfrequency = 0;
+            for (uint8_t fcrdiv = 0; fcrdiv < 8; ++fcrdiv)
+            {
+                hfrequency = CLOCK_FREQ_INTERNAL_HIRC/CLOCK_FCRDIV_TABLE[fcrdiv];
+                if (((hfrequency - hfrequency/100) >= foutMcg) &&
+                    ((hfrequency + hfrequency/100) <= foutMcg))
+                {
+                    // Save clock
+                    clk.changeParam.final = CLOCK_STATE_BLPI;
+                    clk.changeParam.foutMcg = hfrequency;
+                    clk.changeParam.ircs = MCG_C2_IRCS_MASK;
+                    clk.changeParam.fcrdiv = MCG_SC_FCRDIV(fcrdiv);
+                    clk.changeParam.fcrdivValue = CLOCK_FCRDIV_TABLE[fcrdiv];
+                    clk.changeParam.outdiv1 = div - 1;
+                    // Exit from OUTDIV1 searching...
+                    break;
+                }
+            }
+        }
+    }
+
+    // Change operation mode...
+
+    return ERRORS_NO_ERROR;
+}
+
+Clock_State Clock_getCurrentState ()
+{
+    switch ((clk.regmap->C1 & MCG_C1_CLKS_MASK) >> MCG_C1_CLKS_SHIFT)
+    {
+    case 0:
+        if ((clk.regmap->C6 & MCG_C6_PLLS_MASK) != 0)
+        {
+            clk.state = CLOCK_STATE_PEE;
+        }
+        else
+        {
+            if ((clk.regmap->C1 & MCG_C1_IREFS_MASK) == 0)
+            {
+                clk.state = CLOCK_STATE_FEE;
+            }
+            else
+            {
+                clk.state = CLOCK_STATE_FEI;
+            }
+        }
+        break;
+    case 1:
+        if ((clk.regmap->C2 & MCG_C2_LP_MASK) == 0)
+        {
+            clk.state = CLOCK_STATE_FBI;
+        }
+        else
+        {
+            clk.state = CLOCK_STATE_BLPI;
+        }
+        break;
+    case 2:
+        if ((clk.regmap->C2 & MCG_C2_LP_MASK) != 0)
+        {
+            clk.state = CLOCK_STATE_BLPE;
+        }
+        else
+        {
+            if ((clk.regmap->C6 & MCG_C6_PLLS_MASK) != 0)
+            {
+                clk.state = CLOCK_STATE_PBE;
+            }
+            else
+            {
+                clk.state = CLOCK_STATE_FBE;
+            }
+        }
+        break;
+    default:
+        ohiassert(0);
+    }
+    return clk.state;
 }
 
 #endif // LIBOHIBOARD_MKL
