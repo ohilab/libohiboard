@@ -60,25 +60,20 @@ extern "C" {
                                       (void) UTILITY_READ_REGISTER_BIT(REG,MASK);\
                                     } while (0)
 
-#define DAC_MAX_PINS                     2
+/**
+ * Enable selected channel of peripheral
+ */
+#define DAC_DEVICE_ENABLE(DEVICE,CHANNEL)     \
+    UTILITY_SET_REGISTER_BIT(DEVICE->regmap->CR,(DAC_CR_EN1 << (CHANNEL)))
 
-///**
-// * Useful mask to detect the current abilitation status of peripheral.
-// */
-//#define ADC_DEVICE_IS_ENABLE(DEVICE) (((DEVICE->regmap->CR & ADC_CR_ADEN_Msk) == ADC_CR_ADEN_Msk) &&   \
-//		                              ((DEVICE->regmap->ISR & ADC_ISR_ADRDY_Msk) == ADC_ISR_ADRDY_Msk))
-//
-///**
-// * Enable selected peripheral
-// */
-//#define ADC_DEVICE_ENABLE(DEVICE)     \
-//    UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_ADEN)
-//
-///**
-// * Disable selected peripheral
-// */
-//#define ADC_DEVICE_DISABLE(DEVICE)     \
-//    UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_ADDIS)
+/**
+ * Disable selected channel of peripheral
+ */
+#define DAC_DEVICE_DISABLE(DEVICE,CHANNEL)     \
+    UTILITY_CLEAR_REGISTER_BIT(DEVICE->regmap->CR,(DAC_CR_EN1 << (CHANNEL)))
+
+
+#define DAC_MAX_PINS                     2
 
 /**
  * Check whether the sample-and-hold mode is valid or not.
@@ -233,13 +228,13 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
 
     // Select relative channel
     Dac_Channels channel;
-    for (uint16_t i = 0; i < ADC_MAX_PINS; ++i)
+    for (uint16_t i = 0; i < DAC_MAX_PINS; ++i)
     {
         if (dev->pins[i] == pin)
         {
-//            Gpio_configAlternate(dev->pinsGpio[i],
-//                                 GPIO_ALTERNATE_ANALOG,
-//                                 GPIO_PINS_ADC_CONNECTED);
+            Gpio_configAlternate(dev->pinsGpio[i],
+                                 GPIO_ALTERNATE_ANALOG,
+                                 0);
             channel = dev->pinsChannel[i];
             break;
         }
@@ -258,8 +253,46 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
     uint32_t tmpreg = 0;
     // Setup channel register
     tmpreg = dev->regmap->MCR;
-    tmpreg &= (~(((uint32_t)(DAC_MCR_MODE1)) << channel));
-    tmpreg |= (((config->sampleAndHold == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_2 : 0x00000000u) << channel);
+    tmpreg &= (~(((uint32_t)(DAC_MCR_MODE1_Msk)) << channel));
+    tmpreg |= (((config->sampleAndHold   == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_2 : 0x00000000u) |
+               ((config->outputBuffer    == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_1 : 0x00000000u) |
+               ((config->internalConnect == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_0 : 0x00000000u)) << channel;
+    dev->regmap->MCR = tmpreg;
+
+    // Put channel in normal mode
+    dev->regmap->CR &= (~(DAC_CR_CEN1_Msk << channel));
+
+    // Disable wave generation and trigger
+    tmpreg = dev->regmap->CR;
+    tmpreg &= (~(((uint32_t)(DAC_CR_MAMP1_Msk | DAC_CR_WAVE1_Msk | DAC_CR_TSEL1_Msk | DAC_CR_TEN1_Msk)) << channel));
+
+    // Configure Trigger: TSELx and TENx bits
+    tmpreg |= ((config->trigger) << channel);
+
+    // Save CR configuration
+    dev->regmap->CR = tmpreg;
+
+    dev->state = DAC_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Dac_start (Dac_DeviceHandle dev, Dac_Channels channel)
+{
+    // Check the DAC device
+    if (dev == NULL)
+    {
+        return ERRORS_DAC_NO_DEVICE;
+    }
+    // Check the DAC instance
+    if (ohiassert(DAC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_DAC_WRONG_DEVICE;
+    }
+
+    // Enable peripheral and selected channel
+    DAC_DEVICE_ENABLE(dev,channel);
+
+    // Send software trigger, if needed!
 }
 
 #endif // LIBOHIBOARD_STM32L4

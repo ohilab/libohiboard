@@ -58,6 +58,7 @@ extern "C" {
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "utility.h"
 
 #ifdef LIBOHIBOARD_DMA
 #include "dma.h"
@@ -389,17 +390,19 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
  * Enable Dac and start conversion.
  *
  * @param[in] dev Dac device handle
+ * @param[in] channel The selected channel
  * @return ERRORS_NO_ERROR for start conversion without problems, otherwise a specific error.
  */
-System_Errors Dac_start (Dac_DeviceHandle dev);
+System_Errors Dac_start (Dac_DeviceHandle dev, Dac_Channels channel);
 
 /**
  * Stop Dac conversion and disable peripheral.
  *
  * @param[in] dev Dac device handle
+ * @param[in] channel The selected channel
  * @return ERRORS_NO_ERROR for stop conversion without problems, otherwise a specific error.
  */
-System_Errors Dac_stop (Dac_DeviceHandle dev);
+System_Errors Dac_stop (Dac_DeviceHandle dev, Dac_Channels channel);
 
 /**
  * @}
