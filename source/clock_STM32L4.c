@@ -3,6 +3,7 @@
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Leonardo Morichelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/include/clock_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Leonardo Morichelli
  * @brief Clock implementations for STM32L4 Series
  */
 
@@ -47,6 +49,12 @@ extern "C" {
                                          ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)                 || \
                                          ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)                 || \
                                          ((OSC & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL))
+
+#define CLOCK_IS_VALID_PLL_SOURCE(PLL_SOURCE) ((PLL_SOURCE == CLOCK_PLLSOURCE_HSI) || \
+                                               (PLL_SOURCE == CLOCK_PLLSOURCE_HSE) || \
+                                               (PLL_SOURCE == CLOCK_PLLSOURCE_MSI))
+
+#define CLOCK_IS_VALID_PLL_FREQUENCY(OSC_CONFIG, PLL_CONFIG) (Clock_getConfigPllValue(OSC_CONFIG, PLL_CONFIG) <= CLOCK_MAX_FREQ_PLL)
 
 #define CLOCK_IS_VALID_HSE_STATE(HSESTATE) (((HSESTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
                                             ((HSESTATE) == CLOCK_OSCILLATORSTATE_ON))
@@ -90,65 +98,65 @@ extern "C" {
 
 static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[9] =
 {
-        RCC_CFGR_HPRE_DIV1,
-        RCC_CFGR_HPRE_DIV2,
-        RCC_CFGR_HPRE_DIV4,
-        RCC_CFGR_HPRE_DIV8,
-        RCC_CFGR_HPRE_DIV16,
-        RCC_CFGR_HPRE_DIV64,
-        RCC_CFGR_HPRE_DIV128,
-        RCC_CFGR_HPRE_DIV256,
-        RCC_CFGR_HPRE_DIV512,
+    RCC_CFGR_HPRE_DIV1,
+    RCC_CFGR_HPRE_DIV2,
+    RCC_CFGR_HPRE_DIV4,
+    RCC_CFGR_HPRE_DIV8,
+    RCC_CFGR_HPRE_DIV16,
+    RCC_CFGR_HPRE_DIV64,
+    RCC_CFGR_HPRE_DIV128,
+    RCC_CFGR_HPRE_DIV256,
+    RCC_CFGR_HPRE_DIV512,
 };
 
 static const uint8_t CLOCK_AHB_PRESCALE_SHIFT_TABLE[16] =
 {
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        1U, // DIV2
-        2U, // DIV4
-        3U, // DIV8
-        4U, // DIV16
-        6U, // DIV64
-        7U, // DIV128
-        8U, // DIV256
-        9U, // DIV512
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    1U, // DIV2
+    2U, // DIV4
+    3U, // DIV8
+    4U, // DIV16
+    6U, // DIV64
+    7U, // DIV128
+    8U, // DIV256
+    9U, // DIV512
 };
 
 static const uint32_t CLOCK_APB1_PRESCALE_REGISTER_TABLE[5] =
 {
-        RCC_CFGR_PPRE1_DIV1,
-        RCC_CFGR_PPRE1_DIV2,
-        RCC_CFGR_PPRE1_DIV4,
-        RCC_CFGR_PPRE1_DIV8,
-        RCC_CFGR_PPRE1_DIV16
+    RCC_CFGR_PPRE1_DIV1,
+    RCC_CFGR_PPRE1_DIV2,
+    RCC_CFGR_PPRE1_DIV4,
+    RCC_CFGR_PPRE1_DIV8,
+    RCC_CFGR_PPRE1_DIV16
 };
 
 static const uint32_t CLOCK_APB2_PRESCALE_REGISTER_TABLE[5] =
 {
-        RCC_CFGR_PPRE2_DIV1,
-        RCC_CFGR_PPRE2_DIV2,
-        RCC_CFGR_PPRE2_DIV4,
-        RCC_CFGR_PPRE2_DIV8,
-        RCC_CFGR_PPRE2_DIV16
+    RCC_CFGR_PPRE2_DIV1,
+    RCC_CFGR_PPRE2_DIV2,
+    RCC_CFGR_PPRE2_DIV4,
+    RCC_CFGR_PPRE2_DIV8,
+    RCC_CFGR_PPRE2_DIV16
 };
 
 static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 {
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        0U, // DIV1 - NOT USED
-        1U, // DIV2
-        2U, // DIV4
-        3U, // DIV8
-        4U, // DIV16
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    0U, // DIV1 - NOT USED
+    1U, // DIV2
+    2U, // DIV4
+    3U, // DIV8
+    4U, // DIV16
 };
 
 
@@ -156,11 +164,21 @@ typedef struct _Clock_Device
 {
     RCC_TypeDef* regmap;
     PWR_TypeDef* regmapPwr;
+    FLASH_TypeDef* regmapFlash;
 
     uint32_t systemCoreClock; /**< Value that store current system core clock */
     uint32_t hclkClock;
     uint32_t pclk1Clock;
     uint32_t pclk2Clock;
+
+    uint32_t pllrClock;
+    uint32_t pllqClock;
+    uint32_t pllpClock;
+    uint32_t pllsai1rClock;
+    uint32_t pllsai1qClock;
+    uint32_t pllsai1pClock;
+    uint32_t pllsai2rClock;
+    uint32_t pllsai2pClock;
 
     uint32_t externalClock;           /**< Oscillator or external clock value */
 
@@ -170,21 +188,24 @@ typedef struct _Clock_Device
     uint8_t devHSIInitialized;
     uint8_t devPLLInitialized;
 
+    Clock_MSIRange deinitRange;
+
     System_Errors rccError;
 
 } Clock_Device;
 
 static Clock_Device clk0 =
 {
-    .regmap    = RCC,
-    .regmapPwr = PWR,
+    .regmap            = RCC,
+    .regmapPwr         = PWR,
+    .regmapFlash       = FLASH,
 
-    .systemCoreClock = 4000000U,
-    .hclkClock       = 0U,
-    .pclk1Clock      = 0U,
-    .pclk2Clock      = 0U,
+    .systemCoreClock   = 4000000U,
+    .hclkClock         = 0U,
+    .pclk1Clock        = 0U,
+    .pclk2Clock        = 0U,
 
-    .externalClock   = 0U,
+    .externalClock     = 0U,
 
     .devLSIInitialized = 0,
     .devLSEInitialized = 0,
@@ -192,7 +213,9 @@ static Clock_Device clk0 =
     .devHSEInitialized = 0,
     .devPLLInitialized = 0,
 
-    .rccError = ERRORS_NO_ERROR,
+    .deinitRange       = CLOCK_MSIRANGE_4MHz,
+
+    .rccError          = ERRORS_NO_ERROR,
 };
 
 /**
@@ -200,40 +223,87 @@ static Clock_Device clk0 =
  */
 static const uint32_t Clock_msiRange[]  =
 {
-      100000,
-      200000,
-      400000,
-      800000,
-     1000000,
-     2000000,
-     4000000,
-     8000000,
+    100000,
+    200000,
+    400000,
+    800000,
+    1000000,
+    2000000,
+    4000000,
+    8000000,
     16000000,
     24000000,
     32000000,
     48000000,
 };
 
+/**
+ * Useful constant to define default value of flash latency based on clock speed.
+ */
+static const uint32_t Clock_flashLatency[] =
+{
+    16000000,
+    32000000,
+    48000000,
+    64000000,
+    80000000,
+};
+
+/**
+ * TODO
+ */
+static System_Errors Clock_deInit (void);
+
+/**
+ * TODO
+ */
+static uint32_t Clock_getActualMsiValue (void);
+
+/**
+ * TODO
+ */
+static uint32_t Clock_getConfigMsiValue (Clock_Config *config);
+
+/**
+ * TODO
+ */
+static uint32_t Clock_getActualPllInputValue (void);
+
+/**
+ * TODO
+ */
+static uint32_t Clock_getConfigPllValue (Clock_Config *config, Clock_PLLConfig *pllConfig);
+
+/**
+ * TODO
+ */
+static uint32_t Clock_getActualSystemValue (void);
+
+/**
+ *
+ */
+static uint32_t Clock_getConfigSystemValue (Clock_Config *config);
+
+/**
+ * TODO
+ */
+static void Clock_setProperFlashLatency (uint32_t frequency)
+{
+    int latency = 0;
+    for (latency = 0; latency < UTILITY_DIMOF(Clock_flashLatency); latency++)
+    {
+        if (frequency <= Clock_flashLatency[latency])
+        {
+            UTILITY_MODIFY_REGISTER(clk0.regmapFlash->ACR, FLASH_ACR_LATENCY_Msk, (latency << FLASH_ACR_LATENCY_Pos));
+            break;
+        }
+    }
+}
 
 static void Clock_updateOutputValue (void)
 {
-    if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE)
-    {
-        clk0.systemCoreClock = clk0.externalClock;
-    }
-    else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI)
-    {
-        clk0.systemCoreClock = CLOCK_FREQ_HSI;
-    }
-    else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_MSI)
-    {
-        uint8_t msirange = (uint8_t)(UTILITY_READ_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_MSISRANGE) >> RCC_CSR_MSISRANGE_Pos);
-        clk0.systemCoreClock = Clock_msiRange[msirange];
-    }
-    else if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL)
-    {
-        // TODO
-    }
+    clk0.systemCoreClock = Clock_getActualSystemValue();
+    uint32_t pllmClock = Clock_getActualPllInputValue();
 
     // Compute HCLK, PCLK1 and PCLK2
     uint32_t cfgr = clk0.regmap->CFGR;
@@ -245,6 +315,28 @@ static void Clock_updateOutputValue (void)
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos;
     clk0.pclk2Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
+
+    uint32_t pllnReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
+    uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
+    uint32_t pllqReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
+    uint32_t pllpReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
+    clk0.pllrClock = (((pllmClock) * pllnReg) / ((pllrReg + 1) * 2));
+    clk0.pllqClock = (((pllmClock) * pllnReg) / ((pllqReg + 1) * 2));
+    clk0.pllpClock = (((pllmClock) * pllnReg) / ((pllpReg == 0)?(7):(17)));
+
+    uint32_t pllsai1nReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1N_Pos;
+    uint32_t pllsai1rReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos;
+    uint32_t pllsai1qReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos;
+    uint32_t pllsai1pReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos;
+    clk0.pllsai1rClock = (((pllmClock) * pllsai1nReg) / ((pllsai1rReg + 1) * 2));
+    clk0.pllsai1qClock = (((pllmClock) * pllsai1nReg) / ((pllsai1qReg + 1) * 2));
+    clk0.pllsai1pClock = (((pllmClock) * pllsai1nReg) / ((pllsai1pReg == 0)?(7):(17)));
+
+    uint32_t pllsai2nReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N_Msk) >> RCC_PLLSAI2CFGR_PLLSAI2N_Pos;
+    uint32_t pllsai2rReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R_Msk) >> RCC_PLLSAI2CFGR_PLLSAI2R_Pos;
+    uint32_t pllsai2pReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R_Msk) >> RCC_PLLSAI2CFGR_PLLSAI2R_Pos;
+    clk0.pllsai2rClock = (((pllmClock) * pllsai2nReg) / ((pllsai2rReg + 1) * 2));
+    clk0.pllsai2pClock = (((pllmClock) * pllsai2nReg) / ((pllsai2pReg == 0)?(7):(17)));
 }
 
 static System_Errors Clock_oscillatorConfig (Clock_Config* config)
@@ -253,7 +345,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 
     if ((config->source & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)
     {
-
+        UTILITY_MODIFY_REGISTER(clk0.regmap->CSR, RCC_CSR_MSISRANGE_Msk, (config->msiRange << RCC_CSR_MSISRANGE_Pos));
     }
 
     // HSE with external clock configuration
@@ -262,15 +354,11 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         // Check the HSE state value
         ohiassert(CLOCK_IS_VALID_HSE_STATE(config->hseState));
 
-        // Check and save external clock value
-        ohiassert(CLOCK_IS_VALID_EXTERNAL_RANGE(config->fext));
-        clk0.externalClock = config->fext;
-
         // Check if HSE is just used as SYSCLK or as PLL source
         // In this case we can't disable it
         if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE) ||
-            (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-             ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSE)))
+           (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+            ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == CLOCK_PLLSOURCE_HSE)))
         {
             return ERRORS_CLOCK_WRONG_CONFIGURATION;
         }
@@ -283,9 +371,12 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is cleared
-                // FIXME: Add timeout...
-                while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0);
-//                return ERRORS_NO_ERROR;
+                tickstart = System_currentTick();
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0)
+                {
+                    if ((System_currentTick() - tickstart) > 5000u)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
             }
             else
             {
@@ -294,9 +385,12 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is set
-                // FIXME: Add timeout...
-                while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0);
-//                return ERRORS_NO_ERROR;
+                tickstart = System_currentTick();
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0)
+                {
+                    if ((System_currentTick() - tickstart) > 5000u)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
             }
         }
     }
@@ -307,15 +401,11 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         // Check the HSE state value
         ohiassert(CLOCK_IS_VALID_HSE_STATE(config->hseState));
 
-        // Check and save external clock value
-        ohiassert(CLOCK_IS_VALID_EXTERNAL_RANGE(config->fext));
-        clk0.externalClock = config->fext;
-
         // Check if HSE is just used as SYSCLK or as PLL source
         // In this case we can't disable it
         if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE) ||
-            (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-             ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSE)))
+           (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+            ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == CLOCK_PLLSOURCE_HSE)))
         {
             return ERRORS_CLOCK_WRONG_CONFIGURATION;
         }
@@ -328,9 +418,12 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is cleared
-                // FIXME: Add timeout...
-                while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0);
-//                return ERRORS_NO_ERROR;
+                tickstart = System_currentTick();
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) > 0)
+                {
+                    if ((System_currentTick() - tickstart) > 5000u)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
             }
             else
             {
@@ -339,9 +432,12 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEBYP);
 
                 // Wait until the HSERDY bit is set
-                // FIXME: Add timeout...
-                while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0);
-//                return ERRORS_NO_ERROR;
+                tickstart = System_currentTick();
+                while ((clk0.regmap->CR & RCC_CR_HSERDY) == 0)
+                {
+                    if ((System_currentTick() - tickstart) > 5000u)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
             }
         }
     }
@@ -355,8 +451,8 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         // Check if HSI is just used as SYSCLK or as PLL source
         // In this case we can't disable it
         if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) ||
-            (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-             ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == RCC_PLLSOURCE_HSI)))
+           (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+            ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == CLOCK_PLLSOURCE_HSI)))
         {
             return ERRORS_CLOCK_WRONG_CONFIGURATION;
         }
@@ -368,9 +464,12 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSION);
 
                 // Wait until the HSERDY bit is cleared
-                // FIXME: Add timeout...
-                while ((clk0.regmap->CR & RCC_CR_HSIRDY) > 0);
-//                return ERRORS_NO_ERROR;
+                tickstart = System_currentTick();
+                while ((clk0.regmap->CR & RCC_CR_HSIRDY) > 0)
+                {
+                    if ((System_currentTick() - tickstart) > 5000u)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
             }
             else
             {
@@ -378,9 +477,12 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSION);
 
                 // Wait until the HSERDY bit is set
-                // FIXME: Add timeout...
-                while ((clk0.regmap->CR & RCC_CR_HSIRDY) == 0);
-//                return ERRORS_NO_ERROR;
+                tickstart = System_currentTick();
+                while ((clk0.regmap->CR & RCC_CR_HSIRDY) == 0)
+                {
+                    if ((System_currentTick() - tickstart) > 5000u)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
             }
         }
     }
@@ -396,9 +498,8 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             // Switch off the oscillator
             UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSION);
 
-            tickstart = System_currentTick();
-
             // Wait until LSI is disabled
+            tickstart = System_currentTick();
             while ((clk0.regmap->CSR & RCC_CSR_LSIRDY) > 0)
             {
                 if ((System_currentTick() - tickstart) > 2u)
@@ -410,9 +511,8 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             // Switch on the oscillator
             UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSION);
 
-            tickstart = System_currentTick();
-
             // Wait until LSI is ready
+            tickstart = System_currentTick();
             while ((clk0.regmap->CSR & RCC_CSR_LSIRDY) == 0)
             {
                 if ((System_currentTick() - tickstart) > 2u)
@@ -450,12 +550,10 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             // Switch off the oscillator
             UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->BDCR,RCC_BDCR_LSEON);
 
-            tickstart = System_currentTick();
-
             // Wait until LSE is disabled
+            tickstart = System_currentTick();
             while ((clk0.regmap->BDCR & RCC_BDCR_LSERDY) > 0)
             {
-                // Wait 5s
                 if ((System_currentTick() - tickstart) > 5000u)
                     return ERRORS_CLOCK_TIMEOUT;
             }
@@ -465,12 +563,10 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             // Switch on the oscillator
             UTILITY_SET_REGISTER_BIT(clk0.regmap->BDCR,RCC_BDCR_LSEON);
 
-            tickstart = System_currentTick();
-
             // Wait until LSE is ready
+            tickstart = System_currentTick();
             while ((clk0.regmap->BDCR & RCC_BDCR_LSERDY) == 0)
             {
-                // Wait 5s
                 if ((System_currentTick() - tickstart) > 5000u)
                     return ERRORS_CLOCK_TIMEOUT;
             }
@@ -482,6 +578,129 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             CLOCK_DISABLE_PWR();
         }
     }
+
+    if (config->pllState == CLOCK_OSCILLATORSTATE_ON && config->sysSource == CLOCK_SYSTEMSOURCE_PLL)
+    {
+        //*** PLL ***/
+        //1. Disable the PLL by setting PLLON to 0 in Clock control register (RCC_CR).
+        UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLON);
+        //2. Wait until PLLRDY is cleared. The PLL is now fully stopped.
+        tickstart = System_currentTick();
+        while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLRDY) == 1)
+        {
+            if ((System_currentTick() - tickstart) > 5000u)
+                return ERRORS_CLOCK_TIMEOUT;
+        }
+        //3. Change the desired parameter.
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLSRC_Msk, (config->pllSource << RCC_PLLCFGR_PLLSRC_Pos));
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLM_Msk, (config->pllPrescaler << RCC_PLLCFGR_PLLM_Pos)); // /->M
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk, (config->pll.multiplier << RCC_PLLCFGR_PLLN_Pos)); // ->*N
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk, (config->pll.dividerR << RCC_PLLCFGR_PLLR_Pos)); // /R->
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLQ_Msk, (config->pll.dividerQ << RCC_PLLCFGR_PLLQ_Pos)); // /Q->
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLP_Msk, (config->pll.dividerP << RCC_PLLCFGR_PLLP_Pos)); // /P->
+        //4. Enable the PLL again by setting PLLON to 1.
+        UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLON);
+
+        //5. Enable the desired PLL outputs by configuring PLLPEN, PLLQEN, PLLREN in PLL configuration register (RCC_PLLCFGR).
+        if ((config->output & CLOCK_OUTPUT_PLLR) && (config->pll.dividerR != CLOCK_PLLDIVIDER_R_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLREN);
+        }
+        if ((config->output & CLOCK_OUTPUT_PLLQ) && (config->pll.dividerQ != CLOCK_PLLDIVIDER_Q_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLQEN);
+        }
+        if ((config->output & CLOCK_OUTPUT_PLLP) && (config->pll.dividerP != CLOCK_PLLDIVIDER_P_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLPEN);
+        }
+        //6. Wait until PLLRDY is set. The PLL is now running.
+        if ((config->output & CLOCK_OUTPUT_PLLR) || (config->output & CLOCK_OUTPUT_PLLQ) || (config->output & CLOCK_OUTPUT_PLLP))
+        {
+            tickstart = System_currentTick();
+            while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLRDY) == 0)
+            {
+                if ((System_currentTick() - tickstart) > 5000u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+
+        //*** PLLSAI1, PLLSAI2 ***/
+        //1. Disable the PLLSAI1/PLLSAI2 by setting PLLSAI1ON/PLLSAI2ON to 0 in Clock control register (RCC_CR).
+        UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLSAI1ON);
+        UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLSAI2ON);
+        //2. Wait until PLLSAI1RDY/PLLSAI2RDY is cleared. The PLLSAI1/PLLSAI2 is now fully stopped.
+        tickstart = System_currentTick();
+        while ((UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLSAI1RDY) == 1) || (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLSAI2RDY) == 1))
+        {
+            if ((System_currentTick() - tickstart) > 5000u)
+                return ERRORS_CLOCK_TIMEOUT;
+        }
+        //3. Change the desired parameter.
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N_Msk, (config->pllSai1.multiplier << RCC_PLLSAI1CFGR_PLLSAI1N_Pos)); // ->*N
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk, (config->pllSai1.dividerR << RCC_PLLSAI1CFGR_PLLSAI1R_Pos)); // /R->
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1Q_Msk, (config->pllSai1.dividerQ << RCC_PLLSAI1CFGR_PLLSAI1Q_Pos)); // /Q->
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1P_Msk, (config->pllSai1.dividerP << RCC_PLLSAI1CFGR_PLLSAI1P_Pos)); // /P->
+
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N_Msk, (config->pllSai2.multiplier << RCC_PLLSAI2CFGR_PLLSAI2N_Pos)); // ->*N
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R_Msk, (config->pllSai2.dividerR << RCC_PLLSAI2CFGR_PLLSAI2R_Pos)); // /R->
+        UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2P_Msk, (config->pllSai2.dividerP << RCC_PLLSAI2CFGR_PLLSAI2P_Pos)); // /P->
+        //4. Enable the PLLSAI1/PLLSAI2 again by setting PLLSAI1ON/PLLSAI2ON to 1.
+        if (config->output & CLOCK_OUTPUT_PLLSAI1R)
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLSAI1ON);
+        }
+        if (config->output & CLOCK_OUTPUT_PLLSAI2R)
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLSAI2ON);
+        }
+        //5. Enable the desired PLL outputs by configuring PLLSAI1PEN/PLLSAI2PEN, PLLSAI1QEN/PLLSAI2QEN, PLLSAI1REN/PLLSAI2REN in PLLSAI1 configuration register (RCC_PLLSAI1CFGR) and PLLSAI2 configuration register (RCC_PLLSAI2CFGR).
+        if ((config->output & CLOCK_OUTPUT_PLLSAI1R) && (config->pllSai1.dividerR != CLOCK_PLLDIVIDER_R_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1REN);
+        }
+        if ((config->output & CLOCK_OUTPUT_PLLSAI1Q) && (config->pllSai1.dividerQ != CLOCK_PLLDIVIDER_Q_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1QEN);
+        }
+        if ((config->output & CLOCK_OUTPUT_PLLSAI1P) && (config->pllSai1.dividerP != CLOCK_PLLDIVIDER_P_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1PEN);
+        }
+        if ((config->output & CLOCK_OUTPUT_PLLSAI2R) && (config->pllSai2.dividerR != CLOCK_PLLDIVIDER_R_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2REN);
+        }
+        if ((config->output & CLOCK_OUTPUT_PLLSAI2P) && (config->pllSai2.dividerP != CLOCK_PLLDIVIDER_P_DISABLED))
+        {
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2PEN);
+        }
+        //6a. Wait until PLLSAI1RDY is set. The PLLSAI1 is now running.
+        if ((config->output & CLOCK_OUTPUT_PLLSAI1R) ||
+            (config->output & CLOCK_OUTPUT_PLLSAI1Q) ||
+            (config->output & CLOCK_OUTPUT_PLLSAI1P))
+        {
+            tickstart = System_currentTick();
+            while ((UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLSAI1RDY) == 0))
+            {
+                if ((System_currentTick() - tickstart) > 5000u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+        //6b. Wait until PLLSAI2RDY is set. The PLLSAI2 is now running.
+        if ((config->output & CLOCK_OUTPUT_PLLSAI2R) || (config->output & CLOCK_OUTPUT_PLLSAI2P))
+        {
+            tickstart = System_currentTick();
+            while ((UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLSAI2RDY) == 0))
+            {
+                if ((System_currentTick() - tickstart) > 5000u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+    }
+
+    UTILITY_MODIFY_REGISTER(clk0.regmap->CFGR, RCC_CFGR_MCOSEL_Msk, (config->mcoSource << RCC_CFGR_MCOSEL_Pos));
+    UTILITY_MODIFY_REGISTER(clk0.regmap->CFGR, RCC_CFGR_MCOPRE_Msk, (config->mcoPrescaler << RCC_CFGR_MCOPRE_Pos));
 
     return ERRORS_NO_ERROR;
 }
@@ -542,9 +761,12 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         clk0.regmap->CFGR |= cfgrSW;
 
         // Check if new value was setted
-        while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) != (cfgrSW << RCC_CFGR_SWS_Pos));
-
-        // FIXME: add timeout!
+        uint32_t tickstart = System_currentTick();
+        while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR,RCC_CFGR_SWS) != (cfgrSW << RCC_CFGR_SWS_Pos))
+        {
+            if ((System_currentTick() - tickstart) > 5000u)
+                return ERRORS_CLOCK_TIMEOUT;
+        }
     }
 
     if ((config->output & CLOCK_OUTPUT_HCLK) == CLOCK_OUTPUT_HCLK)
@@ -585,6 +807,26 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
 
 System_Errors Clock_init (Clock_Config* config)
 {
+    // Check and save external clock value
+    // update value of external source
+    // (this value can be used after for calculate clock)
+    if ((config->source == CLOCK_CRYSTAL) || (config->source == CLOCK_EXTERNAL))
+    {
+        ohiassert(CLOCK_IS_VALID_EXTERNAL_RANGE(config->fext));
+        clk0.externalClock = config->fext;
+    }
+    else
+    {
+        clk0.externalClock = 0;
+    }
+
+    //Reset Clock state
+    Clock_deInit();
+
+    //calculate value of clock
+    uint32_t currentSystemClock = Clock_getActualSystemValue();
+    uint32_t newSystemClock = Clock_getConfigSystemValue(config);
+
     System_Errors err = ERRORS_NO_ERROR;
 
     if (config == NULL)
@@ -594,17 +836,28 @@ System_Errors Clock_init (Clock_Config* config)
 
     // Check if selected oscillator is valid
     ohiassert(CLOCK_IS_VALID_OSCILLATOR(config->source));
+    // Check whether user choice only one type of external reference: clock or crystal
+    if ((config->source & (CLOCK_EXTERNAL | CLOCK_CRYSTAL)) != 0)
+    {
+        ohiassert(((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL) ^
+                  ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL));
+    }
+    ohiassert(CLOCK_IS_VALID_PLL_SOURCE(config->pllSource)); //LSI and LSE are not valid; MSI, HSI and HSE are valid.
+    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pll)); //The PLL output frequency must not exceed 80 MHz.
+    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai1)); //The PLL output frequency must not exceed 80 MHz.
+    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai2)); //The PLL output frequency must not exceed 80 MHz.
 
     // Setup default value of internal clock
     Clock_updateOutputValue();
     // Initialize SysTick with default clock value (MSI @ 4MHz)
     System_systickInit(0);
 
-    // Check if both EXTERN and CRYSTAL are selected
-    // HSE support only one of these condition
-    // FIXME
-//    ohiassert(((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL) ^
-//              ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL));
+    // if frequency is increasing
+    if (newSystemClock > currentSystemClock)
+    {
+        // set flash latency before to change clock
+        Clock_setProperFlashLatency(newSystemClock);
+    }
 
     err = Clock_oscillatorConfig(config);
 
@@ -614,13 +867,104 @@ System_Errors Clock_init (Clock_Config* config)
     err = Clock_outputConfig(config);
     if (err != ERRORS_NO_ERROR)
     {
-        // TODO:
+        Clock_deInit();
     }
 
+    // if frequency is decreasing
+    if(newSystemClock < currentSystemClock)
+    {
+        // set flash latency after changed clock
+        Clock_setProperFlashLatency(newSystemClock);
+    }
+
+    // Setup default value of internal clock
+    Clock_updateOutputValue();
     // Initialize SysTick with new value of HCLK
     System_systickInit(0);
 
     return err;
+}
+
+void Clock_setMsiRangeSwitching (Clock_MSIRange msi)
+{
+    if ((msi >= CLOCK_MSIRANGE_100KHz) && (msi <= CLOCK_MSIRANGE_24MHz))
+    {
+        clk0.deinitRange = msi;
+    }
+}
+
+static System_Errors Clock_deInit (void)
+{
+    uint32_t tickstart = 0;
+
+    // Set MSI ON
+    UTILITY_SET_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSION);
+
+    // Wait until MSI is ready
+    tickstart = System_currentTick();
+    while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSION) == 0)
+    {
+        if ((System_currentTick() - tickstart) > 5000u)
+            return ERRORS_CLOCK_TIMEOUT;
+    }
+
+    // Set MSIRANGE  default value
+    UTILITY_SET_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSIRGSEL);
+    UTILITY_MODIFY_REGISTER(clk0.regmap->CR, RCC_CR_MSIRANGE, clk0.deinitRange);
+
+    // Clear RCC Configuration (MSI is selected as system clock)
+    UTILITY_WRITE_REGISTER(clk0.regmap->CFGR, 0);
+
+    // Setup default value of internal clock
+    Clock_updateOutputValue();
+    // Initialize SysTick with default clock value (MSI @ selected range)
+    System_systickInit(0);
+
+    // Wait until system clock is ready
+    tickstart = System_currentTick();
+    while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR, RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI)
+    {
+        if ((System_currentTick() - tickstart) > 5000u)
+            return ERRORS_CLOCK_TIMEOUT;
+    }
+
+    // Clear HSI, HSE and PLL
+    UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR, RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON| RCC_CR_HSIASFS | RCC_CR_PLLON | RCC_CR_PLLSAI1ON | RCC_CR_PLLSAI2ON);
+
+    // Wait until PLLs are reset
+    tickstart = System_currentTick();
+    while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY | RCC_CR_PLLSAI2RDY) != 0)
+    {
+        if ((System_currentTick() - tickstart) > 5000u)
+            return ERRORS_CLOCK_TIMEOUT;
+    }
+
+    // Reset PLL Configurations
+    UTILITY_WRITE_REGISTER(clk0.regmap->PLLCFGR, 0);
+    UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_4);
+
+    UTILITY_WRITE_REGISTER(clk0.regmap->PLLSAI1CFGR, 0);
+    UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N_4);
+
+    UTILITY_WRITE_REGISTER(clk0.regmap->PLLSAI2CFGR, 0);
+    UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N_4);
+
+    // Reset HSEBYP
+    UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR, RCC_CR_HSEBYP);
+
+    // Disable all interrupts
+    UTILITY_WRITE_REGISTER(clk0.regmap->CIER, 0U);
+
+    // Clear all interrupts
+    UTILITY_WRITE_REGISTER(clk0.regmap->CICR, 0xFFFFFFFFU);
+
+    // Clear all reset flags
+    UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR, RCC_CSR_RMVF);
+
+    Clock_setProperFlashLatency(Clock_getActualSystemValue());
+
+    // return NO_ERROR
+    return ERRORS_NO_ERROR;
 }
 
 uint32_t Clock_getOutputValue (Clock_Output output)
@@ -635,24 +979,185 @@ uint32_t Clock_getOutputValue (Clock_Output output)
         return clk0.pclk1Clock;
     case CLOCK_OUTPUT_PCLK2:
         return clk0.pclk2Clock;
+
+    case CLOCK_OUTPUT_PLLR:
+        return clk0.pllrClock;
+    case CLOCK_OUTPUT_PLLQ:
+        return clk0.pllqClock;
+    case CLOCK_OUTPUT_PLLP:
+        return clk0.pllpClock;
+
+    case CLOCK_OUTPUT_PLLSAI1R:
+        return clk0.pllsai1rClock;
+    case CLOCK_OUTPUT_PLLSAI1Q:
+        return clk0.pllsai1qClock;
+    case CLOCK_OUTPUT_PLLSAI1P:
+        return clk0.pllsai1pClock;
+
+    case CLOCK_OUTPUT_PLLSAI2R:
+        return clk0.pllsai2rClock;
+    case CLOCK_OUTPUT_PLLSAI2P:
+        return clk0.pllsai2pClock;
+
     default:
         return 0;
     }
 }
 
-uint32_t Clock_getOscillatorValue (Clock_Origin source)
+uint32_t Clock_getOscillatorValue (void)
 {
-    switch (source)
+    return clk0.systemCoreClock;
+}
+
+static uint32_t Clock_getActualMsiValue (void)
+{
+    uint32_t msiClock = 0, msiRange = 0;
+    if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSIRGSEL_Msk) == 0)
     {
-    case CLOCK_EXTERNAL:
-        if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSEON) == RCC_CR_HSEON)
-            return clk0.externalClock;
-        else
-            return 0;
-        break;
-    default:
-        return 0;
+        msiRange = (UTILITY_READ_REGISTER_BIT(clk0.regmap->CSR, RCC_CSR_MSISRANGE_Msk) >> RCC_CSR_MSISRANGE_Pos);
+        msiClock = Clock_msiRange[msiRange];
     }
+    else
+    {
+        msiRange = (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSIRANGE_Msk) >> RCC_CR_MSIRANGE_Pos);
+        msiClock = Clock_msiRange[msiRange];
+    }
+    return msiClock;
+}
+
+static uint32_t Clock_getConfigMsiValue (Clock_Config* config)
+{
+    return Clock_msiRange[config->msiRange];
+}
+
+static uint32_t Clock_getActualPllInputValue(void)
+{
+    uint32_t baseClock = 0, pllmClock = 0;
+    Clock_PllSource pllSource = (Clock_PllSource)(UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLSRC_Msk));
+    uint32_t pllmReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLM_Msk) >> RCC_PLLCFGR_PLLM_Pos;
+
+    switch (pllSource)
+    {
+    default:
+    case CLOCK_PLLSOURCE_NONE:
+        baseClock = 0;
+        break;
+    case CLOCK_PLLSOURCE_MSI:
+        baseClock = Clock_getActualMsiValue();
+        break;
+    case CLOCK_PLLSOURCE_HSI:
+        baseClock = CLOCK_FREQ_HSI;
+        break;
+    case CLOCK_PLLSOURCE_HSE:
+        baseClock = clk0.externalClock;
+        break;
+    }
+
+    pllmClock = ((baseClock) / (pllmReg + 1));
+    return pllmClock;
+}
+
+static uint32_t Clock_getConfigPllValue (Clock_Config* config, Clock_PLLConfig *pllConfig)
+{
+    uint32_t base = 0, frequency = 0;
+
+    switch(config->pllSource)
+    {
+    default:
+    case CLOCK_PLLSOURCE_NONE:
+        return 0;
+
+    case CLOCK_PLLSOURCE_MSI:
+        base = Clock_msiRange[config->msiRange];
+        break;
+
+    case CLOCK_PLLSOURCE_HSI:
+        base = CLOCK_FREQ_HSI;
+        break;
+
+    case CLOCK_PLLSOURCE_HSE:
+        base = clk0.externalClock;
+        break;
+    }
+
+    frequency = base / (config->pllPrescaler + 1);
+    frequency *= pllConfig->multiplier;
+
+    switch (pllConfig->dividerR)
+    {
+    case CLOCK_PLLDIVIDER_R_2:
+        frequency /= 2;
+        break;
+
+    case CLOCK_PLLDIVIDER_R_4:
+        frequency /= 4;
+        break;
+
+    case CLOCK_PLLDIVIDER_R_6:
+        frequency /= 6;
+        break;
+
+    default:
+    case CLOCK_PLLDIVIDER_R_8:
+        frequency /= 8;
+        break;
+    }
+
+    return frequency;
+}
+
+static uint32_t Clock_getActualSystemValue (void)
+{
+    uint32_t systemClock = 0;
+    Clock_SystemSourceSws sysclkSource = (Clock_SystemSourceSws)(UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR, RCC_CFGR_SWS_Msk) >> RCC_CFGR_SWS_Pos);
+
+    switch (sysclkSource)
+    {
+    default:
+    case CLOCK_SYSTEMSOURCESWS_MSI:
+        systemClock = Clock_getActualMsiValue();
+        break;
+    case CLOCK_SYSTEMSOURCESWS_HSI:
+        systemClock = CLOCK_FREQ_HSI;
+        break;
+    case CLOCK_SYSTEMSOURCESWS_HSE:
+        systemClock = clk0.externalClock;
+        break;
+    case CLOCK_SYSTEMSOURCESWS_PLL:
+    {
+        uint32_t pllmClock = Clock_getActualPllInputValue();
+        uint32_t pllnReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
+        uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
+        systemClock = (((pllmClock) * pllnReg) / ((pllrReg + 1) * 2));
+    }
+        break;
+    }
+
+    return systemClock;
+}
+
+static uint32_t Clock_getConfigSystemValue (Clock_Config *config)
+{
+    uint32_t systemClock = 0;
+
+    switch (config->sysSource)
+    {
+    default:
+    case CLOCK_SYSTEMSOURCE_MSI:
+        systemClock = Clock_getConfigMsiValue(config);
+        break;
+    case CLOCK_SYSTEMSOURCE_HSI:
+        systemClock = CLOCK_FREQ_HSI;
+        break;
+    case CLOCK_SYSTEMSOURCE_HSE:
+        systemClock = clk0.externalClock;
+        break;
+    case CLOCK_SYSTEMSOURCE_PLL:
+        systemClock = Clock_getConfigPllValue(config, &config->pll);
+        break;
+    }
+
+    return systemClock;
 }
 
 #endif // LIBOHIBOARD_STM32L4

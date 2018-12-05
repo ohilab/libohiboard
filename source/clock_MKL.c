@@ -44,9 +44,26 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_MKL)
 
+#define CLOCK_CLEAR_CHANGE_PARAM(DEVICE) do {                                             \
+                                             DEVICE.changeParam.range0 = 0;               \
+                                             DEVICE.changeParam.frdiv = 0;                \
+                                             DEVICE.changeParam.frdivValue = 0;           \
+                                             DEVICE.changeParam.outdiv1 = 0;              \
+                                             DEVICE.changeParam.erefs0 = 0;               \
+                                             DEVICE.changeParam.fcrdiv = 0;               \
+                                             DEVICE.changeParam.fcrdivValue = 0;          \
+                                             DEVICE.changeParam.ircs = 0;                 \
+                                             DEVICE.changeParam.dmx_drst = 0;             \
+                                             DEVICE.changeParam.prdiv = 0;                \
+                                             DEVICE.changeParam.vdiv = 0;                 \
+                                             DEVICE.changeParam.foutMcg = 0;              \
+                                             DEVICE.changeParam.final = CLOCK_STATE_NONE; \
+                                         } while(0)
+
 typedef struct _Clock_Device
 {
     MCG_Type* regmap;
+    SIM_Type* regmapSim;
 
     Clock_State  state;                                /**< Current MCG state */
 
@@ -66,9 +83,19 @@ typedef struct _Clock_Device
 
         uint16_t outdiv1;
 
+        /**
+         * External Reference Select: selects the source for the external
+         * reference clock.
+         */
+        uint8_t erefs0;
+
         uint8_t fcrdiv;
         uint8_t fcrdivValue;
 
+        /**
+         * Internal Reference Clock Select: selects between the fast or slow
+         * internal reference clock source.
+         */
         uint8_t ircs;
 
         uint8_t dmx_drst;
@@ -174,6 +201,13 @@ static const uint32_t CLOCK_LIRC_MULTIPLIER_TABLE[3] =
     1280
 };
 
+static const uint32_t CLOCK_LIRC_MULTIPLIER_REGISTER[3] =
+{
+    0,
+    0,
+    MCG_C4_DRST_DRS(1)
+};
+
 /**
  * Useful array for map FLL multiplier in FEE mode.
  */
@@ -236,9 +270,14 @@ static const Clock_State Clock_mcgStateMatrix[8][8] =
 //   CLOCK_STATE_FEI  CLOCK_STATE_FBI  CLOCK_STATE_BLPI  CLOCK_STATE_FEE  CLOCK_STATE_FBE  CLOCK_STATE_BLPE  CLOCK_STATE_PBE  CLOCK_STATE_PEE
 };
 
+static System_Errors Clock_stateTransition (void)
+{
+
+}
+
 System_Errors Clock_init (Clock_Config* config)
 {
-    System_Errors err = ERRORS_NO_ERROR;
+    bool isConfigFound = FALSE;
 
     if (config == NULL)
     {
@@ -268,13 +307,25 @@ System_Errors Clock_init (Clock_Config* config)
             clk.changeParam.frdivValue = CLOCK_FRDIV_TABLE[clk.changeParam.frdiv];
         }
 
+        // Save crystal or external clock option
+        if (config->source == CLOCK_CRYSTAL)
+        {
+            // Oscillator requested
+            clk.changeParam.erefs0 = MCG_C2_EREFS0_MASK;
+        }
+        else
+        {
+            // External reference clock requested
+            clk.changeParam.erefs0 = 0u;
+        }
+
         // Save external clock/oscillator value
         clk.externalClock = config->fext;
     }
 
     // Compute the OUTDIV1 value based on source choose and desired output value
     uint32_t foutMcg = 0;
-    for (uint8_t div = 1; div < 17; ++div)
+    for (uint8_t div = CLOCK_REG_OUTDIV1_MIN; div < (CLOCK_REG_OUTDIV1_MAX + 1); ++div)
     {
         foutMcg = config->foutSys * div;
 
@@ -285,11 +336,12 @@ System_Errors Clock_init (Clock_Config* config)
                 clk.changeParam.final = CLOCK_STATE_BLPE;
                 clk.changeParam.outdiv1 = div - 1;
                 clk.changeParam.foutMcg = foutMcg;
+                isConfigFound = TRUE;
                 // Exit from OUTDIV1 searching...
-                break;
+                goto clock_config_result;
             }
 
-            // Check with FLL
+            // Try with FLL
             if ((foutMcg < (CLOCK_FREQ_FLL_LOWRANGE_MIN)) ||
                (((CLOCK_FREQ_FLL_LOWRANGE_MAX) < foutMcg) && (foutMcg < (CLOCK_FREQ_FLL_MIDRANGE_MIN))) ||
                (foutMcg > (CLOCK_FREQ_MCGPLL_MAX)))
@@ -299,32 +351,33 @@ System_Errors Clock_init (Clock_Config* config)
             }
             else
             {
-                uint32_t fllfrequency = 0;
+                uint32_t fllfrequency = config->fext/clk.changeParam.frdivValue;
                 for (uint8_t fllmul = 0; fllmul < 4; ++fllmul)
                 {
-                    fllfrequency = config->fext/clk.changeParam.frdivValue;
-                    if (foutMcg == fllfrequency*CLOCK_FLL_MULTIPLIER_TABLE[fllmul])
+                    if (foutMcg == (fllfrequency*CLOCK_FLL_MULTIPLIER_TABLE[fllmul]))
                     {
                         clk.changeParam.final = CLOCK_STATE_FEE;
                         clk.changeParam.outdiv1 = div - 1;
                         clk.changeParam.foutMcg = foutMcg;
                         clk.changeParam.dmx_drst = CLOCK_FLL_MULTIPLIER_REGISTER[fllmul];
+                        isConfigFound = TRUE;
                         // Exit from OUTDIV1 searching...
-                        break;
+                        goto clock_config_result;
                     }
                 }
             }
 
-            // Check with PLL
+            // Try with PLL
             uint32_t pllfrequency = 0, plloutfrequency = 0, plldiff = 200000000u;
-            for (uint8_t prdiv = 1; prdiv < (CLOCK_REG_PRDIV_MAX + 1); ++prdiv)
+            uint8_t prdiv, vdiv;
+            for (prdiv = 1; prdiv < (CLOCK_REG_PRDIV_MAX + 1); ++prdiv)
             {
                 pllfrequency = config->fext/prdiv;
                 // Check PLL input range
                 if ((pllfrequency >= CLOCK_FREQ_PLL_INPUT_MIN) &&
                     (pllfrequency <= CLOCK_FREQ_PLL_INPUT_MAX))
                 {
-                    for (uint8_t vdiv = CLOCK_REG_VDIV_MIN; vdiv < (CLOCK_REG_VDIV_MAX + 1); ++vdiv)
+                    for (vdiv = CLOCK_REG_VDIV_MIN; vdiv < (CLOCK_REG_VDIV_MAX + 1); ++vdiv)
                     {
                         plloutfrequency = pllfrequency * vdiv;
                         // Check the output limit
@@ -361,12 +414,46 @@ System_Errors Clock_init (Clock_Config* config)
             {
                 clk.changeParam.prdiv = 0;
                 clk.changeParam.vdiv  = 0;
+                continue;
             }
-
+            else
+            {
+                clk.changeParam.final = CLOCK_STATE_PEE;
+                clk.changeParam.foutMcg = ((config->fext/(prdiv)) * vdiv);
+                clk.changeParam.outdiv1 = div - 1;
+                isConfigFound = TRUE;
+                // Exit from OUTDIV1 searching...
+                goto clock_config_result;
+            }
         }
         else if (config->source == CLOCK_INTERNAL_LIRC)
         {
-            // TODO
+            uint32_t lfrequency = 0;
+            for (uint8_t mul = 0; mul < 3; ++mul)
+            {
+                lfrequency = CLOCK_FREQ_INTERNAL_LIRC*CLOCK_LIRC_MULTIPLIER_TABLE[mul];
+                if (((lfrequency - lfrequency/100) >= foutMcg) &&
+                    ((lfrequency + lfrequency/100) <= foutMcg))
+                {
+                    // Save clock
+                    if (mul == 0)
+                    {
+                        clk.changeParam.final = CLOCK_STATE_BLPI;
+                    }
+                    else
+                    {
+                        clk.changeParam.final = CLOCK_STATE_FEI;
+                        clk.changeParam.dmx_drst = CLOCK_LIRC_MULTIPLIER_REGISTER[mul];
+                    }
+                    // Slow internal reference clock selected
+                    clk.changeParam.ircs = 0;
+                    clk.changeParam.foutMcg = lfrequency;
+                    clk.changeParam.outdiv1 = div - 1;
+                    isConfigFound = TRUE;
+                    // Exit from OUTDIV1 searching...
+                    goto clock_config_result;
+                }
+            }
         }
         else if (config->source == CLOCK_INTERNAL_HIRC)
         {
@@ -380,20 +467,42 @@ System_Errors Clock_init (Clock_Config* config)
                     // Save clock
                     clk.changeParam.final = CLOCK_STATE_BLPI;
                     clk.changeParam.foutMcg = hfrequency;
+                    // Fast internal reference clock selected
                     clk.changeParam.ircs = MCG_C2_IRCS_MASK;
                     clk.changeParam.fcrdiv = MCG_SC_FCRDIV(fcrdiv);
                     clk.changeParam.fcrdivValue = CLOCK_FCRDIV_TABLE[fcrdiv];
                     clk.changeParam.outdiv1 = div - 1;
+                    isConfigFound = TRUE;
                     // Exit from OUTDIV1 searching...
-                    break;
+                    goto clock_config_result;
                 }
             }
         }
     }
 
-    // Change operation mode...
+clock_config_result:
+
+    if (isConfigFound == FALSE)
+    {
+        CLOCK_CLEAR_CHANGE_PARAM(clk);
+        return ERRORS_CLOCK_WRONG_CONFIGURATION;
+    }
+
+    // Setup MCGCLKOUT to system clock divider
+    uint32_t tempReg = clk.regmapSim->CLKDIV1;
+    tempReg &= (~(SIM_CLKDIV1_OUTDIV1_MASK));
+    tempReg |= (SIM_CLKDIV1_OUTDIV1(clk.changeParam.outdiv1));
+    clk.regmapSim->CLKDIV1 = tempReg;
+
+    // Change operation mode
+    Clock_stateTransition();
 
     return ERRORS_NO_ERROR;
+}
+
+System_Errors Clock_deInit (Clock_Config* config)
+{
+
 }
 
 Clock_State Clock_getCurrentState ()

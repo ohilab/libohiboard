@@ -76,6 +76,9 @@ extern "C" {
 #define CLOCK_REG_VDIV_MIN                             (24u)
 #define CLOCK_REG_VDIV_MAX                             (55u)
 
+#define CLOCK_REG_OUTDIV1_MIN                           (1u)
+#define CLOCK_REG_OUTDIV1_MAX                          (16u)
+
 #endif // LIBOHIBOARD_MKL
 
 #ifdef __cplusplus

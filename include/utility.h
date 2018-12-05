@@ -5,6 +5,7 @@
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Leonardo Morichelli
  *  
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +29,7 @@
 /**
  * @file libohiboard/include/utility.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Leonardo Morichelli
  * @brief Useful functions and definitions.
  */
 
@@ -73,7 +75,12 @@ typedef enum _Utility_State
 #define UTILITY_VALID_STATE(STATE) (((STATE) == UTILITY_STATE_ENABLE) || \
                                     ((STATE) == UTILITY_STATE_DISABLE))
 
-#define dimof(a)                    (sizeof(a)/sizeof(a[0]))
+/**
+ * This macro return the dimension of an array.
+ *
+ * @param ARRAYDIM The array
+ */
+#define UTILITY_DIMOF(ARRAYDIM) (sizeof(ARRAYDIM)/sizeof(ARRAYDIM[0]))
 
 extern const char hexDigits[];
 

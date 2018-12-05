@@ -42,6 +42,17 @@ extern "C" {
 
 #if defined(LIBOHIBOARD_STM32L4)
 
+#if defined (LIBOHIBOARD_STM32L476)
+
+#define CLOCK_MIN_FREQ_HSE                     4000000u
+#define CLOCK_MAX_FREQ_HSE                    48000000u
+#define CLOCK_MAX_FREQ_PLL                    80000000u
+#define CLOCK_FREQ_HSI                        16000000u
+#define CLOCK_FREQ_LSE                ((uint32_t)32768u)
+#define CLOCK_FREQ_LSI                ((uint32_t)32000u)
+
+#endif
+
 #define CLOCK_ENABLE_SYSCFG() do { \
                                 UTILITY_SET_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
                                 asm("nop"); \
