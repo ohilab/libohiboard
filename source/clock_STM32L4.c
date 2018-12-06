@@ -250,53 +250,80 @@ static const uint32_t Clock_flashLatency[] =
 };
 
 /**
- * TODO
+ * Deinitialize Clock configuration registers.
+ *
+ * @return ERRORS_NO_ERROR without problems
+ * @note This function is used before set a new clock configuration.
  */
 static System_Errors Clock_deInit (void);
 
 /**
- * TODO
+ * Return the clock provided by MSI set in register configuration.
+ *
+ * @return value of MSI clock.
  */
 static uint32_t Clock_getActualMsiValue (void);
 
 /**
- * TODO
+ * Return the clock set for MSI in configuration struct.
+ *
+ * @param[in] config configuration struct.
+ *
+ * @return value of MSI clock
  */
 static uint32_t Clock_getConfigMsiValue (Clock_Config *config);
 
 /**
- * TODO
+ * Return the source clock of PLL.
+ *
+ * @return value of PLL source clock.
  */
 static uint32_t Clock_getActualPllInputValue (void);
 
 /**
- * TODO
+ * Return the source clock of PLL set in configuration struct.
+ *
+ * @param[in] config configuration struct.
+ *
+ * @return value of source clock of PLL.
  */
 static uint32_t Clock_getConfigPllValue (Clock_Config *config, Clock_PLLConfig *pllConfig);
 
 /**
- * TODO
+ * Return the system clock set in register configuration.
+ *
+ * @return value of SYSCLK clock.
  */
 static uint32_t Clock_getActualSystemValue (void);
 
 /**
+ * Return the system clock set in configuration struct.
  *
+ * @param[in] config configuration struct.
+ * @return value of SYSCLK clock.
  */
 static uint32_t Clock_getConfigSystemValue (Clock_Config *config);
 
 /**
- * TODO
+ * Set the proper flash latency for frequency specified.
+ *
+ * @param[in] frequency the new value of system clock.
+ * @note This function is used in Clock_init(). It must be called
+ *       before of change clock if new frequency is major then actual,
+ *       after if otherwise.
+ * @note The frequency latency
  */
 static void Clock_setProperFlashLatency (uint32_t frequency)
 {
     int latency = 0;
-    for (latency = 0; latency < UTILITY_DIMOF(Clock_flashLatency); latency++)
+    while (latency < UTILITY_DIMOF(Clock_flashLatency))
     {
         if (frequency <= Clock_flashLatency[latency])
         {
             UTILITY_MODIFY_REGISTER(clk0.regmapFlash->ACR, FLASH_ACR_LATENCY_Msk, (latency << FLASH_ACR_LATENCY_Pos));
             break;
         }
+        latency++;
     }
 }
 

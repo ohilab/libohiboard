@@ -144,7 +144,11 @@ typedef enum _Clock_SystemSource
 } Clock_SystemSource;
 
 /**
- * TODO
+ * System source clock.
+ *
+ * @note The values are the same of register field
+ *       (for writing value in register must be operate
+ *       the correct shift).
  */
 typedef enum _Clock_SystemSourceSws
 {
@@ -155,7 +159,11 @@ typedef enum _Clock_SystemSourceSws
 } Clock_SystemSourceSws;
 
 /**
- * TODO
+ * PLL source clock
+ *
+ * @note The values are the same of register field
+ *       (for writing value in register must be operate
+ *       the correct shift).
  */
 typedef enum _Clock_PllSource
 {
@@ -454,7 +462,7 @@ typedef struct _Clock_Config
  * Initiliaze and configure clock peripheral.
  *
  * @param config Configuration list parameter
- * @retern ERRORS_NO_ERROR without problems
+ * @return ERRORS_NO_ERROR without problems
  */
 System_Errors Clock_init (Clock_Config *config);
 
@@ -475,9 +483,12 @@ System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint
 uint32_t Clock_getOutputValue (Clock_Output output);
 
 /**
- * Set the MSI value used for clock switching during clock switch.
+ * Set the MSI_RANGE value used for clock switching during clock switch.
  *
  * @param[in] msi Value of MSI range (It must be minor than range 10).
+ * @note This value influences the time of switching.
+ *       Using RANGE_6 (4 MHz) the time of switch is about 1 ms,
+ *       at RANGE_9 (24 MHz) is 200 us.
  */
 void Clock_setMsiRangeSwitching (Clock_MSIRange msi);
 
