@@ -218,6 +218,16 @@ typedef enum _Dac_Resolution
 #if defined (LIBOHIBOARD_ST_STM32)
 
 /**
+ * List of possible alignment of the data to be written into registers.
+ */
+typedef enum _Dac_DataAlign
+{
+    DAC_DATAALIGN_12BIT_RIGHT = 0x00000000u,
+    DAC_DATAALIGN_12BIT_LEFT  = 0x00000004u,
+    DAC_DATAALIGN_8BIT_RIGHT  = 0x00000008u,
+} Dac_DataAlign;
+
+/**
  * List of possible events to trigger conversion.
  */
 typedef enum _Dac_Trigger
@@ -374,6 +384,11 @@ typedef struct _Dac_ChannelConfig
      */
     Utility_State internalConnect;
 
+    /**
+     * Specifies the data alignment used to write data.
+     */
+    Dac_DataAlign align;
+
 } Dac_ChannelConfig;
 
 /**
@@ -405,12 +420,18 @@ System_Errors Dac_start (Dac_DeviceHandle dev, Dac_Channels channel);
 System_Errors Dac_stop (Dac_DeviceHandle dev, Dac_Channels channel);
 
 /**
+ * Set the specified value to be converted in the selected Dac channel.
+ *
+ * @param[in] dev Dac device handle
+ * @param[in] channel The selected channel
+ * @param[in] value The value to be converted
+ * @return ERRORS_NO_ERROR for start conversion without problems, otherwise a specific error.
+ */
+System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint16_t value);
+
+/**
  * @}
  */
-
-//System_Errors Dac_writeValue (Dac_DeviceHandle dev, uint16_t value);
-//
-//System_Errors Dac_loadBuffer(Dac_DeviceHandle dev, uint16_t* buffer, uint8_t startPos, uint8_t len);
 
 #ifdef LIBOHIBOARD_DMA
     uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request);

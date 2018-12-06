@@ -66,13 +66,19 @@ typedef enum _Dac_Pins
 
 } Dac_Pins;
 
+#define DAC_CHANNEL_NUMBER_MASK     (0x000F0000)
+#define DAC_CHANNEL_NUMBER_POS      (16u)
+#define DAC_CHANNEL_NUMBER(CHANNEL) (((CHANNEL) & DAC_CHANNEL_NUMBER_MASK) >> DAC_CHANNEL_NUMBER_POS)
+
+#define DAC_CHANNEL_SHIFT_MASK      (0x000000FF)
+
 /**
  * List of possible DAC channel.
  */
 typedef enum _Dac_Channels
 {
     DAC_CHANNELS_CH1         = (0x00000000u),
-    DAC_CHANNELS_CH2         = (0x00000010u),
+    DAC_CHANNELS_CH2         = (0x00010010u),
 
 } Dac_Channels;
 

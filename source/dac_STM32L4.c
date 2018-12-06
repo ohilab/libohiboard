@@ -64,13 +64,13 @@ extern "C" {
  * Enable selected channel of peripheral
  */
 #define DAC_DEVICE_ENABLE(DEVICE,CHANNEL)     \
-    UTILITY_SET_REGISTER_BIT(DEVICE->regmap->CR,(DAC_CR_EN1 << (CHANNEL)))
+    UTILITY_SET_REGISTER_BIT(DEVICE->regmap->CR,(DAC_CR_EN1 << ((CHANNEL) & DAC_CHANNEL_SHIFT_MASK)))
 
 /**
  * Disable selected channel of peripheral
  */
 #define DAC_DEVICE_DISABLE(DEVICE,CHANNEL)     \
-    UTILITY_CLEAR_REGISTER_BIT(DEVICE->regmap->CR,(DAC_CR_EN1 << (CHANNEL)))
+    UTILITY_CLEAR_REGISTER_BIT(DEVICE->regmap->CR,(DAC_CR_EN1 << ((CHANNEL) & DAC_CHANNEL_SHIFT_MASK)))
 
 
 #define DAC_MAX_PINS                     2
@@ -92,6 +92,13 @@ extern "C" {
  */
 #define DAC_VALID_INTERNAL_CONNECTION(CONNECTION) (((CONNECTION) == UTILITY_STATE_DISABLE) || \
                                                    ((CONNECTION) == UTILITY_STATE_ENABLE))
+
+/**
+ * Check whether the data align type is valid or not.
+ */
+#define DAC_VALID_DATA_ALIGN(ALIGN) (((ALIGN) == DAC_DATAALIGN_12BIT_RIGHT) || \
+                                     ((ALIGN) == DAC_DATAALIGN_12BIT_LEFT)  || \
+                                     ((ALIGN) == DAC_DATAALIGN_8BIT_RIGHT))
 
 /**
  *
@@ -117,7 +124,8 @@ typedef struct _Dac_Device
 
     Dac_Config config;                                /**< User configuration */
 
-    Dac_ChannelConfig chConfig[DAC_MAX_PINS];     /**< Channel configurations */
+    /** Channel configurations */
+    Dac_ChannelConfig channelConfig[DAC_MAX_PINS];
 
 } Dac_Device;
 
@@ -159,6 +167,34 @@ static Dac_Device dac1 =
 Dac_DeviceHandle OB_DAC1 = &dac1;
 
 #endif
+
+/**
+ *
+ */
+static inline void __attribute__((always_inline)) Dac_setDataAligned (Dac_DeviceHandle dev,
+                                                                      Dac_Channels channel,
+                                                                      Dac_DataAlign align,
+                                                                      uint32_t data)
+{
+    // Save offset to get correct register
+    // The startup position is DAC_DHR12R1
+    uint32_t tmp = 0x00000008;
+    switch (channel)
+    {
+    case DAC_CHANNELS_CH1:
+        tmp += 0x00000000;
+        break;
+    case DAC_CHANNELS_CH2:
+        tmp += 0x00000006;
+        break;
+    }
+    // Add value of align parameter to found the correct register
+    tmp += (uint32_t)align;
+
+    // Get register
+    volatile uint32_t* dhrReg = (volatile uint32_t*)((uint32_t)((uint32_t)(&dev->regmap->CR) + tmp));
+    *dhrReg &= data;
+}
 
 System_Errors Dac_init (Dac_DeviceHandle dev, Dac_Config* config)
 {
@@ -219,6 +255,7 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
     ohiassert(DAC_VALID_INTERNAL_CONNECTION(config->internalConnect));
     ohiassert(DAC_VALID_OUTPUT_BUFFER(config->outputBuffer));
     ohiassert(DAC_VALID_SAMPLE_AND_HOLD(config->sampleAndHold));
+    ohiassert(DAC_VALID_DATA_ALIGN(config->align));
 
     // If sample-and-hold is active, check other params
     if (config->sampleAndHold == UTILITY_STATE_ENABLE)
@@ -253,24 +290,27 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
     uint32_t tmpreg = 0;
     // Setup channel register
     tmpreg = dev->regmap->MCR;
-    tmpreg &= (~(((uint32_t)(DAC_MCR_MODE1_Msk)) << channel));
+    tmpreg &= (~(((uint32_t)(DAC_MCR_MODE1_Msk)) << (channel & DAC_CHANNEL_SHIFT_MASK)));
     tmpreg |= (((config->sampleAndHold   == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_2 : 0x00000000u) |
                ((config->outputBuffer    == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_1 : 0x00000000u) |
-               ((config->internalConnect == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_0 : 0x00000000u)) << channel;
+               ((config->internalConnect == UTILITY_STATE_ENABLE) ? DAC_MCR_MODE1_0 : 0x00000000u)) << (channel & DAC_CHANNEL_SHIFT_MASK);
     dev->regmap->MCR = tmpreg;
 
     // Put channel in normal mode
-    dev->regmap->CR &= (~(DAC_CR_CEN1_Msk << channel));
+    dev->regmap->CR &= (~(DAC_CR_CEN1_Msk << (channel & DAC_CHANNEL_SHIFT_MASK)));
 
     // Disable wave generation and trigger
     tmpreg = dev->regmap->CR;
-    tmpreg &= (~(((uint32_t)(DAC_CR_MAMP1_Msk | DAC_CR_WAVE1_Msk | DAC_CR_TSEL1_Msk | DAC_CR_TEN1_Msk)) << channel));
+    tmpreg &= (~(((uint32_t)(DAC_CR_MAMP1_Msk | DAC_CR_WAVE1_Msk | DAC_CR_TSEL1_Msk | DAC_CR_TEN1_Msk)) << (channel & DAC_CHANNEL_SHIFT_MASK)));
 
     // Configure Trigger: TSELx and TENx bits
-    tmpreg |= ((config->trigger) << channel);
+    tmpreg |= ((config->trigger) << (channel & DAC_CHANNEL_SHIFT_MASK));
 
     // Save CR configuration
     dev->regmap->CR = tmpreg;
+
+    // Save channel configuration
+    dev->channelConfig[DAC_CHANNEL_NUMBER(channel)] = *config;
 
     dev->state = DAC_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
@@ -288,11 +328,69 @@ System_Errors Dac_start (Dac_DeviceHandle dev, Dac_Channels channel)
     {
         return ERRORS_DAC_WRONG_DEVICE;
     }
+    dev->state = DAC_DEVICESTATE_BUSY;
 
     // Enable peripheral and selected channel
     DAC_DEVICE_ENABLE(dev,channel);
 
     // Send software trigger, if needed!
+    switch (channel)
+    {
+    case DAC_CHANNELS_CH1:
+        if ((dev->regmap->CR & DAC_TRIGGER_SOFTWARE) == DAC_TRIGGER_SOFTWARE)
+        {
+            dev->regmap->SWTRIGR |= DAC_SWTRIGR_SWTRIG1;
+        }
+        break;
+    case DAC_CHANNELS_CH2:
+        if ((dev->regmap->CR & (DAC_TRIGGER_SOFTWARE << DAC_CHANNELS_CH2)) == (DAC_TRIGGER_SOFTWARE << DAC_CHANNELS_CH2))
+        {
+            dev->regmap->SWTRIGR |= DAC_SWTRIGR_SWTRIG2;
+        }
+        break;
+    }
+
+    dev->state = DAC_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Dac_stop (Dac_DeviceHandle dev, Dac_Channels channel)
+{
+    // Check the DAC device
+    if (dev == NULL)
+    {
+        return ERRORS_DAC_NO_DEVICE;
+    }
+    // Check the DAC instance
+    if (ohiassert(DAC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_DAC_WRONG_DEVICE;
+    }
+    dev->state = DAC_DEVICESTATE_BUSY;
+
+    // Disable peripheral and selected channel
+    DAC_DEVICE_DISABLE(dev,channel);
+
+    dev->state = DAC_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint16_t value)
+{
+    // Check the DAC device
+    if (dev == NULL)
+    {
+        return ERRORS_DAC_NO_DEVICE;
+    }
+    // Check the DAC instance
+    if (ohiassert(DAC_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_DAC_WRONG_DEVICE;
+    }
+
+    Dac_setDataAligned(dev,channel,dev->channelConfig[DAC_CHANNEL_NUMBER(channel)].align,value);
+
+    return ERRORS_NO_ERROR;
 }
 
 #endif // LIBOHIBOARD_STM32L4
