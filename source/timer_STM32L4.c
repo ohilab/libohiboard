@@ -1049,6 +1049,9 @@ System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *con
 
     switch (dev->clockSource)
     {
+    default:
+    	break;
+
     case TIMER_CLOCKSOURCE_INTERNAL:
         {
             uint32_t apbValue = 0, ahbValue = 0;
@@ -1077,7 +1080,7 @@ System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *con
     }
 
     dev->state = TIMER_DEVICESTATE_READY;
-    return ERRORS_NO_ERROR;
+    return err;
 }
 
 System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)

@@ -381,7 +381,7 @@ uint8_t i16td (uint8_t *dString, int16_t number)
 System_Errors strtf (const uint8_t* fString, float* result)
 {
     uint8_t digit;
-    const char* dotPosition = fString+2;
+    const char* dotPosition = (const char*)fString+2;
 
     uint8_t isNegative = 0;
     uint8_t isDecimal = 0;

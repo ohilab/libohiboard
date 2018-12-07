@@ -131,7 +131,6 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
 {
     Time_DateType date;
     Time_TimeType time;
-    uint8_t counter = 0;
 
     Time_unixtimeToTime(unix,&date,&time);
 
@@ -148,12 +147,12 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,date.day);
+        u16td((uint8_t *)dateString,(uint16_t)date.day);
         dateString++;
     }
     else
     {
-        u16td(dateString,date.day);
+        u16td((uint8_t *)dateString,(uint16_t)date.day);
         dateString += 2;
     }
     *dateString = ' ';
@@ -167,7 +166,7 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     dateString++;
 
     /* Year */
-    u16td(dateString,date.year);
+    u16td((uint8_t *)dateString,(uint16_t)date.year);
     dateString += 4;
 
     *dateString = ' ';
@@ -178,12 +177,12 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,time.hours);
+        u16td((uint8_t *)dateString,(uint16_t)time.hours);
         dateString++;
     }
     else
     {
-        u16td(dateString,time.hours);
+        u16td((uint8_t *)dateString,(uint16_t)time.hours);
         dateString += 2;
     }
 
@@ -195,12 +194,12 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,time.minutes);
+        u16td((uint8_t *)dateString,(uint16_t)time.minutes);
         dateString++;
     }
     else
     {
-        u16td(dateString,time.minutes);
+        u16td((uint8_t *)dateString,(uint16_t)time.minutes);
         dateString += 2;
     }
 
@@ -212,12 +211,12 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,time.seconds);
+        u16td((uint8_t *)dateString,(uint16_t)time.seconds);
         dateString++;
     }
     else
     {
-        u16td(dateString,time.seconds);
+        u16td((uint8_t *)dateString,(uint16_t)time.seconds);
         dateString += 2;
     }
 
@@ -229,7 +228,6 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
 {
     Time_DateType date;
     Time_TimeType time;
-    uint8_t counter = 0;
 
     Time_unixtimeToTime(unix,&date,&time);
 
@@ -238,12 +236,12 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,date.day);
+        u16td((uint8_t *)dateString,(uint16_t)date.day);
         dateString++;
     }
     else
     {
-        u16td(dateString,date.day);
+        u16td((uint8_t *)dateString,(uint16_t)date.day);
         dateString += 2;
     }
     *dateString = '.';
@@ -254,19 +252,19 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,date.month);
+        u16td((uint8_t *)dateString,(uint16_t)date.month);
         dateString++;
     }
     else
     {
-        u16td(dateString,date.month);
+        u16td((uint8_t *)dateString,(uint16_t)date.month);
         dateString += 2;
     }
     *dateString = '.';
     dateString++;
 
     /* Year */
-    u16td(dateString,date.year);
+    u16td((uint8_t *)dateString,(uint16_t)date.year);
     dateString += 4;
 
     *dateString = ' ';
@@ -277,12 +275,12 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,time.hours);
+        u16td((uint8_t *)dateString,(uint16_t)time.hours);
         dateString++;
     }
     else
     {
-        u16td(dateString,time.hours);
+        u16td((uint8_t *)dateString,(uint16_t)time.hours);
         dateString += 2;
     }
 
@@ -294,12 +292,12 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
     {
         *dateString = '0';
         dateString++;
-        u16td(dateString,time.minutes);
+        u16td((uint8_t *)dateString,(uint16_t)time.minutes);
         dateString++;
     }
     else
     {
-        u16td(dateString,time.minutes);
+        u16td((uint8_t *)dateString,(uint16_t)time.minutes);
         dateString += 2;
     }
 
@@ -313,12 +311,12 @@ void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool se
         {
             *dateString = '0';
             dateString++;
-            u16td(dateString,time.seconds);
+            u16td((uint8_t *)dateString,(uint16_t)time.seconds);
             dateString++;
         }
         else
         {
-            u16td(dateString,time.seconds);
+            u16td((uint8_t *)dateString,(uint16_t)time.seconds);
             dateString += 2;
         }
     }

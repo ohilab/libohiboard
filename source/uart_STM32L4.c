@@ -789,7 +789,9 @@ System_Errors Uart_close (Uart_DeviceHandle dev)
 
 System_Errors Uart_deInit (Uart_DeviceHandle dev)
 {
+    System_Errors err = ERRORS_NO_ERROR;
     // TODO
+    return err;
 }
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
