@@ -82,6 +82,21 @@ extern "C" {
                                         ((SAH) == UTILITY_STATE_ENABLE))
 
 /**
+ * Check whether the sample time is into valid range.
+ */
+#define DAC_VALID_SAH_SAMPLE_TIME(TIME) ((TIME) < 1024ul)
+
+/**
+ * Check whether the hold time is into valid range.
+ */
+#define DAC_VALID_SAH_HOLD_TIME(TIME) ((TIME) < 1024ul)
+
+/**
+ * Check whether the refresh time is into valid range.
+ */
+#define DAC_VALID_SAH_REFRESH_TIME(TIME) ((TIME) < 256ul)
+
+/**
  * Check whether the output buffer condition is valid or not.
  */
 #define DAC_VALID_OUTPUT_BUFFER(OUTPUT) (((OUTPUT) == UTILITY_STATE_DISABLE) || \
@@ -110,10 +125,6 @@ typedef struct _Dac_Device
     volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
     uint32_t rccRegisterEnable;         /**< Register mask for current device */
 
-    volatile uint32_t* rccTypeRegisterPtr;   /**< Register for clock enabling */
-    uint32_t rccTypeRegisterMask;       /**< Register mask for user selection */
-    uint32_t rccTypeRegisterPos;        /**< Mask position for user selection */
-
     Dac_Pins pins[DAC_MAX_PINS];      /**< List of the pin for the peripheral */
     Dac_Channels pinsChannel[DAC_MAX_PINS];
     Gpio_Pins pinsGpio[DAC_MAX_PINS];
@@ -140,10 +151,6 @@ static Dac_Device dac1 =
         .rccRegisterPtr      = &RCC->APB1ENR1,
         .rccRegisterEnable   = RCC_APB1ENR1_DAC1EN,
 
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_ADCSEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_ADCSEL_Pos,
-
         .pins                =
         {
                                DAC_PINS_PA4,
@@ -160,16 +167,20 @@ static Dac_Device dac1 =
                                GPIO_PINS_PA5,
         },
 
-//        .isrNumber           = INTERRUPT_ADC1_2,
-//
-//        .state               = ADC_DEVICESTATE_RESET,
+        .state               = DAC_DEVICESTATE_RESET,
 };
 Dac_DeviceHandle OB_DAC1 = &dac1;
 
 #endif
 
 /**
+ * This function save data into the correct register for specific data
+ * alignment.
  *
+ * @param[in] dev Dac device handle
+ * @param[in] channel The selected channel
+ * @param[in] align The alignment type
+ * @param[in] data The aligned data to write.
  */
 static inline void __attribute__((always_inline)) Dac_setDataAligned (Dac_DeviceHandle dev,
                                                                       Dac_Channels channel,
@@ -193,7 +204,7 @@ static inline void __attribute__((always_inline)) Dac_setDataAligned (Dac_Device
 
     // Get register
     volatile uint32_t* dhrReg = (volatile uint32_t*)((uint32_t)((uint32_t)(&dev->regmap->CR) + tmp));
-    *dhrReg &= data;
+    *dhrReg = data;
 }
 
 System_Errors Dac_init (Dac_DeviceHandle dev, Dac_Config* config)
@@ -260,7 +271,9 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
     // If sample-and-hold is active, check other params
     if (config->sampleAndHold == UTILITY_STATE_ENABLE)
     {
-        // TODO
+        ohiassert(DAC_VALID_SAH_SAMPLE_TIME(config->sampleAndHoldConfig.sampleTime));
+        ohiassert(DAC_VALID_SAH_HOLD_TIME(config->sampleAndHoldConfig.holdTime));
+        ohiassert(DAC_VALID_SAH_REFRESH_TIME(config->sampleAndHoldConfig.refreshTime));
     }
 
     // Select relative channel
@@ -282,7 +295,43 @@ System_Errors Dac_configPin (Dac_DeviceHandle dev, Dac_ChannelConfig* config, Da
     // Setup configuration for sample-and-hold mode
     if (config->sampleAndHold == UTILITY_STATE_ENABLE)
     {
+        uint32_t tickstart = System_currentTick();
+        switch (channel)
+        {
+        case DAC_CHANNELS_CH1:
+            while ((dev->regmap->SR & DAC_SR_BWST1) != 0)
+            {
+                // 1ms of timeout
+                if ((System_currentTick() - tickstart) > 1)
+                {
+                    dev->state = DAC_DEVICESTATE_ERROR;
+                    return ERRORS_DAC_TIMEOUT;
+                }
+            }
+            dev->regmap->SHSR1 = config->sampleAndHoldConfig.sampleTime;
+            break;
+        case DAC_CHANNELS_CH2:
+            while ((dev->regmap->SR & DAC_SR_BWST2) != 0)
+            {
+                // 1ms of timeout
+                if ((System_currentTick() - tickstart) > 1)
+                {
+                    dev->state = DAC_DEVICESTATE_ERROR;
+                    return ERRORS_DAC_TIMEOUT;
+                }
+            }
+            dev->regmap->SHSR2 = config->sampleAndHoldConfig.sampleTime;
+            break;
+        }
 
+        // Save hold and refresh time
+        UTILITY_MODIFY_REGISTER(dev->regmap->SHHR,                                                              \
+                               (DAC_SHHR_THOLD1 << (channel & DAC_CHANNEL_SHIFT_MASK)),                         \
+                               (config->sampleAndHoldConfig.sampleTime << (channel & DAC_CHANNEL_SHIFT_MASK)));
+
+        UTILITY_MODIFY_REGISTER(dev->regmap->SHRR,                                                              \
+                               (DAC_SHRR_TREFRESH1 << (channel & DAC_CHANNEL_SHIFT_MASK)),                      \
+                               (config->sampleAndHoldConfig.refreshTime << (channel & DAC_CHANNEL_SHIFT_MASK)));
     }
 
     // Save configuration
@@ -343,7 +392,8 @@ System_Errors Dac_start (Dac_DeviceHandle dev, Dac_Channels channel)
         }
         break;
     case DAC_CHANNELS_CH2:
-        if ((dev->regmap->CR & (DAC_TRIGGER_SOFTWARE << DAC_CHANNELS_CH2)) == (DAC_TRIGGER_SOFTWARE << DAC_CHANNELS_CH2))
+        if ((dev->regmap->CR & (DAC_TRIGGER_SOFTWARE << (channel & DAC_CHANNEL_SHIFT_MASK))) ==
+            (DAC_TRIGGER_SOFTWARE << (channel & DAC_CHANNEL_SHIFT_MASK)))
         {
             dev->regmap->SWTRIGR |= DAC_SWTRIGR_SWTRIG2;
         }
@@ -375,7 +425,7 @@ System_Errors Dac_stop (Dac_DeviceHandle dev, Dac_Channels channel)
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint16_t value)
+System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint32_t value)
 {
     // Check the DAC device
     if (dev == NULL)

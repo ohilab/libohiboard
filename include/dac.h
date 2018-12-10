@@ -374,6 +374,31 @@ typedef struct _Dac_ChannelConfig
      */
     Utility_State sampleAndHold;
 
+    struct
+    {
+        /**
+         * Specifies the sample time for selected channel,
+         * that works in Sample-And-Hold mode.
+         * This value must be between 0 and 1023.
+         */
+        uint32_t sampleTime;
+
+        /**
+         * Specifies the hold time for selected channel,
+         * that works in Sample-And-Hold mode.
+         * This value must be between 0 and 1023.
+         */
+        uint32_t holdTime;
+
+        /**
+         * Specifies the refresh time for selected channel,
+         * that works in Sample-And-Hold mode.
+         * This value must be between 0 and 255.
+         */
+        uint32_t refreshTime;
+
+    } sampleAndHoldConfig;
+
     /**
      * Specifies whether the output buffer is enabled (@ref UTILITY_STATE_ENABLE) or not.
      */
@@ -427,7 +452,7 @@ System_Errors Dac_stop (Dac_DeviceHandle dev, Dac_Channels channel);
  * @param[in] value The value to be converted
  * @return ERRORS_NO_ERROR for start conversion without problems, otherwise a specific error.
  */
-System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint16_t value);
+System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint32_t value);
 
 /**
  * @}

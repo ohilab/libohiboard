@@ -111,6 +111,7 @@ typedef enum _System_Errors
     ERRORS_DAC_NO_DEVICE,
     ERRORS_DAC_WRONG_DEVICE,
     ERRORS_DAC_WRONG_PARAMETER,
+    ERRORS_DAC_TIMEOUT,
 
     ERRORS_ADC_DEVICE_JUST_INIT,
     ERRORS_ADC_DEVICE_NOT_INIT,                  /**< Device not initialized. */
