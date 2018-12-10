@@ -35,6 +35,59 @@
  * @brief Library main file.
  */
 
+/**
+ * @mainpage libohiboad
+ *
+ * The libohiboard is an open-source firmware library for
+ * various ARM Cortex-M microcontrollers.
+ *
+ * @section status Current Development Status
+ *
+ * In the following table is reported the current development status for new
+ * library version 2.0.0.
+ *
+ * <table>
+ * <caption id="mcustatus2">MCU Development Status for v2.0.0</caption>
+ * <tr><th>Peripheral <th colspan="2">NXP MKL <th colspan="3">NXP MK <th colspan="2">NXP MKV <th>STM32L4
+ * <tr><td>-          <td>MKL15 <td>MKL25 <td>MK10 <td>MK12 <td>MK64 <td>MKV31 <td>MKV46     <td>STM32L476
+ * <tr><td>Clock      <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>Power Mode <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohiwip
+ * <tr><td>GPIO       <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>ADC        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>DAC        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>UART       <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>I2C        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>SPI        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohifix
+ * <tr><td>Timer      <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohiwip
+ * <tr><td>Interrupt  <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
+ * <tr><td>DMA        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohitodo
+ * <tr><td>CAN        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohitodo
+ * </table>
+ *
+ * @section credits Credits
+ *
+ * Thanks to all person wrote a single row of code, or they suggested a change or gave us advice.
+ * The list of people who actively participated is as follows:
+ * @li Edoardo Bezzeccheri
+ * @li Matteo Civale
+ * @li Marco Contigiani
+ * @li Simone Giacomucci
+ * @li Marco Giammarini (<b>maintainer</b>)
+ * @li Leonardo Morichelli
+ * @li Nicola Orlandini
+ * @li Niccolo' Paolinelli
+ * @li Alessio Paolucci
+ * @li Matteo Piersantelli
+ * @li Matteo Pirro
+ * @li Francesco Piunti
+ *
+ * @section changelog ChangeLog
+ *
+ * @li <b>v1.1.0</b> of 2018/11/05 - First stable version. No more development
+ *     on this version, except for bug fixes.
+ * @li <b>v1.0.0-Beta</b> of 2015/02/20 - First release
+ */
+
 #ifndef __LIBOHIBOARD_H
 #define __LIBOHIBOARD_H
 

@@ -449,4 +449,4 @@ System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint32_t va
 }
 #endif
 
-#endif // LIBOHIBOARD_ADC
+#endif // LIBOHIBOARD_DAC

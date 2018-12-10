@@ -53,6 +53,11 @@ extern "C" {
  */
 
 /**
+ * @defgroup DAC_Hardware DAC specific hardware types
+ * @{
+ */
+
+/**
  * List of possible pin where DAC channel can be used.
  */
 typedef enum _Dac_Pins
@@ -87,9 +92,16 @@ typedef enum _Dac_Channels
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
     defined (LIBOHIBOARD_STM32L476Rx)
 
+/**
+ * DAC Device Handle Number 1.
+ */
 extern Dac_DeviceHandle OB_DAC1;
 
 #endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+
+/**
+ * @}
+ */
 
 /**
  * @}
