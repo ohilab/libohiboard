@@ -52,7 +52,8 @@ extern "C" {
 
 #define CLOCK_IS_VALID_PLL_SOURCE(PLL_SOURCE) ((PLL_SOURCE == CLOCK_PLLSOURCE_HSI) || \
                                                (PLL_SOURCE == CLOCK_PLLSOURCE_HSE) || \
-                                               (PLL_SOURCE == CLOCK_PLLSOURCE_MSI))
+                                               (PLL_SOURCE == CLOCK_PLLSOURCE_MSI) || \
+                                               (PLL_SOURCE == CLOCK_PLLSOURCE_NONE))
 
 #define CLOCK_IS_VALID_PLL_FREQUENCY(OSC_CONFIG, PLL_CONFIG) (Clock_getConfigPllValue(OSC_CONFIG, PLL_CONFIG) <= CLOCK_MAX_FREQ_PLL)
 
@@ -869,10 +870,15 @@ System_Errors Clock_init (Clock_Config* config)
         ohiassert(((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL) ^
                   ((config->source & CLOCK_CRYSTAL) == CLOCK_CRYSTAL));
     }
-    ohiassert(CLOCK_IS_VALID_PLL_SOURCE(config->pllSource)); //LSI and LSE are not valid; MSI, HSI and HSE are valid.
-    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pll)); //The PLL output frequency must not exceed 80 MHz.
-    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai1)); //The PLL output frequency must not exceed 80 MHz.
-    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai2)); //The PLL output frequency must not exceed 80 MHz.
+
+    // Check PLL conditions
+    if ((config->source & CLOCK_INTERNAL_PLL) ==  CLOCK_INTERNAL_PLL)
+    {
+        ohiassert(CLOCK_IS_VALID_PLL_SOURCE(config->pllSource)); //LSI and LSE are not valid; MSI, HSI and HSE are valid.
+        ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pll)); //The PLL output frequency must not exceed 80 MHz.
+        ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai1)); //The PLL output frequency must not exceed 80 MHz.
+        ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai2)); //The PLL output frequency must not exceed 80 MHz.
+    }
 
     // Setup default value of internal clock
     Clock_updateOutputValue();
