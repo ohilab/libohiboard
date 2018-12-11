@@ -54,7 +54,13 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_EXTI2            = 8,
     INTERRUPT_EXTI3            = 9,
     INTERRUPT_EXTI4            = 10,
-
+    INTERRUPT_DMA1_CH1         = 11,
+    INTERRUPT_DMA1_CH2         = 12,
+    INTERRUPT_DMA1_CH3         = 13,
+    INTERRUPT_DMA1_CH4         = 14,
+    INTERRUPT_DMA1_CH5         = 15,
+    INTERRUPT_DMA1_CH6         = 16,
+    INTERRUPT_DMA1_CH7         = 17,
     INTERRUPT_ADC1_2           = 18,
 
     INTERRUPT_EXTI9_5          = 23,
@@ -84,10 +90,16 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_UART5            = 53,
     INTERRUPT_TIM6DACUNDER     = 54,
     INTERRUPT_TIM7             = 55,
-
+    INTERRUPT_DMA2_CH1         = 56,
+    INTERRUPT_DMA2_CH2         = 57,
+    INTERRUPT_DMA2_CH3         = 58,
+    INTERRUPT_DMA2_CH4         = 59,
+    INTERRUPT_DMA2_CH5         = 60,
     INTERRUPT_LPTIM1           = 65,
     INTERRUPT_LPTIM2           = 66,
 
+    INTERRUPT_DMA2_CH6         = 68,
+    INTERRUPT_DMA2_CH7         = 69,
     INTERRUPT_LPUART1          = 70,
 
     // TODO: Add all interrupts

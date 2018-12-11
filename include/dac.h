@@ -458,8 +458,10 @@ System_Errors Dac_write (Dac_DeviceHandle dev, Dac_Channels channel, uint32_t va
  * @}
  */
 
+#if 0
 #ifdef LIBOHIBOARD_DMA
     uint8_t Dac_enableDmaTrigger (Dac_DeviceHandle dev, Dma_RequestSource request);
+#endif
 #endif
 
 #ifdef __cplusplus

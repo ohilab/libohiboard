@@ -183,6 +183,8 @@ typedef enum _System_Errors
     ERRORS_PDB_DEVICE_NOT_INIT,
 
 	ERRORS_DMA_OK,                                 /**< DMA initialization ok */
+    ERRORS_DMA_NO_DEVICE,
+    ERRORS_DMA_WRONG_DEVICE,
 
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */

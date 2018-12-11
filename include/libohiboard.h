@@ -43,26 +43,28 @@
  *
  * @section status Current Development Status
  *
- * In the following table is reported the current development status for new
- * library version 2.0.0.
+ * In the following table is reported the current development status.
  *
  * <table>
- * <caption id="mcustatus2">MCU Development Status for v2.0.0</caption>
+ * <caption id="mcustatus2">MCU Development Status</caption>
  * <tr><th>Peripheral <th colspan="2">NXP MKL <th colspan="3">NXP MK <th colspan="2">NXP MKV <th>STM32L4
- * <tr><td>-          <td>MKL15 <td>MKL25 <td>MK10 <td>MK12 <td>MK64 <td>MKV31 <td>MKV46     <td>STM32L476
- * <tr><td>Clock      <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>Power Mode <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohiwip
- * <tr><td>GPIO       <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>ADC        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>DAC        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>UART       <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>I2C        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>SPI        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohifix
- * <tr><td>Timer      <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohiwip
- * <tr><td>Interrupt  <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohidone
- * <tr><td>DMA        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohitodo
- * <tr><td>CAN        <td>-     <td>-     <td>-    <td>-    <td>-    <td>-     <td>-         <td> @ohitodo
+ * <tr><td>-          <td>MKL15 <td>MKL25    <td>MK10 <td>MK12 <td>MK64      <td>MKV31 <td>MKV46     <td>STM32L476
+ * <tr><td>Clock      <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>Power Mode <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>GPIO       <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>RTC        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>ADC        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>DAC        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>UART       <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>I2C        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>SPI        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohifix
+ * <tr><td>Timer      <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>Interrupt  <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>DMA        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>CAN        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohitodo
+ * <tr><td>Ethernet   <td>-     <td>-        <td>-    <td>-    <td> @ohitodo <td>-     <td>-         <td> -
  * </table>
+ *
  *
  * @section credits Credits
  *
