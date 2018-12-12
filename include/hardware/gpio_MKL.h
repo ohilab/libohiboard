@@ -179,6 +179,19 @@ typedef enum
 
 } Gpio_Pins;
 
+/**
+ * List of possible GPIO ports.
+ */
+typedef enum
+{
+    GPIO_PORTS_A,
+    GPIO_PORTS_B,
+    GPIO_PORTS_C,
+    GPIO_PORTS_D,
+    GPIO_PORTS_E,
+
+} Gpio_Ports;
+
 #endif // LIBOHIBOARD_MKL
 
 #ifdef __cplusplus

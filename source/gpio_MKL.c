@@ -48,16 +48,6 @@ static void (*Gpio_isrPortDRequestVector[PORTD_MAX_PIN]) (void);
 static uint32_t INT_REG_A = 0x0;
 static uint32_t INT_REG_D = 0x0;
 
-typedef enum
-{
-    GPIO_PORTS_A,
-    GPIO_PORTS_B,
-    GPIO_PORTS_C,
-    GPIO_PORTS_D,
-    GPIO_PORTS_E,
-
-} Gpio_Ports;
-
 typedef struct _Gpio_PinDevice
 {
     Gpio_Ports port;                      /**< The port of the selected pins */
