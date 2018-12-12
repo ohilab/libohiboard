@@ -846,6 +846,21 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
 #endif
 
+/**
+ * Enable clock of specific port
+ *
+ * @param[in] port The Gpio port
+ */
+void Gpio_enablePortClock (Gpio_Ports port);
+
+/**
+ * Disable clock of specific port
+ *
+ * @param[in] port The Gpio port
+ * @return The handle to the specific port
+ */
+void Gpio_disablePortClock (Gpio_Ports port);
+
 #ifdef __cplusplus
 }
 #endif

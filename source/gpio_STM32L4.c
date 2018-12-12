@@ -93,24 +93,58 @@ extern "C" {
                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOHEN); \
                                   } while (0)
 
+#define GPIO_DISABLE_CLOCK_PORTA() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOAEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOAEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTB() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOBEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOBEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTC() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOCEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOCEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTD() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIODEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIODEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTE() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOEEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOEEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTF() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOFEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOFEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTG() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOGEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOGEN); \
+                                   } while (0)
+
+#define GPIO_DISABLE_CLOCK_PORTH() do { \
+                                     UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOHEN); \
+                                     asm("nop"); \
+                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOHEN); \
+                                   } while (0)
+
 #define  PORT_MAX_PIN  16
 
 static void (*Gpio_isrPortRequestVector[PORT_MAX_PIN]) (void);
 static uint32_t Gpio_isrRegister = 0x0;
-
-
-typedef enum
-{
-    GPIO_PORTS_A,
-    GPIO_PORTS_B,
-    GPIO_PORTS_C,
-    GPIO_PORTS_D,
-    GPIO_PORTS_E,
-    GPIO_PORTS_F,
-    GPIO_PORTS_G,
-    GPIO_PORTS_H,
-
-} Gpio_Ports;
 
 typedef struct _Gpio_PinDevice
 {
@@ -232,47 +266,89 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Pins pin)
     }
 }
 
-GPIO_TypeDef* Gpio_enablePortClock (Gpio_Ports port)
+void Gpio_enablePortClock (Gpio_Ports port)
 {
     switch (port)
     {
     case GPIO_PORTS_A:
         GPIO_ENABLE_CLOCK_PORTA();
-        return GPIOA;
+        break;
 
     case GPIO_PORTS_B:
         GPIO_ENABLE_CLOCK_PORTB();
-        return GPIOB;
+        break;
 
     case GPIO_PORTS_C:
         GPIO_ENABLE_CLOCK_PORTC();
-        return GPIOC;
+        break;
 
     case GPIO_PORTS_D:
         GPIO_ENABLE_CLOCK_PORTD();
-        return GPIOD;
+        break;
 
     case GPIO_PORTS_E:
         GPIO_ENABLE_CLOCK_PORTE();
-        return GPIOE;
+        break;
 
     case GPIO_PORTS_F:
         GPIO_ENABLE_CLOCK_PORTF();
-        return GPIOF;
+        break;
 
     case GPIO_PORTS_G:
         GPIO_ENABLE_CLOCK_PORTG();
-        return GPIOG;
+        break;
 
     case GPIO_PORTS_H:
         GPIO_ENABLE_CLOCK_PORTH();
-        return GPIOH;
+        break;
 
     default:
         ohiassert(0);
-        return 0;
+        break;
     }
 
+}
+
+void Gpio_disablePortClock (Gpio_Ports port)
+{
+    switch (port)
+    {
+    case GPIO_PORTS_A:
+        GPIO_DISABLE_CLOCK_PORTA();
+        break;
+
+    case GPIO_PORTS_B:
+        GPIO_DISABLE_CLOCK_PORTB();
+        break;
+
+    case GPIO_PORTS_C:
+        GPIO_DISABLE_CLOCK_PORTC();
+        break;
+
+    case GPIO_PORTS_D:
+        GPIO_DISABLE_CLOCK_PORTD();
+        break;
+
+    case GPIO_PORTS_E:
+        GPIO_DISABLE_CLOCK_PORTE();
+        break;
+
+    case GPIO_PORTS_F:
+        GPIO_DISABLE_CLOCK_PORTF();
+        break;
+
+    case GPIO_PORTS_G:
+        GPIO_DISABLE_CLOCK_PORTG();
+        break;
+
+    case GPIO_PORTS_H:
+        GPIO_DISABLE_CLOCK_PORTH();
+        break;
+
+    default:
+        ohiassert(0);
+        break;
+    }
 }
 
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
@@ -291,7 +367,8 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
     ohiassert(alternate < 16);
 
     // Enable clock and save current port
-    port = Gpio_enablePortClock(Gpio_availablePins[pin].port);
+    Gpio_enablePortClock(Gpio_availablePins[pin].port);
+    port = Gpio_getPort(Gpio_availablePins[pin].port);
 
     number = Gpio_availablePins[pin].pinNumber;
 
@@ -383,7 +460,8 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
     number = Gpio_availablePins[pin].pinNumber;
 
     // Enable clock and save current port
-    port = Gpio_enablePortClock(Gpio_availablePins[pin].port);
+    Gpio_enablePortClock(Gpio_availablePins[pin].port);
+    port = Gpio_getPort(Gpio_availablePins[pin].port);
 
     // Configure direction mode
     temp = port->MODER;

@@ -124,6 +124,22 @@ typedef enum
 
 } Gpio_Pins;
 
+/**
+ * List of possible GPIO ports.
+ */
+typedef enum
+{
+    GPIO_PORTS_A,
+    GPIO_PORTS_B,
+    GPIO_PORTS_C,
+    GPIO_PORTS_D,
+    GPIO_PORTS_E,
+    GPIO_PORTS_F,
+    GPIO_PORTS_G,
+    GPIO_PORTS_H,
+
+} Gpio_Ports;
+
 #endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
