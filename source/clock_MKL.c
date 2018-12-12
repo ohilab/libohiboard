@@ -270,9 +270,238 @@ static const Clock_State Clock_mcgStateMatrix[8][8] =
 //   CLOCK_STATE_FEI  CLOCK_STATE_FBI  CLOCK_STATE_BLPI  CLOCK_STATE_FEE  CLOCK_STATE_FBE  CLOCK_STATE_BLPE  CLOCK_STATE_PBE  CLOCK_STATE_PEE
 };
 
+/**
+ * This function set the current mode of MCG module to FEE:
+ * FLL Engaged External.
+ *
+ * @note Pay attention to ERRATA 7993 (e7993) at this link
+ *       https://www.nxp.com/docs/en/errata/KINETIS_W_1N41U.pdf
+ */
+static System_Errors Clock_setFeeMode (void)
+{
+    ohiassert(clk.changeParam.final != CLOCK_STATE_NONE);
+
+    bool changeDrs = FALSE;
+    uint8_t tmpreg = 0;
+    uint8_t tmpC4 = clk.regmap->C4;
+
+    // e7993
+    if ((clk.regmap->S & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK)
+    {
+        clk.regmap->C4 ^= (1u << MCG_C4_DRST_DRS_SHIFT);
+        changeDrs = TRUE;
+    }
+
+    // Set MCG->C2
+    tmpreg = clk.regmap->C2;
+    tmpreg &= ~(MCG_C2_RANGE0_MASK);
+    tmpreg |= MCG_C2_RANGE0(clk.changeParam.range0) | // Set frequency range
+              MCG_C2_EREFS0(clk.changeParam.erefs0);  // Set oscillator/external
+    clk.regmap->C2 = tmpreg;
+
+    // Set MCG->C1
+    tmpreg = clk.regmap->C1;
+    tmpreg &= (~(MCG_C1_CLKS_MASK | MCG_C1_FRDIV_MASK | MCG_C1_IREFS_MASK));
+    tmpreg |= MCG_C1_CLKS(0)                      | // PLL/FLL select
+              MCG_C1_FRDIV(clk.changeParam.frdiv) | // Set frdiv
+              MCG_C1_IREFS(0);                      // External source select
+    clk.regmap->C1 = tmpreg;
+
+    // wait the refresh of the status register
+    if ((clk.regmap->C2 & MCG_C2_EREFS0_MASK) == MCG_C2_EREFS0_MASK)
+    {
+        while ((clk.regmap->S & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK);
+    }
+
+    // Wait until reference Source of FLL is the external reference clock.
+    while ((clk.regmap->S & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK);
+
+    // Restore DRST and DMX32 after initialization for e7993
+    if (changeDrs == TRUE)
+    {
+        clk.regmap->C4 = tmpC4;
+    }
+
+    // Set MCG->C4
+    tmpC4 &= (~(MCG_C4_DMX32_MASK | MCG_C4_DRST_DRS_MASK));
+    tmpC4 |= clk.changeParam.dmx_drst;
+    clk.regmap->C4 = tmpC4;
+
+    //  Wait until output of the FLL is selected
+    while ((clk.regmap->S & MCG_S_CLKST_MASK) != 0)
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function set the current mode of MCG module to FBE:
+ * FLL Bypassed External.
+ *
+ */
+static System_Errors Clock_setFbeMode (void)
+{
+    ohiassert(clk.changeParam.final != CLOCK_STATE_NONE);
+
+    bool changeDrs = FALSE;
+    uint8_t tmpreg = 0;
+    uint8_t tmpC4 = clk.regmap->C4;
+
+    // Change to FLL mode
+    clk.regmap->C6 &= ~(MCG_C6_PLLS_MASK);
+    // Wait until source of PLLS clock is FLL clock.
+    while ((clk.regmap->S & MCG_S_PLLST_MASK) != 0);
+
+    // Disable LP
+    clk.regmap->C2 &= ~(MCG_C2_LP_MASK);
+
+    // e7993
+    if ((clk.regmap->S & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK)
+    {
+        clk.regmap->C4 ^= (1u << MCG_C4_DRST_DRS_SHIFT);
+        changeDrs = TRUE;
+    }
+
+    // Set MCG->C2
+    tmpreg = clk.regmap->C2;
+    tmpreg &= ~(MCG_C2_RANGE0_MASK);
+    tmpreg |= MCG_C2_RANGE0(clk.changeParam.range0) | // Set frequency range
+              MCG_C2_EREFS0(clk.changeParam.erefs0);  // Set oscillator/external
+    clk.regmap->C2 = tmpreg;
+
+    // Set MCG->C1
+    tmpreg = clk.regmap->C1;
+    tmpreg &= (~(MCG_C1_CLKS_MASK | MCG_C1_FRDIV_MASK | MCG_C1_IREFS_MASK));
+    tmpreg |= MCG_C1_CLKS(2)                      | // External reference clock is selected
+              MCG_C1_FRDIV(clk.changeParam.frdiv) | // Set frdiv
+              MCG_C1_IREFS(0);                      // External source select
+    clk.regmap->C1 = tmpreg;
+
+    // wait the refresh of the status register
+    if ((clk.regmap->C2 & MCG_C2_EREFS0_MASK) == MCG_C2_EREFS0_MASK)
+    {
+        while ((clk.regmap->S & MCG_S_OSCINIT0_MASK) != MCG_S_OSCINIT0_MASK);
+    }
+
+    // Wait until reference Source of FLL is the external reference clock.
+    while ((clk.regmap->S & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK);
+
+    // Restore DRST and DMX32 after initialization for e7993
+    if (changeDrs == TRUE)
+    {
+        clk.regmap->C4 = tmpC4;
+    }
+
+    // Set MCG->C4
+    tmpC4 &= (~(MCG_C4_DMX32_MASK | MCG_C4_DRST_DRS_MASK));
+    tmpC4 |= clk.changeParam.dmx_drst;
+    clk.regmap->C4 = tmpC4;
+
+    //  Wait until output of the FLL is selected
+    while ((clk.regmap->S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2));
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function set the current mode of MCG module to FBI:
+ * FLL Bypassed Internal.
+ *
+ *
+ * @note Pay attention to ERRATA 7993 (e7993) at this link
+ *       https://www.nxp.com/docs/en/errata/KINETIS_W_1N41U.pdf
+ */
+static System_Errors Clock_setFbiMode (void)
+{
+    ohiassert(clk.changeParam.final != CLOCK_STATE_NONE);
+
+    bool changeDrs = FALSE;
+    uint8_t tmpreg = 0;
+    uint8_t tmpC4 = clk.regmap->C4;
+
+    // e7993
+    if ((clk.regmap->S & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK)
+    {
+        clk.regmap->C4 ^= (1u << MCG_C4_DRST_DRS_SHIFT);
+        changeDrs = TRUE;
+    }
+
+    // Set MCG->C1
+    tmpreg = clk.regmap->C1;
+    tmpreg &= (~(MCG_C1_CLKS_MASK |  MCG_C1_IREFS_MASK));
+    tmpreg |= MCG_C1_CLKS(1)  | // Internal reference clock is selected
+              MCG_C1_IREFS(1);  // The slow internal reference clock is selected
+    clk.regmap->C1 = tmpreg;
+
+    // Set MCG->C2
+    // Disable LP and select internal source
+    tmpreg = clk.regmap->C2;
+    tmpreg &= (~(MCG_C2_LP_MASK | MCG_C2_IRCS_MASK));
+    tmpreg |= clk.changeParam.ircs;  // Select slow/fast internal reference clock
+    clk.regmap->C2 = tmpreg;
+
+    // Wait until reference Source of FLL is the internal reference clock.
+    while ((clk.regmap->S & MCG_S_IREFST_MASK) != MCG_S_IREFST_MASK);
+
+    // Wait until internal type of source was select
+    while ((clk.regmap->S & MCG_S_IRCST_MASK) != clk.changeParam.ircs);
+
+    // Restore DRST and DMX32 after initialization for e7993
+    if (changeDrs == TRUE)
+    {
+        clk.regmap->C4 = tmpC4;
+    }
+
+    // Wait until internal reference clock is selected.
+    while ((clk.regmap->S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1));
+
+    // Set MCG->C4
+    tmpC4 &= (~(MCG_C4_DMX32_MASK | MCG_C4_DRST_DRS_MASK));
+    tmpC4 |= clk.changeParam.dmx_drst;
+    clk.regmap->C4 = tmpC4;
+}
+
+
 static System_Errors Clock_stateTransition (void)
 {
+    Clock_State state = Clock_getCurrentState();
+    System_Errors err = ERRORS_NO_ERROR;
 
+    do
+    {
+
+        switch (state)
+        {
+        case CLOCK_STATE_FEI:
+            break;
+        case CLOCK_STATE_FBI:
+            err = Clock_setFbiMode();
+            break;
+        case CLOCK_STATE_BLPI:
+            break;
+        case CLOCK_STATE_FEE:
+            err = Clock_setFeeMode();
+            break;
+        case CLOCK_STATE_FBE:
+            err = Clock_setFbeMode();
+            break;
+        case CLOCK_STATE_BLPE:
+            break;
+        case CLOCK_STATE_PBE:
+            break;
+        case CLOCK_STATE_PEE:
+            break;
+        default:
+            ohiassert(0);
+            break;
+        }
+        if (err != ERRORS_NO_ERROR)
+        {
+            return err;
+        }
+    }
+    while (state != clk.changeParam.final);
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Clock_init (Clock_Config* config)
@@ -500,7 +729,7 @@ clock_config_result:
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Clock_deInit (Clock_Config* config)
+System_Errors Clock_deInit ()
 {
 
 }
