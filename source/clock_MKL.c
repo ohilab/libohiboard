@@ -460,6 +460,72 @@ static System_Errors Clock_setFbiMode (void)
     clk.regmap->C4 = tmpC4;
 }
 
+/**
+ * This function set the current mode of MCG module to PBE:
+ * PLL Bypassed External.
+ */
+static System_Errors Clock_setPbeMode (void)
+{
+    ohiassert(clk.changeParam.final != CLOCK_STATE_NONE);
+
+    uint8_t tmpreg = 0;
+
+    // Disable LP
+    clk.regmap->C2 &= ~(MCG_C2_LP_MASK);
+
+    // Set MCG->C1
+    tmpreg = clk.regmap->C1;
+    tmpreg &= (~(MCG_C1_CLKS_MASK | MCG_C1_IREFS_MASK));
+    tmpreg |= MCG_C1_CLKS(2)  | // External reference clock is selected
+              MCG_C1_IREFS(0);  // External source select
+    clk.regmap->C1 = tmpreg;
+
+    // Wait until reference Source of FLL is the internal reference clock.
+    while ((clk.regmap->S & (MCG_S_IREFST_MASK | MCG_S_CLKST_MASK))
+            != (MCG_S_IREFST(0) | MCG_S_CLKST(2)));
+
+    // Disable PLL first and wait FLL is selected.
+    clk->regmap->C6 &= ~MCG_C6_PLLS_MASK;
+    while ((clk->regmap->S & MCG_S_PLLST_MASK) != 0);
+
+    // Configure the PLL
+    tmpreg = clk->regmap->C5;
+    tmpreg &= ~(MCG_C5_PRDIV0_MASK);
+    tmpreg |= clk.changeParam.prdiv;
+    clk->regmap->C5 = tmpreg;
+
+    tmpreg = clk->regmap->C6;
+    tmpreg &= ~(MCG_C6_VDIV0_MASK);
+    tmpreg |= clk.changeParam.vdiv;
+    clk->regmap->C6 = tmpreg;
+
+    // Enable PLL mode
+    clk->regmap->C6 |= MCG_C6_PLLS_MASK;
+    // Wait for PLL mode changed
+    while (!(clk->regmap->S & MCG_S_PLLST_MASK) == 0);
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function set the current mode of MCG module to PEE:
+ * PLL Engaged External.
+ * This function works fine only when the previous status is PBE, where
+ * every PLL configurations is done.
+ */
+static System_Errors Clock_setPeeMode (void)
+{
+    // Wait until PLL is locked
+    while ((clk->regmap->S(regmap) & MCG_S_LOCK0_MASK) != MCG_S_LOCK0_MASK);
+
+    // Select PLL/FLL as clock source
+    clk->regmap->C1 &= ~(MCG_C1_CLKS_MASK);
+
+    // Wait the refresh of the status register
+    while ((clk->regmap->S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3));
+
+    return ERRORS_NO_ERROR;
+}
 
 static System_Errors Clock_stateTransition (void)
 {
@@ -468,7 +534,6 @@ static System_Errors Clock_stateTransition (void)
 
     do
     {
-
         switch (state)
         {
         case CLOCK_STATE_FEI:
@@ -487,8 +552,10 @@ static System_Errors Clock_stateTransition (void)
         case CLOCK_STATE_BLPE:
             break;
         case CLOCK_STATE_PBE:
+            err = Clock_setPbeMode();
             break;
         case CLOCK_STATE_PEE:
+            err = Clock_setPeeMode();
             break;
         default:
             ohiassert(0);
