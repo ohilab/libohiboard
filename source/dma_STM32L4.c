@@ -50,6 +50,45 @@ extern "C" {
 
 #define DMA_CHANNEL_NUMBERS     (7u)
 
+#define DMA_CLOCK_ENABLE(REG,MASK)  do { \
+                                      UTILITY_SET_REGISTER_BIT(REG,MASK); \
+                                      asm("nop"); \
+                                      (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
+                                    } while (0)
+
+#define DMA_CLOCK_DISABLE(REG,MASK)  do { \
+                                       UTILITY_CLEAR_REGISTER_BIT(REG,MASK); \
+                                       asm("nop"); \
+                                       (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
+                                     } while (0)
+
+/**
+ * Enable selected channel of peripheral
+ */
+#define DMA_DEVICE_ENABLE(CHANNEL) ((CHANNEL)->CCR |= DMA_CCR_EN)
+
+/**
+ * Disable selected channel of peripheral
+ */
+#define DMA_DEVICE_DISABLE(CHANNEL) ((CHANNEL)->CCR &= ~DMA_CCR_EN)
+
+/**
+ * Check whether the current channel is valid or not.
+ */
+#define DMA_VALID_CHANNEL(CHANNEL) (((CHANNEL) == DMA_CHANNELS_CH1) || \
+                                    ((CHANNEL) == DMA_CHANNELS_CH2) || \
+                                    ((CHANNEL) == DMA_CHANNELS_CH3) || \
+                                    ((CHANNEL) == DMA_CHANNELS_CH4) || \
+                                    ((CHANNEL) == DMA_CHANNELS_CH5) || \
+                                    ((CHANNEL) == DMA_CHANNELS_CH6) || \
+                                    ((CHANNEL) == DMA_CHANNELS_CH7))
+
+/**
+ * Check whether the transfer mode is valid or not.
+ */
+#define DMA_VALID_MODE(MODE) (((MODE) == DMA_MODE_NORMAL) || \
+                              ((MODE) == DMA_MODE_CIRCULAR))
+
 /**
  * Check whether the transfer direction is valid or not.
  */
@@ -80,6 +119,7 @@ extern "C" {
                                             ((REQUEST) == DMA_REQUESTCHANNELS_CH5) || \
                                             ((REQUEST) == DMA_REQUESTCHANNELS_CH6) || \
                                             ((REQUEST) == DMA_REQUESTCHANNELS_CH7))
+
 /**
  * Check whether the mmeory data size is valid or not.
  */
@@ -95,11 +135,25 @@ extern "C" {
                                               ((SIZE) == DMA_PERIPHERALDATASIZE_WORD ))
 
 /**
+ * Check whether the priority is valid or not.
+ */
+#define DMA_VALID_PRIORITY(PRIORITY) (((PRIORITY) == DMA_PRIORITY_LOW)    || \
+                                      ((PRIORITY) == DMA_PRIORITY_MEDIUM) || \
+                                      ((PRIORITY) == DMA_PRIORITY_HIGH)   || \
+                                      ((PRIORITY) == DMA_PRIORITY_VERY_HIGH ))
+
+/**
+ *
+ */
+#define DMA_VALID_BUFFER_SIZE(SIZE) (((SIZE) >= 0x1U) && ((SIZE) < 0x10000U))
+
+/**
  * DMA peripheral representation.
  */
 typedef struct _Dma_Device
 {
     DMA_TypeDef* regmap;                           /**< Device memory pointer */
+    DMA_Request_TypeDef* regmapCSELR;
 
     volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
     uint32_t rccRegisterEnable;         /**< Register mask for current device */
@@ -110,6 +164,8 @@ typedef struct _Dma_Device
 
     Interrupt_Vector isrNumber[DMA_CHANNEL_NUMBERS];   /**< ISR vector number */
 
+    Dma_DeviceState state;                      /**< Current peripheral state */
+
 } Dma_Device;
 
 #define DMA_IS_DEVICE(DEVICE) (((DEVICE) == OB_DMA1) || \
@@ -118,6 +174,7 @@ typedef struct _Dma_Device
 static Dma_Device dma1 =
 {
         .regmap              = DMA1,
+        .regmapCSELR         = DMA1_CSELR,
 
         .rccRegisterPtr      = &RCC->AHB1ENR,
         .rccRegisterEnable   = RCC_AHB1ENR_DMA1EN,
@@ -143,12 +200,15 @@ static Dma_Device dma1 =
                                INTERRUPT_DMA1_CH6,
                                INTERRUPT_DMA1_CH7,
         },
+
+        .state               = DMA_DEVICESTATE_RESET,
 };
 Dma_DeviceHandle OB_DMA1 = &dma1;
 
 static Dma_Device dma2 =
 {
         .regmap              = DMA2,
+        .regmapCSELR         = DMA2_CSELR,
 
         .rccRegisterPtr      = &RCC->AHB1ENR,
         .rccRegisterEnable   = RCC_AHB1ENR_DMA2EN,
@@ -174,6 +234,8 @@ static Dma_Device dma2 =
                                INTERRUPT_DMA2_CH6,
                                INTERRUPT_DMA2_CH7,
         },
+
+        .state               = DMA_DEVICESTATE_RESET,
 };
 Dma_DeviceHandle OB_DMA2 = &dma2;
 
@@ -182,11 +244,11 @@ Dma_DeviceHandle OB_DMA2 = &dma2;
  *
  *
  */
-static System_Errors Dma_config (Dma_DeviceHandle dev,
-                                 Dma_Channels channel,
-                                 uint32_t sourceAddress,
-                                 uint32_t destinationAddress,
-                                 uint32_t length)
+static void Dma_config (Dma_DeviceHandle dev,
+                        Dma_Channels channel,
+                        uint32_t sourceAddress,
+                        uint32_t destinationAddress,
+                        uint32_t length)
 {
     // Clear global interrupt flag of selected channel
     dev->regmap->IFCR = (DMA_ISR_GIF1 << (channel << 2));
@@ -207,9 +269,25 @@ static System_Errors Dma_config (Dma_DeviceHandle dev,
     }
 }
 
+static inline void __attribute__((always_inline)) Dma_callbackInterrupt (Dma_DeviceHandle dev,
+                                                                         Dma_Channels channel)
+{
+    uint32_t channelIndex = ((channel << 2) & 0x0000001Cu);
+    uint32_t isr = dev->regmap->ISR;
+    uint32_t isrEnabled = dev->channelRegisterPtr[channel]->CCR;
+
+    // Transfer complete interrupt
+    if (((isr & (DMA_ISR_TCIF1_Msk << channelIndex)) != 0u) &&
+         ((isrEnabled & DMA_CCR_TCIE) != 0u))
+    {
+
+    }
+    // TODO
+}
+
 System_Errors Dma_init (Dma_DeviceHandle dev,
                         Dma_Channels channel,
-                        Dma_Config config)
+                        Dma_Config* config)
 {
     // Check the DMA device
     if (dev == NULL)
@@ -222,11 +300,58 @@ System_Errors Dma_init (Dma_DeviceHandle dev,
         return ERRORS_DMA_WRONG_DEVICE;
     }
 
+    ohiassert(DMA_VALID_CHANNEL(channel));
     ohiassert(DMA_VALID_CHANNEL_REQUEST(config->request));
     ohiassert(DMA_VALID_MEMORY_INCREMENT(config->mIncrement));
     ohiassert(DMA_VALID_PERIPHERAL_INCREMENT(config->pIncrement));
-
+    ohiassert(DMA_VALID_DIRECTION(config->direction));
+    ohiassert(DMA_VALID_MEMORY_DATA_SIZE(config->mSize));
+    ohiassert(DMA_VALID_PERIPHERAL_DATA_SIZE(config->pSize));
+    ohiassert(DMA_VALID_PRIORITY(config->priority));
+    ohiassert(DMA_VALID_MODE(config->mode));
+    // Save channel configuration
     dev->channelConfig[channel] = *config;
+
+    // Enable peripheral clock
+    if (dev->state == DMA_DEVICESTATE_RESET)
+    {
+        DMA_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+    }
+
+    // Set channel configuration
+    uint32_t tmpreg = dev->channelRegisterPtr[channel]->CCR;
+    tmpreg &= (~(DMA_CCR_PL_Msk    | DMA_CCR_MSIZE_Msk  | DMA_CCR_PSIZE_Msk  |
+                 DMA_CCR_MINC_Msk  | DMA_CCR_PINC_Msk   | DMA_CCR_CIRC_Msk   |
+                 DMA_CCR_DIR_Msk   | DMA_CCR_MEM2MEM_Msk));
+    tmpreg |= config->direction |
+              config->priority  |
+              config->mSize     |
+              config->pSize     |
+              config->mode      |
+              ((config->mIncrement == UTILITY_STATE_ENABLE) ? DMA_CCR_MINC : 0u) |
+              ((config->pIncrement == UTILITY_STATE_ENABLE) ? DMA_CCR_PINC : 0u);
+    dev->channelRegisterPtr[channel]->CCR = tmpreg;
+
+    // In case of peripheral-to-memory or memory-to-peripheral, request selection
+    // must be set!
+    if (config->direction != DMA_DIRECTION_MEMORY_TO_MEMORY)
+    {
+        dev->regmapCSELR->CSELR &= (~(DMA_CSELR_C1S << (channel << 2)));
+        dev->regmapCSELR->CSELR |= (config->request << (channel << 2));
+    }
+
+    // Check callback and enable interrupts
+    if ((config->transferCompleteCallback != 0) ||
+        (config->transferAbortCallback != 0)    ||
+        (config->transferErrorCallback != 0))
+    {
+        // Enable interrupt
+        Interrupt_enable(dev->isrNumber[channel]);
+    }
+
+    dev->state = DMA_DEVICESTATE_READY;
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Dma_deInit (Dma_DeviceHandle dev,
@@ -242,6 +367,164 @@ System_Errors Dma_deInit (Dma_DeviceHandle dev,
     {
         return ERRORS_DMA_WRONG_DEVICE;
     }
+
+    dev->state = DMA_DEVICESTATE_RESET;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Dma_start (Dma_DeviceHandle dev,
+                         Dma_Channels channel,
+                         uint32_t sourceAddress,
+                         uint32_t destinationAddress,
+                         uint32_t length)
+{
+    // Check the DMA device
+    if (dev == NULL)
+    {
+        return ERRORS_DMA_NO_DEVICE;
+    }
+    // Check the DMA instance
+    if (ohiassert(DMA_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_DMA_WRONG_DEVICE;
+    }
+
+    ohiassert(DMA_VALID_CHANNEL(channel));
+
+    if (dev->state == DMA_DEVICESTATE_READY)
+    {
+        dev->state = DMA_DEVICESTATE_BUSY;
+        DMA_DEVICE_DISABLE(dev->channelRegisterPtr[channel]);
+
+        // Configure the transfer...
+        Dma_config(dev,channel,sourceAddress,destinationAddress,length);
+
+        // Check callback and enable interrupts
+        uint32_t tmpIsr = 0;
+        if (dev->channelConfig[channel].transferCompleteCallback != 0)
+        {
+            tmpIsr |= DMA_CCR_TCIE;
+        }
+        if (dev->channelConfig[channel].transferErrorCallback != 0)
+        {
+            tmpIsr |= DMA_CCR_TEIE;
+        }
+        dev->channelRegisterPtr[channel]->CCR |= tmpIsr;
+
+        // Enable the channel
+        DMA_DEVICE_ENABLE(dev->channelRegisterPtr[channel]);
+    }
+    else
+    {
+        return ERRORS_DMA_BUSY;
+    }
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Dma_stop (Dma_DeviceHandle dev,
+                        Dma_Channels channel)
+{
+    // Check the DMA device
+    if (dev == NULL)
+    {
+        return ERRORS_DMA_NO_DEVICE;
+    }
+    // Check the DMA instance
+    if (ohiassert(DMA_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_DMA_WRONG_DEVICE;
+    }
+
+    ohiassert(DMA_VALID_CHANNEL(channel));
+
+    // Disable interrupts (all)
+    dev->channelRegisterPtr[channel]->CCR &= (~(DMA_CCR_TCIE  | DMA_CCR_HTIE | DMA_CCR_TEIE));
+
+    // Disable channel
+    DMA_DEVICE_DISABLE(dev->channelRegisterPtr[channel]);
+
+    // Clear global interrupt flag
+    dev->regmap->IFCR = (DMA_ISR_GIF1 << (channel << 2));
+
+    dev->state = DMA_DEVICESTATE_READY;
+
+    // In case callback was present, call it!
+    if (dev->channelConfig[channel].transferAbortCallback != 0)
+    {
+        dev->channelConfig[channel].transferAbortCallback(dev,channel);
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+_weak void DMA1_Channel1_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH1);
+}
+
+_weak void DMA1_Channel2_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH2);
+}
+
+_weak void DMA1_Channel3_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH3);
+}
+
+_weak void DMA1_Channel4_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH4);
+}
+
+_weak void DMA1_Channel5_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH5);
+}
+
+_weak void DMA1_Channel6_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH6);
+}
+
+_weak void DMA1_Channel7_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA1,DMA_CHANNELS_CH7);
+}
+
+_weak void DMA2_Channel1_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH1);
+}
+
+_weak void DMA2_Channel2_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH2);
+}
+
+_weak void DMA2_Channel3_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH3);
+}
+
+_weak void DMA2_Channel4_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH4);
+}
+
+_weak void DMA2_Channel5_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH5);
+}
+
+_weak void DMA2_Channel6_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH6);
+}
+
+_weak void DMA2_Channel7_IRQHandler (void)
+{
+    Dma_callbackInterrupt(OB_DMA2,DMA_CHANNELS_CH7);
 }
 
 #endif // LIBOHIBOARD_STM32L4

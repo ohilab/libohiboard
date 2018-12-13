@@ -103,6 +103,21 @@ extern Dma_DeviceHandle OB_DMA1;
  */
 extern Dma_DeviceHandle OB_DMA2;
 
+void DMA1_Channel1_IRQHandler (void);
+void DMA1_Channel2_IRQHandler (void);
+void DMA1_Channel3_IRQHandler (void);
+void DMA1_Channel4_IRQHandler (void);
+void DMA1_Channel5_IRQHandler (void);
+void DMA1_Channel6_IRQHandler (void);
+void DMA1_Channel7_IRQHandler (void);
+void DMA2_Channel1_IRQHandler (void);
+void DMA2_Channel2_IRQHandler (void);
+void DMA2_Channel3_IRQHandler (void);
+void DMA2_Channel4_IRQHandler (void);
+void DMA2_Channel5_IRQHandler (void);
+void DMA2_Channel6_IRQHandler (void);
+void DMA2_Channel7_IRQHandler (void);
+
 #endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
 
 /**

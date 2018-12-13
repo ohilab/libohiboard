@@ -185,6 +185,7 @@ typedef enum _System_Errors
 	ERRORS_DMA_OK,                                 /**< DMA initialization ok */
     ERRORS_DMA_NO_DEVICE,
     ERRORS_DMA_WRONG_DEVICE,
+    ERRORS_DMA_BUSY,        /**< The DMA channel is busy and can not be used. */
 
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */

@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2016-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Matteo Civale <matteo.civale@gmail.com>
@@ -56,11 +56,24 @@ extern "C" {
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "utility.h"
 
 /**
  * @defgroup DMA_Configuration_Params DMA configuration types
  * @{
  */
+
+/**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Dma_DeviceState
+{
+    DMA_DEVICESTATE_RESET,
+    DMA_DEVICESTATE_READY,
+    DMA_DEVICESTATE_BUSY,
+    DMA_DEVICESTATE_ERROR,
+
+} Dma_DeviceState;
 
 /**
  * Device handle for DMA peripheral.
@@ -130,6 +143,11 @@ typedef enum _Dma_MemoryDataSize
 typedef struct _Dma_Config
 {
     /**
+     * Specifies the transfer mode.
+     */
+    Dma_Mode mode;
+
+    /**
      * Specifies the direction that will be used to transfer data.
      */
     Dma_Direction direction;
@@ -166,6 +184,14 @@ typedef struct _Dma_Config
      */
     Dma_RequestChannels request;
 
+    /** Dma transfer complete callback */
+    void (* transferCompleteCallback)(struct _Dma_Device *dev, Dma_Channels channel);
+
+    /** Dma transfer abort callback */
+    void (* transferAbortCallback)(struct _Dma_Device *dev, Dma_Channels channel);
+
+    /** Dma transfer error callback */
+    void (* transferErrorCallback)(struct _Dma_Device *dev, Dma_Channels channel);
 } Dma_Config;
 
 /**
@@ -188,7 +214,7 @@ typedef struct _Dma_Config
  */
 System_Errors Dma_init (Dma_DeviceHandle dev,
                         Dma_Channels channel,
-                        Dma_Config config);
+                        Dma_Config* config);
 
 /**
  * This function de-initialize the selected Dma channel.
@@ -199,6 +225,42 @@ System_Errors Dma_init (Dma_DeviceHandle dev,
  */
 System_Errors Dma_deInit (Dma_DeviceHandle dev,
                           Dma_Channels channel);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup DMA_IO_Functions DMA transfer management functions
+ * @brief Functions to manage transfer operations into DMA channel.
+ * @{
+ */
+
+/**
+ * Start the Dma transfer.
+ *
+ * @param[in] dev Dma device handle
+ * @param[in] channel The Dma channel
+ * @param[in] sourceAddress The source memory buffer address
+ * @param[in] destinationAddress The destination memory buffer address
+ * @param[in] length The length of data to be transferred
+ * @return ERRORS_NO_ERROR whether the transfer starts without errors.
+ */
+System_Errors Dma_start (Dma_DeviceHandle dev,
+                         Dma_Channels channel,
+                         uint32_t sourceAddress,
+                         uint32_t destinationAddress,
+                         uint32_t length);
+
+/**
+ * Stop the Dma transfer.
+ *
+ * @param[in] dev Dma device handle
+ * @param[in] channel The Dma channel
+ * @return ERRORS_NO_ERROR whether the transfer abort without errors.
+ */
+System_Errors Dma_stop (Dma_DeviceHandle dev,
+                        Dma_Channels channel);
 
 /**
  * @}
