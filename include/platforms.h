@@ -213,6 +213,26 @@
 #define LIBOHIBOARD_NXP_KINETIS
 #endif
 
+#elif defined (LIBOHIBOARD_MKL25ZxFM) || \
+      defined (LIBOHIBOARD_MKL25ZxFT) || \
+      defined (LIBOHIBOARD_MKL25ZxLH) || \
+      defined (LIBOHIBOARD_MKL25ZxLK)
+
+#include "platforms/MKL25/MKL25Z4.h"
+#include "platforms/MKL25/MKL25Z4_features.h"
+
+#ifndef LIBOHIBOARD_MKL
+#define LIBOHIBOARD_MKL
+#endif
+
+#ifndef LIBOHIBOARD_MKL25
+#define LIBOHIBOARD_MKL25
+#endif
+
+#ifndef LIBOHIBOARD_NXP_KINETIS
+#define LIBOHIBOARD_NXP_KINETIS
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L476Jx) || \
       defined (LIBOHIBOARD_STM32L476Rx)
 
