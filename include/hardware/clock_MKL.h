@@ -70,6 +70,11 @@ extern "C" {
 #define CLOCK_FREQ_MCGFLL_MAX          ((uint32_t)48000000u)
 #define CLOCK_FREQ_MCGPLL_MAX         ((uint32_t)100000000u)
 
+/**
+ * The maximum frequency of bus clock.
+ */
+#define CLOCK_FREQ_BUS_MAX             ((uint32_t)24000000u)
+
 #define CLOCK_REG_PRDIV_MIN                             (1u)
 #define CLOCK_REG_PRDIV_MAX                            (25u)
 

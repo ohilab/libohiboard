@@ -60,6 +60,16 @@ extern "C" {
                                              DEVICE.changeParam.final = CLOCK_STATE_NONE; \
                                          } while(0)
 
+#define CLOCK_IS_VALID_BUS_DIVIDER(DIVIDER) (((DIVIDER) == CLOCK_BUSDIVIDER_1) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_2) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_3) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_4) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_5) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_6) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_7) || \
+                                             ((DIVIDER) == CLOCK_BUSDIVIDER_8))
+
+
 typedef struct _Clock_Device
 {
     MCG_Type* regmap;
@@ -121,6 +131,7 @@ typedef struct _Clock_Device
 static Clock_Device clk =
 {
     .regmap          = MCG,
+    .regmapSim       = SIM,
 
     // Start-up: FEI mode, with LIRC active, DIV1 = 1
     .systemCoreClock = 20480000u,
@@ -343,7 +354,7 @@ static System_Errors Clock_setFeeMode (void)
     tmpreg = clk.regmap->C2;
     tmpreg &= ~(MCG_C2_RANGE0_MASK);
     tmpreg |= MCG_C2_RANGE0(clk.changeParam.range0) | // Set frequency range
-              MCG_C2_EREFS0(clk.changeParam.erefs0);  // Set oscillator/external
+              clk.changeParam.erefs0;                 // Set oscillator/external
     clk.regmap->C2 = tmpreg;
 
     // Set MCG->C1
@@ -412,7 +423,7 @@ static System_Errors Clock_setFbeMode (void)
     tmpreg = clk.regmap->C2;
     tmpreg &= ~(MCG_C2_RANGE0_MASK);
     tmpreg |= MCG_C2_RANGE0(clk.changeParam.range0) | // Set frequency range
-              MCG_C2_EREFS0(clk.changeParam.erefs0);  // Set oscillator/external
+              clk.changeParam.erefs0;                 // Set oscillator/external
     clk.regmap->C2 = tmpreg;
 
     // Set MCG->C1
@@ -659,6 +670,9 @@ System_Errors Clock_init (Clock_Config* config)
     {
         return ERRORS_CLOCK_NO_CONFIG;
     }
+
+    ohiassert(CLOCK_IS_VALID_BUS_DIVIDER(config->busDivider));
+
     // Check current mode
     Clock_getCurrentState();
 
@@ -794,6 +808,8 @@ System_Errors Clock_init (Clock_Config* config)
             }
             else
             {
+                prdiv = (clk.changeParam.prdiv >> MCG_C5_PRDIV0_SHIFT ) + 1;
+                vdiv = (clk.changeParam.vdiv >> MCG_C6_VDIV0_SHIFT) + CLOCK_REG_VDIV_MIN;
                 clk.changeParam.final = CLOCK_STATE_PEE;
                 clk.changeParam.foutMcg = ((config->fext/(prdiv)) * vdiv);
                 clk.changeParam.outdiv1 = div - 1;
@@ -875,6 +891,16 @@ clock_config_result:
 
     // Save core clock
     clk.systemCoreClock = (clk.changeParam.foutMcg / (clk.changeParam.outdiv1 + 1));
+
+    // Set bus divider
+    if ((clk.systemCoreClock / config->busDivider) > CLOCK_FREQ_BUS_MAX)
+    {
+        return ERRORS_CLOCK_WRONG_DIVIDER;
+    }
+    tempReg = clk.regmapSim->CLKDIV1;
+    tempReg &= (~(SIM_CLKDIV1_OUTDIV4_MASK));
+    tempReg |= (SIM_CLKDIV1_OUTDIV4(config->busDivider));
+    clk.regmapSim->CLKDIV1 = tempReg;
 
     return ERRORS_NO_ERROR;
 }

@@ -403,6 +403,30 @@ typedef enum _Clock_McoSource
 
 #endif
 
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
+/**
+ * List of possible bus divider value.
+ */
+typedef enum _Clock_BusDivider
+{
+    CLOCK_BUSDIVIDER_1 = 0,
+    CLOCK_BUSDIVIDER_2 = 1,
+    CLOCK_BUSDIVIDER_3 = 2,
+    CLOCK_BUSDIVIDER_4 = 3,
+    CLOCK_BUSDIVIDER_5 = 4,
+    CLOCK_BUSDIVIDER_6 = 5,
+    CLOCK_BUSDIVIDER_7 = 6,
+    CLOCK_BUSDIVIDER_8 = 7,
+
+} Clock_BusDivider;
+
+
+#endif
+
+/**
+ *
+ */
 typedef struct _Clock_Config
 {
     Clock_Origin source;
@@ -422,9 +446,13 @@ typedef struct _Clock_Config
 
 #else
 
-    uint8_t busDivider;
-    uint8_t flexbusDivider;
-    uint8_t flashDivider;
+    /**
+     * The divider for bus clock.
+     *
+     * @note into MKL microcontroller, this divider is used both for
+     *       bus and flash clock.
+     */
+    Clock_BusDivider busDivider;
 
 #endif
 
