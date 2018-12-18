@@ -35,6 +35,17 @@
  * @brief Clock definitions and prototypes.
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
+/**
+ * @defgroup CLOCK CLOCK
+ * @brief Clock HAL driver
+ * @{
+ */
+
 #ifndef __CLOCK_H
 #define __CLOCK_H
 
@@ -126,6 +137,26 @@ Clock_State Clock_getCurrentState (void);
 
 #endif
 
+typedef enum _Clock_Output
+{
+    CLOCK_OUTPUT_SYSCLK   = 0x0001,
+
+#if defined (LIBOHIBOARD_ST_STM32)
+    CLOCK_OUTPUT_HCLK     = 0x0002,
+    CLOCK_OUTPUT_PCLK1    = 0x0004,
+    CLOCK_OUTPUT_PCLK2    = 0x0008,
+    CLOCK_OUTPUT_PLLR     = 0x0010,
+    CLOCK_OUTPUT_PLLQ     = 0x0020,
+    CLOCK_OUTPUT_PLLP     = 0x0040,
+    CLOCK_OUTPUT_PLLSAI1R = 0x0080,
+    CLOCK_OUTPUT_PLLSAI1Q = 0x0100,
+    CLOCK_OUTPUT_PLLSAI1P = 0x0200,
+    CLOCK_OUTPUT_PLLSAI2R = 0x0400,
+    CLOCK_OUTPUT_PLLSAI2P = 0x0800,
+#endif
+
+} Clock_Output;
+
 
 #if defined (LIBOHIBOARD_ST_STM32)
 
@@ -172,23 +203,6 @@ typedef enum _Clock_PllSource
     CLOCK_PLLSOURCE_HSI  = (RCC_PLLCFGR_PLLSRC_HSI),
     CLOCK_PLLSOURCE_HSE  = (RCC_PLLCFGR_PLLSRC_HSE),
 } Clock_PllSource;
-
-typedef enum _Clock_Output
-{
-    CLOCK_OUTPUT_SYSCLK   = 0x0001,
-    CLOCK_OUTPUT_HCLK     = 0x0002,
-    CLOCK_OUTPUT_PCLK1    = 0x0004,
-    CLOCK_OUTPUT_PCLK2    = 0x0008,
-    CLOCK_OUTPUT_PLLR     = 0x0010,
-    CLOCK_OUTPUT_PLLQ     = 0x0020,
-    CLOCK_OUTPUT_PLLP     = 0x0040,
-    CLOCK_OUTPUT_PLLSAI1R = 0x0080,
-    CLOCK_OUTPUT_PLLSAI1Q = 0x0100,
-    CLOCK_OUTPUT_PLLSAI1P = 0x0200,
-    CLOCK_OUTPUT_PLLSAI2R = 0x0400,
-    CLOCK_OUTPUT_PLLSAI2P = 0x0800,
-
-} Clock_Output;
 
 typedef enum _Clock_AHBDivider
 {
@@ -466,14 +480,6 @@ typedef struct _Clock_Config
  */
 System_Errors Clock_init (Clock_Config *config);
 
-#if defined (LIBOHIBOARD_NXP_KINETIS)
-
-System_Errors Clock_setDividers (uint8_t busDivider, uint8_t flexbusDivider, uint8_t flashDivider);
-
-#elif defined (LIBOHIBOARD_ST_STM32)
-
-System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint32_t apb2Divider);
-
 /**
  * Return the selected output clock.
  *
@@ -481,6 +487,14 @@ System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint
  * @return The clock frequency in Hz
  */
 uint32_t Clock_getOutputValue (Clock_Output output);
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
+System_Errors Clock_setDividers (uint8_t busDivider, uint8_t flexbusDivider, uint8_t flashDivider);
+
+#elif defined (LIBOHIBOARD_ST_STM32)
+
+System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint32_t apb2Divider);
 
 /**
  * Set the MSI_RANGE value used for clock switching during clock switch.
@@ -516,6 +530,14 @@ uint32_t Clock_getOscillatorValue (void);
 uint8_t Clock_getCoreDivider();
 
 #endif
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

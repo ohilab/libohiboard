@@ -122,12 +122,11 @@ static Clock_Device clk =
 {
     .regmap          = MCG,
 
-    // FIXME!
-    .systemCoreClock = 4000000u,
+    // Start-up: FEI mode, with LIRC active, DIV1 = 1
+    .systemCoreClock = 20480000u,
+    .state           = CLOCK_STATE_FEI,
 
     .externalClock   = 0u,
-
-    .state           = CLOCK_STATE_FEI,
 };
 
 /**
@@ -271,6 +270,54 @@ static const Clock_State Clock_mcgStateMatrix[8][8] =
 };
 
 /**
+ * This function set the current mode of MCG module to FEI:
+ * FLL Engaged Internal.
+ *
+ * @note Pay attention to ERRATA 7993 (e7993) at this link
+ *       https://www.nxp.com/docs/en/errata/KINETIS_W_1N41U.pdf
+ */
+static System_Errors Clock_setFeiMode (void)
+{
+    bool changeDrs = FALSE;
+    uint8_t tmpreg = 0;
+    uint8_t tmpC4 = clk.regmap->C4;
+
+    // e7993
+    if ((clk.regmap->S & MCG_S_IREFST_MASK) == MCG_S_IREFST_MASK)
+    {
+        clk.regmap->C4 ^= (1u << MCG_C4_DRST_DRS_SHIFT);
+        changeDrs = TRUE;
+    }
+
+    // Set MCG->C1
+    tmpreg = clk.regmap->C1;
+    tmpreg &= (~(MCG_C1_CLKS_MASK | MCG_C1_FRDIV_MASK | MCG_C1_IREFS_MASK));
+    tmpreg |= MCG_C1_CLKS(0)  | // PLL/FLL select
+              MCG_C1_IREFS(1);  // External source select
+    clk.regmap->C1 = tmpreg;
+
+    // Wait until reference Source of FLL is the external reference clock.
+    while ((clk.regmap->S & MCG_S_IREFST_MASK) == 0);
+
+    // Restore DRST and DMX32 after initialization for e7993
+    if (changeDrs == TRUE)
+    {
+        clk.regmap->C4 = tmpC4;
+    }
+
+    // Set MCG->C4
+    // in FEI mode C4[DMX32] must be set to 0
+    tmpC4 &= (~(MCG_C4_DMX32_MASK | MCG_C4_DRST_DRS_MASK));
+    tmpC4 |= (clk.changeParam.dmx_drst & MCG_C4_DRST_DRS_MASK);
+    clk.regmap->C4 = tmpC4;
+
+    //  Wait until output of the FLL is selected
+    while ((clk.regmap->S & MCG_S_CLKST_MASK) != 0);
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
  * This function set the current mode of MCG module to FEE:
  * FLL Engaged External.
  *
@@ -328,7 +375,7 @@ static System_Errors Clock_setFeeMode (void)
     clk.regmap->C4 = tmpC4;
 
     //  Wait until output of the FLL is selected
-    while ((clk.regmap->S & MCG_S_CLKST_MASK) != 0)
+    while ((clk.regmap->S & MCG_S_CLKST_MASK) != 0);
 
     return ERRORS_NO_ERROR;
 }
@@ -458,6 +505,8 @@ static System_Errors Clock_setFbiMode (void)
     tmpC4 &= (~(MCG_C4_DMX32_MASK | MCG_C4_DRST_DRS_MASK));
     tmpC4 |= clk.changeParam.dmx_drst;
     clk.regmap->C4 = tmpC4;
+
+    return ERRORS_NO_ERROR;
 }
 
 /**
@@ -485,24 +534,24 @@ static System_Errors Clock_setPbeMode (void)
             != (MCG_S_IREFST(0) | MCG_S_CLKST(2)));
 
     // Disable PLL first and wait FLL is selected.
-    clk->regmap->C6 &= ~MCG_C6_PLLS_MASK;
-    while ((clk->regmap->S & MCG_S_PLLST_MASK) != 0);
+    clk.regmap->C6 &= ~MCG_C6_PLLS_MASK;
+    while ((clk.regmap->S & MCG_S_PLLST_MASK) != 0);
 
     // Configure the PLL
-    tmpreg = clk->regmap->C5;
+    tmpreg = clk.regmap->C5;
     tmpreg &= ~(MCG_C5_PRDIV0_MASK);
     tmpreg |= clk.changeParam.prdiv;
-    clk->regmap->C5 = tmpreg;
+    clk.regmap->C5 = tmpreg;
 
-    tmpreg = clk->regmap->C6;
+    tmpreg = clk.regmap->C6;
     tmpreg &= ~(MCG_C6_VDIV0_MASK);
     tmpreg |= clk.changeParam.vdiv;
-    clk->regmap->C6 = tmpreg;
+    clk.regmap->C6 = tmpreg;
 
     // Enable PLL mode
-    clk->regmap->C6 |= MCG_C6_PLLS_MASK;
+    clk.regmap->C6 |= MCG_C6_PLLS_MASK;
     // Wait for PLL mode changed
-    while (!(clk->regmap->S & MCG_S_PLLST_MASK) == 0);
+    while (!(clk.regmap->S & MCG_S_PLLST_MASK) == 0);
 
     return ERRORS_NO_ERROR;
 }
@@ -510,19 +559,44 @@ static System_Errors Clock_setPbeMode (void)
 /**
  * This function set the current mode of MCG module to PEE:
  * PLL Engaged External.
- * This function works fine only when the previous status is PBE, where
- * every PLL configurations is done.
+ *
+ * @note This function works fine only when the previous status is PBE, where
+ *       every PLL configurations is done.
  */
 static System_Errors Clock_setPeeMode (void)
 {
     // Wait until PLL is locked
-    while ((clk->regmap->S(regmap) & MCG_S_LOCK0_MASK) != MCG_S_LOCK0_MASK);
+    while ((clk.regmap->S & MCG_S_LOCK0_MASK) != MCG_S_LOCK0_MASK);
 
     // Select PLL/FLL as clock source
-    clk->regmap->C1 &= ~(MCG_C1_CLKS_MASK);
+    clk.regmap->C1 &= ~(MCG_C1_CLKS_MASK);
 
     // Wait the refresh of the status register
-    while ((clk->regmap->S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3));
+    while ((clk.regmap->S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3));
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function set the current mode of MCG module to BPLI:
+ * Bypassed Low-Power Internal.
+ */
+static System_Errors Clock_setBlpiMode (void)
+{
+    // Just enable low-power mode
+    clk.regmap->C2 |= MCG_C2_LP_MASK;
+
+    return ERRORS_NO_ERROR;
+}
+
+/**
+ * This function set the current mode of MCG module to BPLE:
+ * Bypassed Low-Power External.
+ */
+static System_Errors Clock_setBlpeMode (void)
+{
+    // Just enable low-power mode
+    clk.regmap->C2 |= MCG_C2_LP_MASK;
 
     return ERRORS_NO_ERROR;
 }
@@ -534,14 +608,18 @@ static System_Errors Clock_stateTransition (void)
 
     do
     {
+        state = Clock_mcgStateMatrix[state][clk.changeParam.final];
+
         switch (state)
         {
         case CLOCK_STATE_FEI:
+            err = Clock_setFeiMode();
             break;
         case CLOCK_STATE_FBI:
             err = Clock_setFbiMode();
             break;
         case CLOCK_STATE_BLPI:
+            err = Clock_setBlpiMode();
             break;
         case CLOCK_STATE_FEE:
             err = Clock_setFeeMode();
@@ -550,6 +628,7 @@ static System_Errors Clock_stateTransition (void)
             err = Clock_setFbeMode();
             break;
         case CLOCK_STATE_BLPE:
+            err = Clock_setBlpeMode();
             break;
         case CLOCK_STATE_PBE:
             err = Clock_setPbeMode();
@@ -561,6 +640,7 @@ static System_Errors Clock_stateTransition (void)
             ohiassert(0);
             break;
         }
+
         if (err != ERRORS_NO_ERROR)
         {
             return err;
@@ -793,12 +873,15 @@ clock_config_result:
     // Change operation mode
     Clock_stateTransition();
 
+    // Save core clock
+    clk.systemCoreClock = (clk.changeParam.foutMcg / (clk.changeParam.outdiv1 + 1));
+
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Clock_deInit ()
+System_Errors Clock_deInit (void)
 {
-
+    return ERRORS_NO_ERROR;
 }
 
 Clock_State Clock_getCurrentState ()
@@ -854,6 +937,24 @@ Clock_State Clock_getCurrentState ()
     }
     return clk.state;
 }
+
+uint32_t Clock_getOutputValue (Clock_Output output)
+{
+    switch (output)
+    {
+    case CLOCK_OUTPUT_SYSCLK:
+        return clk.systemCoreClock;
+
+    default:
+        return 0;
+    }
+}
+
+uint32_t Clock_getOscillatorValue (void)
+{
+    return clk.externalClock;
+}
+
 
 #endif // LIBOHIBOARD_MKL
 
