@@ -232,9 +232,9 @@ static Gpio_PinDevice Gpio_availablePins[] =
 
 static uint8_t Gpio_availablePinsCount = 0;
 
-static GPIO_TypeDef* Gpio_getPort (Gpio_Pins pin)
+static GPIO_TypeDef* Gpio_getPort (Gpio_Ports port)
 {
-    switch (Gpio_availablePins[pin].port)
+    switch (port)
     {
     case GPIO_PORTS_A:
         return GPIOA;
@@ -524,7 +524,7 @@ void Gpio_set (Gpio_Pins pin)
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    GPIO_TypeDef* port = Gpio_getPort(pin);
+    GPIO_TypeDef* port = Gpio_getPort(Gpio_availablePins[pin].port);
     port->BSRR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
@@ -533,7 +533,7 @@ void Gpio_clear (Gpio_Pins pin)
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    GPIO_TypeDef* port = Gpio_getPort(pin);
+    GPIO_TypeDef* port = Gpio_getPort(Gpio_availablePins[pin].port);
     port->BRR = GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
@@ -542,7 +542,7 @@ void Gpio_toggle (Gpio_Pins pin)
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    GPIO_TypeDef* port = Gpio_getPort(pin);
+    GPIO_TypeDef* port = Gpio_getPort(Gpio_availablePins[pin].port);
     port->ODR ^= GPIO_PIN(Gpio_availablePins[pin].pinNumber);
 }
 
@@ -551,7 +551,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
 
-    GPIO_TypeDef* port = Gpio_getPort(pin);
+    GPIO_TypeDef* port = Gpio_getPort(Gpio_availablePins[pin].port);
     return ((port->IDR & GPIO_PIN(Gpio_availablePins[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
