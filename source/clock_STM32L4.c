@@ -55,7 +55,9 @@ extern "C" {
                                                (PLL_SOURCE == CLOCK_PLLSOURCE_MSI) || \
                                                (PLL_SOURCE == CLOCK_PLLSOURCE_NONE))
 
-#define CLOCK_IS_VALID_PLL_FREQUENCY(OSC_CONFIG, PLL_CONFIG) (Clock_getConfigPllValue(OSC_CONFIG, PLL_CONFIG) <= CLOCK_MAX_FREQ_PLL)
+#define CLOCK_IS_VALID_PLL_FREQUENCY(FREQ) ((FREQ >= CLOCK_MIN_FREQ_MSI && FREQ <= CLOCK_MAX_FREQ_PLL)?(TRUE):(FALSE))
+
+#define CLOCK_IS_VALID_CONFIG_PLL_FREQUENCY(OSC_CONFIG, PLL_CONFIG) (Clock_getConfigPllValue(OSC_CONFIG, PLL_CONFIG) <= CLOCK_MAX_FREQ_PLL)
 
 #define CLOCK_IS_VALID_HSE_STATE(HSESTATE) (((HSESTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
                                             ((HSESTATE) == CLOCK_OSCILLATORSTATE_ON))
@@ -164,7 +166,6 @@ static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 typedef struct _Clock_Device
 {
     RCC_TypeDef* regmap;
-    PWR_TypeDef* regmapPwr;
     FLASH_TypeDef* regmapFlash;
 
     uint32_t systemCoreClock; /**< Value that store current system core clock */
@@ -198,7 +199,6 @@ typedef struct _Clock_Device
 static Clock_Device clk0 =
 {
     .regmap            = RCC,
-    .regmapPwr         = PWR,
     .regmapFlash       = FLASH,
 
     .systemCoreClock   = 4000000U,
@@ -298,14 +298,6 @@ static uint32_t Clock_getConfigPllValue (Clock_Config *config, Clock_PLLConfig *
 static uint32_t Clock_getActualSystemValue (void);
 
 /**
- * Return the system clock set in configuration struct.
- *
- * @param[in] config configuration struct.
- * @return value of SYSCLK clock.
- */
-static uint32_t Clock_getConfigSystemValue (Clock_Config *config);
-
-/**
  * Set the proper flash latency for frequency specified.
  *
  * @param[in] frequency the new value of system clock.
@@ -373,7 +365,23 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 
     if ((config->source & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)
     {
-        UTILITY_MODIFY_REGISTER(clk0.regmap->CSR, RCC_CSR_MSISRANGE_Msk, (config->msiRange << RCC_CSR_MSISRANGE_Pos));
+        // Set MSI ON
+        UTILITY_SET_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSION);
+
+        // Wait until MSI is ready
+        tickstart = System_currentTick();
+        while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSION) == 0)
+        {
+            if ((System_currentTick() - tickstart) > 5000u)
+                return ERRORS_CLOCK_TIMEOUT;
+        }
+
+        // Set MSIRANGE  default value
+        UTILITY_SET_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSIRGSEL);
+        UTILITY_MODIFY_REGISTER(clk0.regmap->CR, RCC_CR_MSIRANGE, config->msiRange);
+
+        // Clear RCC Configuration (MSI is selected as system clock)
+        UTILITY_WRITE_REGISTER(clk0.regmap->CFGR, 0);
     }
 
     // HSE with external clock configuration
@@ -853,7 +861,7 @@ System_Errors Clock_init (Clock_Config* config)
 
     //calculate value of clock
     uint32_t currentSystemClock = Clock_getActualSystemValue();
-    uint32_t newSystemClock = Clock_getConfigSystemValue(config);
+    uint32_t newSystemClock = Clock_getConfigOscillatorValue(config);
 
     System_Errors err = ERRORS_NO_ERROR;
 
@@ -874,10 +882,14 @@ System_Errors Clock_init (Clock_Config* config)
     // Check PLL conditions
     if ((config->source & CLOCK_INTERNAL_PLL) ==  CLOCK_INTERNAL_PLL)
     {
-        ohiassert(CLOCK_IS_VALID_PLL_SOURCE(config->pllSource)); //LSI and LSE are not valid; MSI, HSI and HSE are valid.
-        ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pll)); //The PLL output frequency must not exceed 80 MHz.
-        ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai1)); //The PLL output frequency must not exceed 80 MHz.
-        ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(config, &config->pllSai2)); //The PLL output frequency must not exceed 80 MHz.
+        // LSI and LSE are not valid; MSI, HSI and HSE are valid.
+        ohiassert(CLOCK_IS_VALID_PLL_SOURCE(config->pllSource));
+        // The PLL output frequency must not exceed 80 MHz.
+        ohiassert(CLOCK_IS_VALID_CONFIG_PLL_FREQUENCY(config, &config->pll));
+        // The PLL output frequency must not exceed 80 MHz.
+        ohiassert(CLOCK_IS_VALID_CONFIG_PLL_FREQUENCY(config, &config->pllSai1));
+        // The PLL output frequency must not exceed 80 MHz.
+        ohiassert(CLOCK_IS_VALID_CONFIG_PLL_FREQUENCY(config, &config->pllSai2));
     }
 
     // Setup default value of internal clock
@@ -924,6 +936,208 @@ void Clock_setMsiRangeSwitching (Clock_MSIRange msi)
     {
         clk0.deinitRange = msi;
     }
+}
+
+static bool Clock_isFrequencyInMsiRange (uint32_t frequency, Clock_MSIRange* pMsirange)
+{
+	uint16_t i = 0;
+	for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
+	{
+		if (Clock_msiRange[i] == frequency)
+		{
+			*pMsirange = (Clock_MSIRange)(i << RCC_CR_MSIRANGE_Pos);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static bool Clock_isFrequencyInPllRange (uint32_t frequency, Clock_PllSource *pllSource, Clock_PLLPrescaler* pllPrescaler, Clock_PLLConfig *pllConfig)
+{
+	uint32_t pllSourceClk = 0, sysClk = 0;
+	int mIdx = 0, nIdx = 0, rIdx = 0;
+	uint16_t mSet[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+	uint16_t nSet[78] = {0};
+	uint16_t rSet[4] = {2, 4, 6, 8};
+
+	for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+	{
+		nSet[nIdx] = nIdx + 8;
+	}
+
+	// HSE
+	if (clk0.externalClock != 0)
+	{
+		pllSourceClk = clk0.externalClock;
+		for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
+		{
+			for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+			{
+				for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
+				{
+					sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
+					if (sysClk == frequency)
+					{
+						*pllSource = CLOCK_PLLSOURCE_HSE;
+						*pllPrescaler = (Clock_PLLPrescaler)mIdx;
+						pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
+						pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
+						return TRUE;
+					}
+				}
+			}
+		}
+	}
+
+	// HSI
+	pllSourceClk = CLOCK_FREQ_HSI;
+	for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
+	{
+		for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+		{
+			for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
+			{
+				sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
+				if (sysClk == frequency)
+				{
+					*pllSource = CLOCK_PLLSOURCE_HSI;
+					*pllPrescaler = (Clock_PLLPrescaler)mIdx;
+					pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
+					pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	// MSI
+	uint16_t i = 0;
+	for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
+	{
+		pllSourceClk = Clock_msiRange[i];
+		for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
+		{
+			for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+			{
+				for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
+				{
+					sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
+					if (sysClk == frequency)
+					{
+						*pllSource = CLOCK_PLLSOURCE_MSI;
+						*pllPrescaler = (Clock_PLLPrescaler)mIdx;
+						pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
+						pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
+						return TRUE;
+					}
+				}
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+System_Errors Clock_setFrequency (uint32_t frequency)
+{
+	System_Errors err = ERRORS_NO_ERROR;
+
+	Clock_Config clkConfig;
+	memset(&clkConfig, 0, sizeof(clkConfig));
+	clkConfig.source = CLOCK_INTERNAL_MSI;
+	clkConfig.output = CLOCK_OUTPUT_SYSCLK | CLOCK_OUTPUT_HCLK | CLOCK_OUTPUT_PCLK1 | CLOCK_OUTPUT_PCLK2 | CLOCK_OUTPUT_PLLR;
+	clkConfig.ahbDivider = CLOCK_AHBDIVIDER_1;
+	clkConfig.apb1Divider = CLOCK_APBDIVIDER_1;
+	clkConfig.apb2Divider = CLOCK_APBDIVIDER_1;
+	clkConfig.msiRange = CLOCK_MSIRANGE_4MHz;
+
+	clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
+	clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
+	clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
+	clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
+	clkConfig.pll.dividerQ = CLOCK_PLLDIVIDER_Q_DISABLED;
+	clkConfig.pll.dividerP = CLOCK_PLLDIVIDER_P_DISABLED;
+
+	clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
+	clkConfig.pllSai1.multiplier = CLOCK_PLLMULTIPLIER_10;
+	clkConfig.pllSai2.multiplier = CLOCK_PLLMULTIPLIER_10;
+	clkConfig.mcoPrescaler = CLOCK_PLLPRESCALER_1;
+	clkConfig.mcoSource = CLOCK_MCOSOURCE_DISABLED;
+
+	// Check value of frequency, if it is out of range
+	// normalize the value
+	ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(frequency));
+	if (frequency < CLOCK_MIN_FREQ_MSI)
+	{
+		frequency = CLOCK_MIN_FREQ_MSI;
+	}
+
+	if (frequency > CLOCK_MAX_FREQ_PLL)
+	{
+		frequency = CLOCK_MAX_FREQ_PLL;
+	}
+
+	if (frequency > 2000000)
+	{
+		Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_24MHz);
+	}
+	else
+	{
+		Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_4MHz);
+	}
+
+	if (clk0.externalClock != 0 && frequency == clk0.externalClock)
+	{
+		clkConfig.source |= CLOCK_EXTERNAL;
+		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSE;
+		clkConfig.hseState = CLOCK_OSCILLATORSTATE_ON;
+
+		err = Clock_init(&clkConfig);
+	}
+	else if (frequency == CLOCK_FREQ_HSI)
+	{
+		clkConfig.source |= CLOCK_INTERNAL_HSI;
+		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSI;
+		clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
+
+		err = Clock_init(&clkConfig);
+	}
+	else if (frequency == CLOCK_MAX_FREQ_PLL)
+	{
+		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
+		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
+		clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
+
+		clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
+		clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
+		clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
+		clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
+		clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
+
+		err = Clock_init(&clkConfig);
+	}
+	else if (Clock_isFrequencyInMsiRange(frequency, &clkConfig.msiRange))
+	{
+		clkConfig.source |= CLOCK_INTERNAL_MSI;
+		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_MSI;
+		clkConfig.msiState = CLOCK_OSCILLATORSTATE_ON;
+
+		err = Clock_init(&clkConfig);
+	}
+	else if (Clock_isFrequecyInPllRange(frequency, &clkConfig.pllSource, &clkConfig.pllPrescaler, &clkConfig.pll))
+	{
+		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
+		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
+		clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
+
+		err = Clock_init(&clkConfig);
+	}
+	else
+	{
+		err = ERRORS_CLOCK_FREQ_OUT_OF_RANGE;
+	}
+
+	return err;
 }
 
 static System_Errors Clock_deInit (void)
@@ -1042,6 +1256,30 @@ uint32_t Clock_getOscillatorValue (void)
     return clk0.systemCoreClock;
 }
 
+uint32_t Clock_getConfigOscillatorValue (Clock_Config *config)
+{
+    uint32_t systemClock = 0;
+
+    switch (config->sysSource)
+    {
+    default:
+    case CLOCK_SYSTEMSOURCE_MSI:
+        systemClock = Clock_getConfigMsiValue(config);
+        break;
+    case CLOCK_SYSTEMSOURCE_HSI:
+        systemClock = CLOCK_FREQ_HSI;
+        break;
+    case CLOCK_SYSTEMSOURCE_HSE:
+        systemClock = clk0.externalClock;
+        break;
+    case CLOCK_SYSTEMSOURCE_PLL:
+        systemClock = Clock_getConfigPllValue(config, &config->pll);
+        break;
+    }
+
+    return systemClock;
+}
+
 static uint32_t Clock_getActualMsiValue (void)
 {
     uint32_t msiClock = 0, msiRange = 0;
@@ -1060,7 +1298,7 @@ static uint32_t Clock_getActualMsiValue (void)
 
 static uint32_t Clock_getConfigMsiValue (Clock_Config* config)
 {
-    return Clock_msiRange[config->msiRange];
+    return Clock_msiRange[(config->msiRange >> RCC_CR_MSIRANGE_Pos)];
 }
 
 static uint32_t Clock_getActualPllInputValue(void)
@@ -1094,7 +1332,7 @@ static uint32_t Clock_getConfigPllValue (Clock_Config* config, Clock_PLLConfig *
 {
     uint32_t base = 0, frequency = 0;
 
-    switch(config->pllSource)
+    switch (config->pllSource)
     {
     default:
     case CLOCK_PLLSOURCE_NONE:
@@ -1163,30 +1401,6 @@ static uint32_t Clock_getActualSystemValue (void)
         uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
         systemClock = (((pllmClock) * pllnReg) / ((pllrReg + 1) * 2));
     }
-        break;
-    }
-
-    return systemClock;
-}
-
-static uint32_t Clock_getConfigSystemValue (Clock_Config *config)
-{
-    uint32_t systemClock = 0;
-
-    switch (config->sysSource)
-    {
-    default:
-    case CLOCK_SYSTEMSOURCE_MSI:
-        systemClock = Clock_getConfigMsiValue(config);
-        break;
-    case CLOCK_SYSTEMSOURCE_HSI:
-        systemClock = CLOCK_FREQ_HSI;
-        break;
-    case CLOCK_SYSTEMSOURCE_HSE:
-        systemClock = clk0.externalClock;
-        break;
-    case CLOCK_SYSTEMSOURCE_PLL:
-        systemClock = Clock_getConfigPllValue(config, &config->pll);
         break;
     }
 

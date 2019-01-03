@@ -503,7 +503,7 @@ typedef struct _Clock_Config
 /**
  * Initiliaze and configure clock peripheral.
  *
- * @param config Configuration list parameter
+ * @param[in] config Configuration list parameter
  * @return ERRORS_NO_ERROR without problems
  */
 System_Errors Clock_init (Clock_Config *config);
@@ -534,6 +534,15 @@ System_Errors Clock_setDividers (uint32_t ahbDivider, uint32_t apb1Divider, uint
  */
 void Clock_setMsiRangeSwitching (Clock_MSIRange msi);
 
+/**
+ * Configure the Clock configuration for having
+ * a SYSCLK at frequency specified
+ *
+ * @param[in] frequency: value of SYSCLK
+ * @return ERRORS_NO_ERROR without problems
+ */
+System_Errors Clock_setFrequency (uint32_t frequency);
+
 #endif
 
 /**
@@ -543,6 +552,13 @@ void Clock_setMsiRangeSwitching (Clock_MSIRange msi);
  */
 uint32_t Clock_getOscillatorValue (void);
 
+/**
+ * Return the system clock set in configuration struct.
+ *
+ * @param[in] config configuration struct.
+ * @return value of SYSCLK clock.
+ */
+uint32_t Clock_getConfigOscillatorValue (Clock_Config *config);
 
 #if defined (LIBOHIBOARD_K10D10)       || \
     defined (LIBOHIBOARD_K10D7)        || \

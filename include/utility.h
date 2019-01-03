@@ -40,6 +40,8 @@
 extern "C" {
 #endif
 
+#include <string.h>
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"

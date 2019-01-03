@@ -33,6 +33,17 @@
  * @brief GPIO definitions and prototypes.
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
+/**
+ * @defgroup GPIO GPIO
+ * @brief GPIO HAL driver
+ * @{
+ */
+
 #ifndef __GPIO_H
 #define __GPIO_H
 
@@ -63,7 +74,7 @@ extern "C" {
 #define GPIO_PINS_ADC_CONNECTED             0x0800
 #endif
 
-/* Useful define */
+// Useful define
 #if defined LIBOHIBOARD_NXP_KINETIS
 #define GPIO_PIN_MASK_NUMBER                0x1Fu
 #elif defined LIBOHIBOARD_ST_STM32
@@ -71,7 +82,16 @@ extern "C" {
 #endif
 #define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK_NUMBER)))
 
-typedef enum 
+/**
+ * @defgroup GPIO_Configuration_Functions GPIO configuration functions and types
+ * @brief Functions and types useful to manage GPIO pins.
+ * @{
+ */
+
+/**
+ * List of possible Gpio status.
+ */
+typedef enum _Gpio_Level
 {
     GPIO_LOW    = 0x00,
     GPIO_HIGH   = 0x01,
@@ -153,80 +173,6 @@ typedef enum
     GPIO_PINS_PTB11,
     GPIO_PINS_PTB13,
 
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)
-
-    GPIO_PINS_PTA0,
-    GPIO_PINS_PTA1,
-    GPIO_PINS_PTA2,
-    GPIO_PINS_PTA3,
-    GPIO_PINS_PTA4,
-    GPIO_PINS_PTA5,
-    GPIO_PINS_PTA12,
-    GPIO_PINS_PTA13,
-    GPIO_PINS_PTA14,
-    GPIO_PINS_PTA15,
-    GPIO_PINS_PTA16,
-    GPIO_PINS_PTA17,
-    GPIO_PINS_PTA18,
-    GPIO_PINS_PTA19,
-    GPIO_PINS_PTA20,
-
-    GPIO_PINS_PTB0,
-    GPIO_PINS_PTB1,
-    GPIO_PINS_PTB2,
-    GPIO_PINS_PTB3,
-    GPIO_PINS_PTB8,
-    GPIO_PINS_PTB9,
-    GPIO_PINS_PTB10,
-    GPIO_PINS_PTB11,
-    GPIO_PINS_PTB16,
-    GPIO_PINS_PTB17,
-    GPIO_PINS_PTB18,
-    GPIO_PINS_PTB19,
-
-    GPIO_PINS_PTC0,
-    GPIO_PINS_PTC1,
-    GPIO_PINS_PTC2,
-    GPIO_PINS_PTC3,
-    GPIO_PINS_PTC4,
-    GPIO_PINS_PTC5,
-    GPIO_PINS_PTC6,
-    GPIO_PINS_PTC7,
-    GPIO_PINS_PTC8,
-    GPIO_PINS_PTC9,
-    GPIO_PINS_PTC10,
-    GPIO_PINS_PTC11,
-    GPIO_PINS_PTC12,
-    GPIO_PINS_PTC13,
-    GPIO_PINS_PTC16,
-    GPIO_PINS_PTC17,
-
-    GPIO_PINS_PTD0,
-    GPIO_PINS_PTD1,
-    GPIO_PINS_PTD2,
-    GPIO_PINS_PTD3,
-    GPIO_PINS_PTD4,
-    GPIO_PINS_PTD5,
-    GPIO_PINS_PTD6,
-    GPIO_PINS_PTD7,
-
-    GPIO_PINS_PTE0,
-    GPIO_PINS_PTE1,
-    GPIO_PINS_PTE2,
-    GPIO_PINS_PTE3,
-    GPIO_PINS_PTE4,
-    GPIO_PINS_PTE5,
-    GPIO_PINS_PTE20,
-    GPIO_PINS_PTE21,
-    GPIO_PINS_PTE22,
-    GPIO_PINS_PTE23,
-    GPIO_PINS_PTE24,
-    GPIO_PINS_PTE25,
-    GPIO_PINS_PTE29,
-    GPIO_PINS_PTE30,
-    GPIO_PINS_PTE31,
 
 #elif defined (LIBOHIBOARD_K10DZ10)
     
@@ -792,8 +738,10 @@ typedef enum
 
 /**
  * Enumeration for all possible alternate function of each pin
+ *
+ * @note For NXP microcontroller, Alternate 0 means pin disabled.
  */
-typedef enum
+typedef enum _Gpio_Alternate
 {
     GPIO_ALTERNATE_ANALOG = -1,
     GPIO_ALTERNATE_0      = 0,
@@ -804,6 +752,7 @@ typedef enum
     GPIO_ALTERNATE_5      = 5,
     GPIO_ALTERNATE_6      = 6,
     GPIO_ALTERNATE_7      = 7,
+#if defined (LIBOHIBOARD_ST_STM32)
     GPIO_ALTERNATE_8      = 8,
     GPIO_ALTERNATE_9      = 9,
     GPIO_ALTERNATE_10     = 10,
@@ -812,9 +761,18 @@ typedef enum
     GPIO_ALTERNATE_13     = 13,
     GPIO_ALTERNATE_14     = 14,
     GPIO_ALTERNATE_15     = 15,
+#endif
 
 } Gpio_Alternate;
 
+/**
+ * Configure the selected pin with digital input or digital
+ * output function.
+ *
+ * @param[in] pin The selected pins
+ * @param[in] options Particular configurations for the pins
+ * @return ERRORS_NO_ERROR in case the configuration success.
+ */
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
 
 /**
@@ -823,28 +781,13 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
  * @param[in] pin The selected pins
  * @param[in] alternate The alternate functions
  * @param[in] options Particular configurations for the pins
- *     @arg @ref GPIO_PINS_PULL Enable pull-up/down
- *     @arg @ref GPIO_PINS_ENABLE_PULLUP Select pull-up
- *     @arg @ref GPIO_PINS_ENABLE_PULLDOWN Select pull-down
- *     @arg @ref GPIO_PINS_ENABLE_OUTPUT_PUSHPULL Configure output with push-pull
- *     @arg @ref GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN Configure output with open-drain
+ *   @arg @ref GPIO_PINS_PULL Enable pull-up/down
+ *   @arg @ref GPIO_PINS_ENABLE_PULLUP Select pull-up
+ *   @arg @ref GPIO_PINS_ENABLE_PULLDOWN Select pull-down
+ *   @arg @ref GPIO_PINS_ENABLE_OUTPUT_PUSHPULL Configure output with push-pull
+ *   @arg @ref GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN Configure output with open-drain
  */
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options);
-
-void Gpio_set (Gpio_Pins pin);
-void Gpio_clear (Gpio_Pins pin);
-void Gpio_toggle (Gpio_Pins pin);
-
-Gpio_Level Gpio_get (Gpio_Pins pin);
-#if defined(LIBOHIBOARD_KV46F)   || \
-    defined(LIBOHIBOARD_TWRKV46F)
-System_Errors Gpio_enableInterrupt (Gpio_Pins pin, void* callback, Gpio_EventType event);
-System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
-#else
-System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback);
-System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
-System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
-#endif
 
 /**
  * Enable clock of specific port
@@ -857,9 +800,71 @@ void Gpio_enablePortClock (Gpio_Ports port);
  * Disable clock of specific port
  *
  * @param[in] port The Gpio port
- * @return The handle to the specific port
  */
 void Gpio_disablePortClock (Gpio_Ports port);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup GPIO_Manage_Functions GPIO read/write functions
+ * @brief Functions to read and write on GPIO pins.
+ * @{
+ */
+
+/**
+ * This function configure the output pin to high-level value.
+ *
+ * @param[in] pin The selected pins
+ */
+void Gpio_set (Gpio_Pins pin);
+
+/**
+ * This function configure the output pin to low-level value.
+ *
+ * @param[in] pin The selected pins
+ */
+void Gpio_clear (Gpio_Pins pin);
+
+/**
+ * This function toggle the output pin level.
+ *
+ * @param[in] pin The selected pins
+ */
+void Gpio_toggle (Gpio_Pins pin);
+
+/**
+ * This function read the input pin level value.
+ *
+ * @param[in] pin The selected pins
+ * @return @ref GPIO_LOW in case the input pis is low, @ref GPIO_HIGH otherwise.
+ */
+Gpio_Level Gpio_get (Gpio_Pins pin);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup GPIO_Interrupt_Functions GPIO interrupt functions
+ * @brief Functions to manage on GPIO pins interrupt.
+ * @{
+ */
+
+/**
+ * This function configure the ISR function for a specific pin.
+ *
+ * @return ERRORS_NO_ERROR in case the configuration success.
+ */
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback);
+
+System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
+System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }
@@ -867,4 +872,10 @@ void Gpio_disablePortClock (Gpio_Ports port);
 
 #endif // __GPIO_H
 
+/**
+ * @}
+ */
 
+/**
+ * @}
+ */

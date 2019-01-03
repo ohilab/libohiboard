@@ -44,6 +44,8 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L476)
 
+#define CLOCK_MIN_FREQ_MSI                         100u
+#define CLOCK_MAX_FREQ_MSI                    48000000u
 #define CLOCK_MIN_FREQ_HSE                     4000000u
 #define CLOCK_MAX_FREQ_HSE                    48000000u
 #define CLOCK_MAX_FREQ_PLL                    80000000u

@@ -53,7 +53,7 @@ extern "C" {
  */
 
 /**
- * @defgroup GPIO_Hardware Gpio specific hardware types
+ * @defgroup GPIO_Hardware GPIO specific hardware types
  * @{
  */
 
