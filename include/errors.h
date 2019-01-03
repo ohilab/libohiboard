@@ -177,6 +177,8 @@ typedef enum _System_Errors
 #endif
     ERRORS_CLOCK_TIMEOUT,
 
+	ERRORS_LOWPOWER_TIMEOUT,
+
     ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */

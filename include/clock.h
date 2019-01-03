@@ -575,16 +575,16 @@ uint8_t Clock_getCoreDivider();
 
 #endif
 
-/**
- * @}
- */
-
-/**
- * @}
- */
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif // __CLOCK_H
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
