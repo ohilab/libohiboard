@@ -855,11 +855,37 @@ Gpio_Level Gpio_get (Gpio_Pins pin);
 /**
  * This function configure the ISR function for a specific pin.
  *
- * @return ERRORS_NO_ERROR in case the configuration success.
+ * @param[in] pin The selected pin
+ * @param[in] callback The selected callback for the specific event on the pin.
+ * @return The function return these possible value:
+ *         @arg @ref ERRORS_GPIO_WRONG_PIN when the selected pin doesn't exist.
+ *         @arg @ref ERRORS_GPIO_WRONG_PORT when the selected port doesn't support interrupt (only for NXP).
+ *         @arg @ref ERRORS_NO_ERROR in case of success.
  */
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback);
 
+/**
+ * This function enable interrupt on selected pin at the specified event.
+ *
+ * @param[in] pin The selected pin
+ * @param[in] event The selected event that generate interrupt.
+ * @return The function return these possible value:
+ *         @arg @ref ERRORS_GPIO_WRONG_PIN when the selected pin doesn't exist.
+ *         @arg @ref ERRORS_GPIO_WRONG_PORT when the selected port doesn't support interrupt (only for NXP).
+ *         @arg @ref ERRORS_GPIO_WRONG_CONFIG when the configuration is wrong (only for STM).
+ *         @arg @ref ERRORS_NO_ERROR in case of success.
+ */
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event);
+
+/**
+ * This function enable interrupt on selected pin at the specified event.
+ *
+ * @param[in] pin The selected pin
+ * @return The function return these possible value:
+ *         @arg @ref ERRORS_GPIO_WRONG_PIN when the selected pin doesn't exist.
+ *         @arg @ref ERRORS_GPIO_WRONG_PORT when the selected port doesn't support interrupt (only for NXP).
+ *         @arg @ref ERRORS_NO_ERROR in case of success.
+ */
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin);
 
 /**

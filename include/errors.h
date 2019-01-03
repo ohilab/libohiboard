@@ -33,6 +33,18 @@
  * @brief Errors definition
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
+/**
+ * @defgroup Utility Utility
+ * @brief Utility HAL driver
+ * @{
+ */
+
+
 #ifndef __ERRORS_H
 #define __ERRORS_H
 
@@ -40,6 +52,14 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup Utility_Error Errors Management
+ * @{
+ */
+
+/**
+ *
+ */
 typedef enum _System_Errors
 {
 	ERRORS_NO_ERROR = 0,                              /**< There is no error. */
@@ -249,8 +269,20 @@ System_Errors Errors_assert (const char* file, const int line);
 
 #endif
 
+/**
+ * @}
+ */
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif // __ERRORS_H
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
