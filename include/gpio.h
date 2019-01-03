@@ -55,6 +55,16 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 
+/**
+ * @defgroup GPIO_Configuration_Functions GPIO configuration functions and types
+ * @brief Functions and types useful to manage GPIO pins.
+ * @{
+ */
+
+/**
+ * @defgroup GPIO_Pin_Option GPIO Pins configuration options
+ * @{
+ */
 #define GPIO_PINS_OUTPUT                    0x0001
 #define GPIO_PINS_INPUT                     0x0002
 #define GPIO_PINS_PULL                      0x0004
@@ -73,6 +83,9 @@ extern "C" {
 #define GPIO_PINS_SPEED_VERY_HIGH           0x0400
 #define GPIO_PINS_ADC_CONNECTED             0x0800
 #endif
+/**
+ * @}
+ */
 
 // Useful define
 #if defined LIBOHIBOARD_NXP_KINETIS
@@ -81,12 +94,6 @@ extern "C" {
 #define GPIO_PIN_MASK_NUMBER                0x0Fu
 #endif
 #define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK_NUMBER)))
-
-/**
- * @defgroup GPIO_Configuration_Functions GPIO configuration functions and types
- * @brief Functions and types useful to manage GPIO pins.
- * @{
- */
 
 /**
  * List of possible Gpio status.
@@ -770,7 +777,8 @@ typedef enum _Gpio_Alternate
  * output function.
  *
  * @param[in] pin The selected pins
- * @param[in] options Particular configurations for the pins
+ * @param[in] options Particular configurations for the pins,
+ *                    check @ref GPIO_Pin_Option for all options.
  * @return ERRORS_NO_ERROR in case the configuration success.
  */
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options);
