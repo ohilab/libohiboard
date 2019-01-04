@@ -96,6 +96,28 @@ void System_delay (uint32_t msec);
  */
 void SysTick_Handler(void);
 
+/**
+ * Suspend Tick increment.
+ */
+void System_suspendTick (void);
+
+/**
+ * Resume Tick increment.
+ */
+void System_resumeTick (void);
+
+/**
+ * Resume the HAL version.
+ * The format is 4-byte data divided as:
+ * @li 1-byte (MSB) - NOT USED
+ * @li 1-byte - Major Version
+ * @li 1-byte - Minor Version
+ * @li 1-byte (LSB) - Bug fix
+ *
+ * @return An uint32_t that represent the version number.
+ */
+uint32_t System_getHalVersion (void);
+
 #endif // LIBOHIBOARD_VERSION >= 0x20000
 
 #ifdef __cplusplus

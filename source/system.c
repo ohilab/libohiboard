@@ -60,7 +60,10 @@ __weak System_Errors System_systickInit (uint32_t priority)
     // Configure the systick interrupt every 1ms
 #if defined (LIBOHIBOARD_STM32L476)
     basetime = Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / 1000;
+#elif defined (LIBOHIBOARD_MKL)
+    basetime = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK) / 1000;
 #endif
+
     if (basetime == 0)
         return ERRORS_SYSTEM_NO_CLOCK;
 
@@ -89,6 +92,21 @@ void System_delay (uint32_t msec)
     uint32_t timeout = System_currentTick() + msec;
 
     while (timeout > System_currentTick());
+}
+
+void System_suspendTick (void)
+{
+    SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
+}
+
+void System_resumeTick (void)
+{
+    SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
+}
+
+uint32_t System_getHalVersion (void)
+{
+    return LIBOHIBOARD_VERSION;
 }
 
 #endif // LIBOHIBOARD_VERSION >= 0x20000
