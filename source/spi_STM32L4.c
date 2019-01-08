@@ -1,10 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
+ *   Leonardo Morichelli <leonardo.morichelli@live.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +29,7 @@
 /**
  * @file libohiboard/source/spi_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Leonardo Morichelli <leonardo.morichelli@live.com>
  * @brief SPI implementations for STM32L4 Series.
  */
 
@@ -82,7 +84,7 @@ extern "C" {
 
 /**
  * Checks if SPI Data Size parameter is in allowed range.
- * This parameter can be a value of @ref SPI_DataSize
+ * This parameter can be a value of @ref Spi_DataSize
  */
 #define SPI_VALID_DATASIZE(DATASIZE) (((DATASIZE) == SPI_DATASIZE_16BIT) || \
                                       ((DATASIZE) == SPI_DATASIZE_15BIT) || \
@@ -611,7 +613,7 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
     }
 
     // Configure direction
-    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_BIDIMODE_Msk | SPI_CR1_RXONLY_Msk));
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_BIDIMODE_Msk | SPI_CR1_RXONLY_Msk | SPI_CR1_BIDIOE_Msk));
     dev->direction = config->direction;
     switch (config->direction)
     {
@@ -667,6 +669,10 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
     // Configure SS management
     dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_SSM_Msk));
     dev->regmap->CR2 = dev->regmap->CR2 & (~(SPI_CR2_SSOE_Msk | SPI_CR2_NSSP_Msk));
+    if(dev->datasize <= SPI_DATASIZE_8BIT)
+    {
+    	dev->regmap->CR2 |= SPI_CR2_FRXTH_Msk;
+    }
     dev->ssManagement = config->ssManagement;
     switch (config->ssManagement)
     {
@@ -752,6 +758,152 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     return ohiassert(0);
 }
 
+#if 0
+// Not used anymore!
+static System_Errors Spi_exchange(Spi_DeviceHandle dev, const uint8_t *data_tx, uint8_t *data_rx, uint16_t size, uint32_t timeout)
+{
+    uint16_t             counterTx = 0;
+    uint16_t             counterRx = 0;
+    uint32_t             tickEnd = 0;
+
+    /* Variable used to alternate Rx and Tx during transfer */
+    System_Errors        errorcode = ERRORS_NO_ERROR;
+
+    /* Check Direction parameter */
+    if (dev->direction == SPI_DIRECTION_HALF_DUPLEX)
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
+    }
+    else
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
+    }
+
+    /* Init tickEnd for timeout management*/
+    tickEnd = System_currentTick() + timeout;
+
+    if ((data_tx == NULL) || (data_rx == NULL) || (size == 0U))
+    {
+        errorcode = ERRORS_PARAM_VALUE;
+        goto spierror;
+    }
+
+    /* Set the Rx Fifo threshold */
+    if (dev->datasize > SPI_DATASIZE_8BIT)
+    {
+        /* Set fiforxthreshold according the reception data length: 16bit */
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
+    }
+    else
+    {
+        /* Set fiforxthreshold according the reception data length: 8bit */
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
+    }
+
+    /* Check if the SPI is already enabled */
+    if (!UTILITY_READ_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_SPE))
+    {
+        /* Enable SPI peripheral */
+        SPI_DEVICE_ENABLE(dev->regmap);
+    }
+
+    /* Transmit and Receive data in 16 Bit mode */
+    if (dev->datasize > SPI_DATASIZE_8BIT)
+    {
+        if (dev->devType == SPI_SLAVE_MODE)
+        {
+            *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)&data_tx[counterTx]);
+            counterTx += sizeof(uint16_t);
+        }
+        while (counterTx < size)
+        {
+            /* Check TXE flag */
+            if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE))
+            {
+                *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)&data_tx[counterTx]);
+                counterTx += sizeof(uint16_t);
+            }
+
+            if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+            {
+                /* Wait until RXNE flag is reset */
+                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE))
+                {
+                    if (System_currentTick() > tickEnd)
+                    {
+                        errorcode = ERRORS_SPI_TIMEOUT_RX;
+                        goto spierror;
+                    }
+                }
+
+                *((uint16_t *)&data_rx[counterRx]) = *((volatile uint16_t *)&dev->regmap->DR);
+                counterRx += sizeof(uint16_t);
+            }
+            else
+            {
+                /* Wait until TNE flag is reset */
+                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE));
+            }
+        }
+    }
+    /* Transmit and Receive data in 8 Bit mode */
+    else
+    {
+        if (dev->devType == SPI_SLAVE_MODE)
+        {
+            *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)&data_tx[counterTx]);
+            counterTx += sizeof(uint8_t);
+        }
+        while (counterTx < size)
+        {
+            /* Check TXE flag */
+            if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE))
+            {
+                *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)&data_tx[counterTx]);
+                counterTx += sizeof(uint8_t);
+            }
+
+            if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+            {
+                /* Wait until RXNE flag is reset */
+                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE))
+                {
+                    if (System_currentTick() > tickEnd)
+                    {
+                        errorcode = ERRORS_SPI_TIMEOUT_RX;
+                        goto spierror;
+                    }
+                }
+
+                *((uint8_t *)&data_rx[counterRx]) = *((volatile uint8_t *)&dev->regmap->DR);
+                counterRx += sizeof(uint8_t);
+            }
+            else
+            {
+                /* Wait until TNE flag is reset */
+                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE));
+            }
+        }
+    }
+
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_OVR))
+    {
+        // Clear overrun flag in two lines direction mode
+        // The received data is not read
+        if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+        {
+            uint32_t black_hole = 0;
+            black_hole = (uint32_t)dev->regmap->DR;
+            black_hole = (uint32_t)dev->regmap->SR;
+            (void) black_hole;
+        }
+    }
+
+    spierror :
+    return errorcode;
+}
+#endif
+
 System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
     System_Errors err = ERRORS_NO_ERROR;
@@ -799,11 +951,11 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
         // In case of datasize is grater the 8B cast the relative value
         if (dev->datasize > SPI_DATASIZE_8BIT)
         {
-            dev->regmap->DR = 0xFFFF;
+            *((volatile uint16_t *)&dev->regmap->DR) = SPI_EMPTY_WORD;
         }
         else
         {
-            dev->regmap->DR = 0xFF;
+            *((volatile uint8_t *)&dev->regmap->DR) = SPI_EMPTY_BYTE;
         }
 
         // Now read the data
@@ -821,11 +973,11 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
         // In case of datasize is grater the 8B cast the relative value
         if (dev->datasize > SPI_DATASIZE_8BIT)
         {
-            *((uint16_t *)data) = dev->regmap->DR;
+            *((uint16_t *)data) = *((volatile uint16_t *)&dev->regmap->DR);
         }
         else
         {
-            *data = *(volatile uint8_t*)&dev->regmap->DR;
+            *((uint8_t *)data) = *((volatile uint8_t *)&dev->regmap->DR);
         }
     }
     else
@@ -844,11 +996,11 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
         // In case of datasize is grater the 8B cast the relative value
         if (dev->datasize > SPI_DATASIZE_8BIT)
         {
-            *((uint16_t *)data) = dev->regmap->DR;
+            *((uint16_t *)data) = *((volatile uint16_t *)&dev->regmap->DR);
         }
         else
         {
-            *data = *(volatile uint8_t*)&dev->regmap->DR;
+            *((uint8_t *)data) = *((volatile uint8_t *)&dev->regmap->DR);
         }
     }
 
@@ -883,46 +1035,83 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
         SPI_DEVICE_ENABLE(dev->regmap);
     }
 
-    // Wait until the buffer is empty
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE) == 0)
-    {
-        if (System_currentTick() > timeoutEnd)
-        {
-            err = ERRORS_SPI_TIMEOUT_TX;
-            // Release the device.
-            goto spierror;
-        }
-    }
-
     // In case of datasize is grater the 8B cast the relative value
     if (dev->datasize > SPI_DATASIZE_8BIT)
     {
-        dev->regmap->DR = *((uint16_t *)data);
+        if (dev->devType == SPI_SLAVE_MODE)
+        {
+            *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)data);
+        }
+
+        // Wait until the buffer is empty
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                err = ERRORS_SPI_TIMEOUT_TX;
+                // Release the device.
+                goto spierror;
+            }
+        }
+
+        *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)data);
     }
     else
     {
-        dev->regmap->DR = (*data & 0x00FFu);
-    }
-
-    // Read dummy element from RX FIFO
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_FRLVL_Msk) != 0)
-    {
-        if (System_currentTick() > timeoutEnd)
+        if (dev->devType == SPI_SLAVE_MODE)
         {
-            err = ERRORS_SPI_TIMEOUT_TX;
-            // Release the device.
-            goto spierror;
+            *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)data);
         }
 
-        (void) dev->regmap->DR;
+        // Wait until the buffer is empty
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                err = ERRORS_SPI_TIMEOUT_TX;
+                // Release the device.
+                goto spierror;
+            }
+        }
+
+        *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)data);
     }
 
-    // Clear overrun flag in two lines direction mode
-    // The received data is not read
+    // In case of full-duplex transmission, wait until RXNE flag is set
     if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
     {
-        (void) dev->regmap->DR;
-        (void) dev->regmap->SR;
+        uint16_t dummy = 0;
+
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE_Msk) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                err = ERRORS_SPI_TIMEOUT_TX;
+                // Release the device.
+                goto spierror;
+            }
+        }
+
+        // Read dummy element from RX FIFO
+        if (dev->datasize > SPI_DATASIZE_8BIT)
+        {
+            *((uint16_t *)&dummy) = *((volatile uint16_t *)&dev->regmap->DR);
+        }
+        else
+        {
+            *((uint8_t *)&dummy) = *((volatile uint8_t *)&dev->regmap->DR);
+        }
+    }
+
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_OVR_Msk))
+    {
+        // Clear overrun flag in two lines direction mode
+        // The received data is not read
+        if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+        {
+            (void) dev->regmap->DR;
+            (void) dev->regmap->SR;
+        }
     }
 
 spierror:

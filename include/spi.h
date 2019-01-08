@@ -1,13 +1,14 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Author(s):
  *  Marco Giammarini <m.giammarini@warcomeb.it>
  *  Niccolo' Paolinelli <nico.paolinelli@gmail.com>
  *  Nicola Orlandini <n.orlandini90@gmail.com>
  *  Alessio Paolucci <a.paolucci89@gmail.com>
+ *  Leonardo Morichelli <leonardo.morichelli@live.com>
  *  
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,10 +35,22 @@
  * @author Niccolo' Paolinelli <nico.paolinelli@gmail.com>
  * @author Nicola Orlandini <n.orlandini90@gmail.com>
  * @author Alessio Paolucci <a.paolucci89@gmail.com>
+ * @author Leonardo Morichelli <leonardo.morichelli@live.com>
  * @brief SPI definitions and prototypes
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
 #ifdef LIBOHIBOARD_SPI
+
+/**
+ * @defgroup SPI SPI
+ * @brief SPI HAL driver
+ * @{
+ */
 
 #ifndef __SPI_H
 #define __SPI_H
@@ -50,6 +63,15 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 #include "system.h"
+
+/**
+ * @defgroup SPI_Configuration_Functions SPI configuration functions and types
+ * @brief Functions and types to open, close and configure a SPI peripheral.
+ * @{
+ */
+
+#define SPI_EMPTY_BYTE				((uint8_t)0xFF)
+#define SPI_EMPTY_WORD				((uint16_t)0xFFFF)
 
 /**
  * SPI operating mode.
@@ -797,6 +819,9 @@ typedef enum _Spi_SckPins
 
 #endif
 
+/**
+ *
+ */
 typedef struct _Spi_Config
 {
     Spi_PcsPins       pcs0Pin;
@@ -883,14 +908,10 @@ typedef struct _Spi_Config
 
 } Spi_Config;
 
-/** @name Configuration functions
- *  Functions to open, close and configure a SPI peripheral.
- */
-///@{
-
 /**
-  * @brief Initialize the SPI according to the specified parameters
-  *         in the @ref Spi_Config and initialize the associated handle.
+  * Initialize the SPI according to the specified parameters
+  * in the @ref Spi_Config and initialize the associated handle.
+  *
   * @param[in] dev Spi device handle
   * @param[in] config Configuration parameters list.
   * @return ERRORS_NO_ERROR The initialization is ok.
@@ -898,21 +919,23 @@ typedef struct _Spi_Config
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config);
 
 /**
- * This function check the chosen baudratefor the SPI communication,
+ * This function check the chosen baudrate for the SPI communication,
  * and set the registers to obtain this value.
  *
  * @param[in] dev  Spi device handle
  * @param[in] speed The speed for clock signal
- * @return ERRORS_NO_ERROR when the function success
- * @return ERRORS_SPI_CLOCKSOURCE_FREQUENCY_TOO_LOW when the clock source is 0
- * @return ERRORS_SPI_BAUDRATE_NOT_FOUND no compute result for the speed request
+ * @return The function return one of the following error:
+ *   @arg @ref ERRORS_NO_ERROR when the function success
+ *   @arg @ref ERRORS_SPI_CLOCKSOURCE_FREQUENCY_TOO_LOW when the clock source is 0
+ *   @arg @ref ERRORS_SPI_BAUDRATE_NOT_FOUND no compute result for the speed request
  */
 System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed);
 
 bool Spi_isInit(Spi_DeviceHandle dev);
 
-///@}
-
+/**
+ * @}
+ */
 
 #if defined (LIBOHIBOARD_KV46F)  ||\
     defined (LIBOHIBOARD_TRWKV46F)
@@ -939,6 +962,12 @@ System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
 #else
 
 /**
+ * @defgroup SPI_Read_Write_Functions SPI read/write functions
+ * @brief Functions to read and write to SPI peripheral.
+ * @{
+ */
+
+/**
  * This function wait (blocking mode) until a new byte was
  * received into selected SPI.
  *
@@ -948,7 +977,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
  * @li STM32L476
  *
  * @param[in] dev Spi device handle
- * @param[out] out Pointer where store the received byte
+ * @param[out] data Pointer where store the received byte
  * @return
  */
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
@@ -985,6 +1014,10 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
  * @return
  */
 System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout);
+
+/**
+ * @}
+ */
 
 #endif
 
@@ -1043,4 +1076,12 @@ void  SPI0_IRQHandler(void);
 
 #endif // __SPI_H
 
+/**
+ * @}
+ */
+
 #endif // LIBOHIBOARD_SPI
+
+/**
+ * @}
+ */

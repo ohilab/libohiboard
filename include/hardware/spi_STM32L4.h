@@ -40,8 +40,26 @@ extern "C" {
 
 #include "platforms.h"
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
 #if defined(LIBOHIBOARD_SPI) & defined(LIBOHIBOARD_STM32L4)
 
+/**
+ * @addtogroup SPI
+ * @{
+ */
+
+/**
+ * @defgroup SPI_Hardware SPI specific hardware types
+ * @{
+ */
+
+/**
+ * List of all SS pins.
+ */
 typedef enum _Spi_PcsPins
 {
 #if defined (LIBOHIBOARD_STM32L476)
@@ -69,6 +87,9 @@ typedef enum _Spi_PcsPins
 
 } Spi_PcsPins;
 
+/**
+ * List of all MOSI pins.
+ */
 typedef enum _Spi_SoutPins
 {
 #if defined (LIBOHIBOARD_STM32L476)
@@ -98,6 +119,9 @@ typedef enum _Spi_SoutPins
 
 } Spi_SoutPins;
 
+/**
+ * List of all MISO pins.
+ */
 typedef enum _Spi_SinPins
 {
 #if defined (LIBOHIBOARD_STM32L476)
@@ -127,6 +151,9 @@ typedef enum _Spi_SinPins
 
 } Spi_SinPins;
 
+/**
+ * List of all SCK pins.
+ */
 typedef enum _Spi_SckPins
 {
 #if defined (LIBOHIBOARD_STM32L476)
@@ -167,7 +194,19 @@ extern Spi_DeviceHandle OB_SPI3;
 
 #endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
 
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
+
 #endif // LIBOHIBOARD_SPI & LIBOHIBOARD_STM32L4
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }
