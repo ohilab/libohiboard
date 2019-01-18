@@ -563,7 +563,7 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
-    if (pin < Gpio_availablePinsCount)
+    if (pin >= Gpio_availablePinsCount)
         return ERRORS_GPIO_WRONG_PIN;
 
     switch (Gpio_availablePins[pin].port)
@@ -587,7 +587,7 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 {
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
-    if (pin < Gpio_availablePinsCount)
+    if (pin >= Gpio_availablePinsCount)
         return ERRORS_GPIO_WRONG_PIN;
 
     ohiassert(GPIO_VALID_ISR_EVENT(event));
@@ -619,7 +619,7 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
-    if (pin < Gpio_availablePinsCount)
+    if (pin >= Gpio_availablePinsCount)
         return ERRORS_GPIO_WRONG_PIN;
 
     PORT_Type* port = Gpio_getPortRegister(Gpio_availablePins[pin].port);

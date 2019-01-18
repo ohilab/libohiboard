@@ -559,7 +559,7 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 {
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
-    if (pin < Gpio_availablePinsCount)
+    if (pin >= Gpio_availablePinsCount)
         return ERRORS_GPIO_WRONG_PIN;
 
     Gpio_isrPortRequestVector[Gpio_availablePins[pin].pinNumber] = callback;
@@ -576,7 +576,8 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
-    if (pin < Gpio_availablePinsCount)
+
+    if (pin > Gpio_availablePinsCount)
         return ERRORS_GPIO_WRONG_PIN;
 
     // At least one type of controller must be choose
@@ -680,7 +681,7 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 
     //Check if pin definition exist
     ohiassert(pin < Gpio_availablePinsCount);
-    if (pin < Gpio_availablePinsCount)
+    if (pin >= Gpio_availablePinsCount)
         return ERRORS_GPIO_WRONG_PIN;
 
     temp = SYSCFG->EXTICR[pinNumber >> 2];
@@ -787,7 +788,6 @@ _weak void EXTI9_5_IRQHandler (void)
                 EXTI->PR1 = GPIO_PIN(i);
             }
         }
-        i++;
     }
 }
 
@@ -806,7 +806,6 @@ _weak void EXTI15_10_IRQHandler (void)
                 EXTI->PR1 = GPIO_PIN(i);
             }
         }
-        i++;
     }
 }
 
