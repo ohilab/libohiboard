@@ -155,7 +155,6 @@ extern "C" {
 typedef struct _Timer_Device
 {
     TIM_TypeDef* regmap;                         /**< Device memory pointer */
-    LPTIM_TypeDef* regmapLp;
 
     volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
     uint32_t rccRegisterEnable;        /**< Register mask for current device. */
@@ -201,9 +200,6 @@ typedef struct _Timer_Device
                                  ((DEVICE) == OB_TIM16)  || \
                                  ((DEVICE) == OB_TIM17))
 
-#define TIMER_IS_LOWPOWER_DEVICE(DEVICE) (((DEVICE) == OB_LPTIM1)  || \
-                                          ((DEVICE) == OB_LPTIM2))
-
 #define TIMER_IS_DEVICE_COUNTER_MODE(DEVICE) (((DEVICE) == OB_TIM1)   || \
                                               ((DEVICE) == OB_TIM2)   || \
                                               ((DEVICE) == OB_TIM3)   || \
@@ -216,9 +212,7 @@ typedef struct _Timer_Device
                                       ((DEVICE) == OB_TIM4)   || \
                                       ((DEVICE) == OB_TIM5)   || \
                                       ((DEVICE) == OB_TIM6)   || \
-                                      ((DEVICE) == OB_TIM7)   || \
-                                      ((DEVICE) == OB_LPTIM1) || \
-                                      ((DEVICE) == OB_LPTIM2))
+                                      ((DEVICE) == OB_TIM7))
 
 #define TIMER_IS_APB2_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
                                       ((DEVICE) == OB_TIM8)   || \
@@ -774,24 +768,6 @@ static Timer_Device tim17 =
 };
 Timer_DeviceHandle OB_TIM17 = &tim17;
 
-static Timer_Device lptim1 =
-{
-        .regmapLp            = LPTIM1,
-
-        .rccRegisterPtr      = &RCC->APB1ENR1,
-        .rccRegisterEnable   = RCC_APB1ENR1_LPTIM1EN,
-};
-Timer_DeviceHandle OB_LPTIM1 = &lptim1;
-
-static Timer_Device lptim2 =
-{
-        .regmapLp            = LPTIM2,
-
-        .rccRegisterPtr      = &RCC->APB1ENR2,
-        .rccRegisterEnable   = RCC_APB1ENR2_LPTIM2EN,
-};
-Timer_DeviceHandle OB_LPTIM2 = &lptim2;
-
 #endif // LIBOHIBOARD_STM32L476
 
 static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer_DeviceHandle dev)
@@ -1092,7 +1068,7 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    err = ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev)));
+    err = ohiassert(TIMER_IS_DEVICE(dev));
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;

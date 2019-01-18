@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -47,22 +47,23 @@
  *
  * <table>
  * <caption id="mcustatus2">MCU Development Status</caption>
- * <tr><th>Peripheral <th colspan="2">NXP MKL <th colspan="3">NXP MK <th colspan="2">NXP MKV <th>STM32L4
- * <tr><td>-          <td>MKL15 <td>MKL25    <td>MK10 <td>MK12 <td>MK64      <td>MKV31 <td>MKV46     <td>STM32L476
- * <tr><td>Clock      <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>Power Mode <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
- * <tr><td>GPIO       <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>RTC        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>ADC        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>DAC        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>UART       <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>I2C        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>SPI        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohifix
- * <tr><td>Timer      <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
- * <tr><td>Interrupt  <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
- * <tr><td>DMA        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
- * <tr><td>CAN        <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohitodo
- * <tr><td>Ethernet   <td>-     <td>-        <td>-    <td>-    <td> @ohitodo <td>-     <td>-         <td> -
+ * <tr><th>Peripheral     <th colspan="2">NXP MKL<th colspan="3">NXP MK <th colspan="2">NXP MKV <th>STM32L4
+ * <tr><td>-              <td>MKL15 <td>MKL25    <td>MK10 <td>MK12 <td>MK64      <td>MKV31 <td>MKV46     <td>STM32L476
+ * <tr><td>Clock          <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>Power Mode     <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>GPIO           <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>RTC            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>ADC            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>DAC            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>UART           <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>I2C            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>SPI            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohifix
+ * <tr><td>Timer          <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>LowPower Timer <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>Interrupt      <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohidone
+ * <tr><td>DMA            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohiwip
+ * <tr><td>CAN            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-         <td> @ohitodo
+ * <tr><td>Ethernet       <td>-     <td>-        <td>-    <td>-    <td> @ohitodo <td>-     <td>-         <td> -
  * </table>
  *
  *
@@ -88,6 +89,8 @@
  * @li <b>v1.1.0</b> of 2018/11/05 - First stable version. No more development
  *     on this version, except for bug fixes.
  * @li <b>v1.0.0-Beta</b> of 2015/02/20 - First release
+ *
+ * @subpage device "Documented Devices"
  */
 
 #ifndef __LIBOHIBOARD_H
@@ -102,6 +105,39 @@ extern "C" {
 #include "types.h"
 #include "errors.h"
 #include "utility.h"
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
+#if defined (LIBOHIBOARD_MKL15)
+
+/**
+ * @page device Documented Devices
+ *
+ * This documentation was generated for these microcontrollers:
+ * @li LIBOHIBOARD_MKL15ZxFM (QFN32)
+ * @li LIBOHIBOARD_MKL15ZxFT (QFN48)
+ * @li LIBOHIBOARD_MKL15ZxLH (LQFP64)
+ * @li LIBOHIBOARD_MKL15ZxLK (LQFP80)
+ */
+
+
+#elif defined (LIBOHIBOARD_MKL25)
+
+/**
+ * @page device Documented Devices
+ *
+ * This documentation was generated for these microcontrollers:
+ * @li LIBOHIBOARD_MKL25ZxFM (QFN32)
+ * @li LIBOHIBOARD_MKL25ZxFT (QFN48)
+ * @li LIBOHIBOARD_MKL25ZxLH (LQFP64)
+ * @li LIBOHIBOARD_MKL25ZxLK (LQFP80)
+ */
+
+#endif
+
+#elif defined (LIBOHIBOARD_ST_STM32)
+
+#endif
 
 #include "interrupt.h"
 
@@ -179,6 +215,14 @@ extern "C" {
 
 #ifdef LIBOHIBOARD_FILTER
 #include "filter.h"
+#endif
+
+#ifdef LIBOHIBOARD_LOWPOWER
+#include "lowpower.h"
+#endif
+
+#ifdef LIBOHIBOARD_LOWPOWER_TIMER
+#include "lowpower-timer.h"
 #endif
 
 #include "timeday.h"
