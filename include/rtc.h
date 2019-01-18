@@ -223,6 +223,14 @@ void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 void Rtc_enableSecond (Rtc_DeviceHandle dev, void *callback);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
+#elif defined (LIBOHIBOARD_STM32L4)
+
+void Rtc_enableAlam(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
+void Rtc_disableAlarm (Rtc_DeviceHandle dev);
+
+void Rtc_enableWakeUp(Rtc_DeviceHandle dev, void *callback, uint32_t seconds);
+void Rtc_disableWakeUp (Rtc_DeviceHandle dev);
+
 #endif
 
 #ifdef __cplusplus

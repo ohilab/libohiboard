@@ -537,7 +537,7 @@ System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed)
     uint32_t diff = 0xFFFFFFFFu;
     uint8_t br = 0u;
 
-#if defined (LIBOHIBOARD_STM32L476Jx) // WLCSP72 ballout
+#if defined (LIBOHIBOARD_STM32L476)
 
     if (dev == OB_SPI1)
         frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);

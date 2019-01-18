@@ -1124,7 +1124,7 @@ System_Errors Clock_setFrequency (uint32_t frequency)
 
 		err = Clock_init(&clkConfig);
 	}
-	else if (Clock_isFrequecyInPllRange(frequency, &clkConfig.pllSource, &clkConfig.pllPrescaler, &clkConfig.pll))
+	else if (Clock_isFrequencyInPllRange(frequency, &clkConfig.pllSource, &clkConfig.pllPrescaler, &clkConfig.pll))
 	{
 		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
 		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;

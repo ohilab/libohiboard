@@ -394,7 +394,7 @@ LowPower_ResetControl LowPower_getResetStatus (void)
 
 void LowPower_enableWakeUpPin (LowPower_WakeUpPins pins, LowPower_WakeUpEdge polarity)
 {
-	UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR3, PWR_CR3_EIWF_Msk);
+	UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR3, PWR_CR3_EIWUL_Msk);
 	UTILITY_MODIFY_REGISTER(lpd.regmapPWR->CR3, PWR_CR3_EWUP_Msk, pins);
 	UTILITY_MODIFY_REGISTER(lpd.regmapPWR->CR4, PWR_CR4_WP_Msk, polarity);
 }

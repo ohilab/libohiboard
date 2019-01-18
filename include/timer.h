@@ -861,13 +861,14 @@ typedef struct _Timer_Config
 
 } Timer_Config;
 
-/** @name Configuration functions
- *  Functions to initialize and de-initialize a Timer peripheral.
+/**
+ * @defgroup TIMER_Configuration_Functions Timer configuration functions
+ * @brief Functions to initialize and de-initialize a Timer peripheral.
+ * @{
  */
-///@{
 
 /**
- * @brief Initialize the Timer according to the specified parameters
+ * Initialize the Timer according to the specified parameters
  * in the @ref Timer_Config and initialize the associated handle.
  *
  * @param[in] dev Timer device handle
@@ -883,7 +884,9 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config);
  */
 System_Errors Timer_deInit (Timer_DeviceHandle dev);
 
-///@}
+/**
+ * @}
+ */
 
 /** @name Free-Counter functions
  *  Functions to manage free counting of Timer peripheral.

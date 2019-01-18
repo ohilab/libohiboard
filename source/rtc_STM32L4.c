@@ -297,7 +297,7 @@ static System_Errors Rtc_config (Rtc_DeviceHandle dev)
         frequency = (uint32_t)CLOCK_FREQ_LSE;
         break;
     case RTC_CLOCK_HSE_RTC:
-        frequency = (uint32_t)(Clock_getOscillatorValue(CLOCK_EXTERNAL) / 32u);
+        frequency = (uint32_t)(Clock_getOscillatorValue() / 32u);
         break;
     }
     // Check if frequency is grather than 32000Hz, in this case put
@@ -596,6 +596,27 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
 
     return (Rtc_Time)Time_getUnixTime(&mydate,&mytime);
 }
+
+void Rtc_enableAlam(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm)
+{
+
+}
+
+void Rtc_disableAlarm (Rtc_DeviceHandle dev)
+{
+
+}
+
+void Rtc_enableWakeUp(Rtc_DeviceHandle dev, void *callback, uint32_t seconds)
+{
+
+}
+
+void Rtc_disableWakeUp (Rtc_DeviceHandle dev)
+{
+
+}
+
 
 #endif // LIBOHIBOARD_STM32L4
 
