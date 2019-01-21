@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/STM32L4/lowpower-timer_STM32L4.c
+ * @file libohiboard/source/STM32L4/lowpower-timer_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Low-Power Timer implementations for STM32L4 Series
  */
@@ -111,6 +111,8 @@ typedef struct _LowPowerTimer_Device
 
     LowPowerTimer_DeviceState state;           /**< Current peripheral state. */
 
+    LowPowerTimer_Config config;
+
 } LowPowerTimer_Device;
 
 #if defined (LIBOHIBOARD_STM32L476)
@@ -156,7 +158,14 @@ LowPowerTimer_DeviceHandle OB_LPTIM2 = &lptim2;
 
 static inline void __attribute__((always_inline)) LowPowerTimer_callbackInterrupt (LowPowerTimer_DeviceHandle dev)
 {
-
+    // Update event
+    if ((dev->regmap->ISR & LPTIM_ISR_ARRM_Msk) == LPTIM_ISR_ARRM)
+    {
+        // Clear flag
+        dev->regmap->ICR |= LPTIM_ICR_ARRMCF;
+        // Call callback
+        dev->config.counterCallback(dev);
+    }
 }
 
 static void LowPowerTimer_config (LowPowerTimer_DeviceHandle dev,
@@ -196,6 +205,16 @@ static void LowPowerTimer_config (LowPowerTimer_DeviceHandle dev,
 
     // Save configurations into register
     dev->regmap->CFGR = tmpreg;
+
+    // Save parameters to device structure
+    dev->config = *config;
+
+    // Check callback and enable interrupts
+    if ((config->counterCallback != 0))
+    {
+        // Enable interrupt
+        Interrupt_enable(dev->isrNumber);
+    }
 }
 
 System_Errors LowPowerTimer_init (LowPowerTimer_DeviceHandle dev,
@@ -262,7 +281,47 @@ System_Errors LowPowerTimer_init (LowPowerTimer_DeviceHandle dev,
 
 System_Errors LowPowerTimer_deInit (LowPowerTimer_DeviceHandle dev)
 {
-    // TODO
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance type
+    err = ohiassert(LOWPOWERTIMER_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    dev->state = LOWPOWERTIMER_DEVICESTATE_BUSY;
+
+    // Disable the peripheral
+    dev->regmap->CR &= ~LPTIM_CR_ENABLE;
+    // Disable peripheral clock
+    LOWPOWERTIMER_CLOCK_DISABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+
+    dev->state = LOWPOWERTIMER_DEVICESTATE_RESET;
+    return ERRORS_NO_ERROR;
+}
+
+void LowPowerTimer_setPrescaler (LowPowerTimer_DeviceHandle dev,
+                                 LowPowerTimer_ClockPrescaler prescaler)
+{
+    // Check the TIMER instance type
+    ohiassert(LOWPOWERTIMER_IS_DEVICE(dev));
+    // Check prescaler value
+    ohiassert(LOWPOWERTIMER_VALID_PRESCALER(prescaler));
+    dev->config.prescaler = prescaler;
+
+    // Disable the peripheral
+    dev->regmap->CR &= ~LPTIM_CR_ENABLE;
+    // Set prescaler
+    dev->regmap->CFGR &= ~(LPTIM_CFGR_PRESC_Msk);
+    dev->regmap->CFGR |= prescaler;
+    // Enable the peripheral
+    dev->regmap->CR |= LPTIM_CR_ENABLE;
+
 }
 
 System_Errors LowPowerTimer_startCounter (LowPowerTimer_DeviceHandle dev,
@@ -281,12 +340,31 @@ System_Errors LowPowerTimer_startCounter (LowPowerTimer_DeviceHandle dev,
         return ERRORS_TIMER_WRONG_DEVICE;
     }
 
-    // TODO: check prescaler value...
-
     // Check counter value
     ohiassert(LOWPOWERTIMER_VALID_COUNTER(counter));
 
     dev->state = LOWPOWERTIMER_DEVICESTATE_BUSY;
+
+    // Check prescaler value
+    // At RM0351, page 1188: Consequently, in order not to miss any event, the frequency of the changes on the
+    // external Input1 signal should never exceed the frequency of the internal clock
+    // provided to the LPTIM. Also, the internal clock provided to the LPTIM must not be prescaled.
+    if ((dev->config.clockSource != LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL) &&
+        (dev->config.counterSource == LOWPOWERTIMER_COUNTERSOURCE_EXTERNAL))
+    {
+        // Check actual prescaler value
+        // This assert is just a warning for the programmer...
+        ohiassert(dev->config.prescaler == LOWPOWERTIMER_CLOCKPRESCALER_DIV1);
+        // Set prescaler to 1
+        dev->regmap->CFGR &= ~LPTIM_CFGR_PRESC_Msk;
+    }
+
+    // Check if callback is present
+    if (dev->config.counterCallback != 0)
+    {
+        // Enable autoreload match interrupt
+        dev->regmap->IER |= LPTIM_IER_ARRMIE;
+    }
 
     // Enable the peripheral
     dev->regmap->CR |= LPTIM_CR_ENABLE;
@@ -316,6 +394,16 @@ System_Errors LowPowerTimer_stopCounter (LowPowerTimer_DeviceHandle dev)
         return ERRORS_TIMER_WRONG_DEVICE;
     }
 
+    dev->state = LOWPOWERTIMER_DEVICESTATE_BUSY;
+
+    // Disable the peripheral
+    dev->regmap->CR &= ~LPTIM_CR_ENABLE;
+
+    // Disable interrupt
+    dev->regmap->IER &= ~LPTIM_IER_ARRMIE;
+
+    dev->state = LOWPOWERTIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
 }
 
 

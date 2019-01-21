@@ -59,7 +59,13 @@ extern "C" {
 #include "clock.h"
 
 /**
- *
+ * @defgroup LOWPOWER_TIMER_Configuration_Types Low-Power Timer configuration types
+ * @brief Useful types for Low-Power Timer peripheral configuration.
+ * @{
+ */
+
+/**
+ * The handle for the Low-Power Timer peripheral.
  */
 typedef struct _LowPowerTimer_Device* LowPowerTimer_DeviceHandle;
 
@@ -137,7 +143,7 @@ typedef enum _LowPowerTimer_ClockPolarity
 } LowPowerTimer_ClockPolarity;
 
 /**
- *
+ * The list of the possible input trigger source.
  */
 typedef enum _LowPowerTimer_TriggerSource
 {
@@ -188,8 +194,6 @@ typedef enum _LowPowerTimer_CounterSource
  */
 typedef struct _LowPowerTimer_Config
 {
-//    Timer_Mode mode;                                /**< Modes of operations. */
-
     LowPowerTimer_ClockSource clockSource;
     LowPowerTimer_ClockPrescaler prescaler;
 
@@ -211,8 +215,13 @@ typedef struct _LowPowerTimer_Config
      */
     LowPowerTimer_CounterSource counterSource;
 
+    void (* counterCallback)(struct _LowPowerTimer_Device *dev);
 
 } LowPowerTimer_Config;
+
+/**
+ * @}
+ */
 
 /**
  * @defgroup LOWPOWER_TIMER_Configuration_Functions Low-Power Timer configuration functions
@@ -224,8 +233,6 @@ typedef struct _LowPowerTimer_Config
  * Initialize the Low-Power Timer according to the specified parameters
  * in the @ref LowPowerTimer_Config and initialize the associated handle.
  *
- * @note This function is usable only with low power peripheral.
- *
  * @param[in] dev Low-Power Timer device handle
  * @param[in] config Configuration parameters list.
  * @return ERRORS_NO_ERROR The initialization is ok.
@@ -235,7 +242,37 @@ System_Errors LowPowerTimer_init (LowPowerTimer_DeviceHandle dev,
 
 
 /**
+ * This function de-initialize the selected peripheral.
+ *
+ * @param[in] dev Low-Power Timer device handle
+ * @return ERRORS_NO_ERROR The initialization is ok.
+ */
+System_Errors LowPowerTimer_deInit (LowPowerTimer_DeviceHandle dev);
+
+
+/**
+ * This function change the prescaler value used to divide the internal
+ * source clock.
+ *
+ * @note This function disable and enable the selected peripheral.
+ *
+ * @warning This function doesn't use a value of @ref System_Errors for speed
+ *          reason. So, no check on input parameters will be done!
+ *
+ * @param[in] dev Low-Power Timer device handle
+ * @param[in] prescaler The new clock prescaler for internal clock.
+ */
+void LowPowerTimer_setPrescaler (LowPowerTimer_DeviceHandle dev,
+                                 LowPowerTimer_ClockPrescaler prescaler);
+
+/**
  * @}
+ */
+
+/**
+ * @defgroup LOWPOWER_TIMER_Counter_Functions Low-Power Timer Counter configuration functions
+ * @brief Functions to manage free counting of Low-Power Timer peripheral.
+ * @{
  */
 
 /**
@@ -256,6 +293,10 @@ System_Errors LowPowerTimer_startCounter (LowPowerTimer_DeviceHandle dev,
  * @return ERRORS_NO_ERROR The initialization is ok.
  */
 System_Errors LowPowerTimer_stopCounter (LowPowerTimer_DeviceHandle dev);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

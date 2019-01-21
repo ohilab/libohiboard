@@ -50,6 +50,9 @@ extern "C" {
 extern LowPowerTimer_DeviceHandle OB_LPTIM1;
 extern LowPowerTimer_DeviceHandle OB_LPTIM2;
 
+void LPTIM1_IRQHandler (void);
+void LPTIM2_IRQHandler (void);
+
 #endif
 
 #endif // LIBOHIBOARD_STM32L4 && LIBOHIBOARD_LOWPOWER_TIMER
