@@ -156,6 +156,30 @@ LowPowerTimer_DeviceHandle OB_LPTIM2 = &lptim2;
 
 #endif // LIBOHIBOARD_STM32L476
 
+const LowPowerTimer_ClockPrescaler LOWPOWERTIMER_PRESCALER_REGISTER_TABLE[8] =
+{
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV1,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV2,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV4,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV8,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV16,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV32,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV64,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV128,
+};
+
+const uint32_t LOWPOWERTIMER_PRESCALER_REGISTER_VALUE[8] =
+{
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+};
+
 static inline void __attribute__((always_inline)) LowPowerTimer_callbackInterrupt (LowPowerTimer_DeviceHandle dev)
 {
     // Update event
@@ -406,6 +430,13 @@ System_Errors LowPowerTimer_stopCounter (LowPowerTimer_DeviceHandle dev)
     return ERRORS_NO_ERROR;
 }
 
+uint32_t LowPowerTimer_getCurrentCounter (LowPowerTimer_DeviceHandle dev)
+{
+    // Check the TIMER instance type
+    ohiassert(LOWPOWERTIMER_IS_DEVICE(dev));
+
+    return (dev->regmap->CNT & 0x0000FFFF);
+}
 
 _weak void LPTIM1_IRQHandler (void)
 {

@@ -107,6 +107,16 @@ typedef enum _LowPowerTimer_ClockPrescaler
 } LowPowerTimer_ClockPrescaler;
 
 /**
+ * Useful array to store all the possible register value for the prescaler.
+ */
+extern const LowPowerTimer_ClockPrescaler LOWPOWERTIMER_PRESCALER_REGISTER_TABLE[8];
+
+/**
+ * Useful array to store all the possible prescaler value.
+ */
+extern const uint32_t LOWPOWERTIMER_PRESCALER_REGISTER_VALUE[8];
+
+/**
  *
  */
 typedef enum _Timer_LowPowerClockSource
@@ -293,6 +303,17 @@ System_Errors LowPowerTimer_startCounter (LowPowerTimer_DeviceHandle dev,
  * @return ERRORS_NO_ERROR The initialization is ok.
  */
 System_Errors LowPowerTimer_stopCounter (LowPowerTimer_DeviceHandle dev);
+
+/**
+ * This function return the current value of timer counter.
+ *
+ * @warning This function doesn't use a value of @ref System_Errors for speed
+ *          reason. So, no check on input parameters will be done!
+ *
+ * @param[in] dev Low-Power Timer device handle
+ * @return The current counter value.
+ */
+uint32_t LowPowerTimer_getCurrentCounter (LowPowerTimer_DeviceHandle dev);
 
 /**
  * @}
