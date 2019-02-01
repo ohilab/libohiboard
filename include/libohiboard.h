@@ -139,6 +139,7 @@ extern "C" {
 
 #endif
 
+#ifdef LIBOHIBOARD_BASIC
 #include "interrupt.h"
 
 #include "gpio.h"
@@ -146,6 +147,7 @@ extern "C" {
 #include "system.h"
 
 #include "clock.h"
+#endif
 
 #ifdef LIBOHIBOARD_TIMER
 #include "timer.h"

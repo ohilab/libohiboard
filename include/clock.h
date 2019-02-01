@@ -73,6 +73,10 @@ typedef enum _Clock_Source
     CLOCK_SYSTEM,
 
 // END IF: LIBOHIBOARD_ST_STM32
+#else
+
+    CLOCK_NONE,
+
 #endif
 
 } Clock_Source;
