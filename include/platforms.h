@@ -233,6 +233,26 @@
 #define LIBOHIBOARD_NXP_KINETIS
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L073Rx) || \
+      defined (LIBOHIBOARD_STM32L073Cx) || \
+      defined (LIBOHIBOARD_STM32L073Vx)
+
+#include "platforms/STM32L476/stm32l073xx.h"
+#include "platforms/STM32L476/stm32l0xx.h"
+#include "platforms/STM32L476/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L073
+#define LIBOHIBOARD_STM32L073
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L476Jx) || \
       defined (LIBOHIBOARD_STM32L476Rx)
 
