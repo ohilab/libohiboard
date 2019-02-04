@@ -59,6 +59,10 @@ extern "C" {
 #define CLOCK_FREQ_LSE               ((uint32_t)32768u)
 #define CLOCK_FREQ_LSI               ((uint32_t)37000u)
 
+#define CLOCK_VOLTAGERANGE1_MAX_FREQ_WO_WAIT (16000000u)
+#define CLOCK_VOLTAGERANGE2_MAX_FREQ_WO_WAIT  (8000000u)
+#define CLOCK_VOLTAGERANGE3_MAX_FREQ_WO_WAIT  (4200000u)
+
 // Useful register define
 #define RCC_ICSCR_MSIRANGE_Pos                    (13u)
 #define RCC_CFGR_HPRE_Pos                          (4u)
@@ -76,35 +80,6 @@ extern "C" {
 // Useful default calibration value
 #define CLOCK_MSI_DEFAULT_TRIM_VALUE ((uint32_t)0x00000000u)
 #define CLOCK_HSI_DEFAULT_TRIM_VALUE ((uint32_t)0x00001000u)
-
-#endif
-
-#if 0
-#define CLOCK_ENABLE_SYSCFG() do { \
-                                UTILITY_SET_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
-                                asm("nop"); \
-                                (void) UTILITY_READ_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
-                              } while (0)
-
-#define CLOCK_DISABLE_SYSCFG()do { \
-                                UTILITY_CLEAR_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
-                              } while (0)
-
-#define CLOCK_ENABLE_PWR()    do { \
-                                UTILITY_SET_REGISTER_BIT(RCC->APB1ENR1,RCC_APB1ENR1_PWREN); \
-                                asm("nop"); \
-                                (void) UTILITY_READ_REGISTER_BIT(RCC->APB1ENR1,RCC_APB1ENR1_PWREN); \
-                              } while (0)
-
-#define CLOCK_DISABLE_PWR()   do { \
-                                UTILITY_CLEAR_REGISTER_BIT(RCC->APB1ENR1,RCC_APB1ENR1_PWREN); \
-                              } while (0)
-
-#define CLOCK_IS_ENABLE_PWR() ((UTILITY_READ_REGISTER_BIT(RCC->APB1ENR1,RCC_APB1ENR1_PWREN) == 0) ? FALSE : TRUE)
-
-#define CLOCK_BACKUP_DISABLE_WRITE_PROTECTION() UTILITY_SET_REGISTER_BIT(PWR->CR1,PWR_CR1_DBP)
-
-#define CLOCK_BACKUP_ENABLE_WRITE_PROTECTION() UTILITY_CLEAR_REGISTER_BIT(PWR->CR1,PWR_CR1_DBP)
 
 #endif
 

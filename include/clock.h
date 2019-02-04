@@ -260,6 +260,20 @@ typedef enum _Clock_APBDivider
 
 } Clock_APBDivider;
 
+#if defined (LIBOHIBOARD_STM32L0)
+
+/**
+ * List of all possible divider of HSI oscillator
+ */
+typedef enum _Clock_HSIDivider
+{
+    CLOCK_HSIDIVIDER_1    = 0x00000000u,
+    CLOCK_HSIDIVIDER_4    = RCC_CR_HSIDIVEN,
+
+} Clock_HSIDivider;
+
+#endif
+
 /**
  * List of all possible MSI frequency range.
  */
@@ -389,6 +403,8 @@ typedef enum _Clock_PLLMultiplier
 
 } Clock_PLLMultiplier;
 
+#if defined (LIBOHIBOARD_STM32L4)
+
 typedef enum _Clock_PLLDividerR
 {
     CLOCK_PLLDIVIDER_R_2        = 0,
@@ -425,6 +441,8 @@ typedef struct _Clock_PLLConfig
     Clock_PLLDividerP dividerP;
 
 } Clock_PLLConfig;
+
+#endif
 
 typedef enum _Clock_McoDivider
 {
@@ -521,11 +539,16 @@ typedef struct _Clock_Config
     Clock_APBDivider apb1Divider;
     Clock_APBDivider apb2Divider;
     Clock_MSIRange msiRange;
+#if defined (LIBOHIBOARD_STM32L0)
+    Clock_HSIDivider hsiDivider;
+#endif
 
     Clock_PLLPrescaler pllPrescaler;
+#if defined (LIBOHIBOARD_STM32L4)
     Clock_PLLConfig pll;
     Clock_PLLConfig pllSai1;
     Clock_PLLConfig pllSai2;
+#endif
 
     Clock_McoDivider mcoPrescaler;
     Clock_McoSource mcoSource;

@@ -97,6 +97,9 @@ extern "C" {
                                              ((DIVIDER) == CLOCK_APBDIVIDER_8)   || \
                                              ((DIVIDER) == CLOCK_APBDIVIDER_16))
 
+#define CLOCK_IS_VALID_HSI_DIVIDER(DIVIDER) (((DIVIDER) == CLOCK_HSIDIVIDER_1) || \
+                                             ((DIVIDER) == CLOCK_HSIDIVIDER_4))
+
 #define CLOCK_IS_VALID_EXTERNAL_RANGE(VALUE) ((VALUE >= CLOCK_MIN_FREQ_HSE) && (VALUE <= CLOCK_MAX_FREQ_HSE))
 
 #define CLOCK_IS_VALID_SYSSOURCE(SYSSOURCE) (((SYSSOURCE & CLOCK_SYSTEMSOURCE_HSI) == CLOCK_SYSTEMSOURCE_HSI) || \
@@ -202,7 +205,7 @@ typedef struct _Clock_Device
     uint8_t devHSIInitialized;
     uint8_t devPLLInitialized;
 
-    Clock_MSIRange deinitRange;
+    Clock_MSIRange deInitRange;
 
     System_Errors rccError;
 
@@ -227,7 +230,7 @@ static Clock_Device clk =
     .devHSEInitialized = 0,
     .devPLLInitialized = 0,
 
-    .deinitRange       = CLOCK_MSIRANGE_2097kHz,
+    .deInitRange       = CLOCK_MSIRANGE_2097kHz,
 
     .rccError          = ERRORS_NO_ERROR,
 };
@@ -239,22 +242,6 @@ static Clock_Device clk =
  * @note This function is used before set a new clock configuration.
  */
 static System_Errors Clock_deInit (void);
-
-/**
- * Return the clock provided by MSI set in register configuration.
- *
- * @return value of MSI clock.
- */
-static uint32_t Clock_getActualMsiValue (void);
-
-/**
- * Return the clock set for MSI in configuration struct.
- *
- * @param[in] config configuration struct.
- *
- * @return value of MSI clock
- */
-static uint32_t Clock_getConfigMsiValue (Clock_Config *config);
 
 /**
  * Return the source clock of PLL.
@@ -273,34 +260,94 @@ static uint32_t Clock_getConfigMsiValue (Clock_Config *config);
 //static uint32_t Clock_getConfigPllValue (Clock_Config *config, Clock_PLLConfig *pllConfig);
 
 /**
+ * Return the clock set for MSI in configuration struct.
+ *
+ * @param[in] config configuration struct.
+ *
+ * @return value of MSI clock
+ */
+static uint32_t Clock_getConfigMsiValue (Clock_Config* config)
+{
+    return CLOCK_MSI_RANGE[(config->msiRange >> RCC_ICSCR_MSIRANGE_Pos)];
+}
+
+/**
+ * Return the clock provided by MSI set in register configuration.
+ *
+ * @return value of MSI clock.
+ */
+static uint32_t Clock_getActualMsiValue (void)
+{
+    uint32_t msiRange = (UTILITY_READ_REGISTER_BIT(clk.regmap->ICSCR, RCC_ICSCR_MSIRANGE) >> RCC_ICSCR_MSIRANGE_Pos);
+    return CLOCK_MSI_RANGE[msiRange];
+}
+
+/**
  * Return the system clock set in register configuration.
  *
  * @return value of SYSCLK clock.
  */
-static uint32_t Clock_getActualSystemValue (void);
+static uint32_t Clock_getActualSystemValue (void)
+{
+    uint32_t systemClock = 0;
+    Clock_SystemSourceSws sysclkSource = (Clock_SystemSourceSws)(UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_SWS) >> RCC_CFGR_SWS_Pos);
+
+    switch (sysclkSource)
+    {
+    default:
+    case CLOCK_SYSTEMSOURCESWS_MSI:
+        systemClock = Clock_getActualMsiValue();
+        break;
+    case CLOCK_SYSTEMSOURCESWS_HSI:
+        if (UTILITY_READ_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSIDIVEN) == 0)
+            systemClock = CLOCK_FREQ_HSI;
+        else
+            systemClock = (CLOCK_FREQ_HSI / 4);
+        break;
+//    case CLOCK_SYSTEMSOURCESWS_HSE:
+//        systemClock = clk0.externalClock;
+//        break;
+//    case CLOCK_SYSTEMSOURCESWS_PLL:
+//    {
+//        uint32_t pllmClock = Clock_getActualPllInputValue();
+//        uint32_t pllnReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
+//        uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
+//        systemClock = (((pllmClock) * pllnReg) / ((pllrReg + 1) * 2));
+//    }
+//        break;
+    }
+
+    return systemClock;
+}
 
 /**
- * Set the proper flash latency for frequency specified.
+ * Return the current HCLK clock set in register configuration.
  *
- * @param[in] frequency the new value of system clock.
- * @note This function is used in Clock_init(). It must be called
- *       before of change clock if new frequency is major then actual,
- *       after if otherwise.
- * @note The frequency latency
+ * @return value of HCLK clock.
  */
-//static void Clock_setProperFlashLatency (uint32_t frequency)
-//{
-//    int latency = 0;
-//    while (latency < UTILITY_DIMOF(Clock_flashLatency))
-//    {
-//        if (frequency <= Clock_flashLatency[latency])
-//        {
-//            UTILITY_MODIFY_REGISTER(clk0.regmapFlash->ACR, FLASH_ACR_LATENCY_Msk, (latency << FLASH_ACR_LATENCY_Pos));
-//            break;
-//        }
-//        latency++;
-//    }
-//}
+static uint32_t Clock_getActualHclkValue (void)
+{
+    uint32_t hclkClock = Clock_getActualSystemValue();
+    uint32_t cfgr = clk.regmap->CFGR;
+    uint32_t shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
+    hclkClock = (hclkClock >> CLOCK_AHB_PRESCALE_SHIFT_TABLE[shifter]);
+
+    return hclkClock;
+}
+
+/**
+ * Return the clock set for HCLK in configuration struct.
+ *
+ * @param[in] config configuration struct.
+ *
+ * @return value of HCLK clock
+ */
+static uint32_t Clock_getConfigHclkValue (Clock_Config* config)
+{
+    uint32_t hclkClock = Clock_getConfigOscillatorValue(config);
+    hclkClock = (hclkClock >> config->ahbDivider);
+    return hclkClock;
+}
 
 static void Clock_updateOutputValue (void)
 {
@@ -376,6 +423,66 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
     }
 
+    // HSI Configuration
+    if ((config->source & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)
+    {
+        // Check the HSI state value, and divider
+        ohiassert(CLOCK_IS_VALID_HSI_STATE(config->hsiState));
+        ohiassert(CLOCK_IS_VALID_HSI_DIVIDER(config->hsiDivider));
+
+        // Check if HSI is just used as SYSCLK or as PLL source
+        // In this case we can't disable it
+        if (((clk.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) ||
+           (((clk.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
+            ((clk.regmap->CFGR & RCC_CFGR_PLLSRC) == CLOCK_PLLSOURCE_HSI)))
+        {
+            // When HSI is used as system clock it will not disabled
+            if ((UTILITY_READ_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSIRDY) != 0) &&
+                (config->hsiState == CLOCK_OSCILLATORSTATE_OFF))
+            {
+                return ERRORS_CLOCK_WRONG_CONFIGURATION;
+            }
+            else
+            {
+                // Change only the divider...
+                UTILITY_SET_REGISTER_BIT(clk.regmap->CR,config->hsiDivider);
+            }
+        }
+        else
+        {
+            if (config->hsiState == CLOCK_OSCILLATORSTATE_OFF)
+            {
+                // Switch off the oscillator
+                UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSION);
+
+                // Wait until the HSERDY bit is cleared
+                tickstart = System_currentTick();
+                while ((clk.regmap->CR & RCC_CR_HSIRDY) > 0)
+                {
+                    if ((System_currentTick() - tickstart) > CLOCK_HSI_TIMEOUT_VALUE)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
+            }
+            else
+            {
+                // Switch on the oscillator
+                UTILITY_SET_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSION);
+                UTILITY_SET_REGISTER_BIT(clk.regmap->CR,config->hsiDivider);
+
+                // Wait until the HSERDY bit is set
+                tickstart = System_currentTick();
+                while ((clk.regmap->CR & RCC_CR_HSIRDY) == 0)
+                {
+                    if ((System_currentTick() - tickstart) > CLOCK_HSI_TIMEOUT_VALUE)
+                        return ERRORS_CLOCK_TIMEOUT;
+                }
+            }
+        }
+    }
+
+
+
+
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOSEL_Msk, (config->mcoSource << RCC_CFGR_MCOSEL_Pos));
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOPRE_Msk, (config->mcoPrescaler << RCC_CFGR_MCOPRE_Pos));
 
@@ -403,13 +510,13 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         }
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_HSI)
         {
-//            // Check if the source is ready
-//            if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSIRDY) == 0)
-//            {
-//                return ERRORS_CLOCK_HSI_NOT_READY;
-//            }
-//
-//            cfgrSW = RCC_CFGR_SW_HSI;
+            // Check if the source is ready
+            if (UTILITY_READ_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSIRDY) == 0)
+            {
+                return ERRORS_CLOCK_HSI_NOT_READY;
+            }
+
+            cfgrSW = RCC_CFGR_SW_HSI;
         }
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_HSE)
         {
@@ -448,32 +555,32 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
 
     if ((config->output & CLOCK_OUTPUT_HCLK) == CLOCK_OUTPUT_HCLK)
     {
-//        // Check if divider is valid
-//        ohiassert(CLOCK_IS_VALID_AHB_DIVIDER(config->ahbDivider));
-//
-//        // Clear HPRE part of CFGR register and updated informations
-//        clk0.regmap->CFGR &= ~(RCC_CFGR_HPRE_Msk);
-//        clk0.regmap->CFGR |= CLOCK_AHB_PRESCALE_REGISTER_TABLE[config->ahbDivider];
+        // Check if divider is valid
+        ohiassert(CLOCK_IS_VALID_AHB_DIVIDER(config->ahbDivider));
+
+        // Clear HPRE part of CFGR register and updated informations
+        clk.regmap->CFGR &= ~(RCC_CFGR_HPRE);
+        clk.regmap->CFGR |= CLOCK_AHB_PRESCALE_REGISTER_TABLE[config->ahbDivider];
     }
 
     if ((config->output & CLOCK_OUTPUT_PCLK1) == CLOCK_OUTPUT_PCLK1)
     {
-//        // Check if divider is valid
-//        ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb1Divider));
-//
-//        // Clear PPRE1 part of CFGR register and updated informations
-//        clk0.regmap->CFGR &= ~(RCC_CFGR_PPRE1_Msk);
-//        clk0.regmap->CFGR |= CLOCK_APB1_PRESCALE_REGISTER_TABLE[config->apb1Divider];
+        // Check if divider is valid
+        ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb1Divider));
+
+        // Clear PPRE1 part of CFGR register and updated informations
+        clk.regmap->CFGR &= ~(RCC_CFGR_PPRE1);
+        clk.regmap->CFGR |= CLOCK_APB1_PRESCALE_REGISTER_TABLE[config->apb1Divider];
     }
 
     if ((config->output & CLOCK_OUTPUT_PCLK2) == CLOCK_OUTPUT_PCLK2)
     {
-//        // Check if divider is valid
-//        ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb2Divider));
-//
-//        // Clear PPRE2 part of CFGR register and updated informations
-//        clk0.regmap->CFGR &= ~(RCC_CFGR_PPRE2_Msk);
-//        clk0.regmap->CFGR |= CLOCK_APB2_PRESCALE_REGISTER_TABLE[config->apb2Divider];
+        // Check if divider is valid
+        ohiassert(CLOCK_IS_VALID_APB_DIVIDER(config->apb2Divider));
+
+        // Clear PPRE2 part of CFGR register and updated informations
+        clk.regmap->CFGR &= ~(RCC_CFGR_PPRE2);
+        clk.regmap->CFGR |= CLOCK_APB2_PRESCALE_REGISTER_TABLE[config->apb2Divider];
     }
 
     // Update system core clock informations...
@@ -486,19 +593,6 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
 #define CLOCK_IS_VALID_PLL_FREQUENCY(FREQ) ((FREQ >= CLOCK_MIN_FREQ_MSI && FREQ <= CLOCK_MAX_FREQ_PLL)?(TRUE):(FALSE))
 
 #define CLOCK_IS_VALID_CONFIG_PLL_FREQUENCY(OSC_CONFIG, PLL_CONFIG) (Clock_getConfigPllValue(OSC_CONFIG, PLL_CONFIG) <= CLOCK_MAX_FREQ_PLL)
-
-
-/**
- * Useful constant to define default value of flash latency based on clock speed.
- */
-static const uint32_t Clock_flashLatency[] =
-{
-    16000000,
-    32000000,
-    48000000,
-    64000000,
-    80000000,
-};
 
 static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 {
@@ -899,11 +993,11 @@ System_Errors Clock_init (Clock_Config* config)
     }
 
     //Reset Clock state
-//    Clock_deInit();
+    Clock_deInit();
 
-    //calculate value of clock
-    uint32_t currentSystemClock = Clock_getActualSystemValue();
-    uint32_t newSystemClock = Clock_getConfigOscillatorValue(config);
+    //calculate value of clock HCLK
+    uint32_t currentHclk = Clock_getActualHclkValue();
+    uint32_t newHclk= Clock_getConfigHclkValue(config);
 
     System_Errors err = ERRORS_NO_ERROR;
 
@@ -938,17 +1032,22 @@ System_Errors Clock_init (Clock_Config* config)
 
     // Setup default value of internal clock
     Clock_updateOutputValue();
-    // Initialize SysTick with default clock value (MSI @ 4MHz)
+    // Initialize SysTick with default clock value
     System_systickInit(0);
 
-    // TODO: If frequency is increasing
-#if 0
-    if (newSystemClock > currentSystemClock)
+    // If frequency is increasing
+    if ((newHclk > currentHclk) &&
+        (newHclk > CLOCK_VOLTAGERANGE1_MAX_FREQ_WO_WAIT))
     {
-        // set flash latency before to change clock
-        Clock_setProperFlashLatency(newSystemClock);
+        UTILITY_SET_REGISTER_BIT(clk.regmapFlash->ACR,FLASH_ACR_LATENCY);
+
+        // Check that the new number of wait states is taken into account to access
+        // the Flash memory by reading the FLASH_ACR register
+        if (UTILITY_READ_REGISTER_BIT(clk.regmapFlash->ACR,FLASH_ACR_LATENCY) != FLASH_ACR_LATENCY)
+        {
+            return ERRORS_CLOCK_WRONG_CONFIGURATION;
+        }
     }
-#endif
 
     err = Clock_oscillatorConfig(config);
 
@@ -961,14 +1060,19 @@ System_Errors Clock_init (Clock_Config* config)
         Clock_deInit();
     }
 
-    // TODO: If frequency is decreasing
-#if 0
-    if(newSystemClock < currentSystemClock)
+    // If frequency is decreasing
+    if ((newHclk < currentHclk) &&
+        (newHclk < CLOCK_VOLTAGERANGE1_MAX_FREQ_WO_WAIT))
     {
-        // set flash latency after changed clock
-        Clock_setProperFlashLatency(newSystemClock);
+        UTILITY_CLEAR_REGISTER_BIT(clk.regmapFlash->ACR,FLASH_ACR_LATENCY);
+
+        // Check that the new number of wait states is taken into account to access
+        // the Flash memory by reading the FLASH_ACR register
+        if (UTILITY_READ_REGISTER_BIT(clk.regmapFlash->ACR,FLASH_ACR_LATENCY) != 0u)
+        {
+            return ERRORS_CLOCK_WRONG_CONFIGURATION;
+        }
     }
-#endif
 
     // Setup default value of internal clock
     Clock_updateOutputValue();
@@ -978,29 +1082,32 @@ System_Errors Clock_init (Clock_Config* config)
     return err;
 }
 
-#if 0
 void Clock_setMsiRangeSwitching (Clock_MSIRange msi)
 {
-    if ((msi >= CLOCK_MSIRANGE_100KHz) && (msi <= CLOCK_MSIRANGE_24MHz))
+    if (ohiassert(CLOCK_IS_VALID_MSI_RANGE(msi)) == ERRORS_NO_ERROR)
     {
-        clk0.deinitRange = msi;
+        clk.deInitRange = msi;
+    }
+    else
+    {
+        clk.deInitRange = CLOCK_MSIRANGE_2097kHz;
     }
 }
 
-static bool Clock_isFrequencyInMsiRange (uint32_t frequency, Clock_MSIRange* pMsirange)
+static bool Clock_isFrequencyInMsiRange (uint32_t frequency, Clock_MSIRange* msiRange)
 {
-	uint16_t i = 0;
-	for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
+	for (uint8_t i = 0; i < UTILITY_DIMOF(CLOCK_MSI_RANGE); i++)
 	{
-		if (Clock_msiRange[i] == frequency)
+		if (CLOCK_MSI_RANGE[i] == frequency)
 		{
-			*pMsirange = (Clock_MSIRange)(i << RCC_CR_MSIRANGE_Pos);
+			*msiRange = (Clock_MSIRange)(i << RCC_ICSCR_MSIRANGE_Pos);
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
+#if 0
 static bool Clock_isFrequencyInPllRange (uint32_t frequency, Clock_PllSource *pllSource, Clock_PLLPrescaler* pllPrescaler, Clock_PLLConfig *pllConfig)
 {
 	uint32_t pllSourceClk = 0, sysClk = 0;
@@ -1087,107 +1194,6 @@ static bool Clock_isFrequencyInPllRange (uint32_t frequency, Clock_PllSource *pl
 	return FALSE;
 }
 
-System_Errors Clock_setFrequency (uint32_t frequency)
-{
-	System_Errors err = ERRORS_NO_ERROR;
-
-	Clock_Config clkConfig;
-	memset(&clkConfig, 0, sizeof(clkConfig));
-	clkConfig.source = CLOCK_INTERNAL_MSI;
-	clkConfig.output = CLOCK_OUTPUT_SYSCLK | CLOCK_OUTPUT_HCLK | CLOCK_OUTPUT_PCLK1 | CLOCK_OUTPUT_PCLK2 | CLOCK_OUTPUT_PLLR;
-	clkConfig.ahbDivider = CLOCK_AHBDIVIDER_1;
-	clkConfig.apb1Divider = CLOCK_APBDIVIDER_1;
-	clkConfig.apb2Divider = CLOCK_APBDIVIDER_1;
-	clkConfig.msiRange = CLOCK_MSIRANGE_4MHz;
-
-	clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
-	clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
-	clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
-	clkConfig.pll.dividerQ = CLOCK_PLLDIVIDER_Q_DISABLED;
-	clkConfig.pll.dividerP = CLOCK_PLLDIVIDER_P_DISABLED;
-
-	clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.pllSai1.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.pllSai2.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.mcoPrescaler = CLOCK_PLLPRESCALER_1;
-	clkConfig.mcoSource = CLOCK_MCOSOURCE_DISABLED;
-
-	// Check value of frequency, if it is out of range
-	// normalize the value
-	ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(frequency));
-	if (frequency < CLOCK_MIN_FREQ_MSI)
-	{
-		frequency = CLOCK_MIN_FREQ_MSI;
-	}
-
-	if (frequency > CLOCK_MAX_FREQ_PLL)
-	{
-		frequency = CLOCK_MAX_FREQ_PLL;
-	}
-
-	if (frequency > 2000000)
-	{
-		Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_24MHz);
-	}
-	else
-	{
-		Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_4MHz);
-	}
-
-	if (clk0.externalClock != 0 && frequency == clk0.externalClock)
-	{
-		clkConfig.source |= CLOCK_EXTERNAL;
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSE;
-		clkConfig.hseState = CLOCK_OSCILLATORSTATE_ON;
-
-		err = Clock_init(&clkConfig);
-	}
-	else if (frequency == CLOCK_FREQ_HSI)
-	{
-		clkConfig.source |= CLOCK_INTERNAL_HSI;
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSI;
-		clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
-
-		err = Clock_init(&clkConfig);
-	}
-	else if (frequency == CLOCK_MAX_FREQ_PLL)
-	{
-		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
-		clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
-
-		clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
-		clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
-		clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
-		clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
-		clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
-
-		err = Clock_init(&clkConfig);
-	}
-	else if (Clock_isFrequencyInMsiRange(frequency, &clkConfig.msiRange))
-	{
-		clkConfig.source |= CLOCK_INTERNAL_MSI;
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_MSI;
-		clkConfig.msiState = CLOCK_OSCILLATORSTATE_ON;
-
-		err = Clock_init(&clkConfig);
-	}
-	else if (Clock_isFrequencyInPllRange(frequency, &clkConfig.pllSource, &clkConfig.pllPrescaler, &clkConfig.pll))
-	{
-		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
-		clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
-
-		err = Clock_init(&clkConfig);
-	}
-	else
-	{
-		err = ERRORS_CLOCK_FREQ_OUT_OF_RANGE;
-	}
-
-	return err;
-}
 #endif
 
 static System_Errors Clock_deInit (void)
@@ -1197,7 +1203,7 @@ static System_Errors Clock_deInit (void)
     // Set internal default value
     UTILITY_MODIFY_REGISTER(clk.regmap->ICSCR, \
                            (RCC_ICSCR_MSITRIM | RCC_ICSCR_HSITRIM | RCC_ICSCR_MSIRANGE),\
-                           (CLOCK_MSI_DEFAULT_TRIM_VALUE | CLOCK_HSI_DEFAULT_TRIM_VALUE | clk.deinitRange));
+                           (CLOCK_MSI_DEFAULT_TRIM_VALUE | CLOCK_HSI_DEFAULT_TRIM_VALUE | clk.deInitRange));
 
     // Set MSI ON
     UTILITY_SET_REGISTER_BIT(clk.regmap->CR, RCC_CR_MSION);
@@ -1220,7 +1226,7 @@ static System_Errors Clock_deInit (void)
 
     // Wait until system clock is ready
     tickstart = System_currentTick();
-    while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CFGR, RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI)
+    while (UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI)
     {
         if ((System_currentTick() - tickstart) > 5000u)
             return ERRORS_CLOCK_TIMEOUT;
@@ -1231,7 +1237,7 @@ static System_Errors Clock_deInit (void)
                                                RCC_CR_HSEON | RCC_CR_CSSHSEON | RCC_CR_PLLON );
 
     // Read register just like a nop
-    (void)UTILITY_READ_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSEON)
+    (void)UTILITY_READ_REGISTER_BIT(clk.regmap->CR,RCC_CR_HSEON);
 
     // Reset HSEBYP
     UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CR, RCC_CR_HSEBYP);
@@ -1253,7 +1259,8 @@ static System_Errors Clock_deInit (void)
     // Clear reset flags
     UTILITY_SET_REGISTER_BIT(clk.regmap->CSR, RCC_CSR_RMVF);
 
-//    TODO: Clock_setProperFlashLatency(Clock_getActualSystemValue());
+    // No wait states at default startup
+    UTILITY_CLEAR_REGISTER_BIT(clk.regmapFlash->ACR,FLASH_ACR_LATENCY);
 
     // return NO_ERROR
     return ERRORS_NO_ERROR;
@@ -1282,7 +1289,6 @@ uint32_t Clock_getOscillatorValue (void)
     return clk.systemCoreClock;
 }
 
-#if 0
 uint32_t Clock_getConfigOscillatorValue (Clock_Config *config)
 {
     uint32_t systemClock = 0;
@@ -1294,24 +1300,23 @@ uint32_t Clock_getConfigOscillatorValue (Clock_Config *config)
         systemClock = Clock_getConfigMsiValue(config);
         break;
     case CLOCK_SYSTEMSOURCE_HSI:
-        systemClock = CLOCK_FREQ_HSI;
+        if (config->hsiDivider == CLOCK_HSIDIVIDER_4)
+            systemClock = (CLOCK_FREQ_HSI / 4);
+        else
+            systemClock = CLOCK_FREQ_HSI;
         break;
     case CLOCK_SYSTEMSOURCE_HSE:
-        systemClock = clk0.externalClock;
+//        systemClock = clk0.externalClock;
         break;
     case CLOCK_SYSTEMSOURCE_PLL:
-        systemClock = Clock_getConfigPllValue(config, &config->pll);
+//        systemClock = Clock_getConfigPllValue(config, &config->pll);
         break;
     }
 
     return systemClock;
 }
 
-static uint32_t Clock_getConfigMsiValue (Clock_Config* config)
-{
-    return Clock_msiRange[(config->msiRange >> RCC_CR_MSIRANGE_Pos)];
-}
-
+#if 0
 static uint32_t Clock_getActualPllInputValue(void)
 {
     uint32_t baseClock = 0, pllmClock = 0;
@@ -1389,44 +1394,6 @@ static uint32_t Clock_getConfigPllValue (Clock_Config* config, Clock_PLLConfig *
 }
 
 #endif
-
-static uint32_t Clock_getActualMsiValue (void)
-{
-    uint32_t msiRange = (UTILITY_READ_REGISTER_BIT(clk.regmap->ICSCR, RCC_ICSCR_MSIRANGE) >> RCC_ICSCR_MSIRANGE_Pos);
-    return CLOCK_MSI_RANGE[msiRange];
-}
-
-static uint32_t Clock_getActualSystemValue (void)
-{
-    uint32_t systemClock = 0;
-    Clock_SystemSourceSws sysclkSource = (Clock_SystemSourceSws)(UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_SWS) >> RCC_CFGR_SWS_Pos);
-
-    switch (sysclkSource)
-    {
-    default:
-    case CLOCK_SYSTEMSOURCESWS_MSI:
-        systemClock = Clock_getActualMsiValue();
-        break;
-//    case CLOCK_SYSTEMSOURCESWS_HSI:
-//        systemClock = CLOCK_FREQ_HSI;
-//        break;
-//    case CLOCK_SYSTEMSOURCESWS_HSE:
-//        systemClock = clk0.externalClock;
-//        break;
-//    case CLOCK_SYSTEMSOURCESWS_PLL:
-//    {
-//        uint32_t pllmClock = Clock_getActualPllInputValue();
-//        uint32_t pllnReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
-//        uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
-//        systemClock = (((pllmClock) * pllnReg) / ((pllrReg + 1) * 2));
-//    }
-//        break;
-    }
-
-    return systemClock;
-}
-
-
 
 #endif // LIBOHIBOARD_STM32L0
 
