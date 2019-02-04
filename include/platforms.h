@@ -237,9 +237,9 @@
       defined (LIBOHIBOARD_STM32L073Cx) || \
       defined (LIBOHIBOARD_STM32L073Vx)
 
-#include "platforms/STM32L476/stm32l073xx.h"
-#include "platforms/STM32L476/stm32l0xx.h"
-#include "platforms/STM32L476/system_stm32l0xx.h"
+#include "platforms/STM32L073/stm32l073xx.h"
+#include "platforms/STM32L073/stm32l0xx.h"
+#include "platforms/STM32L073/system_stm32l0xx.h"
 
 #ifndef LIBOHIBOARD_STM32L0
 #define LIBOHIBOARD_STM32L0

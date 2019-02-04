@@ -96,15 +96,19 @@ typedef enum _Clock_Origin
 // END IF: LIBOHIBOARD_NXP_KINETIS
 #elif defined (LIBOHIBOARD_ST_STM32)
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 
     CLOCK_INTERNAL_LSI         = 0x0004,
     CLOCK_INTERNAL_HSI         = 0x0008,
     CLOCK_INTERNAL_MSI         = 0x0010,
     CLOCK_INTERNAL_PLL         = 0x0020,
     CLOCK_EXTERNAL_LSE_CRYSTAL = 0x0040,
+#if defined (LIBOHIBOARD_STM32L0)
+    CLOCK_INTERNAL_HSI_48      = 0x0080,
+#endif
 
-#endif // LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L0 | LIBOHIBOARD_STM32L4
 
 // END IF: LIBOHIBOARD_ST_STM32
 #endif
@@ -141,6 +145,10 @@ Clock_State Clock_getCurrentState (void);
 
 #endif
 
+
+/**
+ * List of all possible output and activable clock.
+ */
 typedef enum _Clock_Output
 {
     CLOCK_OUTPUT_SYSCLK   = 0x0001,
@@ -149,6 +157,12 @@ typedef enum _Clock_Output
     CLOCK_OUTPUT_HCLK     = 0x0002,
     CLOCK_OUTPUT_PCLK1    = 0x0004,
     CLOCK_OUTPUT_PCLK2    = 0x0008,
+
+#if defined (LIBOHIBOARD_STM32L0)
+    CLOCK_OUTPUT_PLL      = 0x0010,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L4)
     CLOCK_OUTPUT_PLLR     = 0x0010,
     CLOCK_OUTPUT_PLLQ     = 0x0020,
     CLOCK_OUTPUT_PLLP     = 0x0040,
@@ -157,6 +171,8 @@ typedef enum _Clock_Output
     CLOCK_OUTPUT_PLLSAI1P = 0x0200,
     CLOCK_OUTPUT_PLLSAI2R = 0x0400,
     CLOCK_OUTPUT_PLLSAI2P = 0x0800,
+#endif
+
 #endif
 
 } Clock_Output;
@@ -170,6 +186,9 @@ typedef enum _Clock_OscillatorState
     CLOCK_OSCILLATORSTATE_ON,
 } Clock_OscillatorState;
 
+/**
+ * System source clock.
+ */
 typedef enum _Clock_SystemSource
 {
     CLOCK_SYSTEMSOURCE_HSE = 0x0001,
@@ -202,10 +221,19 @@ typedef enum _Clock_SystemSourceSws
  */
 typedef enum _Clock_PllSource
 {
+#if defined (LIBOHIBOARD_STM32L4)
     CLOCK_PLLSOURCE_NONE = 0x00000000u,
     CLOCK_PLLSOURCE_MSI  = (RCC_PLLCFGR_PLLSRC_MSI),
     CLOCK_PLLSOURCE_HSI  = (RCC_PLLCFGR_PLLSRC_HSI),
     CLOCK_PLLSOURCE_HSE  = (RCC_PLLCFGR_PLLSRC_HSE),
+#endif
+
+#if defined (LIBOHIBOARD_STM32L0)
+    CLOCK_PLLSOURCE_NONE = 0xFFFFFFFFu,
+    CLOCK_PLLSOURCE_HSI  = (RCC_CFGR_PLLSRC_HSI),
+    CLOCK_PLLSOURCE_HSE  = (RCC_CFGR_PLLSRC_HSE),
+#endif
+
 } Clock_PllSource;
 
 typedef enum _Clock_AHBDivider
@@ -232,8 +260,22 @@ typedef enum _Clock_APBDivider
 
 } Clock_APBDivider;
 
+/**
+ * List of all possible MSI frequency range.
+ */
 typedef enum _Clock_MSIRange
 {
+#if defined (LIBOHIBOARD_STM32L0)
+    CLOCK_MSIRANGE_65536Hz   = (RCC_ICSCR_MSIRANGE_0),
+    CLOCK_MSIRANGE_131072Hz  = (RCC_ICSCR_MSIRANGE_1),
+    CLOCK_MSIRANGE_262144Hz  = (RCC_ICSCR_MSIRANGE_2),
+    CLOCK_MSIRANGE_524288Hz  = (RCC_ICSCR_MSIRANGE_3),
+    CLOCK_MSIRANGE_1048kHz   = (RCC_ICSCR_MSIRANGE_4),
+    CLOCK_MSIRANGE_2097kHz   = (RCC_ICSCR_MSIRANGE_5),
+    CLOCK_MSIRANGE_4194kHz   = (RCC_ICSCR_MSIRANGE_6),
+#endif
+
+#if defined (LIBOHIBOARD_STM32L4)
     CLOCK_MSIRANGE_100KHz  = (RCC_CR_MSIRANGE_0),
     CLOCK_MSIRANGE_200KHz  = (RCC_CR_MSIRANGE_1),
     CLOCK_MSIRANGE_400KHz  = (RCC_CR_MSIRANGE_2),
@@ -246,6 +288,7 @@ typedef enum _Clock_MSIRange
     CLOCK_MSIRANGE_24MHz   = (RCC_CR_MSIRANGE_9),
     CLOCK_MSIRANGE_32MHz   = (RCC_CR_MSIRANGE_10),
     CLOCK_MSIRANGE_48MHz   = (RCC_CR_MSIRANGE_11),
+#endif
 
 } Clock_MSIRange;
 
@@ -425,7 +468,6 @@ typedef enum _Clock_BusDivider
 
 } Clock_BusDivider;
 
-
 #endif
 
 /**
@@ -494,7 +536,11 @@ typedef struct _Clock_Config
 } Clock_Config;
 
 // Useful define
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/clock_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/clock_STM32L4.h"
 

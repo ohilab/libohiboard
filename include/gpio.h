@@ -106,7 +106,11 @@ typedef enum _Gpio_Level
 } Gpio_Level;
 
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/gpio_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/gpio_STM32L4.h"
 
@@ -121,6 +125,12 @@ typedef enum _Gpio_Pins
     GPIO_PINS_NONE = 0,
 
 } Gpio_Pins;
+
+typedef enum _Gpio_Ports
+{
+    GPIO_PORTS_NONE,
+
+} Gpio_Ports;
 
 #endif
 

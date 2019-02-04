@@ -67,8 +67,8 @@ typedef enum {
 // Dummy
 typedef enum _Interrupt_Vector
 {
-
-    INTERRUPT_NONE = 0,
+    INTERRUPT_SYSTICK = -1,
+    INTERRUPT_NONE    = 0,
 
 } Interrupt_Vector;
 
