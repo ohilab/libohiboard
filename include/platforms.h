@@ -233,9 +233,11 @@
 #define LIBOHIBOARD_NXP_KINETIS
 #endif
 
-#elif defined (LIBOHIBOARD_STM32L073Rx) || \
-      defined (LIBOHIBOARD_STM32L073Cx) || \
-      defined (LIBOHIBOARD_STM32L073Vx)
+#elif defined (LIBOHIBOARD_STM32L073RxT) || \
+      defined (LIBOHIBOARD_STM32L073RxI) || \
+      defined (LIBOHIBOARD_STM32L073CxT) || \
+      defined (LIBOHIBOARD_STM32L073VxT) || \
+      defined (LIBOHIBOARD_STM32L073VxI)
 
 #include "platforms/STM32L073/stm32l073xx.h"
 #include "platforms/STM32L073/stm32l0xx.h"
