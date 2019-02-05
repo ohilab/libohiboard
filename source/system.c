@@ -58,10 +58,12 @@ __weak System_Errors System_systickInit (uint32_t priority)
 {
     uint32_t basetime = 0;
     // Configure the systick interrupt every 1ms
-#if defined (LIBOHIBOARD_STM32L476)
-    basetime = Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / 1000;
+#if defined (LIBOHIBOARD_STM32L0)
+    basetime = (Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / 1000ul);
+#elif defined (LIBOHIBOARD_STM32L4)
+    basetime = (Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / 1000ul);
 #elif defined (LIBOHIBOARD_MKL)
-    basetime = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK) / 1000;
+    basetime = (Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK) / 1000ul);
 #endif
 
     if (basetime == 0)
