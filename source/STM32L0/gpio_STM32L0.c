@@ -586,7 +586,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->IDR & GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-#if 0
+
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 {
     //Check if pin definition exist
@@ -633,72 +633,64 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     SYSCFG->EXTICR[pinNumber >> 2] = temp;
 
     // Enable interrupt if request
-    temp = EXTI->IMR1;
+    temp = EXTI->IMR;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_USE_INTERRUPT) == GPIO_EVENT_USE_INTERRUPT)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->IMR1 = temp;
+    EXTI->IMR = temp;
 
     // Enable event if request
-    temp = EXTI->EMR1;
+    temp = EXTI->EMR;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_USE_EVENT) == GPIO_EVENT_USE_EVENT)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->EMR1 = temp;
+    EXTI->EMR = temp;
 
     // Set-up falling and rising edge
-    temp = EXTI->RTSR1;
+    temp = EXTI->RTSR;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->RTSR1 = temp;
+    EXTI->RTSR = temp;
 
-    temp = EXTI->FTSR1;
+    temp = EXTI->FTSR;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->FTSR1 = temp;
+    EXTI->FTSR = temp;
 
     // Enable NVIC interrupt
     switch (pinNumber)
     {
     case 0:
-        Interrupt_enable(INTERRUPT_EXTI0);
-        break;
     case 1:
-        Interrupt_enable(INTERRUPT_EXTI1);
+        Interrupt_enable(INTERRUPT_EXTI1_0);
         break;
     case 2:
-        Interrupt_enable(INTERRUPT_EXTI2);
-        break;
     case 3:
-        Interrupt_enable(INTERRUPT_EXTI3);
+        Interrupt_enable(INTERRUPT_EXTI3_2);
         break;
     case 4:
-        Interrupt_enable(INTERRUPT_EXTI4);
-        break;
     case 5:
     case 6:
     case 7:
     case 8:
     case 9:
-        Interrupt_enable(INTERRUPT_EXTI9_5);
-        break;
     case 10:
     case 11:
     case 12:
     case 13:
     case 14:
     case 15:
-        Interrupt_enable(INTERRUPT_EXTI15_10);
+        Interrupt_enable(INTERRUPT_EXTI4_15);
         break;
     }
 
@@ -719,128 +711,111 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
     temp = SYSCFG->EXTICR[pinNumber >> 2];
     temp &= (((uint32_t)0x0F) << (4 * (pinNumber & 0x03)));
     // Disable interrupt only if this pin is enable
-    if(temp == (portIndex << (4 * (pinNumber & 0x03))))
+    if (temp == (portIndex << (4 * (pinNumber & 0x03))))
     {
         temp = ((uint32_t)0x0F) << (4 * (pinNumber & 0x03));
         SYSCFG->EXTICR[pinNumber >> 2] &= ~temp;
 
         // Clear EXTI line configuration
-        EXTI->IMR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
-        EXTI->EMR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->IMR &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->EMR &= ~((uint32_t)GPIO_PIN(pinNumber));
 
         // Clear Rising-Falling edge configuration
-        EXTI->RTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
-        EXTI->FTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->RTSR &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->FTSR &= ~((uint32_t)GPIO_PIN(pinNumber));
 
         // Disable NVIC interrupt
         switch (pinNumber)
         {
-        case 0:
-            Interrupt_disable(INTERRUPT_EXTI0);
-            break;
-        case 1:
-            Interrupt_disable(INTERRUPT_EXTI1);
-            break;
-        case 2:
-            Interrupt_disable(INTERRUPT_EXTI2);
-            break;
-        case 3:
-            Interrupt_disable(INTERRUPT_EXTI3);
-            break;
-        case 4:
-            Interrupt_disable(INTERRUPT_EXTI4);
-            break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-            Interrupt_disable(INTERRUPT_EXTI9_5);
-            break;
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-            Interrupt_disable(INTERRUPT_EXTI15_10);
-            break;
+            case 0:
+            case 1:
+                Interrupt_disable(INTERRUPT_EXTI1_0);
+                break;
+            case 2:
+            case 3:
+                Interrupt_disable(INTERRUPT_EXTI3_2);
+                break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                Interrupt_disable(INTERRUPT_EXTI4_15);
+                break;
         }
     }
     return ERRORS_NO_ERROR;
 }
 
-_weak void EXTI0_IRQHandler (void)
+_weak void EXTI0_1_IRQHandler (void)
 {
-    if (Gpio_isrPortRequestVector[0] != NULL)
-        Gpio_isrPortRequestVector[0]();
-    EXTI->PR1 = GPIO_PIN(0);
-}
-
-_weak void EXTI1_IRQHandler (void)
-{
-    if (Gpio_isrPortRequestVector[1] != NULL)
-        Gpio_isrPortRequestVector[1]();
-    EXTI->PR1 = GPIO_PIN(1);
-}
-
-_weak void EXTI2_IRQHandler (void)
-{
-    if (Gpio_isrPortRequestVector[2] != NULL)
-        Gpio_isrPortRequestVector[2]();
-    EXTI->PR1 = GPIO_PIN(2);
-}
-
-_weak void EXTI3_IRQHandler (void)
-{
-    if (Gpio_isrPortRequestVector[3] != NULL)
-        Gpio_isrPortRequestVector[3]();
-    EXTI->PR1 = GPIO_PIN(3);
-}
-
-_weak void EXTI4_IRQHandler (void)
-{
-    if (Gpio_isrPortRequestVector[4] != NULL)
-        Gpio_isrPortRequestVector[4]();
-    EXTI->PR1 = GPIO_PIN(4);
-}
-
-_weak void EXTI9_5_IRQHandler (void)
-{
-    uint8_t i=0;
-
-    for (i = 5; i < 10; i++)
+    uint32_t pending = EXTI->PR;
+    if (pending & GPIO_PIN(0))
     {
-        if (Gpio_isrRegister & (1 << i))
+        // Clear pending flag
+        EXTI->PR = GPIO_PIN(0);
+
+        if (Gpio_isrPortRequestVector[0] != NULL)
+            Gpio_isrPortRequestVector[0]();
+    }
+
+    if (pending & GPIO_PIN(1))
+    {
+        // Clear pending flag
+        EXTI->PR = GPIO_PIN(1);
+
+        if (Gpio_isrPortRequestVector[1] != NULL)
+            Gpio_isrPortRequestVector[1]();
+    }
+}
+
+_weak void EXTI2_3_IRQHandler (void)
+{
+    uint32_t pending = EXTI->PR;
+    if (pending & GPIO_PIN(2))
+    {
+        // Clear pending flag
+        EXTI->PR = GPIO_PIN(2);
+
+        if (Gpio_isrPortRequestVector[2] != NULL)
+            Gpio_isrPortRequestVector[2]();
+    }
+
+    if (pending & GPIO_PIN(3))
+    {
+        // Clear pending flag
+        EXTI->PR = GPIO_PIN(3);
+
+        if (Gpio_isrPortRequestVector[3] != NULL)
+            Gpio_isrPortRequestVector[3]();
+    }
+}
+
+_weak void EXTI4_15_IRQHandler (void)
+{
+    uint8_t i = 0;
+    uint32_t pending = EXTI->PR;
+
+    for (i = 4; i < 16; i++)
+    {
+        if (pending & GPIO_PIN(i))
         {
-            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i] != NULL))
+            // Clear flag interrupt
+            EXTI->PR = GPIO_PIN(i);
+            if (Gpio_isrPortRequestVector[i] != NULL)
             {
                 Gpio_isrPortRequestVector[i]();
-                // Clear flag interrupt
-                EXTI->PR1 = GPIO_PIN(i);
             }
         }
     }
 }
-
-_weak void EXTI15_10_IRQHandler (void)
-{
-    uint8_t i=0;
-
-    for (i = 10; i < 16; i++)
-    {
-        if (Gpio_isrRegister & (1 << i))
-        {
-            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i] != NULL))
-            {
-                Gpio_isrPortRequestVector[i]();
-                // Clear flag interrupt
-                EXTI->PR1 = GPIO_PIN(i);
-            }
-        }
-    }
-}
-#endif
 
 #endif // LIBOHIBOARD_STM32L0
 

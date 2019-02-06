@@ -83,6 +83,16 @@ extern "C" {
 
 #endif
 
+#define CLOCK_ENABLE_SYSCFG() do { \
+                                UTILITY_SET_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+                                asm("nop"); \
+                                (void) UTILITY_READ_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+                              } while (0)
+
+#define CLOCK_DISABLE_SYSCFG()do { \
+                                UTILITY_CLEAR_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+                              } while (0)
+
 #endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
