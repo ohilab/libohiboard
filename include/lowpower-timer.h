@@ -69,7 +69,11 @@ extern "C" {
  */
 typedef struct _LowPowerTimer_Device* LowPowerTimer_DeviceHandle;
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/lowpower-timer_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/lowpower-timer_STM32L4.h"
 
@@ -92,7 +96,8 @@ typedef enum _LowPowerTimer_DeviceState
  */
 typedef enum _LowPowerTimer_ClockPrescaler
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 
     LOWPOWERTIMER_CLOCKPRESCALER_DIV1   = (0x00000000),
     LOWPOWERTIMER_CLOCKPRESCALER_DIV2   = LPTIM_CFGR_PRESC_0,
@@ -121,7 +126,8 @@ extern const uint32_t LOWPOWERTIMER_PRESCALER_REGISTER_VALUE[8];
  */
 typedef enum _Timer_LowPowerClockSource
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 
     /**< Internal clock selection, using PCLK */
     LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_PCLK  = 0x00000000,
@@ -143,7 +149,8 @@ typedef enum _Timer_LowPowerClockSource
  */
 typedef enum _LowPowerTimer_ClockPolarity
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+	defined (LIBOHIBOARD_STM32L4)
 
     LOWPOWERTIMER_CLOCKPOLARITY_RISING  = 0x00000000,
     LOWPOWERTIMER_CLOCKPOLARITY_FALLING = LPTIM_CFGR_CKPOL_0,
@@ -157,7 +164,8 @@ typedef enum _LowPowerTimer_ClockPolarity
  */
 typedef enum _LowPowerTimer_TriggerSource
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 
     LOWPOWERTIMER_TRIGGERSOURCE_SOFTWARE = 0x0000FFFF,
     LOWPOWERTIMER_TRIGGERSOURCE_0        = 0x00000000,
@@ -178,7 +186,8 @@ typedef enum _LowPowerTimer_TriggerSource
  */
 typedef enum _LowPowerTimer_UpdateMode
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 
     LOWPOWERTIMER_UPDATEMODE_IMMEDIATE  = 0x00000000,
     LOWPOWERTIMER_UPDATEMODE_END_PERIOD = LPTIM_CFGR_PRELOAD,
@@ -191,7 +200,8 @@ typedef enum _LowPowerTimer_UpdateMode
  */
 typedef enum _LowPowerTimer_CounterSource
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 
     LOWPOWERTIMER_COUNTERSOURCE_INTERNAL = 0x00000000,
     LOWPOWERTIMER_COUNTERSOURCE_EXTERNAL = LPTIM_CFGR_COUNTMODE,
