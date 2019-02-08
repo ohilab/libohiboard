@@ -187,8 +187,9 @@ static const uint32_t CLOCK_MSI_RANGE[]  =
 
 typedef struct _Clock_Device
 {
-    RCC_TypeDef* regmap;
+    RCC_TypeDef*   regmap;
     FLASH_TypeDef* regmapFlash;
+    PWR_TypeDef*   regmapPwr;
 
     uint32_t systemCoreClock; /**< Value that store current system core clock */
     uint32_t hclkClock;
@@ -216,6 +217,7 @@ static Clock_Device clk =
 {
     .regmap            = RCC,
     .regmapFlash       = FLASH,
+	.regmapPwr         = PWR,
 
     .systemCoreClock   = CLOCK_STARTUP_FREQ,
     .hclkClock         = 0U,
@@ -480,8 +482,72 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
     }
 
+    // LSE Configuration
+    // See page 143 of RM0367 for informations about backup domain control
+    if ((config->source & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL)
+    {
+        bool isPwrChanged = FALSE;
 
+        // Check the LSE state value
+        ohiassert(CLOCK_IS_VALID_LSE_STATE(config->lseState));
 
+        // LSE is write protected because is under backup domain
+        // Unlock this register before write!
+        // First operation is enable PWR driver
+        if (CLOCK_IS_ENABLE_PWR() == FALSE)
+        {
+            CLOCK_ENABLE_PWR();
+            isPwrChanged = TRUE;
+        }
+
+        if (CLOCK_BACKUP_IS_ENABLE_WRITE_ACCESS() == FALSE)
+        {
+        	// Enable write access
+        	CLOCK_BACKUP_ENABLE_WRITE_ACCESS();
+        	// Wait until write access was enabled
+            tickstart = System_currentTick();
+            while ((clk.regmapPwr->CR & PWR_CR_DBP) == 0)
+            {
+                if ((System_currentTick() - tickstart) > CLOCK_WRITE_ACCESS_TIMEOUT_VALUE)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+
+        // TODO: LSE with BYPASS!
+        if (config->lseState == CLOCK_OSCILLATORSTATE_OFF)
+        {
+            // Switch off the oscillator
+            UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CSR,RCC_CSR_LSEON);
+            UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CSR,RCC_CSR_LSEBYP);
+
+            // Wait until LSE is disabled
+            tickstart = System_currentTick();
+            while ((clk.regmap->CSR & RCC_CSR_LSERDY) > 0)
+            {
+                if ((System_currentTick() - tickstart) > CLOCK_LSE_TIMEOUT_VALUE)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+        else
+        {
+            // Switch on the oscillator
+            UTILITY_SET_REGISTER_BIT(clk.regmap->CSR,RCC_CSR_LSEON);
+
+            // Wait until LSE is ready
+            tickstart = System_currentTick();
+            while ((clk.regmap->CSR & RCC_CSR_LSERDY) == 0)
+            {
+                if ((System_currentTick() - tickstart) > CLOCK_LSE_TIMEOUT_VALUE)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+
+        // Restore PWR Clock status
+        if (isPwrChanged == TRUE)
+        {
+            CLOCK_DISABLE_PWR();
+        }
+    }
 
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOSEL_Msk, (config->mcoSource << RCC_CFGR_MCOSEL_Pos));
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOPRE_Msk, (config->mcoPrescaler << RCC_CFGR_MCOPRE_Pos));
@@ -598,27 +664,6 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 {
     uint32_t tickstart = 0;
 
-    if ((config->source & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)
-    {
-        // Set MSI ON
-        UTILITY_SET_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSION);
-
-        // Wait until MSI is ready
-        tickstart = System_currentTick();
-        while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSION) == 0)
-        {
-            if ((System_currentTick() - tickstart) > 5000u)
-                return ERRORS_CLOCK_TIMEOUT;
-        }
-
-        // Set MSIRANGE  default value
-        UTILITY_SET_REGISTER_BIT(clk0.regmap->CR, RCC_CR_MSIRGSEL);
-        UTILITY_MODIFY_REGISTER(clk0.regmap->CR, RCC_CR_MSIRANGE, config->msiRange);
-
-        // Clear RCC Configuration (MSI is selected as system clock)
-        UTILITY_WRITE_REGISTER(clk0.regmap->CFGR, 0);
-    }
-
     // HSE with external clock configuration
     if ((config->source & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)
     {
@@ -713,51 +758,6 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
     }
 
-    // HSI Configuration
-    if ((config->source & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)
-    {
-        // Check the HSI state value
-        ohiassert(CLOCK_IS_VALID_HSI_STATE(config->hsiState));
-
-        // Check if HSI is just used as SYSCLK or as PLL source
-        // In this case we can't disable it
-        if (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) ||
-           (((clk0.regmap->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) &&
-            ((clk0.regmap->PLLCFGR & RCC_PLLCFGR_PLLSRC) == CLOCK_PLLSOURCE_HSI)))
-        {
-            return ERRORS_CLOCK_WRONG_CONFIGURATION;
-        }
-        else
-        {
-            if (config->hsiState == CLOCK_OSCILLATORSTATE_OFF)
-            {
-                // Switch off the oscillator
-                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSION);
-
-                // Wait until the HSERDY bit is cleared
-                tickstart = System_currentTick();
-                while ((clk0.regmap->CR & RCC_CR_HSIRDY) > 0)
-                {
-                    if ((System_currentTick() - tickstart) > 5000u)
-                        return ERRORS_CLOCK_TIMEOUT;
-                }
-            }
-            else
-            {
-                // Switch on the oscillator
-                UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_HSION);
-
-                // Wait until the HSERDY bit is set
-                tickstart = System_currentTick();
-                while ((clk0.regmap->CR & RCC_CR_HSIRDY) == 0)
-                {
-                    if ((System_currentTick() - tickstart) > 5000u)
-                        return ERRORS_CLOCK_TIMEOUT;
-                }
-            }
-        }
-    }
-
     // LSI Configuration
     if ((config->source & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)
     {
@@ -789,64 +789,6 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                 if ((System_currentTick() - tickstart) > 2u)
                     return ERRORS_CLOCK_TIMEOUT;
             }
-        }
-    }
-
-    // LSE Configuration
-    // See page 272 of RM0351 for informations about backup domain control
-    if ((config->source & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL)
-    {
-        bool isPwrChanged = FALSE;
-
-        // Check the LSE state value
-        ohiassert(CLOCK_IS_VALID_LSE_STATE(config->lseState));
-
-        // LSE is write protected because is under backup domain
-        // Unlock this register before write!
-        // First operation is enable PWR driver
-        if (CLOCK_IS_ENABLE_PWR() == FALSE)
-        {
-            CLOCK_ENABLE_PWR();
-            isPwrChanged = TRUE;
-        }
-
-        // Disable write protection
-        CLOCK_BACKUP_DISABLE_WRITE_PROTECTION();
-        // Wait some cycle...
-        asm("NOP");
-        asm("NOP");
-
-        if (config->lseState == CLOCK_OSCILLATORSTATE_OFF)
-        {
-            // Switch off the oscillator
-            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->BDCR,RCC_BDCR_LSEON);
-
-            // Wait until LSE is disabled
-            tickstart = System_currentTick();
-            while ((clk0.regmap->BDCR & RCC_BDCR_LSERDY) > 0)
-            {
-                if ((System_currentTick() - tickstart) > 5000u)
-                    return ERRORS_CLOCK_TIMEOUT;
-            }
-        }
-        else
-        {
-            // Switch on the oscillator
-            UTILITY_SET_REGISTER_BIT(clk0.regmap->BDCR,RCC_BDCR_LSEON);
-
-            // Wait until LSE is ready
-            tickstart = System_currentTick();
-            while ((clk0.regmap->BDCR & RCC_BDCR_LSERDY) == 0)
-            {
-                if ((System_currentTick() - tickstart) > 5000u)
-                    return ERRORS_CLOCK_TIMEOUT;
-            }
-        }
-
-        // Restore PWR status
-        if (isPwrChanged == TRUE)
-        {
-            CLOCK_DISABLE_PWR();
         }
     }
 

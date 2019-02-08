@@ -74,6 +74,8 @@ extern "C" {
 #define CLOCK_MSI_TIMEOUT_VALUE                    (2u)
 #define CLOCK_HSI_TIMEOUT_VALUE                    (2u)
 #define CLOCK_LSI_TIMEOUT_VALUE                    (2u)
+#define CLOCK_LSE_TIMEOUT_VALUE                 (5000u)
+#define CLOCK_WRITE_ACCESS_TIMEOUT_VALUE         (100u)
 #define CLOCK_PLL_TIMEOUT_VALUE                    (2u)
 #define CLOCK_SOURCE_SWITCH_TIMEOUT_VALUE       (5000u)
 
@@ -89,9 +91,27 @@ extern "C" {
                                 (void) UTILITY_READ_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
                               } while (0)
 
-#define CLOCK_DISABLE_SYSCFG()do { \
-                                UTILITY_CLEAR_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+#define CLOCK_DISABLE_SYSCFG() do { \
+                                 UTILITY_CLEAR_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
+                               } while (0)
+
+#define CLOCK_ENABLE_PWR()    do { \
+                                UTILITY_SET_REGISTER_BIT(RCC->APB1ENR,RCC_APB1ENR_PWREN); \
+                                asm("nop"); \
+                                (void) UTILITY_READ_REGISTER_BIT(RCC->APB1ENR,RCC_APB1ENR_PWREN); \
                               } while (0)
+
+#define CLOCK_DISABLE_PWR()   do { \
+                                UTILITY_CLEAR_REGISTER_BIT(RCC->APB1ENR,RCC_APB1ENR_PWREN); \
+                              } while (0)
+
+#define CLOCK_IS_ENABLE_PWR() ((UTILITY_READ_REGISTER_BIT(RCC->APB1ENR,RCC_APB1ENR_PWREN) == 0) ? FALSE : TRUE)
+
+#define CLOCK_BACKUP_DISABLE_WRITE_ACCESS() (UTILITY_CLEAR_REGISTER_BIT(PWR->CR,PWR_CR_DBP))
+
+#define CLOCK_BACKUP_ENABLE_WRITE_ACCESS() (UTILITY_SET_REGISTER_BIT(PWR->CR,PWR_CR_DBP))
+
+#define CLOCK_BACKUP_IS_ENABLE_WRITE_ACCESS() ((UTILITY_READ_REGISTER_BIT(PWR->CR,PWR_CR_DBP) == 0) ? FALSE : TRUE)
 
 #endif // LIBOHIBOARD_STM32L0
 
