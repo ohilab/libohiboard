@@ -385,7 +385,6 @@ void Gpio_disablePortClock (Gpio_Ports port)
     }
 }
 
-#if 0
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
 {
     GPIO_TypeDef* port;
@@ -429,7 +428,7 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
             // Configure IO output type
             // One value must be selected, anyway use PUSH-PULL as default value
             temp = port->OTYPER;
-            temp &= ~(GPIO_OTYPER_OT0 << number) ;
+            temp &= ~(GPIO_OTYPER_OT_0 << number) ;
             temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
             port->OTYPER = temp;
 
@@ -454,24 +453,8 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
         temp &= ~(GPIO_MODER_MODE0 << (number * 2));
         temp |= ((0x3u) << (number * 2));
         port->MODER = temp;
-
-#if defined(LIBOHIBOARD_STM32L471) || \
-    defined(LIBOHIBOARD_STM32L475) || \
-    defined(LIBOHIBOARD_STM32L476) || \
-    defined(LIBOHIBOARD_STM32L485) || \
-    defined(LIBOHIBOARD_STM32L486)
-
-        // Connect pin to ADC device
-        if ((options & GPIO_PINS_ADC_CONNECTED) != 0)
-        {
-            temp = port->ASCR;
-            temp |= (GPIO_ASCR_ASC0 << number);
-            port->ASCR = temp;
-        }
-#endif
     }
 }
-#endif
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 {

@@ -81,7 +81,9 @@ extern "C" {
 #define GPIO_PINS_SPEED_MEDIUM              0x0100
 #define GPIO_PINS_SPEED_HIGH                0x0200
 #define GPIO_PINS_SPEED_VERY_HIGH           0x0400
+#if defined (LIBOHIBOARD_STM32L4)
 #define GPIO_PINS_ADC_CONNECTED             0x0800
+#endif
 #endif
 /**
  * @}
