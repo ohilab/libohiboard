@@ -74,6 +74,18 @@ extern "C" {
 #define SPI_EMPTY_WORD				((uint16_t)0x0000)
 
 /**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Spi_DeviceState
+{
+    SPI_DEVICESTATE_RESET,
+    SPI_DEVICESTATE_READY,
+    SPI_DEVICESTATE_BUSY,
+    SPI_DEVICESTATE_ERROR,
+
+} Spi_DeviceState;
+
+/**
  * SPI operating mode.
  */
 typedef enum
@@ -146,11 +158,14 @@ typedef enum
  */
 typedef enum
 {
+#if defined (LIBOHIBOARD_STM32L4)
     SPI_DATASIZE_4BIT  = 4,
     SPI_DATASIZE_5BIT  = 5,
     SPI_DATASIZE_6BIT  = 6,
     SPI_DATASIZE_7BIT  = 7,
-    SPI_DATASIZE_8BIT  = 8,
+#endif // LIBOHIBOARD_STM32L4
+	SPI_DATASIZE_8BIT  = 8,
+#if defined (LIBOHIBOARD_STM32L4)
     SPI_DATASIZE_9BIT  = 9,
     SPI_DATASIZE_10BIT = 10,
     SPI_DATASIZE_11BIT = 11,
@@ -158,7 +173,8 @@ typedef enum
     SPI_DATASIZE_13BIT = 13,
     SPI_DATASIZE_14BIT = 14,
     SPI_DATASIZE_15BIT = 15,
-    SPI_DATASIZE_16BIT = 16,
+#endif // LIBOHIBOARD_STM32L4
+	SPI_DATASIZE_16BIT = 16,
 
 } Spi_DataSize;
 
@@ -176,7 +192,8 @@ typedef enum
 
 #if defined (LIBOHIBOARD_ST_STM32)
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || \
+    defined (LIBOHIBOARD_STM32L0)
 /**
  * SPI Direction Mode.
  */
@@ -185,7 +202,9 @@ typedef enum
     SPI_DIRECTION_FULL_DUPLEX,
     SPI_DIRECTION_HALF_DUPLEX,
     SPI_DIRECTION_RX_ONLY,
+#if defined (LIBOHIBOARD_STM32L4)
     SPI_DIRECTION_TX_ONLY,
+#endif
 
 } Spi_Direction;
 
@@ -200,15 +219,16 @@ typedef enum
 } Spi_FrameFormat;
 
 /**
- * SPI Frame format (Motorola or TI)
+ * Slave Select (SS) pins management type.
  */
 typedef enum
 {
     SPI_SSMANAGEMENT_SOFTWARE,
     SPI_SSMANAGEMENT_HARDWARE_INPUT,
     SPI_SSMANAGEMENT_HARDWARE_OUTPUT,
+#if defined (LIBOHIBOARD_STM32L4)
     SPI_SSMANAGEMENT_HARDWARE_OUTPUT_PULSE,
-
+#endif
 } Spi_SSManagement;
 
 #endif // LIBOHIBOARD_STM32L4
@@ -221,7 +241,11 @@ typedef struct _Spi_Device* Spi_DeviceHandle;
 typedef struct Spi_Device* Spi_DeviceHandle;
 #endif
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/spi_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/spi_STM32L4.h"
 
@@ -974,7 +998,8 @@ System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
  * @deprecated Use @ref Spi_read function
  *
  * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
+ * @li STM32L0 Series
+ * @li STM32L4 Series
  *
  * @param[in] dev Spi device handle
  * @param[out] data Pointer where store the received byte
@@ -988,7 +1013,8 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
  * @deprecated Use @ref Spi_write function
  *
  * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
+ * @li STM32L0 Series
+ * @li STM32L4 Series
  *
  * @param[in] dev Spi device handle
  * @param[in] data Byte to send

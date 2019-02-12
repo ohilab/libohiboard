@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -27,13 +27,13 @@
  */
 
 /**
- * @file libohiboard/source/spi_STM32L4.c
+ * @file libohiboard/source/STM32L0/spi_STM32L0.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Leonardo Morichelli <leonardo.morichelli@live.com>
  * @brief SPI implementations for STM32L4 Series.
  */
 
-#ifdef LIBOHIBOARD_SPI
+#if defined (LIBOHIBOARD_SPI)
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,8 +45,9 @@ extern "C" {
 #include "utility.h"
 #include "gpio.h"
 #include "clock.h"
+#include "interrupt.h"
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
 
 /**
  * @brief Enable the SPI peripheral
@@ -83,35 +84,15 @@ extern "C" {
                               ((MODE) == SPI_SLAVE_MODE))
 
 /**
- * Checks if SPI Data Size parameter is in allowed range.
- * This parameter can be a value of @ref Spi_DataSize
- */
-#define SPI_VALID_DATASIZE(DATASIZE) (((DATASIZE) == SPI_DATASIZE_16BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_15BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_14BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_13BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_12BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_11BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_10BIT) || \
-                                      ((DATASIZE) == SPI_DATASIZE_9BIT)  || \
-                                      ((DATASIZE) == SPI_DATASIZE_8BIT)  || \
-                                      ((DATASIZE) == SPI_DATASIZE_7BIT)  || \
-                                      ((DATASIZE) == SPI_DATASIZE_6BIT)  || \
-                                      ((DATASIZE) == SPI_DATASIZE_5BIT)  || \
-                                      ((DATASIZE) == SPI_DATASIZE_4BIT))
-
-/**
  * Check if SPI direction is in allowed range.
  * This parameter can be a value of @ref Spi_Direction
  */
 #define SPI_VALID_DIRECTION(DIRECTION) (((DIRECTION) == SPI_DIRECTION_FULL_DUPLEX) || \
                                         ((DIRECTION) == SPI_DIRECTION_HALF_DUPLEX) || \
-                                        ((DIRECTION) == SPI_DIRECTION_RX_ONLY)     || \
-                                        ((DIRECTION) == SPI_DIRECTION_TX_ONLY))
+                                        ((DIRECTION) == SPI_DIRECTION_RX_ONLY))
 
 #define SPI_VALID_TX_DIRECTION(DIRECTION) (((DIRECTION) == SPI_DIRECTION_FULL_DUPLEX) || \
-                                           ((DIRECTION) == SPI_DIRECTION_HALF_DUPLEX) || \
-                                           ((DIRECTION) == SPI_DIRECTION_TX_ONLY))
+                                           ((DIRECTION) == SPI_DIRECTION_HALF_DUPLEX))
 
 /**
  * Checks if the SPI first bit type value is in allowed range.
@@ -128,27 +109,27 @@ extern "C" {
                                         ((FORMAT) == SPI_FRAMEFORMAT_TI))
 
 /**
+ * Checks if SPI Data Size parameter is in allowed range.
+ * This parameter can be a value of @ref Spi_DataSize
+ */
+#define SPI_VALID_DATASIZE(DATASIZE) (((DATASIZE) == SPI_DATASIZE_16BIT) || \
+                                      ((DATASIZE) == SPI_DATASIZE_8BIT))
+
+/**
  * Checks if the SPI Slave Select management value is in allowed range.
  * This parameter can be a value of @ref Spi_SSManagement
  */
-#define SPI_VALID_SSMANAGEMENT(NSS) (((NSS) == SPI_SSMANAGEMENT_SOFTWARE)              || \
-                                     ((NSS) == SPI_SSMANAGEMENT_HARDWARE_INPUT)        || \
-									 ((NSS) == SPI_SSMANAGEMENT_HARDWARE_OUTPUT)       || \
-									 ((NSS) == SPI_SSMANAGEMENT_HARDWARE_OUTPUT_PULSE))
+#define SPI_VALID_SSMANAGEMENT(NSS) (((NSS) == SPI_SSMANAGEMENT_SOFTWARE)         || \
+                                     ((NSS) == SPI_SSMANAGEMENT_HARDWARE_INPUT)   || \
+                                     ((NSS) == SPI_SSMANAGEMENT_HARDWARE_OUTPUT))
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
-
-#define SPI_IS_DEVICE(DEVICE) (((DEVICE) == OB_SPI1)  || \
-                               ((DEVICE) == OB_SPI2)  || \
-                               ((DEVICE) == OB_SPI3))
-
-#endif
+#define SPI_VALID_16BIT_ALIGNED(DATA) (((uint32_t)(DATA) % 2u) == 0u)
 
 #define SPI_MAX_PINS           8
 
+/**
+ *
+ */
 typedef struct _Spi_Device
 {
     SPI_TypeDef* regmap;                           /**< Device memory pointer */
@@ -170,21 +151,20 @@ typedef struct _Spi_Device
     Gpio_Alternate sckPinsMux[SPI_MAX_PINS];
     Gpio_Alternate nssPinsMux[SPI_MAX_PINS];
 
-    Spi_DeviceType devType;
-    uint32_t baudrate;
-    Spi_Direction direction;
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
-    Spi_DataSize datasize;
-    Spi_FirstBit firstBit;
-    Spi_FrameFormat frameFormat;
-    Spi_SSManagement ssManagement;
+    Spi_DeviceState state;                     /**< Current peripheral state. */
+
+    Spi_Config config;
 
 } Spi_Device;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L073)
+
+#define SPI_IS_DEVICE(DEVICE) (((DEVICE) == OB_SPI1)  || \
+                               ((DEVICE) == OB_SPI2))
+
+#endif // LIBOHIBOARD_STM32L073
 
 static Spi_Device spi1 = {
         .regmap              = SPI1,
@@ -195,65 +175,120 @@ static Spi_Device spi1 = {
         .sinPins              =
         {
                                SPI_PINS_PA6,
-                               SPI_PINS_PB4,
+                               SPI_PINS_PA11,
+							   SPI_PINS_PB4,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PE14,
+#endif
         },
         .sinPinsGpio          =
         {
                                GPIO_PINS_PA6,
+                               GPIO_PINS_PA11,
                                GPIO_PINS_PB4,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE14,
+#endif
         },
         .sinPinsMux           =
         {
-                               GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+                               GPIO_ALTERNATE_0,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .soutPins             =
         {
                                SPI_PINS_PA7,
-                               SPI_PINS_PB5,
+                               SPI_PINS_PA12,
+							   SPI_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PE15,
+#endif
+
         },
         .soutPinsGpio         =
         {
                                GPIO_PINS_PA7,
-                               GPIO_PINS_PB5,
+                               GPIO_PINS_PA12,
+							   GPIO_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE15,
+#endif
         },
         .soutPinsMux          =
         {
-                               GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+                               GPIO_ALTERNATE_0,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .sckPins              =
         {
                                SPI_PINS_PA5,
                                SPI_PINS_PB3,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PE13,
+#endif
         },
         .sckPinsGpio          =
         {
                                GPIO_PINS_PA5,
                                GPIO_PINS_PB3,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE13,
+#endif
         },
         .sckPinsMux           =
         {
-                               GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .nssPins              =
         {
                                SPI_PINS_PA4,
                                SPI_PINS_PA15,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PE12,
+#endif
         },
         .nssPinsGpio          =
         {
                                GPIO_PINS_PA4,
                                GPIO_PINS_PA15,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE12,
+#endif
         },
         .nssPinsMux           =
         {
-                               GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   GPIO_ALTERNATE_2,
+#endif
         },
 };
 Spi_DeviceHandle OB_SPI1 = &spi1;
@@ -261,185 +296,149 @@ Spi_DeviceHandle OB_SPI1 = &spi1;
 static Spi_Device spi2 = {
         .regmap              = SPI2,
 
-        .rccRegisterPtr      = &RCC->APB1ENR1,
-        .rccRegisterEnable   = RCC_APB1ENR1_SPI2EN,
+        .rccRegisterPtr      = &RCC->APB1ENR,
+        .rccRegisterEnable   = RCC_APB1ENR_SPI2EN,
 
         .sinPins              =
         {
                                SPI_PINS_PB14,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+	defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
                                SPI_PINS_PC2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PD3,
+#endif
         },
         .sinPinsGpio          =
         {
                                GPIO_PINS_PB14,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PC2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD3,
+#endif
         },
         .sinPinsMux           =
         {
-                               GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .soutPins             =
         {
                                SPI_PINS_PB15,
-                               SPI_PINS_PC3,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PC3,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PD4,
+#endif
         },
         .soutPinsGpio         =
         {
                                GPIO_PINS_PB15,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PC3,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD4,
+#endif
         },
         .soutPinsMux          =
         {
-                               GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_1,
+#endif
         },
 
         .sckPins              =
         {
                                SPI_PINS_PB10,
                                SPI_PINS_PB13,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PD1,
+#endif
         },
         .sckPinsGpio          =
         {
                                GPIO_PINS_PB10,
                                GPIO_PINS_PB13,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD1,
+#endif
         },
         .sckPinsMux           =
         {
                                GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .nssPins              =
         {
                                SPI_PINS_PB9,
                                SPI_PINS_PB12,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   SPI_PINS_PD0,
+#endif
         },
         .nssPinsGpio          =
         {
                                GPIO_PINS_PB9,
                                GPIO_PINS_PB12,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   GPIO_PINS_PD0,
+#endif
         },
         .nssPinsMux           =
         {
                                GPIO_ALTERNATE_5,
-                               GPIO_ALTERNATE_5,
+                               GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+	defined (LIBOHIBOARD_STM32L073VxI)
+							   GPIO_ALTERNATE_1,
+#endif
         },
 };
 Spi_DeviceHandle OB_SPI2 = &spi2;
-
-static Spi_Device spi3 =
-{
-        .regmap              = SPI3,
-
-        .rccRegisterPtr      = &RCC->APB1ENR1,
-        .rccRegisterEnable   = RCC_APB1ENR1_SPI3EN,
-
-        .sinPins              =
-        {
-                               SPI_PINS_PB4,
-                               SPI_PINS_PC11,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               SPI_PINS_PG10,
-#endif
-        },
-        .sinPinsGpio          =
-        {
-                               GPIO_PINS_PB4,
-                               GPIO_PINS_PC11,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_PINS_PG10,
-#endif
-        },
-        .sinPinsMux           =
-        {
-                               GPIO_ALTERNATE_6,
-                               GPIO_ALTERNATE_6,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_ALTERNATE_6,
-#endif
-        },
-
-        .soutPins             =
-        {
-                               SPI_PINS_PB5,
-                               SPI_PINS_PC11,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               SPI_PINS_PG11,
-#endif
-        },
-        .soutPinsGpio         =
-        {
-                               GPIO_PINS_PB5,
-                               GPIO_PINS_PC11,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_PINS_PG11,
-#endif
-        },
-        .soutPinsMux          =
-        {
-                               GPIO_ALTERNATE_6,
-                               GPIO_ALTERNATE_6,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_ALTERNATE_6,
-#endif
-        },
-
-        .sckPins              =
-        {
-                               SPI_PINS_PB3,
-                               SPI_PINS_PC10,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               SPI_PINS_PG9,
-#endif
-        },
-        .sckPinsGpio          =
-        {
-                               GPIO_PINS_PB3,
-                               GPIO_PINS_PC10,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_PINS_PG9,
-#endif
-        },
-        .sckPinsMux           =
-        {
-                               GPIO_ALTERNATE_6,
-                               GPIO_ALTERNATE_6,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_ALTERNATE_6,
-#endif
-        },
-
-        .nssPins              =
-        {
-                               SPI_PINS_PA4,
-                               SPI_PINS_PA15,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               SPI_PINS_PG12,
-#endif
-        },
-        .nssPinsGpio          =
-        {
-                               GPIO_PINS_PA4,
-                               GPIO_PINS_PA15,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_PINS_PG12,
-#endif
-        },
-        .nssPinsMux           =
-        {
-                               GPIO_ALTERNATE_6,
-                               GPIO_ALTERNATE_6,
-#if defined (LIBOHIBOARD_STM32L476Jx)
-                               GPIO_ALTERNATE_6,
-#endif
-        },
-};
-Spi_DeviceHandle OB_SPI3 = &spi3;
-
-#endif
 
 static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
 {
@@ -537,14 +536,10 @@ System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed)
     uint32_t diff = 0xFFFFFFFFu;
     uint8_t br = 0u;
 
-#if defined (LIBOHIBOARD_STM32L476)
-
     if (dev == OB_SPI1)
         frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
     else
         frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK1);
-
-#endif
 
     if (frequency != 0u)
     {
@@ -572,7 +567,7 @@ System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed)
         if (diff == 0xFFFFFFFFu)
             return ERRORS_SPI_BAUDRATE_NOT_FOUND;
 
-        dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_BR_Msk));
+        dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_BR));
         dev->regmap->CR1 |= (br << SPI_CR1_BR_Pos);
     }
     else
@@ -584,7 +579,7 @@ System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed)
 }
 
 /**
- *
+ * This function configure the device with user configuration.
  */
 static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
 {
@@ -597,24 +592,33 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
     err |= ohiassert(SPI_VALID_SSMANAGEMENT(config->ssManagement));
     err |= ohiassert(SPI_VALID_FIRST_BIT(config->firstBit));
     err |= ohiassert(SPI_VALID_FRAME_FORMAT(config->frameFormat));
+
+    // In TI format, no CPOL e CPHA check
+    if (config->frameFormat == SPI_FRAMEFORMAT_MOTOROLA)
+    {
+        err |= ohiassert(SPI_VALID_CPHA(config->sckPhase));
+        err |= ohiassert(SPI_VALID_CPOL(config->sckPolarity));
+    }
+
     if (err != ERRORS_NO_ERROR)
         return ERRORS_SPI_WRONG_PARAM;
+
+    // Save current configuration
+    dev->config = *config;
 
     // Disable the peripheral
     SPI_DEVICE_DISABLE(dev->regmap);
 
     // Configure peripheral
     // Configure Mode
-    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_MSTR_Msk | SPI_CR1_SSI_Msk));
-    dev->devType = config->devType;
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_MSTR | SPI_CR1_SSI));
     if (config->devType == SPI_MASTER_MODE)
     {
-        dev->regmap->CR1 |= SPI_CR1_MSTR_Msk | SPI_CR1_SSI_Msk;
+        dev->regmap->CR1 |= SPI_CR1_MSTR | SPI_CR1_SSI;
     }
 
     // Configure direction
-    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_BIDIMODE_Msk | SPI_CR1_RXONLY_Msk | SPI_CR1_BIDIOE_Msk));
-    dev->direction = config->direction;
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_BIDIMODE | SPI_CR1_RXONLY | SPI_CR1_BIDIOE));
     switch (config->direction)
     {
     case SPI_DIRECTION_FULL_DUPLEX:
@@ -622,71 +626,56 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
         break;
 
     case SPI_DIRECTION_HALF_DUPLEX:
-        dev->regmap->CR1 |= SPI_CR1_BIDIMODE_Msk;
+        dev->regmap->CR1 |= SPI_CR1_BIDIMODE;
         break;
 
     case SPI_DIRECTION_RX_ONLY:
-        dev->regmap->CR1 |= SPI_CR1_RXONLY_Msk;
-        break;
-
-    case SPI_DIRECTION_TX_ONLY:
-        // Nothing to do!
+        dev->regmap->CR1 |= SPI_CR1_RXONLY;
         break;
     }
 
     // Configure First Bit type
-    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_LSBFIRST_Msk));
-    dev->firstBit = config->firstBit;
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_LSBFIRST));
     if (config->firstBit == SPI_FIRSTBIT_LSB)
     {
-        dev->regmap->CR1 |= SPI_CR1_LSBFIRST_Msk;
+        dev->regmap->CR1 |= SPI_CR1_LSBFIRST;
     }
 
     // Configure CPOL and CPHA
-    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_CPOL_Msk | SPI_CR1_CPHA_Msk));
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_CPOL | SPI_CR1_CPHA));
     if (config->sckPolarity == SPI_SCK_INACTIVE_STATE_HIGH)
     {
-        dev->regmap->CR1 |= SPI_CR1_CPOL_Msk;
+        dev->regmap->CR1 |= SPI_CR1_CPOL;
     }
     if (config->sckPhase == SPI_SCK_LEADING_EDGE_DATA_CHANGED)
     {
-        dev->regmap->CR1 |= SPI_CR1_CPHA_Msk;
+        dev->regmap->CR1 |= SPI_CR1_CPHA;
     }
 
     // Configure datasize
-    dev->regmap->CR2 = dev->regmap->CR2 & (~(SPI_CR2_DS_Msk));
-    dev->datasize = config->datasize;
-    dev->regmap->CR2 |= ((config->datasize - 1) << SPI_CR2_DS_Pos);
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_DFF));
+    dev->regmap->CR1 |= ((config->datasize == SPI_DATASIZE_16BIT) ? SPI_CR1_DFF : 0x00000000u);
 
     // Configure Frame Format Type (Motorola or TI)
-    dev->regmap->CR2 = dev->regmap->CR2 & (~(SPI_CR2_FRF_Msk));
-    dev->frameFormat = config->frameFormat;
+    dev->regmap->CR2 = dev->regmap->CR2 & (~(SPI_CR2_FRF));
     if (config->frameFormat == SPI_FRAMEFORMAT_TI)
     {
-        dev->regmap->CR2 |= SPI_CR2_FRF_Msk;
+        dev->regmap->CR2 |= SPI_CR2_FRF;
     }
 
     // Configure SS management
-    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_SSM_Msk));
-    dev->regmap->CR2 = dev->regmap->CR2 & (~(SPI_CR2_SSOE_Msk | SPI_CR2_NSSP_Msk));
-    if(dev->datasize <= SPI_DATASIZE_8BIT)
-    {
-    	dev->regmap->CR2 |= SPI_CR2_FRXTH_Msk;
-    }
-    dev->ssManagement = config->ssManagement;
+    dev->regmap->CR1 = dev->regmap->CR1 & (~(SPI_CR1_SSM));
+    dev->regmap->CR2 = dev->regmap->CR2 & (~(SPI_CR2_SSOE));
     switch (config->ssManagement)
     {
     case SPI_SSMANAGEMENT_SOFTWARE:
-        dev->regmap->CR1 |= SPI_CR1_SSM_Msk;
+        dev->regmap->CR1 |= SPI_CR1_SSM;
         break;
     case SPI_SSMANAGEMENT_HARDWARE_INPUT:
         // Nothing to do!
         break;
     case SPI_SSMANAGEMENT_HARDWARE_OUTPUT:
-        dev->regmap->CR2 |= SPI_CR2_SSOE_Msk;
-        break;
-    case SPI_SSMANAGEMENT_HARDWARE_OUTPUT_PULSE:
-        dev->regmap->CR2 |= SPI_CR2_SSOE_Msk | SPI_CR2_NSSP_Msk;
+        dev->regmap->CR2 |= SPI_CR2_SSOE;
         break;
     }
 
@@ -696,6 +685,9 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
     {
         return err;
     }
+
+    // Activate the SPI mode: this bit must be cleared!
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->I2SCFGR, SPI_I2SCFGR_I2SMOD);
 
     // The device will be enable only during transmission...
     // When the device was enable, the SS pin is set low automatically.
@@ -719,29 +711,37 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
         return ERRORS_SPI_WRONG_DEVICE;
     }
 
-    // Enable peripheral clock
-    SPI_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+    // Enable peripheral clock if needed
+    if (dev->state == SPI_DEVICESTATE_RESET)
+    {
+        // Enable peripheral clock
+        SPI_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
-    // Enable pins
-    if (config->sinPin != SPI_PINS_SINNONE)
-        Spi_setSinPin(dev, config->sinPin);
+        // Enable pins
+        if (config->sinPin != SPI_PINS_SINNONE)
+            Spi_setSinPin(dev, config->sinPin);
 
-    if (config->soutPin != SPI_PINS_SOUTNONE)
-        Spi_setSoutPin(dev, config->soutPin);
+        if (config->soutPin != SPI_PINS_SOUTNONE)
+            Spi_setSoutPin(dev, config->soutPin);
 
-    if (config->sckPin != SPI_PINS_SCKNONE)
-        Spi_setSckPin(dev, config->sckPin);
+        if (config->sckPin != SPI_PINS_SCKNONE)
+            Spi_setSckPin(dev, config->sckPin);
 
-    if ((config->pcs0Pin != SPI_PINS_PCSNONE) && (config->ssManagement != SPI_SSMANAGEMENT_SOFTWARE))
-        Spi_setNssPin(dev, config->pcs0Pin);
+        if ((config->pcs0Pin != SPI_PINS_PCSNONE) && (config->ssManagement != SPI_SSMANAGEMENT_SOFTWARE))
+            Spi_setNssPin(dev, config->pcs0Pin);
+    }
+    dev->state = SPI_DEVICESTATE_BUSY;
 
     // Configure the peripheral
     err = Spi_config(dev,config);
     if (err != ERRORS_NO_ERROR)
     {
         // FIXME: Call deInit?
+        dev->state = SPI_DEVICESTATE_ERROR;
         return err;
     }
+
+    dev->state = SPI_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
@@ -758,168 +758,30 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
     return ohiassert(0);
 }
 
-#if 0
-// Not used anymore!
-static System_Errors Spi_exchange(Spi_DeviceHandle dev, const uint8_t *data_tx, uint8_t *data_rx, uint16_t size, uint32_t timeout)
-{
-    uint16_t             counterTx = 0;
-    uint16_t             counterRx = 0;
-    uint32_t             tickEnd = 0;
-
-    /* Variable used to alternate Rx and Tx during transfer */
-    System_Errors        errorcode = ERRORS_NO_ERROR;
-
-    /* Check Direction parameter */
-    if (dev->direction == SPI_DIRECTION_HALF_DUPLEX)
-    {
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
-    }
-    else
-    {
-        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
-    }
-
-    /* Init tickEnd for timeout management*/
-    tickEnd = System_currentTick() + timeout;
-
-    if ((data_tx == NULL) || (data_rx == NULL) || (size == 0U))
-    {
-        errorcode = ERRORS_PARAM_VALUE;
-        goto spierror;
-    }
-
-    /* Set the Rx Fifo threshold */
-    if (dev->datasize > SPI_DATASIZE_8BIT)
-    {
-        /* Set fiforxthreshold according the reception data length: 16bit */
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
-    }
-    else
-    {
-        /* Set fiforxthreshold according the reception data length: 8bit */
-        UTILITY_SET_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
-    }
-
-    /* Check if the SPI is already enabled */
-    if (!UTILITY_READ_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_SPE))
-    {
-        /* Enable SPI peripheral */
-        SPI_DEVICE_ENABLE(dev->regmap);
-    }
-
-    /* Transmit and Receive data in 16 Bit mode */
-    if (dev->datasize > SPI_DATASIZE_8BIT)
-    {
-        if (dev->devType == SPI_SLAVE_MODE)
-        {
-            *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)&data_tx[counterTx]);
-            counterTx += sizeof(uint16_t);
-        }
-        while (counterTx < size)
-        {
-            /* Check TXE flag */
-            if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE))
-            {
-                *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)&data_tx[counterTx]);
-                counterTx += sizeof(uint16_t);
-            }
-
-            if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
-            {
-                /* Wait until RXNE flag is reset */
-                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE))
-                {
-                    if (System_currentTick() > tickEnd)
-                    {
-                        errorcode = ERRORS_SPI_TIMEOUT_RX;
-                        goto spierror;
-                    }
-                }
-
-                *((uint16_t *)&data_rx[counterRx]) = *((volatile uint16_t *)&dev->regmap->DR);
-                counterRx += sizeof(uint16_t);
-            }
-            else
-            {
-                /* Wait until TNE flag is reset */
-                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE));
-            }
-        }
-    }
-    /* Transmit and Receive data in 8 Bit mode */
-    else
-    {
-        if (dev->devType == SPI_SLAVE_MODE)
-        {
-            *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)&data_tx[counterTx]);
-            counterTx += sizeof(uint8_t);
-        }
-        while (counterTx < size)
-        {
-            /* Check TXE flag */
-            if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE))
-            {
-                *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)&data_tx[counterTx]);
-                counterTx += sizeof(uint8_t);
-            }
-
-            if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
-            {
-                /* Wait until RXNE flag is reset */
-                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE))
-                {
-                    if (System_currentTick() > tickEnd)
-                    {
-                        errorcode = ERRORS_SPI_TIMEOUT_RX;
-                        goto spierror;
-                    }
-                }
-
-                *((uint8_t *)&data_rx[counterRx]) = *((volatile uint8_t *)&dev->regmap->DR);
-                counterRx += sizeof(uint8_t);
-            }
-            else
-            {
-                /* Wait until TNE flag is reset */
-                while (!UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_TXE));
-            }
-        }
-    }
-
-    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_OVR))
-    {
-        // Clear overrun flag in two lines direction mode
-        // The received data is not read
-        if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
-        {
-            uint32_t black_hole = 0;
-            black_hole = (uint32_t)dev->regmap->DR;
-            black_hole = (uint32_t)dev->regmap->SR;
-            (void) black_hole;
-        }
-    }
-
-    spierror :
-    return errorcode;
-}
-#endif
-
 System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
     System_Errors err = ERRORS_NO_ERROR;
 
-    // Set FIFO RX threshold
-    if (dev->datasize > SPI_DATASIZE_8BIT)
+    if (dev->config.datasize == SPI_DATASIZE_16BIT)
     {
-        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
+        err |= ohiassert(SPI_VALID_16BIT_ALIGNED(data));
     }
-    else
+    if (err != ERRORS_NO_ERROR)
     {
-        UTILITY_SET_REGISTER_BIT(dev->regmap->CR2,SPI_CR2_FRXTH_Msk);
+        return ERRORS_SPI_WRONG_PARAM;
     }
 
+    if (dev->state != SPI_DEVICESTATE_READY)
+    {
+        err = ERRORS_SPI_DEVICE_BUSY;
+        dev->state = SPI_DEVICESTATE_ERROR;
+        // Release the device.
+        goto spierror;
+    }
+    dev->state = SPI_DEVICESTATE_BUSY;
+
     // If one line transmission, setup the device
-    if (dev->direction == SPI_DIRECTION_HALF_DUPLEX)
+    if (dev->config.direction == SPI_DIRECTION_HALF_DUPLEX)
     {
         UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
     }
@@ -932,9 +794,8 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 
     // Save timeout
     uint32_t timeoutEnd = System_currentTick() + timeout;
-
     // Check the connection type
-    if ((dev->devType == SPI_MASTER_MODE) && (dev->direction == SPI_DIRECTION_FULL_DUPLEX))
+    if ((dev->config.devType == SPI_MASTER_MODE) && (dev->config.direction == SPI_DIRECTION_FULL_DUPLEX))
     {
         // Send dummy data
         // Wait until the buffer is empty
@@ -949,7 +810,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
         }
 
         // In case of datasize is grater the 8B cast the relative value
-        if (dev->datasize > SPI_DATASIZE_8BIT)
+        if (dev->config.datasize > SPI_DATASIZE_8BIT)
         {
             *((volatile uint16_t *)&dev->regmap->DR) = SPI_EMPTY_WORD;
         }
@@ -971,7 +832,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
         }
 
         // In case of datasize is grater the 8B cast the relative value
-        if (dev->datasize > SPI_DATASIZE_8BIT)
+        if (dev->config.datasize > SPI_DATASIZE_8BIT)
         {
             *((uint16_t *)data) = *((volatile uint16_t *)&dev->regmap->DR);
         }
@@ -994,7 +855,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
         }
 
         // In case of datasize is grater the 8B cast the relative value
-        if (dev->datasize > SPI_DATASIZE_8BIT)
+        if (dev->config.datasize > SPI_DATASIZE_8BIT)
         {
             *((uint16_t *)data) = *((volatile uint16_t *)&dev->regmap->DR);
         }
@@ -1006,6 +867,10 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 
 spierror:
     // FIXME: Disable SPI?
+    if (err == ERRORS_NO_ERROR)
+        dev->state = SPI_DEVICESTATE_READY;
+    else
+        dev->state = SPI_DEVICESTATE_ERROR;
     return err;
 }
 
@@ -1014,17 +879,30 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
     System_Errors err = ERRORS_NO_ERROR;
 
     // Check the chosen direction for the peripheral
-    err = ohiassert(SPI_VALID_TX_DIRECTION(dev->direction));
+    err = ohiassert(SPI_VALID_TX_DIRECTION(dev->config.direction));
+    if (dev->config.datasize == SPI_DATASIZE_16BIT)
+    {
+        err |= ohiassert(SPI_VALID_16BIT_ALIGNED(data));
+    }
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_SPI_WRONG_PARAM;
     }
 
+    if (dev->state != SPI_DEVICESTATE_READY)
+    {
+        err = ERRORS_SPI_DEVICE_BUSY;
+        dev->state = SPI_DEVICESTATE_ERROR;
+        // Release the device.
+        goto spierror;
+    }
+    dev->state = SPI_DEVICESTATE_BUSY;
+
     // Save timeout
     uint32_t timeoutEnd = System_currentTick() + timeout;
 
     // If one line transmission, setup the device
-    if (dev->direction == SPI_DIRECTION_HALF_DUPLEX)
+    if (dev->config.direction == SPI_DIRECTION_HALF_DUPLEX)
     {
         UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_BIDIOE);
     }
@@ -1036,9 +914,9 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
     }
 
     // In case of datasize is grater the 8B cast the relative value
-    if (dev->datasize > SPI_DATASIZE_8BIT)
+    if (dev->config.datasize > SPI_DATASIZE_8BIT)
     {
-        if (dev->devType == SPI_SLAVE_MODE)
+        if (dev->config.devType == SPI_SLAVE_MODE)
         {
             *((volatile uint16_t *)&dev->regmap->DR) = *((uint16_t *)data);
         }
@@ -1058,7 +936,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
     }
     else
     {
-        if (dev->devType == SPI_SLAVE_MODE)
+        if (dev->config.devType == SPI_SLAVE_MODE)
         {
             *((volatile uint8_t *)&dev->regmap->DR) = *((uint8_t *)data);
         }
@@ -1078,11 +956,11 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
     }
 
     // In case of full-duplex transmission, wait until RXNE flag is set
-    if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+    if (dev->config.direction == SPI_DIRECTION_FULL_DUPLEX)
     {
         uint16_t dummy = 0;
 
-        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE_Msk) == 0)
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_RXNE) == 0)
         {
             if (System_currentTick() > timeoutEnd)
             {
@@ -1093,7 +971,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
         }
 
         // Read dummy element from RX FIFO
-        if (dev->datasize > SPI_DATASIZE_8BIT)
+        if (dev->config.datasize > SPI_DATASIZE_8BIT)
         {
             *((uint16_t *)&dummy) = *((volatile uint16_t *)&dev->regmap->DR);
         }
@@ -1103,11 +981,11 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
         }
     }
 
-    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_OVR_Msk))
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_OVR))
     {
         // Clear overrun flag in two lines direction mode
         // The received data is not read
-        if (dev->direction == SPI_DIRECTION_FULL_DUPLEX)
+        if (dev->config.direction == SPI_DIRECTION_FULL_DUPLEX)
         {
             (void) dev->regmap->DR;
             (void) dev->regmap->SR;
@@ -1116,10 +994,14 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
 
 spierror:
     // FIXME: Disable SPI?
+    if (err == ERRORS_NO_ERROR)
+        dev->state = SPI_DEVICESTATE_READY;
+    else
+        dev->state = SPI_DEVICESTATE_ERROR;
     return err;
 }
 
-#endif // LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }
