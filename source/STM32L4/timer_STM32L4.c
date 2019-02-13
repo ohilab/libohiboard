@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/timer_STM32L4.c
+ * @file libohiboard/include/STM32L4/timer_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Timer implementations for STM32L4 Series
  */

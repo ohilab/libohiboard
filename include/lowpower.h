@@ -87,7 +87,7 @@ typedef enum _LowPower_VoltageScaling
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/lowpower_STM32L4.h"
+#include "hardware/STM32L4/lowpower_STM32L4.h"
 
 #endif // LIBOHIBOARD_STM32L4
 

@@ -114,7 +114,7 @@ typedef enum _Gpio_Level
 
 #elif defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/gpio_STM32L4.h"
+#include "hardware/STM32L4/gpio_STM32L4.h"
 
 #elif defined (LIBOHIBOARD_MKL)
 

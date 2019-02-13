@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/rtc_STM32L4.c
+ * @file libohiboard/source/STM32L4/rtc_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief RTC implementations for STM32L4 series.
  */

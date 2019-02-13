@@ -118,7 +118,7 @@ typedef struct Rtc_Device* Rtc_DeviceHandle;
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/rtc_STM32L4.h"
+#include "hardware/STM32L4/rtc_STM32L4.h"
 
 #else
 

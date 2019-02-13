@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/adc_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4/adc_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief ADC pins and device definitions for STM32L4 series
  */

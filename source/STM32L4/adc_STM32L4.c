@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/adc_STM32L4.c
+ * @file libohiboard/source/STM32L4/adc_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief ADC implementations for STM32L4 series.
  */

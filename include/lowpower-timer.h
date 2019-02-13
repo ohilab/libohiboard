@@ -75,7 +75,7 @@ typedef struct _LowPowerTimer_Device* LowPowerTimer_DeviceHandle;
 
 #elif defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/lowpower-timer_STM32L4.h"
+#include "hardware/STM32L4/lowpower-timer_STM32L4.h"
 
 #endif
 

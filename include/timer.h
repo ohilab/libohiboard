@@ -180,7 +180,7 @@ typedef struct _Timer_Device* Timer_DeviceHandle;
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/timer_STM32L4.h"
+#include "hardware/STM32L4/timer_STM32L4.h"
 
 #else
 

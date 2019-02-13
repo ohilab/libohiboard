@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/rtc_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4/rtc_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief RTC pins and device definitions for STM32L4 series
  */

@@ -247,7 +247,7 @@ typedef struct Spi_Device* Spi_DeviceHandle;
 
 #elif defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/spi_STM32L4.h"
+#include "hardware/STM32L4/spi_STM32L4.h"
 
 #else
 

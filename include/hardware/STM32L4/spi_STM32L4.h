@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/spi_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4/spi_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief SPI pins and device definitions for STM32L4 series
  */

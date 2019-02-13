@@ -25,7 +25,7 @@
  */
 
 /**
- * @file libohiboard/include/clock_STM32L4.c
+ * @file libohiboard/source/STM32L4/clock_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Leonardo Morichelli
  * @brief Clock implementations for STM32L4 Series

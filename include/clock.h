@@ -565,7 +565,7 @@ typedef struct _Clock_Config
 
 #elif defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/clock_STM32L4.h"
+#include "hardware/STM32L4/clock_STM32L4.h"
 
 #elif defined (LIBOHIBOARD_MKL)
 

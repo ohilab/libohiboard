@@ -69,7 +69,7 @@ typedef struct _Adc_Device* Adc_DeviceHandle;
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/adc_STM32L4.h"
+#include "hardware/STM32L4/adc_STM32L4.h"
 
 #else
 

@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/interrupt_STM32L4.c
+ * @file libohiboard/source/STM32L4/interrupt_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Interrupt implementations for STM32L4 Series.
  */

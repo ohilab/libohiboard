@@ -27,7 +27,7 @@
  */
 
 /**
- * @file libohiboard/source/spi_STM32L4.c
+ * @file libohiboard/source/STM32L4/spi_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Leonardo Morichelli <leonardo.morichelli@live.com>
  * @brief SPI implementations for STM32L4 Series.

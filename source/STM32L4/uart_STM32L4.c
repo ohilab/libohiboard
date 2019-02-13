@@ -26,9 +26,9 @@
  */
 
 /**
- * @file libohiboard/source/uart_STM32L476.c
+ * @file libohiboard/source/STM32L4/uart_STM32L476.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief UART implementations for STM32L476.
+ * @brief UART implementations for STM32L4 Series.
  */
 
 #ifdef LIBOHIBOARD_UART

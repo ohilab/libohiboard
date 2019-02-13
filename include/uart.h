@@ -165,7 +165,7 @@ typedef struct Uart_Device* Uart_DeviceHandle;
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/uart_STM32L4.h"
+#include "hardware/STM32L4/uart_STM32L4.h"
 
 #else
 

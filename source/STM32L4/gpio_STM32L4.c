@@ -27,7 +27,7 @@
  */
 
 /**
- * @file libohiboard/source/gpio_STM32L4.c
+ * @file libohiboard/source/STM32L4/gpio_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Leonardo Morichelli
  * @brief GPIO implementations for STM32L4 Series.

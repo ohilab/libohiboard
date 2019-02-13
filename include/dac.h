@@ -88,7 +88,7 @@ typedef enum _Dac_DeviceState
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/dac_STM32L4.h"
+#include "hardware/STM32L4/dac_STM32L4.h"
 
 #else
 

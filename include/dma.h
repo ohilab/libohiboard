@@ -83,7 +83,7 @@ typedef struct _Dma_Device* Dma_DeviceHandle;
 // Include the correct hardware definitions
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/dma_STM32L4.h"
+#include "hardware/STM32L4/dma_STM32L4.h"
 
 #endif
 

@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/i2c_STM32L4.c
+ * @file libohiboard/source/STM32L4/i2c_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief I2C implementations for STM32L4 series.
  */

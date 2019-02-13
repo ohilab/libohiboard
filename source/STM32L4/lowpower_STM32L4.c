@@ -24,7 +24,7 @@
  */
 
 /**
- * @file libohiboard/source/lowpower_STM32L4.c
+ * @file libohiboard/source/STM32L4/lowpower_STM32L4.c
  * @author Leonardo Morichelli <leonardo.morichelli@live.com>
  * @brief Low Power implementations for STM32L4 Series
  */

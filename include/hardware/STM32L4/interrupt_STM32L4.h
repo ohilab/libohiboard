@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/interrupt_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4/interrupt_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief INTERRUPT vector definitions for STM32L4 series
  */

@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/dma_STM32L4.c
+ * @file libohiboard/source/STM32L4/dma_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief DMA implementations for STM32L4 series.
  */

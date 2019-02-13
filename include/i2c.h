@@ -147,7 +147,7 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-#include "hardware/i2c_STM32L4.h"
+#include "hardware/STM32L4/i2c_STM32L4.h"
 
 #else
 
