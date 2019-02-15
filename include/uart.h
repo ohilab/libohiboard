@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -39,7 +39,18 @@
  * @brief UART definitions and prototypes.
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
 #ifdef LIBOHIBOARD_UART
+
+/**
+ * @defgroup UART UART
+ * @brief UART HAL driver
+ * @{
+ */
 
 #ifndef __UART_H
 #define __UART_H
@@ -53,18 +64,36 @@ extern "C" {
 #include "types.h"
 #include "system.h"
 
+/**
+ * @defgroup UART_Configuration_Functions UART configuration functions and types
+ * @brief Functions and types to open, close and configure a UART peripheral.
+ * @{
+ */
+
 #ifdef LIBOHIBOARD_DMA
 #include "dma.h"
 #endif
 
-typedef enum
+/**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Uart_DeviceState
+{
+    UART_DEVICESTATE_RESET,
+    UART_DEVICESTATE_READY,
+    UART_DEVICESTATE_BUSY,
+    UART_DEVICESTATE_ERROR,
+
+} Uart_DeviceState;
+
+typedef enum _Uart_ParityMode
 {
     UART_PARITY_NONE,
     UART_PARITY_EVEN,
     UART_PARITY_ODD
 } Uart_ParityMode;
 
-typedef enum
+typedef enum _Uart_DataBits
 {
 #if defined (LIBOHIBOARD_ST_STM32)
     UART_DATABITS_SEVEN,
@@ -79,7 +108,7 @@ typedef enum
 
 } Uart_DataBits;
 
-typedef enum
+typedef enum _Uart_StopBits
 {
     UART_STOPBITS_ONE,
     UART_STOPBITS_TWO,
@@ -91,7 +120,7 @@ typedef enum
 
 } Uart_StopBits;
 
-typedef enum
+typedef enum _Uart_FlowControl
 {
     UART_FLOWCONTROL_NONE,
 
@@ -103,7 +132,7 @@ typedef enum
 
 } Uart_FlowControl;
 
-typedef enum
+typedef enum _Uart_Mode
 {
     UART_MODE_TRANSMIT,
     UART_MODE_RECEIVE,
@@ -111,7 +140,7 @@ typedef enum
 
 } Uart_Mode;
 
-typedef enum
+typedef enum _Uart_ClockSource
 {
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
@@ -163,7 +192,11 @@ typedef struct _Uart_Device* Uart_DeviceHandle;
 typedef struct Uart_Device* Uart_DeviceHandle;
 #endif
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/uart_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/STM32L4/uart_STM32L4.h"
 
@@ -629,7 +662,7 @@ typedef struct _Uart_Config
     
     uint32_t baudrate;
     uint8_t oversampling; /**< Into NXP microcontroller must be a value between 4 to 32,
-                               otherwise, into ST microcontroller must be 16 or 8. In the value differ
+                               otherwise, into ST microcontroller must be 16 or 8. If the value differ
                                from this two value, the default is used. */
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
@@ -656,10 +689,89 @@ typedef struct _Uart_Config
 
 } Uart_Config;
 
-/** @name Packet Management
- *  All the functions useful for one packet managing.
+/**
+ * This function initialize the selected peripheral.
+ *
+ * @deprecated Use @ref Uart_init function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L0 Series
+ * @li STM32L4 Series
+ *
+ * @param[in] dev Uart device handle
+ * @param[in] config Configuration parameters for the Uart
  */
-///@{
+System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
+
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @deprecated Use @ref Uart_deInit function
+ *
+ * @note The following microcontrollers no longer implements this function:
+ * @li STM32L0 Series
+ * @li STM32L4 Series
+ *
+ * @param[in] dev Uart device handle
+ */
+System_Errors Uart_close (Uart_DeviceHandle dev);
+
+/**
+ * This function initialize the selected peripheral.
+ *
+ * @param[in] dev Uart device handle
+ * @param[in] config Configuration parameters for the Uart
+ */
+System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config);
+
+/**
+ * This function de-initialize the selected peripheral.
+ *
+ * @param[in] dev Uart device handle
+ */
+System_Errors Uart_deInit (Uart_DeviceHandle dev);
+
+System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
+System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
+
+#if defined (LIBOHIBOARD_KL15Z4)     || \
+    defined (LIBOHIBOARD_KL25Z4)     || \
+    defined (LIBOHIBOARD_FRDMKL25Z)
+
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling);
+
+#elif defined (LIBOHIBOARD_STM32L0) || \
+      defined (LIBOHIBOARD_STM32L4)
+
+/**
+ * This function check the chosen baudrate for the UART peripheral,
+ * and set the registers to obtain this value.
+ *
+ * @param[in] dev  Uart device handle
+ * @param[in] baudrate The selected baudrate for the communication
+ * @return The function return one of the following error:
+ *   @arg @ref ERRORS_NO_ERROR when the function success
+ *   @arg @ref ERRORS_UART_WRONG_BAUDRATE when the baudrate is out of the maximum range
+ *   @arg @ref ERRORS_UART_NO_CLOCKSOURCE no compute result for the baudrate request
+ *   @arg @ref ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW The clock source frequency is too low (0 maybe)
+ */
+System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
+
+#else
+
+void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
+
+#endif
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup UART_Read_Write_Functions UART read/write functions
+ * @brief Functions to read and write to UART peripheral.
+ * @{
+ */
 
 /**
  * This function wait (blocking mode) until a new char was
@@ -668,7 +780,8 @@ typedef struct _Uart_Config
  * @deprecated Use @ref Uart_read function
  *
  * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
+ * @li STM32L0 Series
+ * @li STM32L4 Series
  *
  * @param[in] dev Uart device handle
  * @param[out] out Pointer where store the received char
@@ -683,7 +796,8 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
  * @deprecated Use @ref Uart_write function
  *
  * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
+ * @li STM32L0 Series
+ * @li STM32L4 Series
  *
  * @param[in] dev Uart device handle
  * @param[in] c Character to send
@@ -697,7 +811,8 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
  * it is replaced by @ref Uart_isPresent function
  *
  * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
+ * @li STM32L0 Series
+ * @li STM32L4 Series
  *
  * @param[in] dev Uart device handle
  * @return uint8_t
@@ -746,79 +861,24 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
  */
 bool Uart_isPresent (Uart_DeviceHandle dev);
 
-///@}
-
-/** @name Configuration functions
- *  Functions to open, close and configure a UART peripheral.
+/**
+ * @}
  */
-///@{
 
 /**
- * This function initialize the selected peripheral.
- *
- * @deprecated Use @ref Uart_init function
- *
- * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
- *
- * @param[in] dev Uart device handle
- * @param[in] config Configuration parameters for the Uart
+ * @defgroup UART_String_Functions UART common string management functions
+ * @brief Functions to manage string over the UART peripheral.
+ * @{
  */
-System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
-
-/**
- * This function de-initialize the selected peripheral.
- *
- * @deprecated Use @ref Uart_deInit function
- *
- * @note The following microcontrollers no longer implements this function:
- * @li STM32L476
- *
- * @param[in] dev Uart device handle
- */
-System_Errors Uart_close (Uart_DeviceHandle dev);
-
-/**
- * This function initialize the selected peripheral.
- *
- * @param[in] dev Uart device handle
- * @param[in] config Configuration parameters for the Uart
- */
-System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config);
-
-/**
- * This function de-initialize the selected peripheral.
- *
- * @param[in] dev Uart device handle
- */
-System_Errors Uart_deInit (Uart_DeviceHandle dev);
-
-System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
-System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
-
-#if defined (LIBOHIBOARD_KL15Z4)     || \
-    defined (LIBOHIBOARD_KL25Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL25Z)
-void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling);
-#elif defined (LIBOHIBOARD_STM32L476)
-System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
-#else
-void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
-#endif
-
-///@}
-
-/** @name String management functions
- *  Functions to string over the UART peripheral.
- */
-///@{
 
 void Uart_sendString (Uart_DeviceHandle dev, const char* text);
 void Uart_sendStringln (Uart_DeviceHandle dev, const char* text);
 void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length);
 void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
 
-///@}
+/**
+ * @}
+ */
 
 #ifdef LIBOHIBOARD_DMA
 uint8_t Uart_enableDmaTrigger (Uart_DeviceHandle dev, Dma_RequestSource request);
@@ -831,4 +891,12 @@ uint32_t* Uart_getRxRegisterAddress (Uart_DeviceHandle dev);
 
 #endif // __UART_H
 
+/**
+ * @}
+ */
+
 #endif // LIBOHIBOARD_UART
+
+/**
+ * @}
+ */

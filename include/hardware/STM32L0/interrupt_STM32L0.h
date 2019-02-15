@@ -75,7 +75,7 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_SPI2             = 26,
     INTERRUPT_USART1           = 27,
     INTERRUPT_USART2           = 28,
-    INTERRUPT_lPUART1          = 29,
+    INTERRUPT_LPUART1          = 29,
     INTERRUPT_LCD              = 30,
     INTERRUPT_USB              = 31,
 
