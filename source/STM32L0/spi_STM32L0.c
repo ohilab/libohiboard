@@ -453,7 +453,7 @@ static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
         {
             Gpio_configAlternate(dev->soutPinsGpio[devPinIndex],
                                  dev->soutPinsMux[devPinIndex],
-                                 0);
+                                 GPIO_PINS_SPEED_HIGH); // Workaround: Errata STM32L073x8/B/Z, page 17
             return ERRORS_NO_ERROR;
         }
     }
@@ -473,7 +473,7 @@ static System_Errors Spi_setSinPin(Spi_DeviceHandle dev, Spi_SinPins sinPin)
         {
             Gpio_configAlternate(dev->sinPinsGpio[devPinIndex],
                                  dev->sinPinsMux[devPinIndex],
-                                 0);
+                                 GPIO_PINS_SPEED_HIGH); // Workaround: Errata STM32L073x8/B/Z, page 17
             return ERRORS_NO_ERROR;
         }
     }
@@ -493,7 +493,7 @@ static System_Errors Spi_setSckPin(Spi_DeviceHandle dev, Spi_SckPins sckPin)
         {
             Gpio_configAlternate(dev->sckPinsGpio[devPinIndex],
                                  dev->sckPinsMux[devPinIndex],
-                                 0);
+                                 GPIO_PINS_SPEED_HIGH); // Workaround: Errata STM32L073x8/B/Z, page 17
             return ERRORS_NO_ERROR;
         }
     }
@@ -513,7 +513,7 @@ static System_Errors Spi_setNssPin(Spi_DeviceHandle dev, Spi_PcsPins nssPin)
         {
             Gpio_configAlternate(dev->nssPinsGpio[devPinIndex],
                                  dev->nssPinsMux[devPinIndex],
-                                 0);
+                                 GPIO_PINS_SPEED_HIGH); // Workaround: Errata STM32L073x8/B/Z, page 17
             return ERRORS_NO_ERROR;
         }
     }

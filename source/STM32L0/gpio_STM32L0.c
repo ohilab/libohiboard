@@ -444,6 +444,26 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
                 temp |= (((options & GPIO_PINS_ENABLE_PULLUP) ? 0x01 : 0x02) << (number * 2));
                 port->PUPDR = temp;
             }
+
+            // Configure output speed
+            // Default speed is low speed
+            uint32_t speed = 0U;
+            if (options & GPIO_PINS_SPEED_MEDIUM)
+            {
+                speed = 0x01;
+            }
+            else if (options & GPIO_PINS_SPEED_HIGH)
+            {
+                speed = 0x02;
+            }
+            else if (options & GPIO_PINS_SPEED_VERY_HIGH)
+            {
+                speed = 0x03;
+            }
+            temp = port->OSPEEDR;
+            temp &= ~(GPIO_OSPEEDER_OSPEED0 << (number * 2));
+            temp |= (speed << (number * 2));
+            port->OSPEEDR = temp;
         }
     }
     else
