@@ -113,6 +113,17 @@ typedef enum _Clock_Origin
 // END IF: LIBOHIBOARD_ST_STM32
 #endif
 
+#if defined (LIBOHIBOARD_PIC24FJ)
+    CLOCK_INTERNAL_OSCFDIV     = 0x0004, //Oscillator with Frequency Divider (OSCFDIV)
+    CLOCK_INTERNAL_DCO         = 0x0008, //Digitally Controlled Oscillator (DCO)
+    CLOCK_INTERNAL_LPRC        = 0x0010, //Low-Power RC Oscillator (LPRC)
+    CLOCK_EXTERNAL_SOSC        = 0x0020, //Secondary Oscillator (SOSC)
+    CLOCK_EXTERNAL_XTPLL       = 0x0040, //Primary Oscillator with PLL module (XTPLL, ECPLL)
+    CLOCK_EXTERNAL_XT          = 0x0080, //Primary Oscillator (XT, HS, EC)
+    CLOCK_INTERNAL_FRCPLL      = 0x0100, //Fast RC Oscillator with PLL module (FRCPLL)
+    CLOCK_INTERNAL_FRC         = 0x0200, //Fast RC Oscillator (FRC)
+#endif
+
 } Clock_Origin;
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
@@ -173,6 +184,10 @@ typedef enum _Clock_Output
     CLOCK_OUTPUT_PLLSAI2P = 0x0800,
 #endif
 
+#endif
+
+#if defined (LIBOHIBOARD_PIC24FJ)
+    CLOCK_OUTPUT_PERIPHERAL = 0x0002,
 #endif
 
 } Clock_Output;
@@ -570,6 +585,10 @@ typedef struct _Clock_Config
 #elif defined (LIBOHIBOARD_MKL)
 
 #include "hardware/clock_MKL.h"
+
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/clock_PIC24FJ.h"
 
 #endif
 

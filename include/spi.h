@@ -175,6 +175,9 @@ typedef enum
     SPI_DATASIZE_15BIT = 15,
 #endif // LIBOHIBOARD_STM32L4
 	SPI_DATASIZE_16BIT = 16,
+#if defined (LIBOHIBOARD_PIC24FJ)
+    SPI_DATASIZE_32BIT = 32,
+#endif
 
 } Spi_DataSize;
 
@@ -218,22 +221,27 @@ typedef enum
 
 } Spi_FrameFormat;
 
+#endif // LIBOHIBOARD_STM32L0 || LIBOHIBOARD_STM32L4
+
+#endif // LIBOHIBOARD_ST_STM32
+
 /**
  * Slave Select (SS) pins management type.
  */
 typedef enum
 {
     SPI_SSMANAGEMENT_SOFTWARE,
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    SPI_SSMANAGEMENT_HARDWARE,
+#endif // LIBOHIBOARD_MICROCHIP_PIC
+#if defined (LIBOHIBOARD_ST_STM32)
     SPI_SSMANAGEMENT_HARDWARE_INPUT,
     SPI_SSMANAGEMENT_HARDWARE_OUTPUT,
 #if defined (LIBOHIBOARD_STM32L4)
     SPI_SSMANAGEMENT_HARDWARE_OUTPUT_PULSE,
 #endif
+#endif // LIBOHIBOARD_ST_STM
 } Spi_SSManagement;
-
-#endif // LIBOHIBOARD_STM32L4
-
-#endif // LIBOHIBOARD_ST_STM32
 
 #if (LIBOHIBOARD_VERSION >= 0x20000)
 typedef struct _Spi_Device* Spi_DeviceHandle;
@@ -249,597 +257,9 @@ typedef struct Spi_Device* Spi_DeviceHandle;
 
 #include "hardware/STM32L4/spi_STM32L4.h"
 
-#else
+#elif defined (LIBOHIBOARD_PIC24FJ)
 
-typedef enum _Spi_PcsPins
-{
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB10,
-
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4,
-
-    SPI_PINS_PTE4,
-    SPI_PINS_PTE16,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB10,
-
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4,
-
-    SPI_PINS_PTE4,
-
-#elif defined (LIBOHIBOARD_K10D10)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB9,
-    SPI_PINS_PTB10,
-    SPI_PINS_PTB20,
-    SPI_PINS_PTB23,
-
-    SPI_PINS_PTC0,
-    SPI_PINS_PTC1,
-    SPI_PINS_PTC2,
-    SPI_PINS_PTC3,
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4,
-    SPI_PINS_PTD5,
-    SPI_PINS_PTD6,
-    SPI_PINS_PTD11,
-    SPI_PINS_PTD15,
-
-    SPI_PINS_PTE0,
-    SPI_PINS_PTE4,
-    SPI_PINS_PTE5,
-    SPI_PINS_PTE6,
-    SPI_PINS_PTE16,
-
-#elif defined (LIBOHIBOARD_K12D5) || \
-      defined (LIBOHIBOARD_K10D7)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB10,
-
-    SPI_PINS_PTC0,
-    SPI_PINS_PTC1,
-    SPI_PINS_PTC2,
-    SPI_PINS_PTC3,
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4,
-    SPI_PINS_PTD5,
-    SPI_PINS_PTD6,
-
-    SPI_PINS_PTE0,
-    SPI_PINS_PTE4,
-    SPI_PINS_PTE5,
-    SPI_PINS_PTE16,
-
-
-#elif defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB9,
-    SPI_PINS_PTB10,
-    SPI_PINS_PTB20,
-    SPI_PINS_PTB23,
-
-    SPI_PINS_PTC0,
-    SPI_PINS_PTC1,
-    SPI_PINS_PTC2,
-    SPI_PINS_PTC3,
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4,
-    SPI_PINS_PTD5,
-    SPI_PINS_PTD6,
-
-    SPI_PINS_PTE0,
-    SPI_PINS_PTE4,
-    SPI_PINS_PTE5,
-    SPI_PINS_PTE6,
-
-#elif defined (LIBOHIBOARD_K60DZ10)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB9,
-    SPI_PINS_PTB10,
-    SPI_PINS_PTB20,
-    SPI_PINS_PTB23,
-
-    SPI_PINS_PTC0,
-    SPI_PINS_PTC1,
-    SPI_PINS_PTC2,
-    SPI_PINS_PTC3,
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4,
-    SPI_PINS_PTD5,
-    SPI_PINS_PTD6,
-    SPI_PINS_PTD11,
-    SPI_PINS_PTD15,
-
-    SPI_PINS_PTE0,
-    SPI_PINS_PTE4,
-    SPI_PINS_PTE5,
-    SPI_PINS_PTE6,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-    SPI_PINS_PTA14,
-
-	SPI_PINS_PTB9,
-	SPI_PINS_PTB10,
-	SPI_PINS_PTB20,
-
-	SPI_PINS_PTC0,
-	SPI_PINS_PTC1,
-	SPI_PINS_PTC2,
-	SPI_PINS_PTC3,
-	SPI_PINS_PTC4,
-
-	SPI_PINS_PTD0,
-	SPI_PINS_PTD4,
-	SPI_PINS_PTD5,
-	SPI_PINS_PTD6,
-	SPI_PINS_PTD11,
-	SPI_PINS_PTD15,
-
-	SPI_PINS_PTE0,
-	SPI_PINS_PTE4,
-	SPI_PINS_PTE5,
-	SPI_PINS_PTE6,
-
-#elif defined (LIBOHIBOARD_KV46F)    || \
-      defined (LIBOHIBOARD_TRWKV46F)
-
-    SPI_PINS_PTA14,
-
-    SPI_PINS_PTB23,
-
-    SPI_PINS_PTC0,
-    SPI_PINS_PTC1,
-    SPI_PINS_PTC2,
-    SPI_PINS_PTC3,
-    SPI_PINS_PTC4,
-
-    SPI_PINS_PTD0,
-    SPI_PINS_PTD4_PCS0,
-    SPI_PINS_PTD4_PCS1,
-    SPI_PINS_PTD5_PCS,
-    SPI_PINS_PTD6_PCS,
-
-    SPI_PINS_PTE16,
-
-#endif
-
-	SPI_PINS_PCSNONE,
-
-} Spi_PcsPins;
-
-typedef enum _Spi_SoutPins
-{
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    SPI_PINS_PTA16O,
-    SPI_PINS_PTA17O,
-
-    SPI_PINS_PTB16O,
-    SPI_PINS_PTB17O,
-
-    SPI_PINS_PTC6O,
-    SPI_PINS_PTC7O,
-
-    SPI_PINS_PTD2O,
-    SPI_PINS_PTD3O,
-    SPI_PINS_PTD6O,
-    SPI_PINS_PTD7O,
-
-    SPI_PINS_PTE1O,
-    SPI_PINS_PTE3O,
-    SPI_PINS_PTE18O,
-    SPI_PINS_PTE19O,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    SPI_PINS_PTA16O,
-    SPI_PINS_PTA17O,
-
-    SPI_PINS_PTB16O,
-    SPI_PINS_PTB17O,
-
-    SPI_PINS_PTC6O,
-    SPI_PINS_PTC7O,
-
-    SPI_PINS_PTD2O,
-    SPI_PINS_PTD3O,
-    SPI_PINS_PTD6O,
-    SPI_PINS_PTD7O,
-
-    SPI_PINS_PTE1O,
-    SPI_PINS_PTE3O,
-
-#elif defined (LIBOHIBOARD_K10D10)
-
-    SPI_PINS_PTA16,
-
-    SPI_PINS_PTB16,
-    SPI_PINS_PTB22,
-
-    SPI_PINS_PTC6,
-
-    SPI_PINS_PTD2,
-    SPI_PINS_PTD13,
-
-    SPI_PINS_PTE18,
-    SPI_PINS_PTE1O,
-    SPI_PINS_PTE3O,
-
-#elif defined (LIBOHIBOARD_K12D5) || \
-      defined (LIBOHIBOARD_K10D7)
-
-    SPI_PINS_PTA16,
-
-    SPI_PINS_PTB16,
-
-    SPI_PINS_PTC6,
-
-    SPI_PINS_PTD2,
-
-    SPI_PINS_PTE1O,
-    SPI_PINS_PTE3O,
-    SPI_PINS_PTE18,
-
-#elif defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    SPI_PINS_PTA16,
-
-    SPI_PINS_PTB16,
-    SPI_PINS_PTB22,
-
-    SPI_PINS_PTC6,
-
-    SPI_PINS_PTD2,
-
-    SPI_PINS_PTE1O,
-    SPI_PINS_PTE3O,
-
-#elif defined (LIBOHIBOARD_K60DZ10)
-
-    SPI_PINS_PTA16,
-
-    SPI_PINS_PTB16,
-    SPI_PINS_PTB22,
-
-    SPI_PINS_PTC6,
-
-    SPI_PINS_PTD2,
-    SPI_PINS_PTD13,
-
-    SPI_PINS_PTE1O,
-    SPI_PINS_PTE3O,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-	SPI_PINS_PTA16,
-
-	SPI_PINS_PTB16,
-	SPI_PINS_PTB22,
-
-	SPI_PINS_PTC6,
-
-	SPI_PINS_PTD2,
-	SPI_PINS_PTD13,
-
-	SPI_PINS_PTE1,
-
-#elif defined (LIBOHIBOARD_KV46F)    || \
-      defined (LIBOHIBOARD_TRWKV46F)
-
-	SPI_PINS_PTA16,
-	SPI_PINS_PTC6,
-
-	SPI_PINS_PTD2,
-	SPI_PINS_PTD6_SOUT,
-
-	SPI_PINS_PTE18,
-
-#endif
-
-	SPI_PINS_SOUTNONE,
-
-} Spi_SoutPins;
-
-typedef enum _Spi_SinPins
-{
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    SPI_PINS_PTA16I,
-    SPI_PINS_PTA17I,
-
-    SPI_PINS_PTB16I,
-    SPI_PINS_PTB17I,
-
-    SPI_PINS_PTC6I,
-    SPI_PINS_PTC7I,
-
-    SPI_PINS_PTD2I,
-    SPI_PINS_PTD3I,
-    SPI_PINS_PTD6I,
-    SPI_PINS_PTD7I,
-
-    SPI_PINS_PTE1I,
-    SPI_PINS_PTE3I,
-    SPI_PINS_PTE18I,
-    SPI_PINS_PTE19I,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    SPI_PINS_PTA16I,
-    SPI_PINS_PTA17I,
-
-    SPI_PINS_PTB16I,
-    SPI_PINS_PTB17I,
-
-    SPI_PINS_PTC6I,
-    SPI_PINS_PTC7I,
-
-    SPI_PINS_PTD2I,
-    SPI_PINS_PTD3I,
-    SPI_PINS_PTD6I,
-    SPI_PINS_PTD7I,
-
-    SPI_PINS_PTE1I,
-    SPI_PINS_PTE3I,
-
-#elif defined (LIBOHIBOARD_K10D10)
-
-    SPI_PINS_PTA17,
-
-    SPI_PINS_PTB17,
-    SPI_PINS_PTB23I,
-
-    SPI_PINS_PTC7,
-
-    SPI_PINS_PTD3,
-    SPI_PINS_PTD14,
-
-    SPI_PINS_PTE1I,
-    SPI_PINS_PTE3I,
-    SPI_PINS_PTE19,
-
-#elif defined (LIBOHIBOARD_K12D5) || \
-	  defined (LIBOHIBOARD_K10D7)
-
-    SPI_PINS_PTA17,
-
-    SPI_PINS_PTB17,
-
-    SPI_PINS_PTC7,
-
-    SPI_PINS_PTD3,
-
-    SPI_PINS_PTE1I,
-    SPI_PINS_PTE3I,
-    SPI_PINS_PTE19,
-
-#elif defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    SPI_PINS_PTA17,
-
-    SPI_PINS_PTB17,
-    SPI_PINS_PTB23I,
-
-    SPI_PINS_PTC7,
-
-    SPI_PINS_PTD3,
-
-    SPI_PINS_PTE1I,
-    SPI_PINS_PTE3I,
-
-#elif defined (LIBOHIBOARD_K60DZ10)
-
-    SPI_PINS_PTA17,
-
-    SPI_PINS_PTB17,
-    SPI_PINS_PTB23I,
-
-    SPI_PINS_PTC7,
-
-    SPI_PINS_PTD3,
-    SPI_PINS_PTD14,
-
-    SPI_PINS_PTE1I,
-    SPI_PINS_PTE3I,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-    SPI_PINS_PTA17,
-
-	SPI_PINS_PTB17,
-	SPI_PINS_PTB23,
-
-	SPI_PINS_PTC7,
-
-	SPI_PINS_PTD3,
-	SPI_PINS_PTD7,
-	SPI_PINS_PTD14,
-
-	SPI_PINS_PTE3,
-
-#elif defined (LIBOHIBOARD_KV46F)    || \
-      defined (LIBOHIBOARD_TRWKV46F)
-
-	SPI_PINS_PTA17,
-
-	SPI_PINS_PTC7,
-
-	SPI_PINS_PTD3,
-
-	SPI_PINS_PTE19,
-
-#endif
-
-	SPI_PINS_SINNONE,
-
-} Spi_SinPins;
-
-typedef enum _Spi_SckPins
-{
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTB11,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-    SPI_PINS_PTD5,
-
-    SPI_PINS_PTE2,
-    SPI_PINS_PTE17,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTB11,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-    SPI_PINS_PTD5,
-
-    SPI_PINS_PTE2,
-
-#elif defined (LIBOHIBOARD_K10D10)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTB11,
-    SPI_PINS_PTB21,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-    SPI_PINS_PTD12,
-
-    SPI_PINS_PTE2,
-    SPI_PINS_PTE17,
-
-#elif defined (LIBOHIBOARD_K12D5) || \
-	  defined (LIBOHIBOARD_K10D7)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTB11,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-
-    SPI_PINS_PTE2,
-    SPI_PINS_PTE17,
-
-#elif defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTB11,
-    SPI_PINS_PTB21,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-
-    SPI_PINS_PTE2,
-
-#elif defined (LIBOHIBOARD_K60DZ10)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTB11,
-    SPI_PINS_PTB21,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-    SPI_PINS_PTD12,
-
-    SPI_PINS_PTE2,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-	SPI_PINS_PTA15,
-
-	SPI_PINS_PTB11,
-	SPI_PINS_PTB21,
-
-	SPI_PINS_PTC5,
-
-	SPI_PINS_PTD1,
-	SPI_PINS_PTD12,
-
-	SPI_PINS_PTE2,
-
-#elif defined (LIBOHIBOARD_KV46F)    || \
-      defined (LIBOHIBOARD_TRWKV46F)
-
-    SPI_PINS_PTA15,
-
-    SPI_PINS_PTC5,
-
-    SPI_PINS_PTD1,
-    SPI_PINS_PTD5_CLK,
-
-    SPI_PINS_PTE17,
-
-#endif
-
-	SPI_PINS_SCKNONE,
-
-} Spi_SckPins;
+#include "hardware/PIC24FJ/spi_PIC24FJ.h"
 
 #endif
 
@@ -867,7 +287,9 @@ typedef struct _Spi_Config
     uint32_t          baudrate;
 
     Spi_DataSize      datasize;
+#if !defined (LIBOHIBOARD_MICROCHIP_PIC)
     Spi_FirstBit      firstBit;
+#endif
     Spi_ClockPolarity sckPolarity;
     Spi_ClockPhase    sckPhase;
 
@@ -875,9 +297,9 @@ typedef struct _Spi_Config
 
     Spi_Direction     direction;
     Spi_FrameFormat   frameFormat;
-    Spi_SSManagement  ssManagement;
-
 #endif
+
+    Spi_SSManagement  ssManagement;
 
 #if defined (LIBOHIBOARD_K10D10)      || \
     defined (LIBOHIBOARD_K12D5)       || \
@@ -1000,6 +422,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, uint32_t data, Spi_ChipSelect cs)
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Spi device handle
  * @param[out] data Pointer where store the received byte
@@ -1015,6 +438,7 @@ System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Spi device handle
  * @param[in] data Byte to send

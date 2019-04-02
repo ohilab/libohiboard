@@ -77,6 +77,10 @@ typedef struct _LowPowerTimer_Device* LowPowerTimer_DeviceHandle;
 
 #include "hardware/STM32L4/lowpower-timer_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/lowpower-timer_PIC24FJ.h"
+
 #endif
 
 /**
@@ -108,6 +112,12 @@ typedef enum _LowPowerTimer_ClockPrescaler
     LOWPOWERTIMER_CLOCKPRESCALER_DIV64  = (LPTIM_CFGR_PRESC_1 | LPTIM_CFGR_PRESC_2),
     LOWPOWERTIMER_CLOCKPRESCALER_DIV128 = LPTIM_CFGR_PRESC,
 
+#endif
+#if defined (LIBOHIBOARD_PIC24FJ)
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV1   = 0b00,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV8   = 0b01,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV64  = 0b10,
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV256 = 0b11,
 #endif
 } LowPowerTimer_ClockPrescaler;
 
@@ -141,8 +151,16 @@ typedef enum _Timer_LowPowerClockSource
     LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL       = 0xFFFF0000,
 
 #endif
+#if defined (LIBOHIBOARD_PIC24FJ)
+    LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_FRC    = 0b100,
+    LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL        = 0b011,
+    LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_LPRC   = 0b010,
+    LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL_CLK    = 0b001,
+    LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL_SOSC   = 0b000,
+#endif
 } LowPowerTimer_ClockSource;
 
+#if !defined (LIBOHIBOARD_MICROCHIP_PIC)
 /**
  * List of all possible clock polarity type for the counter unit.
  * This value must be used only in case of external clock (ULP).
@@ -208,6 +226,9 @@ typedef enum _LowPowerTimer_CounterSource
 
 #endif
 } LowPowerTimer_CounterSource;
+#endif
+
+typedef void (* LowPowerTimer_CounterCallback)(struct _LowPowerTimer_Device *dev);
 
 /**
  * Struct used to configure low-power peripheral.
@@ -217,6 +238,7 @@ typedef struct _LowPowerTimer_Config
     LowPowerTimer_ClockSource clockSource;
     LowPowerTimer_ClockPrescaler prescaler;
 
+#if !defined (LIBOHIBOARD_MICROCHIP_PIC)
     /**
      * Selects the polarity of the active edge for the counter unit.
      * @note This parameter is used only when ULP clock source is used.
@@ -234,8 +256,10 @@ typedef struct _LowPowerTimer_Config
      * or each external event.
      */
     LowPowerTimer_CounterSource counterSource;
-
-    void (* counterCallback)(struct _LowPowerTimer_Device *dev);
+#else
+    uint16_t intPriority;
+#endif
+    LowPowerTimer_CounterCallback counterCallback;
 
 } LowPowerTimer_Config;
 

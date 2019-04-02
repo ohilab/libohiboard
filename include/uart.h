@@ -183,6 +183,10 @@ typedef enum _Uart_ClockSource
     UART_CLOCKSOURCE_LSE     = 0x03U,                  /**< LSE clock source */
 
 #endif
+            
+#if defined (LIBOHIBOARD_PIC24FJ)
+    UART_CLOCKSOURCE_PERIPHERAL = 0x00U,
+#endif
 
 } Uart_ClockSource;
 
@@ -663,7 +667,7 @@ typedef struct _Uart_Config
     uint32_t baudrate;
     uint8_t oversampling; /**< Into NXP microcontroller must be a value between 4 to 32,
                                otherwise, into ST microcontroller must be 16 or 8. If the value differ
-                               from this two value, the default is used. */
+                               from this two value, the default one is used. */
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
     /** Callback Function to handle RX Interrupt.*/

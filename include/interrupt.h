@@ -65,6 +65,10 @@ typedef enum {
 
 #include "hardware/interrupt_MKL.h"
 
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/interrupt_PIC24FJ.h"
+
 #else
 
 // Dummy
@@ -91,6 +95,24 @@ System_Errors Interrupt_setPriority (Interrupt_Vector vectorNumber,
  * Return the current priority level.
  */
 uint8_t Interrupt_getPriority (Interrupt_Vector vectorNumber);
+
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+/**
+ * Return value of flag for specific IRQ.
+ * 
+ * @param[in] vectorNumber: index of IRQ
+ * 
+ * @return <bool>: true if flag is active, false otherwise 
+ */
+bool Interrupt_isFlag (Interrupt_Vector vectorNumber);
+
+/**
+ * Clear the interrupt flag for specific IRQ.
+ * 
+ * @param[in] vectorNumber: index of IRQ
+ */
+System_Errors Interrupt_clearFlag (Interrupt_Vector vectorNumber);
+#endif
 
 #ifdef __cplusplus
 }

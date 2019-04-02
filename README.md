@@ -7,6 +7,8 @@ Currently developed microcontrollers:
 * MK Series by NXP Semicondutor (M4)
 * MKV Series by NXP Semicondutor (M4)
 * STM32L4 Series by STM Semicondutor (M4)
+* STM32L0 Series by STM Semicondutor (M0+)
+* PIC24FJ Series by Microchip Semiconductor
 
 ## Coding style and guidilines
 

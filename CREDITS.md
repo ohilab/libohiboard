@@ -6,6 +6,7 @@ Credits
 * Marco Contigiani
 * Simone Giacomucci
 * Marco Giammarini
+* Stefano Gigli
 * Leonardo Morichelli
 * Nicola Orlandini
 * Niccolo' Paolinelli

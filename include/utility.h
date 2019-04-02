@@ -65,8 +65,8 @@ extern "C" {
 
 #define UTILITY_WRITE_REGISTER(REGISTER,VALUE)   ((REGISTER) = (VALUE))
 
-#define UTILITY_MODIFY_REGISTER(REGISTER,CLEARMASK,SETMASK) \
-    UTILITY_WRITE_REGISTER((REGISTER), (((REGISTER) & (~(CLEARMASK))) | ((SETMASK) & (CLEARMASK))))
+#define UTILITY_MODIFY_REGISTER(REGISTER,MASK,VALUE) \
+    UTILITY_WRITE_REGISTER((REGISTER), (((REGISTER) & (~(MASK))) | ((VALUE) & (MASK))))
 
 typedef enum _Utility_State
 {
@@ -76,6 +76,9 @@ typedef enum _Utility_State
 
 #define UTILITY_VALID_STATE(STATE) (((STATE) == UTILITY_STATE_ENABLE) || \
                                     ((STATE) == UTILITY_STATE_DISABLE))
+
+#define UTILITY_STRING2(x,y)           x##y
+#define UTILITY_STRING3(x,y,z)         x##y##z
 
 /**
  * This macro return the dimension of an array.

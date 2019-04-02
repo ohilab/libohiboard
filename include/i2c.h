@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -31,7 +31,18 @@
  * @brief I2C definitions and prototypes
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
 #ifdef LIBOHIBOARD_IIC
+
+/**
+ * @defgroup I2C I2C
+ * @brief I2C HAL driver
+ * @{
+ */
 
 #ifndef __I2C_H
 #define __I2C_H
@@ -45,6 +56,12 @@ extern "C" {
 #include "types.h"
 #include "system.h"
 
+/**
+ * @defgroup I2C_Configuration_Functions I2C configuration functions and types
+ * @brief Functions and types to open, close and configure a I2C peripheral.
+ * @{
+ */
+    
 /**
  * Definition for possible device behavioral.
  */
@@ -75,6 +92,18 @@ typedef enum _Iic_RegisterAddressSize
     IIC_REGISTERADDRESSSIZE_16BIT = 2,
 
 } Iic_RegisterAddressSize;
+
+/**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Iic_DeviceState
+{
+    IIC_DEVICESTATE_RESET,
+    IIC_DEVICESTATE_READY,
+    IIC_DEVICESTATE_BUSY,
+    IIC_DEVICESTATE_ERROR,
+
+} Iic_DeviceState;
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
@@ -149,186 +178,20 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 #include "hardware/STM32L4/i2c_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/i2c_PIC24FJ.h"
+
 #else
 
 typedef enum
 {
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-    IIC_PINS_PTA3C,
-    IIC_PINS_PTA4C,
-    IIC_PINS_PTA8,
-
-    IIC_PINS_PTB0,
-    IIC_PINS_PTB3,
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    IIC_PINS_PTA3,
-
-    IIC_PINS_PTB0,
-    IIC_PINS_PTB2,
-
-    IIC_PINS_PTC1,
-    IIC_PINS_PTC8,
-    IIC_PINS_PTC10,
-
-    IIC_PINS_PTE1,
-    IIC_PINS_PTE19,
-    IIC_PINS_PTE24,
-
-#elif defined (LIBOHIBOARD_KL25Z4) || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    IIC_PINS_PTA3,
-
-    IIC_PINS_PTB0,
-    IIC_PINS_PTB2,
-
-    IIC_PINS_PTC1,
-    IIC_PINS_PTC8,
-    IIC_PINS_PTC10,
-
-    IIC_PINS_PTE1,
-    IIC_PINS_PTE24,
-
-#elif defined (LIBOHIBOARD_K10D10) || \
-      defined (LIBOHIBOARD_K10D7)  || \
-      defined (LIBOHIBOARD_K12D5)
-
-    IIC_PINS_PTB0,
-    IIC_PINS_PTB2,
-
-    IIC_PINS_PTC10,
-
-    IIC_PINS_PTD8,
-
-    IIC_PINS_PTE1,
-    IIC_PINS_PTE19,
-
-#elif defined (LIBOHIBOARD_K60DZ10) || \
-	  defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    IIC_PINS_PTB0,
-    IIC_PINS_PTB2,
-
-    IIC_PINS_PTC10,
-
-    IIC_PINS_PTD8,
-
-    IIC_PINS_PTE1,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-	IIC_PINS_PTA12,
-	IIC_PINS_PTA14,
-
-	IIC_PINS_PTB0,
-	IIC_PINS_PTB2,
-
-	IIC_PINS_PTC10,
-
-	IIC_PINS_PTD2,
-	IIC_PINS_PTD8,
-
-	IIC_PINS_PTE1,
-	IIC_PINS_PTE24,
-
-#endif
-
 	IIC_PINS_SCLNONE,
 
 } Iic_SclPins;
 
 typedef enum
 {
-
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-    IIC_PINS_PTA3D,
-    IIC_PINS_PTA4D,
-    IIC_PINS_PTA9,
-
-    IIC_PINS_PTB1,
-    IIC_PINS_PTB4,
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    IIC_PINS_PTA4,
-
-    IIC_PINS_PTB1,
-    IIC_PINS_PTB3,
-
-    IIC_PINS_PTC2,
-    IIC_PINS_PTC9,
-    IIC_PINS_PTC11,
-
-    IIC_PINS_PTE0,
-    IIC_PINS_PTE18,
-    IIC_PINS_PTE25,
-
-#elif defined (LIBOHIBOARD_KL25Z4) || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    IIC_PINS_PTA4,
-
-    IIC_PINS_PTB1,
-    IIC_PINS_PTB3,
-
-    IIC_PINS_PTC2,
-    IIC_PINS_PTC9,
-    IIC_PINS_PTC11,
-
-    IIC_PINS_PTE0,
-    IIC_PINS_PTE25,
-
-#elif defined (LIBOHIBOARD_K10D10) || \
-      defined (LIBOHIBOARD_K10D7)  || \
-      defined (LIBOHIBOARD_K12D5)
-
-    IIC_PINS_PTB1,
-    IIC_PINS_PTB3,
-
-    IIC_PINS_PTC11,
-
-    IIC_PINS_PTD9,
-
-    IIC_PINS_PTE0,
-    IIC_PINS_PTE18,
-
-#elif defined (LIBOHIBOARD_K60DZ10) || \
-      defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    IIC_PINS_PTB1,
-    IIC_PINS_PTB3,
-
-    IIC_PINS_PTC11,
-
-    IIC_PINS_PTD9,
-
-    IIC_PINS_PTE0,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-	IIC_PINS_PTA11,
-	IIC_PINS_PTA13,
-
-	IIC_PINS_PTB1,
-	IIC_PINS_PTB3,
-
-	IIC_PINS_PTC11,
-
-	IIC_PINS_PTD3,
-	IIC_PINS_PTD9,
-
-	IIC_PINS_PTE0,
-	IIC_PINS_PTE25,
-
-#endif
 
 	IIC_PINS_SDANONE,
 
@@ -363,11 +226,6 @@ typedef struct _Iic_Config
 
 } Iic_Config;
 
-/** @name Configuration functions
- *  Functions to open, close and configure a I2C peripheral.
- */
-///@{
-
 /**
   * @brief Initialize the I2C according to the specified parameters
   *         in the @ref Iic_Config and initialize the associated handle.
@@ -384,14 +242,17 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config);
  */
 System_Errors Iic_deInit (Iic_DeviceHandle dev);
 
-///@}
+/**
+ * @}
+ */
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
 
-/** @name Master Packet Management
- *  All the functions useful for packet managing by a Master device.
+/**
+ * @defgroup I2C_Read_Write_Master_Functions I2C read/write master functions
+ * @brief Functions to read and write to I2C peripheral by master device.
+ * @{
  */
-///@{
 
 /**
  * This function send a specified number of bytes to a selected
@@ -471,7 +332,30 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
                                 uint16_t length,
                                 uint32_t timeout);
 
-///@}
+/**
+ * This function send start condition.
+ * 
+ * @param[in] dev I2C device handle
+ */
+void Iic_start (Iic_DeviceHandle dev);
+
+/**
+ * This function send repeated start condition.
+ * 
+ * @param[in] dev I2C device handle
+ */
+void Iic_repeatedStart (Iic_DeviceHandle dev);
+
+/**
+ * This function send stop condition.
+ * 
+ * @param[in] dev I2C device handle
+ */
+void Iic_stop (Iic_DeviceHandle dev);
+
+/**
+ * @}
+ */
 
 #else
 
@@ -577,4 +461,12 @@ extern Iic_DeviceHandle IIC2;
 
 #endif // __I2C_H
 
+/**
+ * @}
+ */
+
 #endif // LIBOHIBOARD_IIC
+
+/**
+ * @}
+ */

@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -84,6 +84,11 @@ extern "C" {
 #if defined (LIBOHIBOARD_STM32L4)
 #define GPIO_PINS_ADC_CONNECTED             0x0800
 #endif
+#elif defined LIBOHIBOARD_MICROCHIP_PIC
+#if defined LIBOHIBOARD_PIC24FJ
+#define GPIO_PINS_ENABLE_OUTPUT_PUSHPULL    0x0020
+#define GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN   0x0040
+#endif
 #endif
 /**
  * @}
@@ -94,6 +99,8 @@ extern "C" {
 #define GPIO_PIN_MASK_NUMBER                0x1Fu
 #elif defined LIBOHIBOARD_ST_STM32
 #define GPIO_PIN_MASK_NUMBER                0x0Fu
+#elif defined LIBOHIBOARD_MICROCHIP_PIC
+#define GPIO_PIN_MASK_NUMBER                0x01u
 #endif
 #define GPIO_PIN(x)                         (((1)<<(x & GPIO_PIN_MASK_NUMBER)))
 
@@ -119,6 +126,10 @@ typedef enum _Gpio_Level
 #elif defined (LIBOHIBOARD_MKL)
 
 #include "hardware/gpio_MKL.h"
+
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/gpio_PIC24FJ.h"
 
 #else
 
@@ -154,6 +165,11 @@ typedef enum
     GPIO_EVENT_USE_INTERRUPT   = 0x04,
     GPIO_EVENT_USE_EVENT       = 0x08,
 
+#elif defined (LIBOHIBOARD_MICROCHIP_PIC)
+
+    GPIO_EVENT_ON_RISING       = 0x01,
+    GPIO_EVENT_ON_FALLING      = 0x02,
+
 #else
 
     GPIO_EVENT_NONE = 0,
@@ -168,24 +184,29 @@ typedef enum
  */
 typedef enum _Gpio_Alternate
 {
-    GPIO_ALTERNATE_ANALOG = -1,
-    GPIO_ALTERNATE_0      = 0,
-    GPIO_ALTERNATE_1      = 1,
-    GPIO_ALTERNATE_2      = 2,
-    GPIO_ALTERNATE_3      = 3,
-    GPIO_ALTERNATE_4      = 4,
-    GPIO_ALTERNATE_5      = 5,
-    GPIO_ALTERNATE_6      = 6,
-    GPIO_ALTERNATE_7      = 7,
-#if defined (LIBOHIBOARD_ST_STM32)
-    GPIO_ALTERNATE_8      = 8,
-    GPIO_ALTERNATE_9      = 9,
-    GPIO_ALTERNATE_10     = 10,
-    GPIO_ALTERNATE_11     = 11,
-    GPIO_ALTERNATE_12     = 12,
-    GPIO_ALTERNATE_13     = 13,
-    GPIO_ALTERNATE_14     = 14,
-    GPIO_ALTERNATE_15     = 15,
+#if defined(LIBOHIBOARD_PIC24FJ)
+    GPIO_ALTERNATE_DIGITAL = -2,
+#endif
+    GPIO_ALTERNATE_ANALOG  = -1,
+#if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
+    GPIO_ALTERNATE_0       = 0,
+    GPIO_ALTERNATE_1       = 1,
+    GPIO_ALTERNATE_2       = 2,
+    GPIO_ALTERNATE_3       = 3,
+    GPIO_ALTERNATE_4       = 4,
+    GPIO_ALTERNATE_5       = 5,
+    GPIO_ALTERNATE_6       = 6,
+    GPIO_ALTERNATE_7       = 7,
+#endif
+#if defined (LIBOHIBOARD_STM32L4)
+    GPIO_ALTERNATE_8       = 8,
+    GPIO_ALTERNATE_9       = 9,
+    GPIO_ALTERNATE_10      = 10,
+    GPIO_ALTERNATE_11      = 11,
+    GPIO_ALTERNATE_12      = 12,
+    GPIO_ALTERNATE_13      = 13,
+    GPIO_ALTERNATE_14      = 14,
+    GPIO_ALTERNATE_15      = 15,
 #endif
 
 } Gpio_Alternate;

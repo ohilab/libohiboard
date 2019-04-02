@@ -36,101 +36,6 @@
 
 /* microcontroller selection: */
 
-/*
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL02Z4</code> and <code>LIBOHIBOARD_FRDMKL02Z</code>:
- * <ul>
- *   <li>MKL02Z32CAF4</li>
- *   <li>MKL02Z32VFG4</li>
- *   <li>MKL02Z16VFG4</li>
- *   <li>MKL02Z8VFG4</li>
- *   <li>MKL02Z32VFK4</li>
- *   <li>MKL02Z16VFK4</li>
- *   <li>MKL02Z32VFM4</li>
- *   <li>MKL02Z16VFM4</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL03Z4</code> and <code>LIBOHIBOARD_FRDMKL03Z</code>:
- * <ul>
- *   <li>MKL03Z32CAF4</li>
- *   <li>MKL03Z32VFG4</li>
- *   <li>MKL03Z16VFG4</li>
- *   <li>MKL03Z8VFG4</li>
- *   <li>MKL03Z32VFK4</li>
- *   <li>MKL03Z16VFK4</li>
- *   <li>MKL03Z8VFK4</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL15Z4</code>:
- * <ul>
- *   <li>MKL15Z128FM4</li>
- *   <li>MKL15Z128FT4</li>
- *   <li>MKL15Z128LH4</li>
- *   <li>MKL15Z128VLK4</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL25Z4</code> and <code>LIBOHIBOARD_FRDMKL25Z</code>:
- * <ul>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K10DZ10</code>:
- * <ul>
- *   <li>MK10DN512ZVLK10</li>
- *   <li>MK10DN512ZVLL10</li>
- *   <li>MK10DN512ZVLQ10</li>
- *   <li>MK10DX128ZVLQ10</li>
- *   <li>MK10DX256ZVLQ10</li>
- *   <li>MK10DN512ZVMB10</li>
- *   <li>MK10DN512ZVMC10</li>
- *   <li>MK10DN512ZVMD10</li>
- *   <li>MK10DX256ZVMD10</li>
- *   <li>MK10DX128ZVMD10</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K10D10</code>:
- * <ul>
- *   <li>MK10DN512VLK10</li>
- *   <li>MK10DN512VLL10</li>
- *   <li>MK10DN512VLQ10</li>
- *   <li>MK10DX128VLQ10</li>
- *   <li>MK10DX256VLQ10</li>
- *   <li>MK10DN512VMB10</li>
- *   <li>MK10DN512VMC10</li>
- *   <li>MK10DN512VMD10</li>
- *   <li>MK10DX256VMD10</li>
- *   <li>MK10DX128VMD10</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K60D10</code>:
- * <ul>
- *   <li>MK60DN512ZVLL10</li>
- *   <li>MK60DX256ZVLL10</li>
- *   <li>MK60DN256ZVLL10</li>
- *   <li>MK60DN512ZVLQ10</li>
- *   <li>MK60DN256ZVLQ10</li>
- *   <li>MK60DX256ZVLQ10</li>
- *   <li>MK60DN512ZVMC10</li>
- *   <li>MK60DN256ZVMC10</li>
- *   <li>MK60DX256ZVMC10</li>
- *   <li>MK60DN512ZVMD10</li>
- *   <li>MK60DX256ZVMD10</li>
- *   <li>MK60DN256ZVMD10</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K64F12</code>:
- * <ul>
- *    <li>MK64FX512VLL12</li>
- *    <li>MK64FN1M0VLL12</li>
- *    <li>MK64FX512VDC12</li>
- *    <li>MK64FN1M0VDC12</li>
- *    <li>MK64FX512VLQ12</li>
- *    <li>MK64FX512VMD12</li>
- *    <li>MK64FN1M0VLQ12</li>
- *    <li>MK64FN1M0VMD12</li>
- * </ul>
- */
-
-
 #if defined(LIBOHIBOARD_K10DZ10) // NXP/Freescale Microcontrollers
 #include "platforms/MK10DZ10.h"
 #define LIBOHIBOARD_NXP_KINETIS
@@ -272,6 +177,26 @@
 
 #ifndef LIBOHIBOARD_ST_STM32
 #define LIBOHIBOARD_ST_STM32
+#endif
+
+#elif defined (LIBOHIBOARD_PIC24FJxGA606) || \
+      defined (LIBOHIBOARD_PIC24FJxGA610) || \
+      defined (LIBOHIBOARD_PIC24FJxGB606) || \
+      defined (LIBOHIBOARD_PIC24FJxGB610)
+
+#include "platforms/PIC24FJ/PIC24FJxGy6z.h"
+#include <xc.h>
+
+#ifndef LIBOHIBOARD_PIC24FJ
+#define LIBOHIBOARD_PIC24FJ
+#endif
+
+#ifndef LIBOHIBOARD_PIC24FJ1024
+#define LIBOHIBOARD_PIC24FJ1024
+#endif
+
+#ifndef LIBOHIBOARD_MICROCHIP_PIC
+#define LIBOHIBOARD_MICROCHIP_PIC
 #endif
 
 #endif

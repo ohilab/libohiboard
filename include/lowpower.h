@@ -58,6 +58,8 @@ extern "C" {
 #include "utility.h"
 #include "clock.h"
 
+#if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
+
 /**
  *
  */
@@ -66,6 +68,8 @@ typedef enum _LowPower_WaitFor
 	LOWPOWER_WAITFOR_INTERRUPT = 1,
 	LOWPOWER_WAITFOR_EVENT     = 2,
 } LowPower_WaitFor;
+
+#endif // (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
 
 /**
  *
@@ -91,10 +95,19 @@ typedef enum _LowPower_VoltageScaling
 
 #endif // LIBOHIBOARD_STM32L4
 
+#if defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/lowpower_PIC24FJ.h"
+
+#endif
+
 /**
  * Initialize the low power control:
  * @li read the reset status flag and reset the status flags;
- * @li enable clock of PWR
+ * @li enable clock of PWR.
+ *
+ *
+ * STM32L4: initial power state is RUN_MODE, the most performance one.
  *
  * @note This function must be called at the start of system.
  */
@@ -106,6 +119,8 @@ void LowPower_init(void);
  * @return Reset status bits
  */
 LowPower_ResetControl LowPower_getResetStatus(void);
+
+#if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
 
 /**
  * Enable the WakeUp PINx functionality.
@@ -166,8 +181,12 @@ System_Errors LowPower_setModeByConfiguration (Clock_Config* config, LowPower_Mo
  * Return the current mode.
  *
  * @return current low-power mode.
+ *
+ * @note the returned value is in MCU-specific enumeration;  please compare with the comfort macros for a portable usage.
  */
 LowPower_Mode LowPower_getMode(void);
+
+#endif // (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
 
 #ifdef __cplusplus
 }

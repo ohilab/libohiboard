@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -62,6 +62,9 @@ typedef enum _Timer_DeviceState
 
 } Timer_DeviceState;
 
+/**
+ * 
+ */
 typedef enum _Timer_Mode
 {
     TIMER_MODE_FREE,
@@ -88,10 +91,15 @@ typedef enum _Timer_Mode
 
 } Timer_Mode;
 
-#if defined (LIBOHIBOARD_STM32L4)
-
+/**
+ * Clock source selection for Timer peripheral.
+ * 
+ * @note The value is MCU-specific.
+ */
 typedef enum _Timer_ClockSource
 {
+#if defined (LIBOHIBOARD_STM32L4)
+    
     TIMER_CLOCKSOURCE_INTERNAL,          /**< Internal clock selection CK_INT */
     TIMER_CLOCKSOURCE_INTERNAL_ITR0,           /**< Internal trigger input #0 */
     TIMER_CLOCKSOURCE_INTERNAL_ITR1,           /**< Internal trigger input #1 */
@@ -100,7 +108,44 @@ typedef enum _Timer_ClockSource
     TIMER_CLOCKSOURCE_EXTERNAL_MODE_1,                /**< External input pin */
     TIMER_CLOCKSOURCE_EXTERNAL_MODE_2,            /**< External trigger input */
 
+#endif
+
+#if defined (LIBOHIBOARD_PIC24FJ)
+
+    /** Internal clock selection F_OSC/2. */
+    TIMER_CLOCKSOURCE_INTERNAL = 0x0000,
+    /** SOSC clock selection. */
+    TIMER_CLOCKSOURCE_SOSC     = _T2CON_TCS_MASK,
+    /** TyCK external clock input. */
+    TIMER_CLOCKSOURCE_TyCK     = _T2CON_TCS_MASK | _T2CON_TECS0_MASK,
+    /** LPRC oscillator clock selection. */
+    TIMER_CLOCKSOURCE_LPRC_OSC = _T2CON_TCS_MASK | _T2CON_TECS1_MASK,
+    /** TxCK generic timer external input. */
+    TIMER_CLOCKSOURCE_TxCK     = _T2CON_TCS_MASK | _T2CON_TECS_MASK,            
+
+#endif
+            
 } Timer_ClockSource;
+
+typedef enum _Timer_ClockPrescaler
+{
+#if defined (LIBOHIBOARD_STM32L4)
+    TIMER_CLOCKPRESCALER_1,
+    TIMER_CLOCKPRESCALER_2,
+    TIMER_CLOCKPRESCALER_4,
+    TIMER_CLOCKPRESCALER_8,
+#endif
+
+#if defined (LIBOHIBOARD_PIC24FJ)
+    TIMER_CLOCKPRESCALER_1   = 0x0000,
+    TIMER_CLOCKPRESCALER_8   = _T2CON_TCKPS0_MASK,
+    TIMER_CLOCKPRESCALER_64  = _T2CON_TCKPS1_MASK,
+    TIMER_CLOCKPRESCALER_256 = _T2CON_TCKPS0_MASK | _T2CON_TCKPS1_MASK,
+#endif
+            
+} Timer_ClockPrescaler;
+
+#if defined (LIBOHIBOARD_STM32L4)
 
 typedef enum _Timer_ClockPolarity
 {
@@ -114,22 +159,15 @@ typedef enum _Timer_ClockPolarity
 
 } Timer_ClockPolarity;
 
-
-typedef enum _Timer_ClockPrescaler
-{
-    TIMER_CLOCKPRESCALER_1,
-    TIMER_CLOCKPRESCALER_2,
-    TIMER_CLOCKPRESCALER_4,
-    TIMER_CLOCKPRESCALER_8,
-
-} Timer_ClockPrescaler;
-
 #endif
 
 typedef enum _Timer_CounterMode
 {
     TIMER_COUNTERMODE_UP,
+
+#if !defined (LIBOHIBOARD_PIC24FJ)
     TIMER_COUNTERMODE_DOWN,
+#endif
 
 #if defined (LIBOHIBOARD_STM32L4)
     TIMER_COUNTERMODE_CENTER_ALIGNED_1,
@@ -182,623 +220,21 @@ typedef struct _Timer_Device* Timer_DeviceHandle;
 
 #include "hardware/STM32L4/timer_STM32L4.h"
 
-#else
+#elif defined (LIBOHIBOARD_PIC24FJ)
 
-#if defined (LIBOHIBOARD_KL15Z4)
-
-#define FTM_MAX_CHANNEL   6
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB2,
-    FTM_PINS_PTB3,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-    FTM_PINS_PTC8,
-    FTM_PINS_PTC9,
-
-    FTM_PINS_PTD0,
-    FTM_PINS_PTD1,
-    FTM_PINS_PTD2,
-    FTM_PINS_PTD3,
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-
-    FTM_PINS_PTE20,
-    FTM_PINS_PTE21,
-    FTM_PINS_PTE22,
-    FTM_PINS_PTE23,
-    FTM_PINS_PTE24,
-    FTM_PINS_PTE25,
-    FTM_PINS_PTE29,
-    FTM_PINS_PTE30,
-    FTM_PINS_PTE31,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-} Ftm_Channels;
-
-void TPM0_IRQHandler (void);
-void TPM1_IRQHandler (void);
-void TPM2_IRQHandler (void);
-
-extern Ftm_DeviceHandle OB_FTM0;
-extern Ftm_DeviceHandle OB_FTM1;
-extern Ftm_DeviceHandle OB_FTM2;
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-/* FIXME: Enable the KL25 into device on .c file! */
-
-#define FTM_MAX_CHANNEL   6
-
-typedef enum
-{
-#if defined (LIBOHIBOARD_KL25Z4)
-    FTM_PINS_PTA0,
-#endif
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-#if defined (LIBOHIBOARD_KL25Z4)
-    FTM_PINS_PTA3,
-#endif
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB2,
-    FTM_PINS_PTB3,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-    FTM_PINS_PTC8,
-    FTM_PINS_PTC9,
-
-    FTM_PINS_PTD0,
-    FTM_PINS_PTD1,
-    FTM_PINS_PTD2,
-    FTM_PINS_PTD3,
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-
-    FTM_PINS_PTE20,
-    FTM_PINS_PTE21,
-    FTM_PINS_PTE22,
-    FTM_PINS_PTE23,
-#if defined (LIBOHIBOARD_KL25Z4)
-    FTM_PINS_PTE24,
-    FTM_PINS_PTE25,
-#endif
-    FTM_PINS_PTE29,
-    FTM_PINS_PTE30,
-    FTM_PINS_PTE31,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-
-    FTM_CHANNELS_NONE,
-} Ftm_Channels;
-
-void TPM0_IRQHandler (void);
-void TPM1_IRQHandler (void);
-void TPM2_IRQHandler (void);
-
-extern Ftm_DeviceHandle OB_FTM0;
-extern Ftm_DeviceHandle OB_FTM1;
-extern Ftm_DeviceHandle OB_FTM2;
-
-#elif defined(LIBOHIBOARD_K10D10)
-
-#define FTM_MAX_CHANNEL                  8
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA6,
-    FTM_PINS_PTA7,
-    FTM_PINS_PTA8,
-    FTM_PINS_PTA9,
-    FTM_PINS_PTA10,
-    FTM_PINS_PTA11,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-    FTM_CHANNELS_CH6,
-    FTM_CHANNELS_CH7,
-} Ftm_Channels;
-
-
-void FTM0_IRQHandler (void);
-void FTM1_IRQHandler (void);
-void FTM2_IRQHandler (void);
-
-extern Ftm_DeviceHandle OB_FTM0;
-extern Ftm_DeviceHandle OB_FTM1;
-extern Ftm_DeviceHandle OB_FTM2;
-
-#elif defined(LIBOHIBOARD_K12D5)
-
-#define FTM_MAX_CHANNEL                  8
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB12,
-    FTM_PINS_PTB13,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-    FTM_PINS_PTC5,
-
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-    FTM_CHANNELS_CH6,
-    FTM_CHANNELS_CH7,
-} Ftm_Channels;
-
-
-void FTM0_IRQHandler (void);
-void FTM1_IRQHandler (void);
-void FTM2_IRQHandler (void);
-
-extern Ftm_DeviceHandle OB_FTM0;
-extern Ftm_DeviceHandle OB_FTM1;
-extern Ftm_DeviceHandle OB_FTM2;
-
-#elif defined (LIBOHIBOARD_K60DZ10) || \
-	  defined (LIBOHIBOARD_OHIBOARD_R1)
-
-#define FTM_MAX_CHANNEL                  8
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-    FTM_CHANNELS_CH6,
-    FTM_CHANNELS_CH7,
-} Ftm_Channels;
-
-
-void Ftm_isrFtm0 (void);
-void Ftm_isrFtm1 (void);
-void Ftm_isrFtm2 (void);
-
-extern Ftm_DeviceHandle FTM0;
-extern Ftm_DeviceHandle FTM1;
-extern Ftm_DeviceHandle FTM2;
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-	  defined (LIBOHIBOARD_FRDMK64F)   || \
-	  defined(LIBOHIBOARD_KV31F12)     || \
-	  defined (LIBOHIBOARD_KV46F)      || \
-	  defined (LIBOHIBOARD_TRWKV46F)
-
-#if defined (LIBOHIBOARD_K64F12)     || \
-	defined (LIBOHIBOARD_FRDMK64F)
-
-#define FTM_MAX_CHANNEL                  8
-#define FTM_MAX_FAULT_CHANNEL            4
-
-#elif defined (LIBOHIBOARD_KV31F12)
-
-#define FTM_MAX_CHANNEL                  8
-#define FTM_MAX_FAULT_CHANNEL            4
-
-#elif  defined (LIBOHIBOARD_KV46F)      || \
-       defined  (LIBOHIBOARD_TRWKV46F)
-
-#define FTM_MAX_CHANNEL                  8
-#define FTM_MAX_FAULT_CHANNEL            4
-
-#endif
-
-#if defined(LIBOHIBOARD_KV31F12)
-
-typedef enum
-{
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-    FTM_PINS_PTC5,
-    FTM_PINS_PTC8,
-    FTM_PINS_PTC9,
-    FTM_PINS_PTC10,
-    FTM_PINS_PTC11,
-
-    FTM_PINS_PTD0,
-    FTM_PINS_PTD1,
-    FTM_PINS_PTD2,
-    FTM_PINS_PTD3,
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_PTE5,
-    FTM_PINS_PTE6,
-    FTM_PINS_PTE24,
-    FTM_PINS_PTE25,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
-{
-    FTM_FAULTPINS_PTA4,
-    FTM_FAULTPINS_PTA18,
-    FTM_FAULTPINS_PTA19,
-
-    FTM_FAULTPINS_PTB1,
-    FTM_FAULTPINS_PTB2,
-    FTM_FAULTPINS_PTB3,
-    FTM_FAULTPINS_PTB10,
-    FTM_FAULTPINS_PTB11,
-
-    FTM_FAULTPINS_PTC0,
-    FTM_FAULTPINS_PTC9,
-    FTM_FAULTPINS_PTC12,
-
-    FTM_FAULTPINS_PTD6,
-    FTM_FAULTPINS_PTD7,
-
-    FTM_FAULTPINS_PTE16,
-
-    FTM_FAULTPINS_STOP,
-} Ftm_FaultPins;
-
+#include "hardware/PIC24FJ/timer_PIC24FJ.h"
 
 #else
 
-typedef enum
+typedef enum _Timer_Channels
 {
-	FTM_PINS_PTE5,
-	FTM_PINS_PTE6,
-	
-    FTM_PINS_PTA0,
-    FTM_PINS_PTA1,
-    FTM_PINS_PTA2,
-    FTM_PINS_PTA3,
-    FTM_PINS_PTA4,
-    FTM_PINS_PTA5,
-    FTM_PINS_PTA12,
-    FTM_PINS_PTA13,
-    FTM_PINS_PTA18,
+    TIMER_CHANNELS_NONE,
+} Timer_Channels;
 
-    FTM_PINS_PTB0,
-    FTM_PINS_PTB1,
-    FTM_PINS_PTB18,
-    FTM_PINS_PTB19,
-
-    FTM_PINS_PTC1,
-    FTM_PINS_PTC2,
-    FTM_PINS_PTC3,
-    FTM_PINS_PTC4,
-    FTM_PINS_PTC5,
-    FTM_PINS_PTC8,
-    FTM_PINS_PTC9,
-    FTM_PINS_PTC10,
-    FTM_PINS_PTC11,
-    
-    FTM_PINS_PTD0,
-    FTM_PINS_PTD1,
-    FTM_PINS_PTD2,
-    FTM_PINS_PTD3,    
-    FTM_PINS_PTD4,
-    FTM_PINS_PTD5,
-    FTM_PINS_PTD6,
-    FTM_PINS_PTD7,
-
-    FTM_PINS_PTE20,
-    FTM_PINS_PTE21,
-    FTM_PINS_PTE24,
-    FTM_PINS_PTE25,
-    FTM_PINS_PTE29,
-    FTM_PINS_PTE30,
-
-    FTM_PINS_STOP,
-} Ftm_Pins;
-
-typedef enum
+typedef enum _Timer_Pins
 {
-    FTM_FAULTPINS_PTA4,
-    FTM_FAULTPINS_PTA18,
-    FTM_FAULTPINS_PTA19,
-
-    FTM_FAULTPINS_PTB1,
-    FTM_FAULTPINS_PTB2,
-    FTM_FAULTPINS_PTB3,
-    FTM_FAULTPINS_PTB4,
-    FTM_FAULTPINS_PTB5,
-    FTM_FAULTPINS_PTB10,
-    FTM_FAULTPINS_PTB11,
-
-    FTM_FAULTPINS_PTC0,
-    FTM_FAULTPINS_PTC3,
-#if defined (LIBOHIBOARD_K64F12)
-    FTM_FAULTPINS_PTC9,
-#endif
-    FTM_FAULTPINS_PTC12,
-
-    FTM_FAULTPINS_PTD6,
-    FTM_FAULTPINS_PTD7,
-    FTM_FAULTPINS_PTD12,
-
-    FTM_FAULTPINS_PTE16,
-
-    FTM_FAULTPINS_STOP,
-} Ftm_FaultPins;
-
-#endif
-
-typedef enum
-{
-    FTM_CHANNELS_CH0,
-    FTM_CHANNELS_CH1,
-    FTM_CHANNELS_CH2,
-    FTM_CHANNELS_CH3,
-    FTM_CHANNELS_CH4,
-    FTM_CHANNELS_CH5,
-    FTM_CHANNELS_CH6,
-    FTM_CHANNELS_CH7,
-} Ftm_Channels;
-
-
-typedef enum
-{
-    FTM_TRIGGER_CH0  = 4,
-    FTM_TRIGGER_CH1  = 5,
-    FTM_TRIGGER_CH2  = 0,
-    FTM_TRIGGER_CH3  = 1,
-    FTM_TRIGGER_CH4  = 2,
-    FTM_TRIGGER_CH5  = 3,
-    FTM_TRIGGER_NOCH = 6,
-
-} Ftm_TriggerChannel;
-
-typedef enum
-{
-    FTM_FAULTCHANNELS_0    = 0,
-    FTM_FAULTCHANNELS_1    = 1,
-    FTM_FAULTCHANNELS_2    = 2,
-    FTM_FAULTCHANNELS_3    = 3,
-    FTM_FAULTCHANNELS_NONE = 4,
-
-} Ftm_FaultChannels;
-
-typedef enum
-{
-    FTM_FAULTMODE_DISABLE     = 0,
-    FTM_FAULTMODE_ONLYEVEN    = 1,
-    FTM_FAULTMODE_MANUALCLEAR = 2,
-    FTM_FAULTMODE_AUTOCLEAR   = 3,
-
-} Ftm_FaultMode;
-
-typedef enum
-{
-    FTM_FAULTPOLARITY_HIGH = 0,
-    FTM_FAULTPOLARITY_LOW  = 1,
-
-} Ftm_FaultPolarity;
-
-/**
- * Synchronization Type (see RM at page 972)
- */
-typedef enum
-{
-    FTM_SYNCEVENT_COUNT_MIN   = 0x01,
-    FTM_SYNCEVENT_COUNT_MAX   = 0x02,
-    FTM_SYNCEVENT_RE_INIT     = 0x04,
-    FTM_SYNCEVENT_OUTPUT_MASK = 0x08,
-    FTM_SYNCEVENT_TRIG0       = 0x10,
-    FTM_SYNCEVENT_TRIG1       = 0x20,
-    FTM_SYNCEVENT_TRIG2       = 0x40,
-} Ftm_SyncEvent;
-
-void FTM0_IRQHandler (void);
-void FTM1_IRQHandler (void);
-void FTM2_IRQHandler (void);
-void FTM3_IRQHandler (void);
-
-extern Ftm_DeviceHandle OB_FTM0;
-extern Ftm_DeviceHandle OB_FTM1;
-extern Ftm_DeviceHandle OB_FTM2;
-extern Ftm_DeviceHandle OB_FTM3;
-
-typedef enum
-{
-    FTM_COMBINECHANNELALIGN_NEGATIVE = 0,
-    FTM_COMBINECHANNELALIGN_POSITIVE = 1,
-} Ftm_CombineChannelAlign;
-
-typedef enum
-{
-    FTM_COMBINECHANNELPAIR_0_1 = 0,
-    FTM_COMBINECHANNELPAIR_2_3 = 1,
-    FTM_COMBINECHANNELPAIR_4_5 = 2,
-    FTM_COMBINECHANNELPAIR_6_7 = 3,
-} Ftm_CombineChannelPair;
-
-typedef enum
-{
-    FTM_COMBINERELOAD_NONE    = 0,
-    FTM_COMBINERELOAD_CH_LOW  = 1,
-    FTM_COMBINERELOAD_CH_HIGH = 2,
-    FTM_COMBINERELOAD_BOTH    = 3,
-} Ftm_CombineReload;
-
-typedef struct _Ftm_CombineChannelConfig
-{
-    Ftm_CombineChannelPair pair;
-    Ftm_CombineChannelAlign align;
-
-    Ftm_CombineReload reload;
-
-    bool enableDeadTime;
-    bool enableSynchronization;
-    bool enableComplementary;
-    bool enableFaultInterrupt;
-
-} Ftm_CombineChannelConfig;
-
-typedef struct _Ftm_FaultConfig
-{
-    Ftm_FaultPins pin;
-    bool enableFilter;
-    Ftm_FaultPolarity polarity;
-
-} Ftm_FaultConfig;
-
-#endif
+    TIMER_PINS_NONE,
+} Timer_Pins;
 
 #endif
 
@@ -807,13 +243,20 @@ typedef struct _Timer_Config
     Timer_Mode mode;                                /**< Modes of operations. */
     
     uint32_t modulo;             /**< The modulo value for the timer counter. */
+    
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    /**< A fixed prescaler value for the timer counter. */
+    Timer_ClockPrescaler prescaler;
+#else
     uint32_t prescaler;       /**< The prescaler value for the timer counter. */
+#endif
 
     uint32_t timerFrequency;                            /**< Timer frequency. */
     
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
 
     Timer_ClockSource clockSource;                 /**< Selected clock source */
+
 #if defined (LIBOHIBOARD_STM32L4)
     Timer_ClockPolarity clockPolarity;             /**< Clock source polarity */
     Timer_ClockPrescaler clockPrescaler;          /**< Clock source prescaler */
@@ -933,6 +376,8 @@ typedef enum _Timer_OutputCompareMode
 
 #endif
 
+    TIMER_OUTPUTCOMPAREMODE_NONE,
+            
 } Timer_OutputCompareMode;
 
 typedef struct _Timer_OutputCompareConfig
@@ -1065,6 +510,8 @@ typedef enum _Timer_InputCapturePolarity
     TIMER_INPUTCAPTUREPOLARITY_BOTH    = (TIM_CCER_CC1P | TIM_CCER_CC1NP),
 
 #endif
+            
+    TIMER_INPUTCAPTUREPOLARITY_NONE,
 
 } Timer_InputCapturePolarity;
 
@@ -1077,6 +524,8 @@ typedef enum _Timer_InputCapturePrescaler
     TIMER_INPUTCAPTUREPRESCALER_DIV4  = TIM_CCMR1_IC1PSC_1,
     TIMER_INPUTCAPTUREPRESCALER_DIV8  = TIM_CCMR1_IC1PSC,
 #endif
+            
+    TIMER_INPUTCAPTUREPRESCALER_NONE,
 
 } Timer_InputCapturePrescaler;
 
@@ -1088,6 +537,8 @@ typedef enum _Timer_InputCaptureSelection
     TIMER_INPUTCAPTURESELECTION_INDIRECT = TIM_CCMR1_CC1S_1,
     TIMER_INPUTCAPTURESELECTION_TRC      = TIM_CCMR1_CC1S,
 #endif
+
+    TIMER_INPUTCAPTURESELECTION_NONE,
 
 } Timer_InputCaptureSelection;
 

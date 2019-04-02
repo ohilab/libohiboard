@@ -40,9 +40,9 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 
-#define LIBOHIBOARD_VERSION_MAJOR         (0x2u)
-#define LIBOHIBOARD_VERSION_MINOR         (0x0u)
-#define LIBOHIBOARD_VERSION_BUG           (0x0u)
+#define LIBOHIBOARD_VERSION_MAJOR         (0x2ul)
+#define LIBOHIBOARD_VERSION_MINOR         (0x0ul)
+#define LIBOHIBOARD_VERSION_BUG           (0x0ul)
 #define LIBOHIBOARD_VERSION               ((LIBOHIBOARD_VERSION_MAJOR << 16)\
                                           |(LIBOHIBOARD_VERSION_MINOR << 8 )\
                                           |(LIBOHIBOARD_VERSION_BUG        ))
@@ -54,11 +54,25 @@ System_Errors System_controlDevice (void);
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
 
+// propostra pe poter determinmare systick period, ovvero via macros
+#define LIBOHIBOARD_SYSTEM_TICK_100_MICROSEC  10000ul
+#define LIBOHIBOARD_SYSTEM_TICK_1_MILLISEC     1000ul
+#define LIBOHIBOARD_SYSTEM_TICK_10_MILLISEC     100ul
+
+#ifndef LIBOHIBOARD_SYSTEM_TICK
+#define LIBOHIBOARD_SYSTEM_TICK   LIBOHIBOARD_SYSTEM_TICK_1_MILLISEC
+#endif
+
+
+
+
 /**
  * Initialize and start the System Tick with interrupt enabled
  * Counter is in free running mode to generate periodic interrupts.
  *
  * @note This function is called automatically from @ref System_sysickInit
+ * 
+ * @note This function, for Microchip PIC microcontroller uses physical 32bit timer.
  *
  * @param[in] ticks Specifies the ticks number between two interrupts.
  * @return ERRORS_NO_ERROR when function succeeded.
@@ -71,6 +85,8 @@ System_Errors System_systickConfig (uint32_t ticks);
  * timer to have 1ms time base.
  *
  * @note This function is called automatically from @ref Clock_init
+ * 
+ * @note This function, for Microchip PIC microcontroller uses physical 32bit timer.
  *
  * @param[in] priority Tick interrupt priority
  * @return ERRORS_NO_ERROR when function succeeded.
@@ -91,10 +107,20 @@ uint32_t System_currentTick (void);
  */
 void System_delay (uint32_t msec);
 
+
+/**
+ * This function provides delay in milliseconds from a given time tick previously taken.
+ * The delay is blocking.
+ * @param[in] msec The delay time length in millisecond
+ */
+void System_delayFrom (uint32_t from, uint32_t msec);
+
+#if !defined (LIBOHIBOARD_MICROCHIP_PIC)
 /**
  * Interrupt handler for SysTick interrupt.
  */
-void SysTick_Handler(void);
+void SysTick_Handler (void)
+#endif
 
 /**
  * Suspend Tick increment.
@@ -105,6 +131,21 @@ void System_suspendTick (void);
  * Resume Tick increment.
  */
 void System_resumeTick (void);
+
+
+/**
+ * Force to be ON the configuration of MCUDBG peripheral to force clock to MCU on low power states.\n
+ * MCUDBG on is generally default behaviour when debugger session is active.\n
+ * This can be reset only by MCU power cycle.
+ */
+void System_forceEnableDebug(void);
+
+/**
+ * Force to be OFF the configuration of MCUDBG peripheral to force clock to MCU on low power states.\n
+ * MCUDBG on is generally default behaviour when debugger session is active.\n
+ * This can be reset only by MCU power cycle.
+ */
+void System_forceDisableDebug(void);
 
 /**
  * Resume the HAL version.

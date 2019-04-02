@@ -1,0 +1,143 @@
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ *
+ * Authors:
+ *   Marco Giammarini <m.giammarini@warcomeb.it>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/**
+ * @file libohiboard/include/hardware/PIC24FJ/adc_PIC24FJ.h
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief ADC pins and device definitions for PIC24FJ series
+ */
+
+#ifndef __ADC_PIC24FJ_H
+#define __ADC_PIC24FJ_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "platforms.h"
+
+#if defined(LIBOHIBOARD_ADC) & defined(LIBOHIBOARD_PIC24FJ)
+
+typedef enum _Adc_Pins
+{
+#if defined (LIBOHIBOARD_PIC24FJxGA610) || \
+    defined (LIBOHIBOARD_PIC24FJxGB610)
+
+    ADC_PINS_PA6,
+    ADC_PINS_PA7,
+
+#endif
+
+    ADC_PINS_PB0,
+    ADC_PINS_PB1,
+    ADC_PINS_PB2,
+    ADC_PINS_PB3,
+    ADC_PINS_PB4,
+    ADC_PINS_PB5,
+    ADC_PINS_PB6,
+    ADC_PINS_PB7,
+    ADC_PINS_PB8,
+    ADC_PINS_PB9,
+    ADC_PINS_PB10,
+    ADC_PINS_PB11,
+    ADC_PINS_PB12,
+    ADC_PINS_PB13,
+    ADC_PINS_PB14,
+    ADC_PINS_PB15,
+            
+#if defined (LIBOHIBOARD_PIC24FJxGA610) || \
+    defined (LIBOHIBOARD_PIC24FJxGB610)
+
+    ADC_PINS_PC4,
+
+    ADC_PINS_PE9,
+
+    ADC_PINS_PG6,
+    ADC_PINS_PG7,
+    ADC_PINS_PG8,
+    ADC_PINS_PG9,
+
+#endif
+            
+    ADC_PINS_INTERNAL,
+
+} Adc_Pins;
+
+typedef enum _Adc_Channels
+{
+    ADC_CHANNELS_CH0     = 0x0000,
+    ADC_CHANNELS_CH1     = _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH2     = _AD1CHS0_CH0SA1_MASK,
+    ADC_CHANNELS_CH3     = _AD1CHS0_CH0SA1_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH4     = _AD1CHS0_CH0SA2_MASK,
+    ADC_CHANNELS_CH5     = _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH6     = _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK,
+    ADC_CHANNELS_CH7     = _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH8     = _AD1CHS0_CH0SA3_MASK,
+    ADC_CHANNELS_CH9     = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH10    = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA1_MASK,
+    ADC_CHANNELS_CH11    = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA1_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH12    = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK,
+    ADC_CHANNELS_CH13    = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH14    = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK,
+    ADC_CHANNELS_CH15    = _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH16    = _AD1CHS0_CH0SA4_MASK,
+    ADC_CHANNELS_CH17    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH18    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA1_MASK,
+    ADC_CHANNELS_CH19    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA1_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH20    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA2_MASK,
+    ADC_CHANNELS_CH21    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_CH22    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK,
+    ADC_CHANNELS_CH23    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_BANDGAP = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK,
+    ADC_CHANNELS_AVSS    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA0_MASK,
+    ADC_CHANNELS_AVDD    = _AD1CHS0_CH0SA4_MASK | _AD1CHS0_CH0SA3_MASK | _AD1CHS0_CH0SA2_MASK | _AD1CHS0_CH0SA1_MASK,
+    
+} Adc_Channels;
+
+typedef enum _Adc_ChannelsMux
+{
+    ADC_CHANNELSMUX_A = 0,
+    ADC_CHANNELSMUX_B = _AD1CHS0_CH0SB0_POSITION,
+} Adc_ChannelsMux;
+
+#if defined (LIBOHIBOARD_PIC24FJxGA606) || \
+    defined (LIBOHIBOARD_PIC24FJxGA610) || \
+    defined (LIBOHIBOARD_PIC24FJxGB606) || \
+    defined (LIBOHIBOARD_PIC24FJxGB610)
+
+extern Adc_DeviceHandle OB_ADC1;
+
+#endif
+
+#endif // LIBOHIBOARD_ADC & LIBOHIBOARD_PIC24FJ
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __ADC_PIC24FJ_H
