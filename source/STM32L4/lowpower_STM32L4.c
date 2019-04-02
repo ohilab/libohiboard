@@ -91,7 +91,7 @@ static LowPower_Device lpd =
 
 		.resetControl =
 		{
-		                .value = 0,
+		    .value = 0,
 		},
 };
 
@@ -332,23 +332,33 @@ static System_Errors LowPower_enterMode (LowPower_Mode mode)
 		System_resumeTick();
 		break;
 	case LOWPOWER_MODE_STOP0:
+	    System_suspendTick();
 		LowPower_enterStopMode(0, LOWPOWER_WAITFOR_INTERRUPT);
+		System_resumeTick();
 		break;
 	case LOWPOWER_MODE_STOP1:
+	    System_suspendTick();
 		LowPower_enableLowPowerRunMode();
 		LowPower_enterStopMode(1, LOWPOWER_WAITFOR_INTERRUPT);
+		System_resumeTick();
 		break;
 	case LOWPOWER_MODE_STOP2:
+	    System_suspendTick();
 		LowPower_enableLowPowerRunMode();
 		LowPower_enterStopMode(2, LOWPOWER_WAITFOR_INTERRUPT);
+		System_resumeTick();
 		break;
 	case LOWPOWER_MODE_STANDBY:
+	    System_suspendTick();
 		LowPower_enableLowPowerRunMode();
 		LowPower_enterStandbyMode();
+		System_resumeTick();
 		break;
 	case LOWPOWER_MODE_SHUTDOWN:
+	    System_suspendTick();
 		LowPower_enableLowPowerRunMode();
 		LowPower_enterShutdownMode();
+		System_resumeTick();
 		break;
 	}
 
@@ -484,7 +494,7 @@ System_Errors LowPower_setModeByConfiguration (Clock_Config* config, LowPower_Mo
 	}
 	if (((mode == LOWPOWER_MODE_LPRUN) || (mode == LOWPOWER_MODE_LPSLEEP)))
 	{
-		ohiassert(LOWPOWER_IS_VALID_CLOCK(config->foutSys));
+        ohiassert(LOWPOWER_IS_VALID_CLOCK( Clock_getOutputValue(CLOCK_OUTPUT_HCLK) )  );
 	}
 	if (err != ERRORS_NO_ERROR)
 	{

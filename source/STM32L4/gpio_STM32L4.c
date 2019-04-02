@@ -355,6 +355,11 @@ void Gpio_disablePortClock (Gpio_Ports port)
 
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
 {
+    if(pin == GPIO_PINS_NONE)
+    {
+        return; //ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_TypeDef* port;
     uint32_t temp = 0x00;
     // Pin number into the current port
@@ -441,6 +446,11 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_TypeDef* port;
     uint32_t temp = 0x00;
 
@@ -518,33 +528,47 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
 void Gpio_set (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-    port->BSRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+        port->BSRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 void Gpio_clear (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-    port->BRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+        port->BRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 void Gpio_toggle (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-    port->ODR ^= GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+        port->ODR ^= GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 Gpio_Level Gpio_get (Gpio_Pins pin)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return GPIO_TOGGLE;
+    }
+
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
@@ -554,6 +578,11 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
 
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
     if (pin >= GPIO_AVAILABLE_PINS_COUNT)

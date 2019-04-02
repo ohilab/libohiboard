@@ -642,14 +642,27 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLREN);
         }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLREN);
+        }
         if ((config->output & CLOCK_OUTPUT_PLLQ) && (config->pll.dividerQ != CLOCK_PLLDIVIDER_Q_DISABLED))
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLQEN);
+        }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLQEN);
         }
         if ((config->output & CLOCK_OUTPUT_PLLP) && (config->pll.dividerP != CLOCK_PLLDIVIDER_P_DISABLED))
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLPEN);
         }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLCFGR,RCC_PLLCFGR_PLLPEN);
+        }
+
         //6. Wait until PLLRDY is set. The PLL is now running.
         if ((config->output & CLOCK_OUTPUT_PLLR) || (config->output & CLOCK_OUTPUT_PLLQ) || (config->output & CLOCK_OUTPUT_PLLP))
         {
@@ -695,21 +708,41 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1REN);
         }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1REN);
+        }
         if ((config->output & CLOCK_OUTPUT_PLLSAI1Q) && (config->pllSai1.dividerQ != CLOCK_PLLDIVIDER_Q_DISABLED))
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1QEN);
+        }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1QEN);
         }
         if ((config->output & CLOCK_OUTPUT_PLLSAI1P) && (config->pllSai1.dividerP != CLOCK_PLLDIVIDER_P_DISABLED))
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1PEN);
         }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR,RCC_PLLSAI1CFGR_PLLSAI1PEN);
+        }
         if ((config->output & CLOCK_OUTPUT_PLLSAI2R) && (config->pllSai2.dividerR != CLOCK_PLLDIVIDER_R_DISABLED))
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2REN);
         }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2REN);
+        }
         if ((config->output & CLOCK_OUTPUT_PLLSAI2P) && (config->pllSai2.dividerP != CLOCK_PLLDIVIDER_P_DISABLED))
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2PEN);
+        }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2PEN);
         }
         //6a. Wait until PLLSAI1RDY is set. The PLLSAI1 is now running.
         if ((config->output & CLOCK_OUTPUT_PLLSAI1R) ||

@@ -149,7 +149,7 @@ typedef struct _Uart_Device
     Gpio_Alternate txPinsMux[UART_MAX_PINS];
 
     Uart_ClockSource clockSource;
-    bool oversmpling8;
+    bool oversampling8;
 
     Uart_DataBits databits;
     Uart_ParityMode parity;
@@ -560,15 +560,16 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
         break;
     }
 
-    // Set oversampling: if value differ from 8, use default value.
+    // Set oversampling: if value differs from 8, use default value.
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_OVER8_Msk));
     if (config->oversampling == 8)
     {
         dev->regmap->CR1 |= USART_CR1_OVER8_Msk;
-        dev->oversmpling8 = TRUE;
+        dev->oversampling8 = TRUE;
     }
+    else
     {
-        dev->oversmpling8 = FALSE;
+        dev->oversampling8 = FALSE;
     }
 
     // Configure stop bits with STOP[13:12] bits into CR2
@@ -675,7 +676,7 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 
             }
         }
-        else if (dev->oversmpling8)
+        else if (dev->oversampling8)
         {
             uint32_t uartdiv = (frequency * 2u) / baudrate;
             if ((uartdiv >= UART_BRR_MIN) && (uartdiv <= UART_BRR_MAX))

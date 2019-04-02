@@ -496,7 +496,14 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time)
                   (((dev->hourFormat == RTC_HOURFORMAT_12H) && (isPM)) ? RTC_TR_PM_Msk : 0 ));
 
     // Only dozen and unit for year
-    mydate.year -= 2000;
+    if (mydate.year >= 2000)
+    {
+        mydate.year -= 2000;
+    }
+    else
+    {
+        mydate.year -= 1900;
+    }
 
     tmpregDate = (((uint32_t)Utility_byteToBcd2(mydate.year)  << 16) | \
                   ((uint32_t)Utility_byteToBcd2(mydate.month) << 8)  | \
@@ -551,8 +558,8 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time)
 
 Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
 {
-    Time_DateType mydate;
-    Time_TimeType mytime;
+    Time_DateType mydate = {0};
+    Time_TimeType mytime = {0};
 
     System_Errors err = ERRORS_NO_ERROR;
     // Check the RTC device
@@ -590,7 +597,8 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
     mydate.month = (uint8_t)((tmpregDate & (RTC_DR_MT_Msk | RTC_DR_MU_Msk)) >> 8);
     mydate.day   = (uint8_t)(tmpregDate  & (RTC_DR_DT_Msk | RTC_DR_DU_Msk));
     // Convert BCD to binary
-    mydate.year  = (uint16_t)Utility_bcd2ToByte((uint8_t)mydate.year) + 2000;
+    uint16_t year = (uint16_t)Utility_bcd2ToByte((uint8_t)mydate.year);
+    mydate.year  = (year >= 70) ? (year + 1900) : (year + 2000);
     mydate.month = Utility_bcd2ToByte(mydate.month);
     mydate.day   = Utility_bcd2ToByte(mydate.day);
 
