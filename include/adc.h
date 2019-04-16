@@ -1075,7 +1075,12 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev);
 	defined (LIBOHIBOARD_KL03Z4)    || \
     defined (LIBOHIBOARD_KL15Z4)
 
-extern Adc_DeviceHandle ADC0;
+/* Bandgap value */
+#define ADC_BGR_mV               1000
+
+void ADC0_IRQHandler();
+
+extern Adc_DeviceHandle OB_ADC0;
 
 #elif defined (LIBOHIBOARD_KL25Z4)    || \
 	  defined (LIBOHIBOARD_FRDMKL25Z)

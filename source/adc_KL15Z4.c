@@ -31,7 +31,8 @@
 #ifdef LIBOHIBOARD_ADC
 
 #include "platforms.h"
-#include "system.h"
+#include "interrupt.h"
+#include "clock.h"
 #include "adc.h"
 
 #if defined (LIBOHIBOARD_KL15Z4)
@@ -47,6 +48,10 @@ typedef struct Adc_Device {
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
+    void (*isr)(void);                     /**< The function pointer for ISR. */
+    void (*callback)(void);      /**< The function pointer for user callback. */
+    Interrupt_Vector isrNumber;                       /**< ISR vector number. */
+
     Adc_Pins pins[ADC_MAX_PINS];    /**< List of the pin for the FTM channel. */
     volatile uint32_t* pinsPtr[ADC_MAX_PINS];
     Adc_ChannelNumber channelNumber[ADC_MAX_PINS];
@@ -54,6 +59,8 @@ typedef struct Adc_Device {
     uint8_t pinMux[ADC_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
 
     uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+    /** Indicate that device require calibration on Adc_readValue. */
+    uint8_t devCalibration;
 } Adc_Device;
 
 static Adc_Device adc0 = {
@@ -168,9 +175,13 @@ static Adc_Device adc0 = {
                              ADC_CHL_B,
         },
 
-        .devInitialized = 0,
+        .isr              = ADC0_IRQHandler,
+        .isrNumber        = INTERRUPT_ADC0,
+
+	    .devInitialized = 0,
+	    .devCalibration = 0,
 };
-Adc_DeviceHandle ADC0 = &adc0;
+Adc_DeviceHandle OB_ADC0 = &adc0;
 
 /**
  * This function initialize the ADC device and setup operational mode.
@@ -178,7 +189,7 @@ Adc_DeviceHandle ADC0 = &adc0;
  * @param dev Adc device handle to be synchronize.
  * @return A System_Errors elements that indicate the status of initialization.
  */
-System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
+System_Errors Adc_init (Adc_DeviceHandle dev, void* callback, Adc_Config *config)
 {
     ADC_MemMapPtr regmap = dev->regMap;
     System_Errors errore = ERRORS_NO_ERROR;
@@ -189,7 +200,19 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     /* Enable the clock to the selected ADC */
     *dev->simScgcPtr |= dev->simScgcBitEnable;
 
+    /* Disable conversion */
+    ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(ADC_CH_DISABLE);
+
+    /* If call back exist save it */
+    if (callback)
+    {
+        dev->callback = callback;
+        /* Enable interrupt */
+        Interrupt_enable(dev->isrNumber);
+    }
+
     /*setting clock source and divider*/
+    ADC_CFG1_REG(regmap) &= ~ADC_CFG1_ADIV_MASK;
     switch (config->clkDiv)
     {
     case 1:
@@ -208,6 +231,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     	return errore = ERRORS_ADC_DIVIDER_NOT_FOUND;
     }
 
+    ADC_CFG1_REG(regmap) &= ~ADC_CFG1_ADICLK_MASK;
     switch (config->clkSource)
     {
     case ADC_BUS_CLOCK:
@@ -225,6 +249,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     }
 
     /*Setting Sample Time*/
+    ADC_CFG1_REG(regmap) &= ~(ADC_CFG1_ADLSMP_MASK | ADC_CFG2_ADLSTS_MASK);
     switch (config->sampleLength)
     {
     case ADC_SHORT_SAMPLE:
@@ -271,6 +296,7 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     }
 
     /*setting resoluton*/
+    ADC_CFG1_REG(regmap) &= ~ADC_CFG1_MODE_MASK;
     switch (config->resolution)
     {
     case ADC_RESOLUTION_8BIT:
@@ -288,17 +314,19 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
 	}
 
     /* Select voltage reference*/
+    ADC_SC2_REG(regmap) &= ~ADC_SC2_REFSEL_MASK;
     switch (config->voltRef)
     {
     case ADC_VREF:
-    	ADC_SC2_REG(regmap) = ADC_SC2_REFSEL(0);
+    	ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(0);
         break;
     case ADC_VALT:
-    	ADC_SC2_REG(regmap) = ADC_SC2_REFSEL(1);
+    	ADC_SC2_REG(regmap) |= ADC_SC2_REFSEL(1);
         break;
     }
 
     /* Select the average */
+    ADC_SC3_REG(regmap) &= ~(ADC_SC3_AVGE_MASK | ADC_SC3_AVGS_MASK);
     switch (config->average)
     {
     case ADC_AVERAGE_1_SAMPLES:
@@ -306,20 +334,27 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config *config)
     	ADC_SC3_REG(regmap) &= ~ADC_SC3_AVGE_MASK;
         break;
     case ADC_AVERAGE_4_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0);
         break;
     case ADC_AVERAGE_8_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(1);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(1);
         break;
     case ADC_AVERAGE_16_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(2);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(2);
         break;
     case ADC_AVERAGE_32_SAMPLES:
-        ADC_SC3_REG(regmap) = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
+        ADC_SC3_REG(regmap) |= ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(3);
         break;
     }
 
-//    Adc_enablePin (dev, config->adcPin);
+    if (config->enableHwTrigger)
+        ADC_SC2_REG(dev->regMap) |= ADC_SC2_ADTRG_MASK;
+    else
+        ADC_SC2_REG(dev->regMap) &= ~ADC_SC2_ADTRG_MASK;
+
+    /* Calibration flag */
+    if (config->doCalibration)
+        Adc_calibration(dev);
 
     dev->devInitialized = 1;
 
@@ -345,11 +380,14 @@ void Adc_enablePin (Adc_DeviceHandle dev, Adc_Pins pin)
 
 System_Errors Adc_readValue (Adc_DeviceHandle dev,
                              Adc_ChannelNumber channel,
-                             uint16_t *value)
+                             uint16_t *value,
+                             Adc_InputType type)
 {
     ADC_MemMapPtr regmap = dev->regMap;
     uint8_t channelIndex;
     Adc_ChannelMux channelMux;
+
+    if (!dev->devInitialized) return ERRORS_ADC_DEVICE_NOT_INIT;
 
     if (channel != ADC_CH_DISABLE)
     {
@@ -370,6 +408,20 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
         else
             ADC_CFG2_REG(regmap) |= ADC_CFG2_MUXSEL_MASK;
 
+        /* Set single-ended or differential input mode! */
+        ADC_SC1_REG(regmap,0) |= ((type << ADC_SC1_DIFF_SHIFT) & ADC_SC1_DIFF_MASK);
+
+        /*
+         * If is there a callback, enable interrupt and go out!
+         */
+        if(dev->callback)
+        {
+            ADC_SC1_REG(regmap,0) &= ~(ADC_SC1_AIEN_MASK | ADC_SC1_ADCH_MASK);
+            ADC_SC1_REG(regmap,0) |= ADC_SC1_AIEN_MASK | ADC_SC1_ADCH(channel);
+            *value = 0;
+            return ERRORS_NO_ERROR;
+        }
+
         /* Start conversion */
         ADC_SC1_REG(regmap,0) = ADC_SC1_ADCH(channel);
 
@@ -388,6 +440,17 @@ System_Errors Adc_readValue (Adc_DeviceHandle dev,
         *value = 0;
         return ERRORS_ADC_CHANNEL_WRONG;
     }
+}
+
+System_Errors Adc_readValueFromInterrupt (Adc_DeviceHandle dev, uint16_t *value)
+{
+    *value = (uint16_t) ADC_R_REG(dev->regMap,0);
+}
+
+System_Errors Adc_calibration (Adc_DeviceHandle dev)
+{
+    (void)dev;
+    return ERRORS_NO_ERROR;
 }
 
 #endif // LIBOHIBOARD_KL15Z4
