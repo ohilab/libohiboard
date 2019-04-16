@@ -1,10 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Leonardo Morichelli
  *  
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,37 +72,37 @@ static const char* Time_dayString[] =
 
 Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 {
-    Time_UnixTime result = 0;
-    
-    if (!(date->year % 4) && (date->month > 2)) result += TIME_SECOND_PER_DAY;
+    Time_UnixTime unixEpoch = 0;
+
+    if (!(date->year % 4) && (date->month > 2)) unixEpoch += TIME_SECOND_PER_DAY;
     date->month--;
-    
+
     /* Save seconds for the months of the current year */
     while (date->month)
     {
         date->month--;
-        result += Time_dayPerMonth[0][date->month] * TIME_SECOND_PER_DAY;
+        unixEpoch += Time_dayPerMonth[0][date->month] * TIME_SECOND_PER_DAY;
     }
-    
+
     /* Save seconds for past years */
-    result += (((date->year-TIME_UNIX_YEAR)*365) + ((date->year-TIME_UNIX_YEAR_LEAP)/4)) * (uint32_t)TIME_SECOND_PER_DAY;
+    unixEpoch += (((date->year-TIME_UNIX_YEAR)*365) + ((date->year-TIME_UNIX_YEAR_LEAP)/4)) * (uint32_t)TIME_SECOND_PER_DAY;
     /* Save seconds for the days of the current month */
-    result += (date->day-1) * (uint32_t)TIME_SECOND_PER_DAY;
+    unixEpoch += (date->day-1) * (uint32_t)TIME_SECOND_PER_DAY;
     /* Save seconds for the hours of the current day */
-    result += (time->hours) * (uint32_t)TIME_SECOND_PER_HOUR;
+    unixEpoch += (time->hours) * (uint32_t)TIME_SECOND_PER_HOUR;
     /* Save seconds for the minutes and seconds of the current hour */
-    result += (time->minutes * 60) + time->seconds;
-    
-    return result;
+    unixEpoch += (time->minutes * 60) + time->seconds;
+
+    return unixEpoch;
 }
 
-void Time_unixtimeToTime (Time_UnixTime unix, Time_DateType* date, Time_TimeType* time)
+void Time_unixtimeToTime (Time_UnixTime unixEpoch, Time_DateType* date, Time_TimeType* time)
 {
     uint32_t dayClock, dayNumber;
     uint16_t year = TIME_UNIX_YEAR;
 
-    dayClock = (uint32_t) unix % TIME_SECOND_PER_DAY; /* Seconds of actual day */
-    dayNumber = (uint32_t) unix / TIME_SECOND_PER_DAY;/* days from epoch year */
+    dayClock = (uint32_t) unixEpoch % TIME_SECOND_PER_DAY; /* Seconds of actual day */
+    dayNumber = (uint32_t) unixEpoch / TIME_SECOND_PER_DAY;/* days from epoch year */
 
     time->seconds = dayClock % 60;
     time->minutes = (dayClock % 3600) / 60;
@@ -127,12 +128,12 @@ void Time_unixtimeToTime (Time_UnixTime unix, Time_DateType* date, Time_TimeType
     date->wday++;
 }
 
-void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
+void Time_unixtimeToString (Time_UnixTime unixEpoch, char * dateString)
 {
     Time_DateType date;
     Time_TimeType time;
 
-    Time_unixtimeToTime(unix,&date,&time);
+    Time_unixtimeToTime(unixEpoch,&date,&time);
 
     strcpy(dateString,Time_dayString[(date.wday)-1]);
     dateString += 3;
@@ -224,12 +225,12 @@ void Time_unixtimeToString (Time_UnixTime unix, char * dateString)
     *dateString = '\0';
 }
 
-void Time_unixtimeToNumberString (Time_UnixTime unix, char * dateString, bool second)
+void Time_unixtimeToNumberString (Time_UnixTime unixEpoch, char * dateString, bool second)
 {
     Time_DateType date;
     Time_TimeType time;
 
-    Time_unixtimeToTime(unix,&date,&time);
+    Time_unixtimeToTime(unixEpoch,&date,&time);
 
     /* Day */
     if (date.day < 10)
