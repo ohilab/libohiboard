@@ -545,6 +545,16 @@ System_Errors Adc_poll (Adc_DeviceHandle dev, uint32_t timeout);
 int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref);
 
 /**
+ * Read and avarage the raw value of band gap.
+ * The number of averages is defined by @ref ADC_BADGAP_SAMPLE_NUMBER, the default 
+ * value is 16.
+ *
+ * @param[in] dev Adc device handle
+ * @return The raw value (based on bit configuration of ADC) of the band gap.
+ */
+uint16_t Adc_getBandGap (Adc_DeviceHandle dev);
+
+/**
  * @}
  */
 

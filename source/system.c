@@ -134,7 +134,7 @@ void SysTick_Handler (Timer_DeviceHandle dev)
     System_ticks++;
 }
 
-uint32_t System_currentTick ()
+uint32_t System_currentTick (void)
 {
     return System_ticks;
 }

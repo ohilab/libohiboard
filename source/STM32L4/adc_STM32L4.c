@@ -1257,6 +1257,12 @@ int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref)
               ADC_TEMPERATURE_CAL1;
 }
 
+uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
+{
+    // TODO: we must implements this function
+    return 0;
+}
+
 _weak void ADC1_2_IRQHandler (void)
 {
     Adc_callbackInterrupt(OB_ADC1);

@@ -1,10 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Leonardo Morichelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -72,6 +73,13 @@ typedef enum _Rtc_ClockSource
     RTC_CLOCK_LSI     = 0x2u,
     RTC_CLOCK_HSE_RTC = 0x3u,
 
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+    RTC_CLOCK_SOSC     = 0x00u,
+    RTC_CLOCK_LPRC     = 0x01u,
+    RTC_CLOCK_PWRLCLK  = 0x02u,
+    RTC_CLOCK_SYSCLK   = 0x03u,
+
 #endif
 
 } Rtc_ClockSource;
@@ -108,6 +116,32 @@ typedef enum _Rtc_OutputRemap
 
 } Rtc_OutputRemap;
 
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+typedef enum _Rtc_Output
+{
+    RTC_OUTPUT_DISABLED      = 0b111,
+    RTC_OUTPUT_TIMESTAMP_A   = 0b100,
+    RTC_OUTPUT_POWER_CONTROL = 0b011,
+    RTC_OUTPUT_RTC_INPUT_CLK = 0b010,
+    RTC_OUTPUT_SECOND_CLK    = 0b001,
+    RTC_OUTPUT_ALARM_EVT     = 0b000,
+} Rtc_Output;
+
+typedef enum _Rtc_Alarm_Mask
+{
+    RTC_MASK_EVERY_HALF_SECOND = 0b0000,
+    RTC_MASK_EVERY_SECOND      = 0b0000,
+    RTC_MASK_EVERY_10_SECONDS  = 0b0010,
+    RTC_MASK_EVERY_MINUTE      = 0b0011,
+    RTC_MASK_EVERY_10_MINUTES  = 0b0100,
+    RTC_MASK_EVERY_HOUR        = 0b0101,
+    RTC_MASK_ONCE_A_DAY        = 0b0110,
+    RTC_MASK_ONCE_A_WEEK       = 0b0111,
+    RTC_MASK_ONCE_A_MONTH      = 0b1000,
+    RTC_MASK_ONCE_A_YEAR       = 0b1001,
+} Rtc_Alarm_Mask;
+
 #endif // LIBOHIBOARD_ST_STM32
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
@@ -116,9 +150,17 @@ typedef struct _Rtc_Device* Rtc_DeviceHandle;
 typedef struct Rtc_Device* Rtc_DeviceHandle;
 #endif
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/rtc_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/STM32L4/rtc_STM32L4.h"
+
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/rtc_PIC24FJ.h"
 
 #else
 
@@ -148,17 +190,21 @@ typedef struct _Rtc_Config
 
     uint32_t alarm;
     void (*callbackAlarm)(void);    /**< The pointer for user alarm callback. */
-
     void (*callbackSecond)(void);  /**< The pointer for user second callback. */
 
 #elif defined (LIBOHIBOARD_ST_STM32)
 
     Rtc_HourFormat hourFormat;
-
     Rtc_OutputMode outputMode;
     Rtc_OutputType outputType;
     Rtc_OutputRemap outputRemap;
     Gpio_Level outputPolarity;
+
+#elif defined (LIBOHIBOARD_MICROCHIP_PIC)
+
+    Rtc_Output outputSignal;
+    Rtc_Alarm_Mask alarmMask;
+    void (*callbackAlarm)(void);
 
 #endif
 
@@ -223,13 +269,26 @@ void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 void Rtc_enableSecond (Rtc_DeviceHandle dev, void *callback);
 void Rtc_disableSecond (Rtc_DeviceHandle dev);
 
-#elif defined (LIBOHIBOARD_STM32L4)
+#elif defined (LIBOHIBOARD_STM32L0)
 
-void Rtc_enableAlam(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
+void Rtc_enableAlarm(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
 void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 
 void Rtc_enableWakeUp(Rtc_DeviceHandle dev, void *callback, uint32_t seconds);
 void Rtc_disableWakeUp (Rtc_DeviceHandle dev);
+
+#elif defined (LIBOHIBOARD_STM32L4)
+
+void Rtc_enableAlarm(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
+void Rtc_disableAlarm (Rtc_DeviceHandle dev);
+
+void Rtc_enableWakeUp(Rtc_DeviceHandle dev, void *callback, uint32_t seconds);
+void Rtc_disableWakeUp (Rtc_DeviceHandle dev);
+
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+void Rtc_enableAlarm(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm);
+void Rtc_disableAlarm (Rtc_DeviceHandle dev);
 
 #endif
 

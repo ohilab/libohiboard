@@ -119,7 +119,7 @@ void System_delayFrom (uint32_t from, uint32_t msec);
 /**
  * Interrupt handler for SysTick interrupt.
  */
-void SysTick_Handler (void)
+void SysTick_Handler (void);
 #endif
 
 /**

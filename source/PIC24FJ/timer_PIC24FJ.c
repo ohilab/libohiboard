@@ -371,7 +371,7 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
         *dev->tmrRegisterPtr = 0;
     }
     
-        // Check callback and enable interrupts
+    // Check callback and enable interrupts
     if (config->freeCounterCallback != 0)
     {
         // Save callback

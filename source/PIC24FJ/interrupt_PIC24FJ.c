@@ -52,7 +52,6 @@ extern "C" {
                                                 ((IRQ) != 80) && ((IRQ) != 92) && ((IRQ) != 93) && \
                                                 ((IRQ) != 100) && ((IRQ) != 103) && ((IRQ) != 104) && \
                                                 ((IRQ) != 105) && ((IRQ) != 107) && ((IRQ) != 108))
-#define INTERRUPT_IS_VALID_PRIORITY(PRIORITY)  ((PRIORITY >= 0x00u) && (PRIORITY <= 7))
 
 System_Errors Interrupt_enable (Interrupt_Vector vectorNumber)
 {

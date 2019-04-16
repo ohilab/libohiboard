@@ -72,11 +72,15 @@ extern "C" {
                                              ((CHANNEL) == ADC_CHANNELS_AVSS)    || \
                                              ((CHANNEL) == ADC_CHANNELS_AVDD))
 
+#if !defined(ADC_BADGAP_SAMPLE_NUMBER)
+#define ADC_BADGAP_SAMPLE_NUMBER         16
+#endif
+
 #if defined (LIBOHIBOARD_PIC24FJxGA606) || \
     defined (LIBOHIBOARD_PIC24FJxGB606)
-    
+
 #define ADC_MAX_PINS                     16
-    
+
 #elif defined (LIBOHIBOARD_PIC24FJxGA610) || \
       defined (LIBOHIBOARD_PIC24FJxGB610)
 
@@ -91,13 +95,13 @@ typedef struct _Adc_Device
 
     volatile uint16_t* pmdRegisterPtr;     /**< Register for device enabling. */
     uint16_t pmdRegisterEnable;        /**< Register mask for current device. */
-    
+
     Adc_Pins pins[ADC_MAX_PINS];      /**< List of the pin for the peripheral */
     Adc_Channels pinsChannel[ADC_MAX_PINS];
     Gpio_Pins pinsGpio[ADC_MAX_PINS];
 
     uint32_t samplingTime;
-    
+
     Interrupt_Vector isrNumber;
 
     Adc_DeviceState state;                      /**< Current peripheral state */
@@ -268,29 +272,29 @@ System_Errors Adc_init (Adc_DeviceHandle dev, Adc_Config* config)
         UTILITY_CLEAR_REGISTER_BIT(*dev->pmdRegisterPtr, dev->pmdRegisterEnable);
     }
     dev->state = ADC_DEVICESTATE_BUSY;
-    
+
     // Select voltage reference
     dev->regmap->AD1CON2 &= ~(_AD1CON2_PCVFG0_MASK | _AD1CON2_PCVFG1_MASK | _AD1CON2_NVCFG0_MASK);
     dev->regmap->AD1CON2 |= config->voltReference;
-    
+
     // Select clock source
     dev->regmap->AD1CON3 &= ~(_AD1CON3_ADRC_MASK);
     dev->regmap->AD1CON3 |= config->clockSource;
-    
+
     // Configure bit resolution
     dev->regmap->AD1CON1 &= ~(_AD1CON1_MODE12_MASK);
     dev->regmap->AD1CON1 |= config->resolution;
-    
+
     // Set T_AD value
     // Clear LSB part of the register
     dev->regmap->AD1CON3 &= 0xFF00;
     dev->regmap->AD1CON3 |= config->prescaler;
-    
+
     // Clear other registers
     dev->regmap->AD1CSSL = 0u;
     dev->regmap->AD1CHS = 0;
     dev->regmapANCFG->ANCFG = 0;
-    
+
     dev->state = ADC_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
 }
@@ -308,9 +312,6 @@ System_Errors Adc_deInit (Adc_DeviceHandle dev)
         return ERRORS_ADC_WRONG_DEVICE;
     }
 
-//    // Stop on-going conversion...
-//    Adc_stop(dev);
-
     // TODO: disable interrupt
 
     // TODO: Clear interrupt flags
@@ -324,7 +325,7 @@ System_Errors Adc_deInit (Adc_DeviceHandle dev)
     dev->regmap->AD1CSSL = 0u;
     dev->regmap->AD1CHS = 0;
     dev->regmapANCFG->ANCFG = 0;
-    
+
     // Disable peripheral clock
     UTILITY_SET_REGISTER_BIT(*dev->pmdRegisterPtr, dev->pmdRegisterEnable);
 
@@ -382,7 +383,7 @@ System_Errors Adc_configPin (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Ad
     // Clear channel bits, and set new channel number
     dev->regmap->AD1CHS &= ~(_AD1CHS_CH0SA_MASK);
     dev->regmap->AD1CHS |= channel;
-    
+
     return ERRORS_NO_ERROR;
 }
 
@@ -431,7 +432,7 @@ System_Errors Adc_stop (Adc_DeviceHandle dev)
 
     // Disable device
     ADC_DEVICE_DISABLE(dev->regmap);
-    
+
     return ERRORS_NO_ERROR;
 }
 
@@ -448,7 +449,7 @@ uint32_t Adc_read (Adc_DeviceHandle dev)
         return ERRORS_ADC_WRONG_DEVICE;
     }
 
-    return dev->regmap->ADC1BUF[0];
+    return (uint32_t) dev->regmap->ADC1BUF[0];
 }
 
 System_Errors Adc_poll (Adc_DeviceHandle dev, uint32_t timeout)
@@ -484,6 +485,45 @@ int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref)
 {
     // NOT USED
     return 0;
+}
+
+uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
+{
+    if (dev->state != ADC_DEVICESTATE_READY)
+        return 0.0;
+
+    uint16_t adcVbg = 0;
+    float adcVbgAvarage = 0.0f;
+    Adc_ChannelConfig confVbg = 
+    {
+        .isInternal   = TRUE,
+        .channel      = ADC_CHANNELS_BANDGAP,
+        .samplingTime = 1, // ms
+        .type         = ADC_INPUTTYPE_SINGLE_ENDED,
+    };
+
+    // Enable bandgap
+    UTILITY_SET_REGISTER_BIT(dev->regmapANCFG->ANCFG,_ANCFG_VBGEN_MASK);
+    UTILITY_SET_REGISTER_BIT(dev->regmapANCFG->ANCFG,_ANCFG_VBGADC_MASK);
+
+    Adc_configPin(dev,&confVbg,ADC_PINS_INTERNAL);
+
+    for (uint8_t i = 0; i < ADC_BADGAP_SAMPLE_NUMBER; ++i)
+    {
+        Adc_start(dev);
+        if (Adc_poll(dev,500) != ERRORS_ADC_CONVERSION_DONE)
+            return 0.0;
+        else
+            adcVbg = (uint16_t) Adc_read(dev);
+
+        Adc_stop(dev);
+        adcVbgAvarage += adcVbg;
+    }
+    // switch off bandgap
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmapANCFG->ANCFG,_ANCFG_VBGEN_MASK);
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmapANCFG->ANCFG,_ANCFG_VBGADC_MASK);
+
+    return (uint16_t) (adcVbgAvarage / ADC_BADGAP_SAMPLE_NUMBER);
 }
 
 #endif // LIBOHIBOARD_PIC24FJ

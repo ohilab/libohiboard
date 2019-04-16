@@ -41,6 +41,8 @@ extern "C" {
 #include "platforms.h"
 
 #if defined(LIBOHIBOARD_PIC24FJ)
+    
+#define INTERRUPT_IS_VALID_PRIORITY(PRIORITY)  ((PRIORITY >= 0x00u) && (PRIORITY <= 7))
 
 typedef enum  _Interrupt_Vector
 {

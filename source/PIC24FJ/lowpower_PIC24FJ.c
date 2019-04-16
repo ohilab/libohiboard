@@ -73,7 +73,7 @@ extern "C" {
  */
 typedef struct _LowPower_Device
 {
-    RESET_TypeDef* regmapRESET;
+    RSTCON_TypeDef* regmapRSTCON;
     CPU_TypeDef* regmapCPU;
 
     LowPower_Mode currentMode;
@@ -83,7 +83,7 @@ typedef struct _LowPower_Device
 
 static LowPower_Device lpd =
 {
-		.regmapRESET  = RESET,
+		.regmapRSTCON  = RSTCON,
         .regmapCPU = CPU,
 
 		.currentMode  = LOWPOWER_MODE_RUN,
@@ -99,10 +99,10 @@ static LowPower_Device lpd =
 static void LowPower_readResetStatus(void)
 {
     // Read Reset flags
-	lpd.resetControl.value = lpd.regmapRESET->RCON;
+	lpd.resetControl.value = lpd.regmapRSTCON->RCON;
 	
 	// Clear Reset flags
-	lpd.regmapRESET->RCON = 0;
+	lpd.regmapRSTCON->RCON = 0;
 }
 
 /**

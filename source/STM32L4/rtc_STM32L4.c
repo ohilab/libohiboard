@@ -605,7 +605,7 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
     return (Rtc_Time)Time_getUnixTime(&mydate,&mytime);
 }
 
-void Rtc_enableAlam(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm)
+void Rtc_enableAlarm(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm)
 {
 
 }

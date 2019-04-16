@@ -123,6 +123,11 @@ typedef enum _Uart_StopBits
 typedef enum _Uart_FlowControl
 {
     UART_FLOWCONTROL_NONE,
+            
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    UART_FLOWCONTROL_RTS,
+    UART_FLOWCONTROL_CTS_RTS,
+#endif
 
 #if defined (LIBOHIBOARD_ST_STM32)
     UART_FLOWCONTROL_CTS,
@@ -177,18 +182,41 @@ typedef enum _Uart_ClockSource
 
 #elif defined (LIBOHIBOARD_ST_STM32)
 
-    UART_CLOCKSOURCE_PCLK    = 0x00U,                 /**< PCLK clock source */
-    UART_CLOCKSOURCE_SYSCLK  = 0x01U,               /**< SYSCLK clock source */
-    UART_CLOCKSOURCE_HSI     = 0x02U,                  /**< HSI clock source */
-    UART_CLOCKSOURCE_LSE     = 0x03U,                  /**< LSE clock source */
+    UART_CLOCKSOURCE_PCLK    = 0x00u,                  /**< PCLK clock source */
+    UART_CLOCKSOURCE_SYSCLK  = 0x01u,                /**< SYSCLK clock source */
+    UART_CLOCKSOURCE_HSI     = 0x02u,                   /**< HSI clock source */
+    UART_CLOCKSOURCE_LSE     = 0x03u,                   /**< LSE clock source */
 
 #endif
             
-#if defined (LIBOHIBOARD_PIC24FJ)
-    UART_CLOCKSOURCE_PERIPHERAL = 0x00U,
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    UART_CLOCKSOURCE_PERIPHERAL = 0x00u,
 #endif
 
 } Uart_ClockSource;
+
+#if defined(LIBOHIBOARD_MICROCHIP_PIC)
+
+/**
+ * This list define the behaviour of UART peripheral during IDLE mode.
+ */
+typedef enum _Uart_StopIdleMode
+{
+    UART_STOPIDLEMODE_CONTINUES    = 0x0000,
+    UART_STOPIDLEMODE_DISCONTINUES = _U1MODE_USIDL_MASK,
+} Uart_StopIdleMode;
+
+/**
+ * This list define the behaviour of UART peripheral during SLEEP mode.
+ * When enabled, the peripheral continues sample the UxRX pin. 
+ */
+typedef enum _Uart_WakeUpSleepMode
+{
+    UART_WAKEUPSLEEPMODE_ENABLE  = _U1MODE_WAKE_MASK,
+    UART_WAKEUPSLEEPMODE_DISABLE = 0x0000,
+} Uart_WakeUpSleepMode;
+
+#endif
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
 typedef struct _Uart_Device* Uart_DeviceHandle;
@@ -204,450 +232,25 @@ typedef struct Uart_Device* Uart_DeviceHandle;
 
 #include "hardware/STM32L4/uart_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_PIC24FJ)
+
+#include "hardware/PIC24FJ/uart_PIC24FJ.h"
+
 #else
 
-typedef enum
+typedef enum _Uart_RxPins
 {
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-    UART_PINS_PTA4,
-
-    UART_PINS_PTB1R,
-    UART_PINS_PTB2R,
-    UART_PINS_PTB4,
-    
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-    UART_PINS_PTA18,
-
-    UART_PINS_PTB16,
-
-    UART_PINS_PTC3,
-    
-    UART_PINS_PTD2,
-    UART_PINS_PTD4,
-    UART_PINS_PTD6,
-    
-    UART_PINS_PTE1,
-    UART_PINS_PTE17,
-    UART_PINS_PTE21,
-    UART_PINS_PTE23,
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-    UART_PINS_PTA18,
-    UART_PINS_PTB16,
-
-    UART_PINS_PTC3,
-    
-    UART_PINS_PTD2,
-    UART_PINS_PTD4,
-    UART_PINS_PTD6,
-    
-    UART_PINS_PTE1,
-    UART_PINS_PTE21,
-    UART_PINS_PTE23,
-
-    
-#elif defined (LIBOHIBOARD_K10D10)
-
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-
-    UART_PINS_PTB10,
-    UART_PINS_PTB16,
-
-    UART_PINS_PTC3,
-    UART_PINS_PTC14,
-    UART_PINS_PTC16,
-
-    UART_PINS_PTD2,
-    UART_PINS_PTD6,
-    UART_PINS_PTD8,
-
-    UART_PINS_PTE1,
-    UART_PINS_PTE5,
-    UART_PINS_PTE9,
-    UART_PINS_PTE17,
-    UART_PINS_PTE25,
-
-#elif defined (LIBOHIBOARD_K12D5)
-
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-
-    UART_PINS_PTB10,
-    UART_PINS_PTB16,
-
-    UART_PINS_PTC3,
-    UART_PINS_PTC16,
-
-    UART_PINS_PTD2,
-    UART_PINS_PTD6,
-
-    UART_PINS_PTE1,
-    UART_PINS_PTE5,
-    UART_PINS_PTE17,
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-    
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-    
-    UART_PINS_PTB10,
-    UART_PINS_PTB16,
-    
-    UART_PINS_PTC3,
-    UART_PINS_PTC14,
-    UART_PINS_PTC16,
-    
-    UART_PINS_PTD2,
-    UART_PINS_PTD6,
-    UART_PINS_PTD8,
-    
-    UART_PINS_PTE1,
-    UART_PINS_PTE5,
-    UART_PINS_PTE9,
-    UART_PINS_PTE25,
-
-#elif defined (LIBOHIBOARD_K60DZ10)     || \
-      defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-
-    UART_PINS_PTB10,
-    UART_PINS_PTB16,
-
-    UART_PINS_PTC3,
-    UART_PINS_PTC14,
-    UART_PINS_PTC16,
-
-    UART_PINS_PTD2,
-    UART_PINS_PTD6,
-
-    UART_PINS_PTE1,
-    UART_PINS_PTE5,
-    UART_PINS_PTE25,
-
-#elif defined(LIBOHIBOARD_KV31F12)
-
-    /* UART0 */
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-    UART_PINS_PTB0,
-    UART_PINS_PTB16,
-    UART_PINS_PTD6,
-
-    /* UART1 */
-    UART_PINS_PTC3,
-    UART_PINS_PTE1,
-
-    /* UART2 */
-    UART_PINS_PTD2,
-    UART_PINS_PTE17,
-
-#elif defined(LIBOHIBOARD_KV46F) ||\
-	  defined(LIBOHIBOARD_TWRKV46F)
-
-    /* UART0 */
-    UART_PINS_PTA1,
-    UART_PINS_PTA15,
-    UART_PINS_PTB0,
-    UART_PINS_PTB16,
-    UART_PINS_PTC6,
-    UART_PINS_PTD6,
-    UART_PINS_PTE21,
-
-    /* UART1*/
-    UART_PINS_PTC3,
-    UART_PINS_PTE1,
-    UART_PINS_PTE17,
-
-#endif
 
     UART_PINS_RXNONE,
 
 } Uart_RxPins;
 
-typedef enum
+typedef enum _Uart_TxPins
 {
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-    UART_PINS_PTA3,
-
-    UART_PINS_PTB1T,
-    UART_PINS_PTB2T,
-    UART_PINS_PTB3,
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-    UART_PINS_PTA19,
-
-    UART_PINS_PTB17,
-
-    UART_PINS_PTC4,
-    
-    UART_PINS_PTD3,
-    UART_PINS_PTD5,
-    UART_PINS_PTD7,
-    
-    UART_PINS_PTE0,
-    UART_PINS_PTE16,
-    UART_PINS_PTE20,
-    UART_PINS_PTE22,
-    
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-    
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-    UART_PINS_PTA19,
-
-    UART_PINS_PTB17,
-
-    UART_PINS_PTC4,
-    
-    UART_PINS_PTD3,
-    UART_PINS_PTD5,
-    UART_PINS_PTD7,
-    
-    UART_PINS_PTE0,
-    UART_PINS_PTE20,
-    UART_PINS_PTE22,
-    
-#elif defined (LIBOHIBOARD_K10D10)
-
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-
-    UART_PINS_PTB11,
-    UART_PINS_PTB17,
-
-    UART_PINS_PTC4,
-    UART_PINS_PTC15,
-    UART_PINS_PTC17,
-
-    UART_PINS_PTD3,
-    UART_PINS_PTD7,
-    UART_PINS_PTD9,
-
-    UART_PINS_PTE0,
-    UART_PINS_PTE4,
-    UART_PINS_PTE8,
-    UART_PINS_PTE16,
-    UART_PINS_PTE24,
-
-#elif defined (LIBOHIBOARD_K12D5)
-
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-
-    UART_PINS_PTB11,
-    UART_PINS_PTB17,
-
-    UART_PINS_PTC4,
-    UART_PINS_PTC17,
-
-    UART_PINS_PTD3,
-    UART_PINS_PTD7,
-
-    UART_PINS_PTE0,
-    UART_PINS_PTE4,
-    UART_PINS_PTE16,
-    
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-    
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-
-    UART_PINS_PTB11,
-    UART_PINS_PTB17,
-
-    UART_PINS_PTC4,
-    UART_PINS_PTC15,
-    UART_PINS_PTC17,
-
-    UART_PINS_PTD3,
-    UART_PINS_PTD7,
-    UART_PINS_PTD9,
-
-    UART_PINS_PTE0,
-    UART_PINS_PTE4,
-    UART_PINS_PTE8,
-    UART_PINS_PTE24,
-
-#elif defined (LIBOHIBOARD_K60DZ10)     || \
-      defined (LIBOHIBOARD_OHIBOARD_R1)
-
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-
-    UART_PINS_PTB11,
-    UART_PINS_PTB17,
-
-    UART_PINS_PTC4,
-    UART_PINS_PTC15,
-    UART_PINS_PTC17,
-
-    UART_PINS_PTD3,
-    UART_PINS_PTD7,
-
-    UART_PINS_PTE0,
-    UART_PINS_PTE4,
-    UART_PINS_PTE24,
-
-#elif defined(LIBOHIBOARD_KV31F12)
-
-    /* UART0 */
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-    UART_PINS_PTB1,
-    UART_PINS_PTB17,
-    UART_PINS_PTD7,
-
-    /* UART1 */
-    UART_PINS_PTC4,
-    UART_PINS_PTE0,
-
-    /* UART2 */
-    UART_PINS_PTD3,
-    UART_PINS_PTE16,
-
-#elif defined(LIBOHIBOARD_KV46F) ||\
-      defined(LIBOHIBOARD_TWRKV46F)
-
-    /* UART0 */
-    UART_PINS_PTA2,
-    UART_PINS_PTA14,
-    UART_PINS_PTB1,
-    UART_PINS_PTB17,
-    UART_PINS_PTC7,
-    UART_PINS_PTD7,
-    UART_PINS_PTE20,
-
-    /* UART1*/
-    UART_PINS_PTC4,
-    UART_PINS_PTE0,
-    UART_PINS_PTE16,
-
-#endif
 
     UART_PINS_TXNONE,
 
 } Uart_TxPins;
-
-#endif
-
-#if defined (LIBOHIBOARD_KL03Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL03Z)
-
-extern Uart_DeviceHandle UART0;
-
-#elif defined(LIBOHIBOARD_KL15Z4)
-
-void UART0_IRQHandler ();
-void UART1_IRQHandler ();
-void UART2_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-
-#elif defined (LIBOHIBOARD_KL25Z4)     || \
-      defined (LIBOHIBOARD_FRDMKL25Z)
-
-void UART0_IRQHandler ();
-void UART1_IRQHandler ();
-void UART2_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-
-#elif defined (LIBOHIBOARD_K10D10)
-
-void UART0_RX_TX_IRQHandler ();
-void UART1_RX_TX_IRQHandler ();
-void UART2_RX_TX_IRQHandler ();
-void UART3_RX_TX_IRQHandler ();
-void UART4_RX_TX_IRQHandler ();
-void UART5_RX_TX_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-extern Uart_DeviceHandle OB_UART3;
-extern Uart_DeviceHandle OB_UART4;
-extern Uart_DeviceHandle OB_UART5;
-
-#elif defined (LIBOHIBOARD_K12D5)
-
-void UART0_RX_TX_IRQHandler ();
-void UART1_RX_TX_IRQHandler ();
-void UART2_RX_TX_IRQHandler ();
-void UART3_RX_TX_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-extern Uart_DeviceHandle OB_UART3;
-
-#elif defined (LIBOHIBOARD_K60DZ10) || \
-    defined (LIBOHIBOARD_OHIBOARD_R1)
-
-extern Uart_DeviceHandle UART0;
-extern Uart_DeviceHandle UART1;
-extern Uart_DeviceHandle UART2;
-extern Uart_DeviceHandle UART3;
-extern Uart_DeviceHandle UART4;
-
-#elif defined (LIBOHIBOARD_K64F12)     || \
-      defined (LIBOHIBOARD_FRDMK64F)
-
-void UART0_RX_TX_IRQHandler ();
-void UART1_RX_TX_IRQHandler ();
-void UART2_RX_TX_IRQHandler ();
-void UART3_RX_TX_IRQHandler ();
-void UART4_RX_TX_IRQHandler ();
-void UART5_RX_TX_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-extern Uart_DeviceHandle OB_UART3;
-extern Uart_DeviceHandle OB_UART4;
-extern Uart_DeviceHandle OB_UART5;
-
-#elif defined(LIBOHIBOARD_KV31F12)
-
-void UART0_RX_TX_IRQHandler ();
-void UART1_RX_TX_IRQHandler ();
-void UART2_RX_TX_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
-extern Uart_DeviceHandle OB_UART2;
-
-#elif defined(LIBOHIBOARD_KV46F) ||\
-      defined(LIBOHIBOARD_TWRKV46F)
-
-void UART0_RX_TX_IRQHandler ();
-void UART1_RX_TX_IRQHandler ();
-
-extern Uart_DeviceHandle OB_UART0;
-extern Uart_DeviceHandle OB_UART1;
 
 #endif
 
@@ -665,10 +268,20 @@ typedef struct _Uart_Config
     Uart_FlowControl flowControl;
     
     uint32_t baudrate;
+    
+#if !defined(LIBOHIBOARD_MICROCHIP_PIC)
     uint8_t oversampling; /**< Into NXP microcontroller must be a value between 4 to 32,
                                otherwise, into ST microcontroller must be 16 or 8. If the value differ
                                from this two value, the default one is used. */
+#endif
 
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    
+    Uart_StopIdleMode    idleMode;
+    Uart_WakeUpSleepMode sleepMode;
+    
+#endif
+    
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
     /** Callback Function to handle RX Interrupt.*/
     void (*callbackRx)(struct _Uart_Device* dev);
@@ -678,6 +291,9 @@ typedef struct _Uart_Config
     void (*callbackRx)(void);  /**< Callback Function to handle RX Interrupt.*/
     void (*callbackTx)(void);  /**< Callback Function to handle TX Interrupt.*/
 #endif
+    
+    uint8_t isrTxPriority;
+    uint8_t isrRxPriority;
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
@@ -701,6 +317,7 @@ typedef struct _Uart_Config
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Uart device handle
  * @param[in] config Configuration parameters for the Uart
@@ -715,6 +332,7 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config);
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Uart device handle
  */
@@ -738,15 +356,6 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev);
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
 
-#if defined (LIBOHIBOARD_KL15Z4)     || \
-    defined (LIBOHIBOARD_KL25Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL25Z)
-
-void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling);
-
-#elif defined (LIBOHIBOARD_STM32L0) || \
-      defined (LIBOHIBOARD_STM32L4)
-
 /**
  * This function check the chosen baudrate for the UART peripheral,
  * and set the registers to obtain this value.
@@ -760,12 +369,6 @@ void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversam
  *   @arg @ref ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW The clock source frequency is too low (0 maybe)
  */
 System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
-
-#else
-
-void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
-
-#endif
 
 /**
  * @}
@@ -786,6 +389,7 @@ void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Uart device handle
  * @param[out] out Pointer where store the received char
@@ -802,6 +406,7 @@ System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out);
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Uart device handle
  * @param[in] c Character to send
@@ -817,6 +422,7 @@ void Uart_putChar (Uart_DeviceHandle dev, char c);
  * @note The following microcontrollers no longer implements this function:
  * @li STM32L0 Series
  * @li STM32L4 Series
+ * @li PIC24FJ Series
  *
  * @param[in] dev Uart device handle
  * @return uint8_t
@@ -883,11 +489,6 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length);
 /**
  * @}
  */
-
-#ifdef LIBOHIBOARD_DMA
-uint8_t Uart_enableDmaTrigger (Uart_DeviceHandle dev, Dma_RequestSource request);
-uint32_t* Uart_getRxRegisterAddress (Uart_DeviceHandle dev);
-#endif
 
 #ifdef __cplusplus
 }

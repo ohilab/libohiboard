@@ -97,7 +97,7 @@ typedef struct
 typedef struct
 {
     volatile uint16_t RCON;
-} RESET_TypeDef;
+} RSTCON_TypeDef;
 
 typedef struct
 {
@@ -148,20 +148,26 @@ typedef struct
 
 typedef struct
 {
+    //RTCC Control Registers
     volatile uint16_t RTCCON1L;
     volatile uint16_t RTCCON1H;
     volatile uint16_t RTCCON2L;
     volatile uint16_t RTCCON2H;
     volatile uint16_t RTCCON3L;
+    volatile uint16_t RTCCON3H; //it is not defined on datasheet
     volatile uint16_t RTCSTATL;
+    volatile uint16_t RTCSTATH; //it is not defined on datasheet
+    //RTCC Value Registers
     volatile uint16_t TIMEL;
     volatile uint16_t TIMEH;
     volatile uint16_t DATEL;
     volatile uint16_t DATEH;
+    //Alarm Value Registers
     volatile uint16_t ALMTIMEL;
     volatile uint16_t ALMTIMEH;
     volatile uint16_t ALMDATEL;
     volatile uint16_t ALMDATEH;
+    //Timestamp Registers
     volatile uint16_t TSATIMEL;
     volatile uint16_t TSATIMEH;
     volatile uint16_t TSADATEL;
@@ -253,10 +259,18 @@ typedef struct
     volatile uint16_t AD1RESDMA;
 } ADC_TypeDef;
 
+typedef struct
+{
+    volatile uint16_t NVMCON;
+    volatile uint16_t NVMADR;
+    volatile uint16_t NVMADRU;
+    volatile uint16_t NVMKEY;
+} NVM_TypeDef;
+
 #define CPU_BASE            (0x0000ul)
 #define INTERRUPT_BASE      (0x0080ul)
 #define OSCILLATOR_BASE     (0x0100ul)
-#define RESET_BASE          (0x0110ul)
+#define RSTCON_BASE         (0x0110ul)
 #define HLVD_BASE           (0x0114ul)
 #define REFO_BASE           (0x0168ul)
 #define PMD_BASE            (0x0178ul)
@@ -286,12 +300,13 @@ typedef struct
 #define GPIOF_BASE          (0x06C6ul)
 #define GPIOG_BASE          (0x06DAul)
 #define ADC1_BASE           (0x0712ul)
+#define NVM_BASE            (0x0760ul)
 #define PPS_BASE            (0x0790ul)
 
 #define CPU                 ((CPU_TypeDef *) CPU_BASE)
 #define INTERRUPT           ((INTERRUPT_TypeDef *) INTERRUPT_BASE)
 #define OSCILLATOR          ((OSCILLATOR_TypeDef *) OSCILLATOR_BASE)
-#define RESET               ((RESET_TypeDef *) RESET_BASE)
+#define RSTCON              ((RSTCON_TypeDef *) RSTCON_BASE)
 #define HLVD                ((HLVD_TypeDef *) HLVD_BASE)
 #define REFO                ((REFO_TypeDef *)REFO_BASE)
 #define PMD                 ((PMD_Typedef *) PMD_BASE)
@@ -300,12 +315,12 @@ typedef struct
 #define TMR45               ((TMR_TypeDef *) TMR45_BASE)
 #define RTC                 ((RTC_TypeDef *) RTC_BASE)
 #define ANCFG1              ((ANCFG_TypeDef *) ANCFG_BASE)
-#define UART1               ((UART_TypeDef *) UART1_BASE)
-#define UART2               ((UART_TypeDef *) UART2_BASE)
-#define UART3               ((UART_TypeDef *) UART3_BASE)
-#define UART4               ((UART_TypeDef *) UART4_BASE)
-#define UART5               ((UART_TypeDef *) UART5_BASE)
-#define UART6               ((UART_TypeDef *) UART6_BASE)
+#define UART1B              ((UART_TypeDef *) UART1_BASE)
+#define UART2B              ((UART_TypeDef *) UART2_BASE)
+#define UART3B              ((UART_TypeDef *) UART3_BASE)
+#define UART4B              ((UART_TypeDef *) UART4_BASE)
+#define UART5B              ((UART_TypeDef *) UART5_BASE)
+#define UART6B              ((UART_TypeDef *) UART6_BASE)
 #define SPI1                ((SPI_TypeDef *) SPI1_BASE)
 #define SPI2                ((SPI_TypeDef *) SPI2_BASE)
 #define SPI3                ((SPI_TypeDef *) SPI3_BASE)
@@ -321,6 +336,7 @@ typedef struct
 #define GPIOF               ((GPIO_TypeDef *) GPIOF_BASE)
 #define GPIOG               ((GPIO_TypeDef *) GPIOG_BASE)
 #define ADC1                ((ADC_TypeDef *) ADC1_BASE)
+#define NVM                 ((NVM_TypeDef *) NVM_BASE)
 #define PPS                 ((PPS_TypeDef *) PPS_BASE)
 
 #ifdef __cplusplus
