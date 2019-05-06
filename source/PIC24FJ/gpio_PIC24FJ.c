@@ -577,22 +577,32 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 
 void __attribute__ (( interrupt, no_auto_psv )) _IOCInterrupt ( void )
 {
-    if(UTILITY_READ_REGISTER_BIT(gpioDevice.regmapInt->IFS[1], _IFS1_IOCIF_MASK) != 0)
-    {
-        // Check for port
-        for (uint16_t portField = 1, portNum = 0; portField < 0x0080; portField <<= 1, portNum++)
+    uint16_t flags = 0xFFFF;
+
+    if (UTILITY_READ_REGISTER_BIT(gpioDevice.regmapInt->IFS[1], _IFS1_IOCIF_MASK) != 0)
+    {         
+        while (flags != 0x0000)
         {
-            if(UTILITY_READ_REGISTER_BIT(gpioDevice.regMapIo->IOCSTAT, portField) != 0)
+            flags = 0;
+            // Check for port
+            for (uint16_t portField = 1, portNum = 0; portField < 0x0080; portField <<= 1, portNum++)
             {
-                // Check for pin
-                for (uint32_t pinField = 1, pinNum = 0; pinField < 0x10000; pinField <<= 1, pinNum++)
+                if (UTILITY_READ_REGISTER_BIT(gpioDevice.regMapIo->IOCSTAT, portField) != 0)
                 {
-                    if(UTILITY_READ_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, pinField) != 0)
+                    flags++;
+                     // Check for pin
+                    for (uint32_t pinField = 1, pinNum = 0; pinField < 0x10000; pinField <<= 1, pinNum++)
                     {
-                        // CallBack
-                        if(IocCallback[portNum][pinNum] != 0)
+                        if (UTILITY_READ_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, pinField) != 0)
                         {
-                            IocCallback[portNum][pinNum]();
+                            // CallBack
+                            if (IocCallback[portNum][pinNum] != 0)
+                            {
+                                IocCallback[portNum][pinNum]();
+                            }
+
+                            // Clear Flag Pin
+                            UTILITY_CLEAR_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, pinField);
                         }
                     }
                 }
