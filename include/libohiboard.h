@@ -231,6 +231,8 @@ extern "C" {
 
 #include "comm-utility.h"
 
+#include "utility-buffer.h"
+
 #ifdef __cplusplus
 }
 #endif
