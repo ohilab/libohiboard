@@ -123,11 +123,14 @@ typedef struct _Uart_Device
     void (*callbackRx)(struct _Uart_Device* dev, void* obj);
     /** The function pointer for user Tx callback. */
     void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+    /** The function pointer for user Errore callback. */
+    void (*callbackErr)(struct _Uart_Device* dev, void* obj);
     /** Useful object added to callback when interrupt triggered. */
     void* callbackObj;
 
     Interrupt_Vector isrNumberTx;/**< ISR vector number for transmit interrupt. */
     Interrupt_Vector isrNumberRx;/**< ISR vector number for receive interrupt. */
+    Interrupt_Vector isrNumberErr;/**< ISR vector number for error interrupt. */
 
     Uart_DeviceState state;                    /**< Current peripheral state. */
 
@@ -171,6 +174,7 @@ static Uart_Device uart1 =
 
         .isrNumberTx            = INTERRUPT_UART1_TX,
         .isrNumberRx            = INTERRUPT_UART1_RX,
+        .isrNumberErr           = INTERRUPT_UART1_ERROR,
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
@@ -195,6 +199,7 @@ static Uart_Device uart2 =
 
         .isrNumberTx            = INTERRUPT_UART2_TX,
         .isrNumberRx            = INTERRUPT_UART2_RX,
+        .isrNumberErr           = INTERRUPT_UART2_ERROR,
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
@@ -219,6 +224,7 @@ static Uart_Device uart3 =
 
         .isrNumberTx            = INTERRUPT_UART3_TX,
         .isrNumberRx            = INTERRUPT_UART3_RX,
+        .isrNumberErr           = INTERRUPT_UART3_ERROR,
 };
 Uart_DeviceHandle OB_UART3 = &uart3;
 
@@ -243,6 +249,7 @@ static Uart_Device uart4 =
 
         .isrNumberTx            = INTERRUPT_UART4_TX,
         .isrNumberRx            = INTERRUPT_UART4_RX,
+        .isrNumberErr           = INTERRUPT_UART4_ERROR,
 };
 Uart_DeviceHandle OB_UART4 = &uart4;
 
@@ -268,6 +275,7 @@ static Uart_Device uart5 =
 
         .isrNumberTx            = INTERRUPT_UART5_TX,
         .isrNumberRx            = INTERRUPT_UART5_RX,
+        .isrNumberErr           = INTERRUPT_UART5_ERROR,
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
 
@@ -293,6 +301,7 @@ static Uart_Device uart6 =
 
         .isrNumberTx            = INTERRUPT_UART6_TX,
         .isrNumberRx            = INTERRUPT_UART6_RX,
+        .isrNumberErr           = INTERRUPT_UART6_ERROR,
 };
 Uart_DeviceHandle OB_UART6 = &uart6;
 
@@ -378,6 +387,10 @@ static System_Errors Uart_config (Uart_DeviceHandle dev)
         Interrupt_setPriority(dev->isrNumberRx,dev->config.isrRxPriority);
         Interrupt_clearFlag(dev->isrNumberRx);
         Interrupt_enable(dev->isrNumberRx);
+
+        // FIXME: no callback used!
+        Interrupt_clearFlag(dev->isrNumberErr);
+        Interrupt_enable(dev->isrNumberErr);
     }
     if (dev->config.callbackTx != 0)
     {
@@ -489,6 +502,10 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
         dev->callbackRx = 0;
         Interrupt_clearFlag(dev->isrNumberRx);
         Interrupt_disable(dev->isrNumberRx);
+        
+        dev->callbackErr = 0;
+        Interrupt_clearFlag(dev->isrNumberErr);
+        Interrupt_disable(dev->isrNumberErr);
     }
     if (dev->callbackTx != 0)
     {

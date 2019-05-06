@@ -65,20 +65,20 @@ typedef enum _System_Errors
 	ERRORS_NO_ERROR = 0,                              /**< There is no error. */
 	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
 	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
-	
+
 	ERRORS_SYSTEM_TICK_INIT_FAILED,
 	ERRORS_SYSTEM_NO_CLOCK,
 
 	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
-	
+
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
 	ERRORS_IRQ_PRIORITY_LEVEL_WRONG,
-	
+
 	ERRORS_GPIO_WRONG_PORT,
 	ERRORS_GPIO_WRONG_CONFIG,
     ERRORS_GPIO_WRONG_PIN,
     ERRORS_GPIO_NULL_PIN,
-	
+
     ERRORS_UART_DEVICE_NOT_INIT,
     ERRORS_UART_DEVICE_JUST_INIT,
     ERRORS_UART_NO_PIN_FOUND,
@@ -93,7 +93,7 @@ typedef enum _System_Errors
     ERRORS_UART_TIMEOUT_RX,
     ERRORS_UART_TIMEOUT_TX,
     ERRORS_UART_DEVICE_BUSY,
-	
+
 	ERRORS_IIC_OK,
 	ERRORS_IIC_TIMEOUT,
 	ERRORS_IIC_TX_OK,
@@ -128,7 +128,7 @@ typedef enum _System_Errors
     ERRORS_SPI_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_SPI_TIMEOUT_RX,
     ERRORS_SPI_TIMEOUT_TX,
-	
+
     ERRORS_DAC_DEVICE_NOT_INIT,
     ERRORS_DAC_DEVICE_JUST_INIT,
     ERRORS_DAC_NO_DEVICE,
@@ -156,7 +156,7 @@ typedef enum _System_Errors
 	ERRORS_FTM_CHANNEL_NOT_FOUND,
 	ERRORS_FTM_DEVICE_NOT_INIT,
 	ERRORS_FTM_FAULT_PIN_WRONG,
-	
+
     ERRORS_TIMER_NO_DEVICE,
     ERRORS_TIMER_WRONG_DEVICE,
     ERRORS_TIMER_DEVICE_JUST_USED,
@@ -174,7 +174,7 @@ typedef enum _System_Errors
 	ERRORS_UTILITY_LONG_STRING,
     ERRORS_UTILITY_CONVERSION_OK,
     ERRORS_UTILITY_FLOAT_WRONG_PRECISION,
-    
+
     ERRORS_MCG_OUT_OF_RANGE, //Frequency outside of the allowed range
     ERRORS_MCG_NO_FREQUENCY, //Impossible to obtain the request fout_SYS with this setup
     ERRORS_MCG_NO_STATE, //Not valid state
@@ -250,7 +250,10 @@ typedef enum _System_Errors
 
     ERRORS_COMMUTILITY_MAX_DEVICE_ACHIEVE,
     ERRORS_COMMUTILITY_DEVICE_NOT_FOUND,
-  
+
+    ERRORS_UTILITYBUFFER_UNDERFLOW,
+    ERRORS_UTILITYBUFFER_OVERFLOW,
+
     ERRORS_ASSERT,
 
 } System_Errors;

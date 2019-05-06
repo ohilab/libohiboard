@@ -128,19 +128,19 @@ static inline void UtilityBuffer_flush (UtilityBuffer_DescriptorHandle buffer)
  *   @retval ERRORS_UTILITYBUFFER_UNDERFLOW when the buffer is empty
  *   @retval ERRORS_NO_ERROR when the pull works
  */
-static inline System_Errors UtilityBuffer_pull (UtilityBuffer_DescriptorHandle buffer, uint8_t* value)
+static inline System_Errors UtilityBuffer_pull (UtilityBuffer_DescriptorHandle b, uint8_t* value)
 {
-    if (UtilityBuffer_isEmpty(buffer)) 
+    if (UtilityBuffer_isEmpty(b)) 
     {
         return ERRORS_UTILITYBUFFER_UNDERFLOW;
     }
 
     // Read the next value
-    *value = buffer->buffer[buffer->tail];
+    *value = b->buffer[b->tail];
 
     // Increment the tail index, and check with the mask
-    buffer->tail++;
-    buffer->tail &= buffer->mask;
+    b->tail++;
+    b->tail &= b->mask;
 
     return ERRORS_NO_ERROR;
 }
@@ -154,19 +154,19 @@ static inline System_Errors UtilityBuffer_pull (UtilityBuffer_DescriptorHandle b
  *   @retval ERRORS_UTILITYBUFFER_OVERFLOW when the buffer is full
  *   @retval ERRORS_NO_ERROR when the push works
  */
-static inline System_Errors UtilityBuffer_push (UtilityBuffer_DescriptorHandle buffer, uint8_t value)
+static inline System_Errors UtilityBuffer_push (UtilityBuffer_DescriptorHandle b, uint8_t value)
 {
-    if (UtilityBuffer_isFull(buffer)) 
+    if (UtilityBuffer_isFull(b)) 
     {
         return ERRORS_UTILITYBUFFER_OVERFLOW;
     }
 
     // Add new value into the buffer...
-    buffer->buffer[buffer->head] = value;
+    b->buffer[b->head] = value;
 
     // Increment the head index, and check with the mask
-    buffer->head++;
-    buffer->head &= buffer->mask;
+    b->head++;
+    b->head &= b->mask;
 
     return ERRORS_NO_ERROR;
 }
