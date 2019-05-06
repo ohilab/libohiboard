@@ -156,6 +156,22 @@ typedef enum  _Interrupt_Vector
 
 } Interrupt_Vector;
 
+/**
+ * List of all possible value for interrupt priority.
+ */
+typedef enum  _Interrupt_Priority
+{
+    INTERRUPT_PRIORITY_0 = 0x00,
+    INTERRUPT_PRIORITY_1 = 0x01,
+    INTERRUPT_PRIORITY_2 = 0x02,
+    INTERRUPT_PRIORITY_3 = 0x03,
+    INTERRUPT_PRIORITY_4 = 0x04,
+    INTERRUPT_PRIORITY_5 = 0x05,
+    INTERRUPT_PRIORITY_6 = 0x06,
+    INTERRUPT_PRIORITY_7 = 0x07,
+
+} Interrupt_Priority;
+
 #endif // LIBOHIBOARD_PIC24FJ
 
 #ifdef __cplusplus
