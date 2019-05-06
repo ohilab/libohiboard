@@ -284,9 +284,11 @@ typedef struct _Uart_Config
     
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
     /** Callback Function to handle RX Interrupt.*/
-    void (*callbackRx)(struct _Uart_Device* dev);
+    void (*callbackRx)(struct _Uart_Device* dev, void* obj);
     /** Callback Function to handle TX Interrupt.*/
-    void (*callbackTx)(struct _Uart_Device* dev);
+    void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+    /** Useful object added to callback when interrupt triggered. */
+    void* callbackObj;
 #else
     void (*callbackRx)(void);  /**< Callback Function to handle RX Interrupt.*/
     void (*callbackTx)(void);  /**< Callback Function to handle TX Interrupt.*/

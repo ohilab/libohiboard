@@ -120,13 +120,15 @@ typedef struct _Uart_Device
     Uart_Config config;
 
     /** The function pointer for user Rx callback. */
-    void (*callbackRx)(struct _Uart_Device* dev);
+    void (*callbackRx)(struct _Uart_Device* dev, void* obj);
     /** The function pointer for user Tx callback. */
-    void (*callbackTx)(struct _Uart_Device* dev);
+    void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+    /** Useful object added to callback when interrupt triggered. */
+    void* callbackObj;
 
     Interrupt_Vector isrNumberTx;/**< ISR vector number for transmit interrupt. */
     Interrupt_Vector isrNumberRx;/**< ISR vector number for receive interrupt. */
-    
+
     Uart_DeviceState state;                    /**< Current peripheral state. */
 
 } Uart_Device;
@@ -162,11 +164,11 @@ static Uart_Device uart1 =
         .ppsCtsRegisterPtr      = &PPS->RPINR[18],
         .ppsCtsRegisterMask     = _RPINR18_U1CTSR_MASK,
         .ppsCtsRegisterPosition = _RPINR18_U1CTSR_POSITION,
-        
+
         .ppsTxRegisterValue     = GPIO_PPSOUTPUTFUNCTION_U1TX,
 
         .ppsRtsRegisterValue    = GPIO_PPSOUTPUTFUNCTION_U1RTS,
-        
+
         .isrNumberTx            = INTERRUPT_UART1_TX,
         .isrNumberRx            = INTERRUPT_UART1_RX,
 };
@@ -178,7 +180,7 @@ static Uart_Device uart2 =
 
         .pmdRegisterPtr         = &PMD->PMD1,
         .pmdRegisterEnable      = _PMD1_U2MD_MASK,
-        
+
         .ppsRxRegisterPtr       = &PPS->RPINR[19],
         .ppsRxRegisterMask      = _RPINR19_U2RXR_MASK,
         .ppsRxRegisterPosition  = _RPINR19_U2RXR_POSITION,
@@ -186,7 +188,7 @@ static Uart_Device uart2 =
         .ppsCtsRegisterPtr      = &PPS->RPINR[19],
         .ppsCtsRegisterMask     = _RPINR19_U2CTSR_MASK,
         .ppsCtsRegisterPosition = _RPINR19_U2CTSR_POSITION,
-        
+
         .ppsTxRegisterValue     = GPIO_PPSOUTPUTFUNCTION_U2TX,
 
         .ppsRtsRegisterValue    = GPIO_PPSOUTPUTFUNCTION_U2RTS,
@@ -202,7 +204,7 @@ static Uart_Device uart3 =
 
         .pmdRegisterPtr         = &PMD->PMD3,
         .pmdRegisterEnable      = _PMD3_U3MD_MASK,
-        
+
         .ppsRxRegisterPtr       = &PPS->RPINR[17],
         .ppsRxRegisterMask      = _RPINR17_U3RXR_MASK,
         .ppsRxRegisterPosition  = _RPINR17_U3RXR_POSITION,
@@ -210,7 +212,7 @@ static Uart_Device uart3 =
         .ppsCtsRegisterPtr      = &PPS->RPINR[21],
         .ppsCtsRegisterMask     = _RPINR21_U3CTSR_MASK,
         .ppsCtsRegisterPosition = _RPINR21_U3CTSR_POSITION,
-        
+
         .ppsTxRegisterValue     = GPIO_PPSOUTPUTFUNCTION_U3TX,
 
         .ppsRtsRegisterValue    = GPIO_PPSOUTPUTFUNCTION_U3RTS,
@@ -234,7 +236,7 @@ static Uart_Device uart4 =
         .ppsCtsRegisterPtr      = &PPS->RPINR[27],
         .ppsCtsRegisterMask     = _RPINR27_U4CTSR_MASK,
         .ppsCtsRegisterPosition = _RPINR27_U4CTSR_POSITION,
-        
+
         .ppsTxRegisterValue     = GPIO_PPSOUTPUTFUNCTION_U4TX,
 
         .ppsRtsRegisterValue    = GPIO_PPSOUTPUTFUNCTION_U4RTS,
@@ -259,7 +261,7 @@ static Uart_Device uart5 =
         .ppsCtsRegisterPtr      = 0,
         .ppsCtsRegisterMask     = 0,
         .ppsCtsRegisterPosition = 0,
-        
+
         .ppsTxRegisterValue     = 0,
 
         .ppsRtsRegisterValue    = 0,
@@ -284,11 +286,11 @@ static Uart_Device uart6 =
         .ppsCtsRegisterPtr      = 0,
         .ppsCtsRegisterMask     = 0,
         .ppsCtsRegisterPosition = 0,
-        
+
         .ppsTxRegisterValue     = 0,
 
         .ppsRtsRegisterValue    = 0,
-        
+
         .isrNumberTx            = INTERRUPT_UART6_TX,
         .isrNumberRx            = INTERRUPT_UART6_RX,
 };
@@ -299,7 +301,7 @@ Uart_DeviceHandle OB_UART6 = &uart6;
 static System_Errors Uart_config (Uart_DeviceHandle dev)
 {
     System_Errors err = ERRORS_NO_ERROR;
-    
+
     // Disable the peripheral
     UART_DEVICE_DISABLE(dev->regmap);
 
@@ -384,9 +386,17 @@ static System_Errors Uart_config (Uart_DeviceHandle dev)
         Interrupt_clearFlag(dev->isrNumberTx);
         Interrupt_enable(dev->isrNumberTx);
     }
-    
+    if (dev->config.callbackObj != NULL)
+    {
+        dev->callbackObj = dev->config.callbackObj;
+    }
+    else
+    {
+        dev->callbackObj = NULL;
+    }
+
     UART_DEVICE_ENABLE(dev->regmap);
-    
+
     // Configure peripheral mode
     dev->regmap->USTA = dev->regmap->USTA & (~(_U1STA_URXEN_MASK | _U1STA_UTXEN_MASK));
     switch (dev->config.mode)
@@ -436,7 +446,7 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
     }
     // Save configuration
     dev->config = *config;
-    
+
     // Enable peripheral clock if needed
     if (dev->state == UART_DEVICESTATE_RESET)
     {
@@ -472,7 +482,7 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
 System_Errors Uart_deInit (Uart_DeviceHandle dev)
 {
     System_Errors error = ERRORS_NO_ERROR;
-    
+
     // Check callback and delete it
     if (dev->callbackRx != 0)
     {
@@ -486,6 +496,7 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
         Interrupt_clearFlag(dev->isrNumberTx);
         Interrupt_disable(dev->isrNumberTx);
     }
+    dev->callbackObj = NULL;
 
     return error;
 }
@@ -600,7 +611,7 @@ uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
 System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
 {
     uint32_t timeoutEnd = System_currentTick() + timeout;
-    
+
     // Wait until the buffer is empty
     while (UTILITY_READ_REGISTER_BIT(dev->regmap->USTA,_U1STA_URXDA_MASK) == 0)
     {
@@ -609,7 +620,7 @@ System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
             return ERRORS_UART_TIMEOUT_RX;
         }
     }
-    
+
     // In case of 9B 
     if (dev->config.dataBits == UART_DATABITS_NINE)
     {
@@ -656,6 +667,82 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
 bool Uart_isPresent (Uart_DeviceHandle dev)
 {
     return (UTILITY_READ_REGISTER_BIT(dev->regmap->USTA,_U1STA_URXDA_MASK) == 0) ? FALSE : TRUE;
+}
+
+static inline void Uart_isrTxHandler (Uart_DeviceHandle dev)
+{
+    if (dev->callbackTx)
+    {
+        dev->callbackTx(dev,dev->callbackObj);
+    }
+    Interrupt_clearFlag(dev->isrNumberTx);
+}
+
+static inline void Uart_isrRxHandler (Uart_DeviceHandle dev)
+{
+    if (dev->callbackRx)
+    {
+        dev->callbackRx(dev,dev->callbackObj);
+    }
+    Interrupt_clearFlag(dev->isrNumberRx);
+}
+
+void __isr_noautopsv _U1RXInterrupt(void)
+{
+    Uart_isrRxHandler(OB_UART1);
+}
+
+void __isr_noautopsv _U1TXInterrupt(void)
+{
+    Uart_isrTxHandler(OB_UART1);
+}
+
+void __isr_noautopsv _U1ErrInterrupt (void)
+{
+    if ((U1STAbits.OERR == 1))
+    {
+        U1STAbits.OERR = 0;
+    }
+    Interrupt_clearFlag(INTERRUPT_UART1_ERROR);
+}
+
+void __isr_noautopsv _U2RXInterrupt(void)
+{
+    Uart_isrRxHandler(OB_UART2);
+}
+
+void __isr_noautopsv _U2TXInterrupt(void)
+{
+    Uart_isrTxHandler(OB_UART2);
+}
+
+void __isr_noautopsv _U2ErrInterrupt (void)
+{
+    if ((U2STAbits.OERR == 1))
+    {
+        U2STAbits.OERR = 0;
+    }
+    Interrupt_clearFlag(INTERRUPT_UART2_ERROR);
+}
+
+void __isr_noautopsv _U3RXInterrupt(void)
+{
+    Uart_isrRxHandler(OB_UART3);
+}
+
+void __isr_noautopsv _U3TXInterrupt(void)
+{
+    Uart_isrTxHandler(OB_UART3);
+}
+
+void __isr_noautopsv _U4RXInterrupt(void)
+{
+    Uart_isrRxHandler(OB_UART4);
+}
+
+void __isr_noautopsv _U4TXInterrupt(void)
+{
+    Uart_isrTxHandler(OB_UART4);
 }
 
 #endif // LIBOHIBOARD_PIC24FJ
