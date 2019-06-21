@@ -160,22 +160,28 @@ void System_resumeTick (void)
 #endif
 }
 
-void System_forceEnableDebug(void)
+void System_forceEnableDebug (void)
 {
-#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4) | defined (LIBOHIBOARD_MKL)
+#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4)
     DBGMCU_TypeDef* mcuDgb = (DBGMCU_TypeDef *) DBGMCU;
     mcuDgb->CR |=  ( DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY );
+#endif
+#if defined (LIBOHIBOARD_MKL)
+    // FIXME: intentionally empty
 #endif
 #if defined (LIBOHIBOARD_MICROCHIP_PIC)
     // intentionally empty
 #endif
 }
 
-void System_forceDisableDebug(void)
+void System_forceDisableDebug (void)
 {
-#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4) | defined (LIBOHIBOARD_MKL)
+#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4)
     DBGMCU_TypeDef* mcuDgb = ( DBGMCU_TypeDef * )DBGMCU;
     mcuDgb->CR &= ~( DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY );
+#endif
+#if defined (LIBOHIBOARD_MKL)
+    // FIXME: intentionally empty
 #endif
 #if defined (LIBOHIBOARD_MICROCHIP_PIC)
     // intentionally empty

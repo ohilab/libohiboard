@@ -41,6 +41,7 @@ extern "C" {
 
 #include "gpio.h"
 #include "interrupt.h"
+#include "utility.h"
 
 #define  PORT_MAX_PIN  32
 
