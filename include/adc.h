@@ -62,6 +62,10 @@ extern "C" {
 #include "types.h"
 #include "utility.h"
 
+#if !defined(ADC_SAMPLE_NUMBER)
+#define ADC_SAMPLE_NUMBER                16
+#endif 
+    
 /**
  * Device handle for ADC peripheral.
  */
@@ -553,6 +557,59 @@ int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref);
  * @return The raw value (based on bit configuration of ADC) of the band gap.
  */
 uint16_t Adc_getBandGap (Adc_DeviceHandle dev);
+
+/**
+ * This function configure read a configured number of times the selected ADC channel and
+ * return the avarage results.
+ *
+ * @param[in]    dev: Adc device handle
+ * @param[in] config: Configuration list for selected pin
+ * @param[in]    pin: Selected microcontroller pin
+ * @param[in]  count: Number of times of channel reads
+ * @return The avarage results of channel reads.
+ */
+uint16_t Adc_getAvarageRead (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin, uint8_t count);
+
+/**
+ * This function returns the full-scale value based on the resoluction chosen.
+ *
+ *  @param[in] res: The resolution chosen
+ */
+static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
+{
+    switch (res)
+    {
+#if defined (LIBOHIBOARD_MKL)  || \
+	defined (LIBOHIBOARD_MK)
+    case ADC_RESOLUTION_16BIT:
+        return 0xFFFF;
+	case ADC_RESOLUTION_12BIT:
+        return 0x0FFF;
+    case ADC_RESOLUTION_10BIT:
+        return 0x03FF;
+	ADC_RESOLUTION_8BIT:
+        return 0x00FF;
+#endif
+#if defined (LIBOHIBOARD_STM32L4)
+	case ADC_RESOLUTION_12BIT:
+        return 0x0FFF;
+    case ADC_RESOLUTION_10BIT:
+        return 0x03FF;
+	ADC_RESOLUTION_8BIT:
+        return 0x00FF;
+    ADC_RESOLUTION_6BIT:
+        return 0x003F;
+#endif
+#if defined (LIBOHIBOARD_PIC24FJ)
+	case ADC_RESOLUTION_12BIT:
+        return 0x0FFF;
+    case ADC_RESOLUTION_10BIT:
+        return 0x03FF;
+#endif
+    default:
+        return 0;
+    }
+}
 
 /**
  * @}

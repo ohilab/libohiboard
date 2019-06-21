@@ -191,8 +191,11 @@
 #define LIBOHIBOARD_PIC24FJ
 #endif
 
+#if defined (__PIC24FJ1024GA606__) || defined (__PIC24FJ1024GA610__) || \
+    defined (__PIC24FJ1024GB606__) || defined (__PIC24FJ1024GB610__)
 #ifndef LIBOHIBOARD_PIC24FJ1024
 #define LIBOHIBOARD_PIC24FJ1024
+#endif
 #endif
 
 #ifndef LIBOHIBOARD_MICROCHIP_PIC

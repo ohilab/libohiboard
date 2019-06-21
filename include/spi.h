@@ -365,6 +365,14 @@ typedef struct _Spi_Config
 System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config);
 
 /**
+  * Deitialize the SPI.
+  *
+  * @param[in] dev Spi device handle
+  * @return ERRORS_NO_ERROR The initialization is ok.
+  */
+System_Errors Spi_deInit (Spi_DeviceHandle dev);
+
+/**
  * This function check the chosen baudrate for the SPI communication,
  * and set the registers to obtain this value.
  *

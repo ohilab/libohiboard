@@ -211,6 +211,10 @@ extern "C" {
 #include "flash.h"
 #endif
 
+#ifdef LIBOHIBOARD_CRITICAL
+#include "critical.h"
+#endif
+
 #ifdef LIBOHIBOARD_SDHC
 #include "sdhc.h"
 #endif
@@ -225,6 +229,15 @@ extern "C" {
 
 #ifdef LIBOHIBOARD_LOWPOWER_TIMER
 #include "lowpower-timer.h"
+#endif
+
+#ifdef LIBOHIBOARD_WATCHDOG
+#include "watchdog.h"
+#endif
+#ifndef __XC16
+    // stub of ClrWdt invoked from framework
+    // WARNING : conflict with microchip builtin methods
+    #define ClrWdt() {}
 #endif
 
 #include "timeday.h"

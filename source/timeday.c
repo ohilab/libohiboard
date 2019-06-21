@@ -74,8 +74,7 @@ Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 {
     Time_UnixTime unixEpoch = 0;
 
-    if (!(date->year % 4) && (date->month > 2)) unixEpoch += TIME_SECOND_PER_DAY;
-    date->month--;
+    if (!(date->year % 4) && (date->month > TIME_MONTH_FEBRUARY)) unixEpoch += TIME_SECOND_PER_DAY;
 
     /* Save seconds for the months of the current year */
     while (date->month)

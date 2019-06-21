@@ -1,12 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
- * 
+ * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
- *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
+ *   Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,35 +26,67 @@
  */
 
 /**
- * @file libohiboard/include/errors.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Errors definition
+ * @file libohiboard/include/hardware/STM32L4/critical_STM32L4.h
+ * @author Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ * @brief Function for implementing Critical Section on STM32L4 series
  */
 
-#include "platforms.h"
-#include "errors.h"
+#ifndef __CRITICAL_STM32L4_H
+#define __CRITICAL_STM32L4_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-System_Errors Errors_assert (const char* file, const int line)
-{
-    (void)file;
-    (void)line;
-    /* Set breakpoint to control the execution! */
-#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
-    __builtin_software_breakpoint();
-    __builtin_nop();
-#endif
-#if defined LIBOHIBOARD_ST_STM32
-    asm("BKPT #1");
-    asm("NOP");
-#endif
-    return ERRORS_ASSERT;
-}
+#include "platforms.h"
+
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
+#if defined(LIBOHIBOARD_CRITICAL) && defined(LIBOHIBOARD_STM32L4)
+
+/**
+ * @addtogroup CRITICAL
+ * @{
+ */
+
+/**
+ * @defgroup CRITICAL Critical Section for specific Hardware
+ * @{
+ */
+
+/**
+ * Disable interrupts, begins critical section
+ *
+ * @param[IN] mask Pointer to a variable where to store the CPU IRQ mask
+ */
+void Critical_sectionBegin (uint32_t *mask);
+
+/**
+ * Ends critical section
+ *
+ * @param[IN] mask Pointer to a variable where the CPU IRQ mask was stored
+ */
+void Critical_sectionEnd (uint32_t *mask);
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
+
+#endif // LIBOHIBOARD_CRITICAL & LIBOHIBOARD_STM32L4
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // __CRITICAL_STM32L4_H

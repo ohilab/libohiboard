@@ -1,12 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
- * 
+ * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
- *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
+ *   Marco Giammarini <m.giammarini@warcomeb.it>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,35 +26,28 @@
  */
 
 /**
- * @file libohiboard/include/errors.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/include/hardware/STM32L0/rtc_STM32L0.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Errors definition
+ * @brief RTC pins and device definitions for STM32L4 series
  */
 
-#include "platforms.h"
-#include "errors.h"
+#ifndef __RTC_STM32L0_H
+#define __RTC_STM32L0_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-System_Errors Errors_assert (const char* file, const int line)
-{
-    (void)file;
-    (void)line;
-    /* Set breakpoint to control the execution! */
-#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
-    __builtin_software_breakpoint();
-    __builtin_nop();
-#endif
-#if defined LIBOHIBOARD_ST_STM32
-    asm("BKPT #1");
-    asm("NOP");
-#endif
-    return ERRORS_ASSERT;
-}
+#include "platforms.h"
+
+#if defined(LIBOHIBOARD_RTC) & defined(LIBOHIBOARD_STM32L0)
+
+extern Rtc_DeviceHandle OB_RTC0;
+
+#endif // LIBOHIBOARD_RTC & LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // __RTC_STM32L0_H

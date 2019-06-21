@@ -312,6 +312,7 @@ System_Errors LowPowerTimer_startCounter (LowPowerTimer_DeviceHandle dev,
     }
 
     // Update reload register
+    UTILITY_WRITE_REGISTER(dev->regmap->TMR1, 0x0000);
     uint16_t regVal = (uint16_t)counter;
     UTILITY_WRITE_REGISTER(dev->regmap->PR1, regVal);
 
@@ -343,7 +344,7 @@ System_Errors LowPowerTimer_stopCounter (LowPowerTimer_DeviceHandle dev)
     Interrupt_disable(INTERRUPT_TIMER1);
 
     // Disable the peripheral
-    UTILITY_SET_REGISTER_BIT(dev->regmapPmd->PMD1, _PMD1_T1MD_MASK);
+    //UTILITY_SET_REGISTER_BIT(dev->regmapPmd->PMD1, _PMD1_T1MD_MASK);
     dev->state = LOWPOWERTIMER_DEVICESTATE_RESET;
 
     return err;

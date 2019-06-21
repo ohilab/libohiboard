@@ -202,7 +202,7 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
                 break;
             }
         }
-        
+
         if (diff == 0xFFFFFFFFul)
             return ERRORS_IIC_WRONG_BAUDRATE;
 
@@ -227,9 +227,13 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
         return ERRORS_IIC_WRONG_PARAM;
 
     dev->config = *config;
-    
+
     // Disable the device
     IIC_DEVICE_DISABLE(dev->regmap);
+
+    // Clear configuration registers
+    dev->regmap->I2CCON1 = 0;
+    dev->regmap->I2CCON2 = 0;
 
     // Configure Baudrate
     err = Iic_setBaudrate(dev,config->baudrate);
@@ -262,13 +266,13 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     {
         return ERRORS_IIC_WRONG_DEVICE;
     }
-    
+
     // Enable peripheral clock if needed
     if (dev->state == IIC_DEVICESTATE_RESET)
     {
         // Enable peripheral
         UTILITY_CLEAR_REGISTER_BIT(*dev->pmdRegisterPtr, dev->pmdRegisterEnable);
-        
+
         // Enable pins
         // Not used because the pins are fixed for I2C
 #if 0
@@ -280,7 +284,7 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
 #endif
     }
     dev->state = IIC_DEVICESTATE_BUSY;
-    
+
     // Configure the peripheral
     err = Iic_config(dev,config);
     if (err != ERRORS_NO_ERROR)
@@ -296,7 +300,7 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     // Clear STOPF flag
     dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
 #endif
-    
+
     dev->state = IIC_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
 }
@@ -338,10 +342,22 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev)
                        _I2C1CON1_RCEN_MASK | \
                        _I2C1CON1_ACKEN_MASK)
 
-static inline void __attribute__((always_inline)) Iic_waitUntilIdle (Iic_DeviceHandle dev, uint32_t timeout)
+//static inline void __attribute__((always_inline)) Iic_waitUntilIdle (Iic_DeviceHandle dev, uint32_t timeout)
+void Iic_waitUntilIdle (Iic_DeviceHandle dev, uint32_t timeout)
 {
     while (((dev->regmap->I2CCON1 & IIC_IDLE_MASK) > 0) || 
            ((dev->regmap->I2CSTAT & _I2C1STAT_TRSTAT_MASK) > 0));
+}
+
+/**
+ * Clear any errors that may have occurred. 
+ */
+//static inline void __attribute__((always_inline)) Iic_clearErrors (Iic_DeviceHandle dev)
+void Iic_clearErrors (Iic_DeviceHandle dev)
+{
+	dev->regmap->I2CCON1 &= ~_I2C1CON1_RCEN_MASK;
+	dev->regmap->I2CSTAT &= ~_I2C1STAT_IWCOL_MASK;
+	dev->regmap->I2CSTAT &= ~_I2C1STAT_BCL_MASK;
 }
 
 #if 0
@@ -610,6 +626,8 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
         return ERRORS_IIC_WRONG_PARAM;
     }
 
+    Iic_clearErrors(dev);
+
     // Check if the device is busy
     // FIXME: the timeout is not usable
     Iic_waitUntilIdle(dev,0);
@@ -621,7 +639,7 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     // Send start conditions
     Iic_start(dev);
     Iic_waitUntilIdle(dev,0);
-    
+
     // Write device address
     // Wait till data is transmitted.
     dev->regmap->I2CTRN = ((devAddress << 1) & 0x00FF);
@@ -661,7 +679,7 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
             err = ERRORS_IIC_TX_ACK_NOT_RECEIVED;
             goto i2cerror;
         }
-        
+
         // LSB part of register address        
         dev->regmap->I2CTRN = (uint8_t)(regAddress & 0x00FFu);
         // Check collision and idle status
@@ -732,6 +750,8 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
         return ERRORS_IIC_WRONG_PARAM;
     }
 
+    Iic_clearErrors(dev);
+
     // Check if the device is busy
     // FIXME: the timeout is not usable
     Iic_waitUntilIdle(dev,0);
@@ -795,10 +815,10 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
         {
             err = ERRORS_IIC_TX_ACK_NOT_RECEIVED;
             goto i2cerror;
-        }        
+        }
     }
 
-    // Send repeated start...
+    // Send repeated start
     Iic_repeatedStart(dev);
     Iic_waitUntilIdle(dev,0);
 
@@ -819,7 +839,9 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
         // Put the peripheral in receive mode
         // This bit automatically cleared by hardware at end of 8-bit receive data byte
         dev->regmap->I2CCON1 |= _I2C1CON1_RCEN_MASK;
-        while (dev->regmap->I2CCON1 & _I2C1CON1_RCEN_MASK);
+        //while (dev->regmap->I2CCON1 & _I2C1CON1_RCEN_MASK);
+        while (dev->regmap->I2CSTAT & _I2C1STAT_RBF_MASK);
+
         // Clear Receive Overflow Flag Bit (I2COV)
         dev->regmap->I2CSTAT &= ~_I2C1STAT_I2COV_MASK;
         // Check idle status...
@@ -832,13 +854,13 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
         if (dev->bufferCount > 1)
         {
             dev->regmap->I2CCON1 &= ~_I2C1CON1_ACKDT_MASK;
-            dev->regmap->I2CCON1 |=  _I2C1CON1_ACKEN_MASK;            
+            dev->regmap->I2CCON1 |=  _I2C1CON1_ACKEN_MASK;
         }
         else
         {
             // After last byte, send NACK
             dev->regmap->I2CCON1 |= _I2C1CON1_ACKDT_MASK;
-            dev->regmap->I2CCON1 |= _I2C1CON1_ACKEN_MASK;            
+            dev->regmap->I2CCON1 |= _I2C1CON1_ACKEN_MASK;
         }
 
         // Check idle status...

@@ -54,6 +54,7 @@ typedef enum _Rtc_DeviceState
 {
     RTC_DEVICESTATE_RESET,
     RTC_DEVICESTATE_READY,
+    RTC_DEVICESTATE_SET,
     RTC_DEVICESTATE_BUSY,
     RTC_DEVICESTATE_ERROR,
 
@@ -258,6 +259,14 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
  * @return Current RTC time in unix timestamp format
  */
 Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
+
+/**
+ * This function return the state of RTCe.
+ *
+ * @param[in] dev Rtc device handle
+ * @return device state
+ */
+Rtc_DeviceState Rtc_getState (Rtc_DeviceHandle dev);
 
 ///@}
 

@@ -72,10 +72,6 @@ extern "C" {
                                              ((CHANNEL) == ADC_CHANNELS_AVSS)    || \
                                              ((CHANNEL) == ADC_CHANNELS_AVDD))
 
-#if !defined(ADC_BADGAP_SAMPLE_NUMBER)
-#define ADC_BADGAP_SAMPLE_NUMBER         16
-#endif
-
 #if defined (LIBOHIBOARD_PIC24FJxGA606) || \
     defined (LIBOHIBOARD_PIC24FJxGB606)
 
@@ -490,7 +486,7 @@ int32_t Adc_getTemperature (Adc_DeviceHandle dev, uint32_t data, uint32_t vref)
 uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
 {
     if (dev->state != ADC_DEVICESTATE_READY)
-        return 0.0;
+        return 0;
 
     uint16_t adcVbg = 0;
     float adcVbgAvarage = 0.0f;
@@ -508,7 +504,7 @@ uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
 
     Adc_configPin(dev,&confVbg,ADC_PINS_INTERNAL);
 
-    for (uint8_t i = 0; i < ADC_BADGAP_SAMPLE_NUMBER; ++i)
+    for (uint8_t i = 0; i < ADC_SAMPLE_NUMBER; ++i)
     {
         Adc_start(dev);
         if (Adc_poll(dev,500) != ERRORS_ADC_CONVERSION_DONE)
@@ -523,7 +519,34 @@ uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
     UTILITY_CLEAR_REGISTER_BIT(dev->regmapANCFG->ANCFG,_ANCFG_VBGEN_MASK);
     UTILITY_CLEAR_REGISTER_BIT(dev->regmapANCFG->ANCFG,_ANCFG_VBGADC_MASK);
 
-    return (uint16_t) (adcVbgAvarage / ADC_BADGAP_SAMPLE_NUMBER);
+    return (uint16_t) (adcVbgAvarage / ADC_SAMPLE_NUMBER);
+}
+
+uint16_t Adc_getAvarageRead (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin, uint8_t count)
+{
+    if (dev->state != ADC_DEVICESTATE_READY)
+        return 0;
+    
+    if (count == 0)
+        count = ADC_SAMPLE_NUMBER;
+
+    uint16_t adcValue = 0;
+    float adcValueAvarage = 0.0f;
+    
+    Adc_configPin(dev,config,pin);
+    
+    for (uint8_t i = 0; i < count; ++i)
+    {
+        Adc_start(dev);
+        if (Adc_poll(dev,500) != ERRORS_ADC_CONVERSION_DONE)
+            return 0.0;
+        else
+            adcValue = (uint16_t) Adc_read(dev);
+
+        Adc_stop(dev);
+        adcValueAvarage += adcValue;
+    }
+    return (uint16_t) (adcValueAvarage / count);
 }
 
 #endif // LIBOHIBOARD_PIC24FJ

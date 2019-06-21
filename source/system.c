@@ -40,9 +40,10 @@ extern "C" {
 #include "system.h"
 #include "clock.h"
 #include "interrupt.h"
+
 #if defined (LIBOHIBOARD_MICROCHIP_PIC)
 #include "timer.h"
-    
+#include "critical.h"
 void SysTick_Handler (Timer_DeviceHandle dev);
 #endif
 
@@ -139,12 +140,41 @@ uint32_t System_currentTick (void)
     return System_ticks;
 }
 
-void System_delay (uint32_t msec)
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+#include <libpic30.h>
+static void delay(uint32_t msec)
+{
+    uint64_t milli = 1000ull;
+    uint64_t time = (uint64_t)msec;
+    uint64_t fcy = (uint64_t)Clock_getOutputValue(CLOCK_OUTPUT_PERIPHERAL);
+
+    uint32_t value = (uint32_t)((time * fcy) / milli);
+    __delay32(value);
+}
+#endif
+
+static void wait(uint32_t msec)
 {
     uint32_t timeout = System_currentTick() + msec;
-
     while (timeout > System_currentTick());
 }
+
+void System_delay (uint32_t msec)
+{
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    if (Critical_isActive())
+    {
+        delay(msec);
+    }
+    else
+    {
+        wait(msec);
+    }
+#else
+    wait(msec);
+#endif
+}
+
 
 void System_suspendTick (void)
 {

@@ -1,11 +1,10 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2017 A. C. Open Hardware Ideas Lab
- *
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
+ * 
  * Authors:
- *   Matteo Piersantelli
- *   Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -13,10 +12,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,93 +27,221 @@
 
 /**
  * @file libohiboard/include/flash.h
- * @author Matteo Piersantelli
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
  * @brief FLASH definitions and prototypes.
+ */
+
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
  */
 
 #ifdef LIBOHIBOARD_FLASH
 
+/**
+ * @defgroup FLASH
+ * @brief FLASH Reading and Writing on memory code
+ * @{
+ */
+
 #ifndef __FLASH_H
 #define __FLASH_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "system.h"
 
-// Usefull defines
-#define FLASH_WRITE16(address, value)         (*(volatile uint16_t*)(address) = (value))
-#define FLASH_READ16(address)                 ((uint16_t)(*(volatile uint16_t*)(address)))
-
-#define FLASH_WRITE8(address, value)          (*(volatile uint8_t*)(address) = (value))
-#define FLASH_READ8(address)                  ((uint8_t)(*(volatile uint8_t*)(address)))
-
-#define FLASH_GET_BIT_0_7(value)              ((uint8_t)((value) & 0xFFU))
-#define FLASH_GET_BIT_8_15(value)             ((uint8_t)(((value)>>8) & 0xFFU))
-#define FLASH_GET_BIT_16_23(value)            ((uint8_t)(((value)>>16) & 0xFFU))
-#define FLASH_GET_BIT_24_31(value)            ((uint8_t)((value)>>24))
-
-typedef struct Flash_Device* Flash_DeviceHandle;
-
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)
-
-extern Flash_DeviceHandle OB_FLASH0;
-
+#if defined (LIBOHIBOARD_PIC24FJ)
+#include "hardware/PIC24FJ/flash_PIC24FJ.h"
+#elif defined (LIBOHIBOARD_STM32L4)
+//#include "hardware/STM32L4/flash_STM32L4.h"
 #endif
 
 /**
- * This function initialize the flash informations for user data
- *
- * @param dev The device handle
- * @param sectorNumbers The number of memory sector to save user data
- * @retval ERRORS_NO_ERROR No problem during flash initialization
+ * Initialize the FLASH control register.
+ * 
+ * @retval error
  */
-System_Errors Flash_init (Flash_DeviceHandle dev, uint8_t sectorNumbers);
+System_Errors Flash_init(void);
 
 /**
- * This function read a 16bit value at the specified index. The index start
- * from user location start address. In this case each index value represent
- * a 16bit location.
- *
- * @param dev The device handle
- * @param index The position of the data.
- * @return the read value
+ * Unlock the FLASH control register access.
+ * 
+ * @retval error
  */
-uint16_t Flash_readLocation (Flash_DeviceHandle dev, uint16_t index);
+System_Errors Flash_unlock(void);
 
 /**
- * This function read a 8bit value at the specified index. The index start
- * from user location start address. In this case each index value represent
- * a 8bit location.
- *
- * @param dev The device handle
- * @param index The position of the data.
- * @return the read value
+ * Lock the FLASH control register access.
+ * 
+ * @retval error
  */
-uint8_t Flash_readLocation8 (Flash_DeviceHandle dev, uint16_t index);
+System_Errors Flash_lock(void);
 
 /**
- * This function erase the specified sector.
- *
- * @param dev The device handle
- * @param sectorNumber The current sector number to erase
- * @retval ERRORS_NO_ERROR No problem during erasing
- * @retval ERRORS_FLASH_PROTECTION_VIOLATION The flash sector is protected
- * @retval ERRORS_FLASH_ACCESS In case of invalid argument
+ * Gets the bank of a given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @retval The bank of a given address
  */
-System_Errors Flash_EraseSector (Flash_DeviceHandle dev, uint8_t sectorNumber);
+uint32_t Flash_getBank(uint32_t address);
 
 /**
- * This function write data into memory starting from start address of user dedicated
- * location.
- *
- * @param dev The device handle
- * @param buffer The data buffer to write into flash memory
- * @param size The number of byte must be write
+ * Gets the page of a given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @retval The page of a given address
  */
-System_Errors Flash_writeBuffer (Flash_DeviceHandle dev, uint8_t *buffer, uint32_t size);
+uint32_t Flash_getPage(uint32_t address);
 
-#endif /* __FLASH_H */
+/**
+ * Gets the row of a given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @retval The row of a given address
+ */
+uint32_t Flash_getRow(uint32_t address);
 
-#endif /* LIBOHIBOARD_FLASH */
+/**
+ * Read a word of code from a given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @retval The word of a given address
+ */
+uint32_t Flash_readWord(uint32_t address);
+
+/**
+ * Read a row of code from a given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @param[OUT] words: The row of a given address
+ * @retval error
+ */
+System_Errors Flash_readRow(uint32_t address, uint32_t *words);
+
+/**
+ * Erase a bank
+ * 
+ * @param[IN] bank: progression number of bank
+ * @retval error
+ */
+System_Errors Flash_eraseBank(uint32_t bank);
+
+/**
+ * Erase a page
+ * 
+ * @param[IN] page: progression number of page
+ * @retval error
+ */
+System_Errors Flash_erasePage(uint32_t page);
+
+/**
+ * Erase a sector
+ * 
+ * @param[IN] pageStart: page number from which the deletion begins
+ * @param[IN] numPages: number of pages to erase
+ * @retval error
+ */
+System_Errors Flash_eraseSector(uint32_t pageStart, uint32_t numPages);
+
+/**
+ * Erase data from specified address 
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @param[IN] length: Length of data [Byte]
+ * @retval error
+ */
+System_Errors Flash_erase(uint32_t address, uint32_t length);
+
+/**
+ * Write double word at given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @param[IN] word1: most significant word
+ * @param[IN] word2: least significant word
+ * @retval error
+ */
+System_Errors Flash_writeDoubleWord(uint32_t address, uint32_t word1, uint32_t word2);
+
+/**
+ * Write a row from given address
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @param[IN] word: array of words
+ * @retval error
+ */
+System_Errors Flash_writeRow(uint32_t address, uint32_t *words);
+
+/**
+ * Read data from given address
+ * 
+ * @note The data is stored in code are using only the two less significat
+ *       byte of word.
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @param[IN] data: Array of data
+ * @param[IN] length: Length of data [Byte]
+ * @retval error
+ */
+System_Errors Flash_readData(uint32_t address, uint8_t *data, uint16_t length);
+
+/**
+ * Write data from given address
+ * 
+ * @note The data is stored in code are using only the two less significat
+ *       byte of word.
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @param[OUT] data: Array of data
+ * @param[IN] length: Length of data [Byte]
+ * @retval error
+ */
+System_Errors Flash_writeData(uint32_t address, uint8_t *data, uint16_t length);
+
+/**
+ * Test if page of given address is empty
+ * 
+ * @param[IN] address: Address of the FLASH Memory
+ * @retval true: page is empty; false: otherwise.
+ */
+bool Flash_isPageEmpty(uint32_t address);
+
+/**
+ * Test if two page of given addresses are equal
+ * 
+ * @param[IN] address1: First address of the FLASH Memory
+ * @param[IN] address2: Second address of the FLASH Memory
+ * @retval true: pages are equal, false: otherwise.
+ */
+bool Flash_pagecmp(uint32_t address1, uint32_t address2);
+
+/**
+ * Copy the content from source to destination for the specified length
+ * 
+ * @param[IN] destAddress: Destination address of the FLASH Memory
+ * @param[IN] sourceAddress: Source address of the FLASH Memory
+ * @param[IN] length: Length of data [Byte]
+ * @retval true: copy operation worked well, false: otherwise.
+ */
+bool Flash_memcpy(uint32_t destAddress, uint32_t sourceAddress, uint32_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __FLASH_H
+
+/**
+ * @}
+ */
+
+#endif // LIBOHIBOARD_UART
+
+/**
+ * @}
+ */

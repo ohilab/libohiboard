@@ -42,30 +42,18 @@ extern "C" {
 
 typedef struct
 {
-    volatile uint16_t WREG0;
-    volatile uint16_t WREG1;
-    volatile uint16_t WREG2;
-    volatile uint16_t WREG3;
-    volatile uint16_t WREG4;
-    volatile uint16_t WREG5;
-    volatile uint16_t WREG6;
-    volatile uint16_t WREG7;
-    volatile uint16_t WREG8;
-    volatile uint16_t WREG9;
-    volatile uint16_t WREG10;
-    volatile uint16_t WREG11;
-    volatile uint16_t WREG12;
-    volatile uint16_t WREG13;
-    volatile uint16_t WREG14;
-    volatile uint16_t WREG15;
+    volatile uint16_t WREG[16];
     volatile uint16_t SPLIM;
     volatile uint16_t PCL;
+    volatile uint16_t _padding1[6];
     volatile uint16_t PCH;
     volatile uint16_t DSRPAG;
     volatile uint16_t DSWPAG;
     volatile uint16_t RCOUNT;
+    volatile uint16_t _padding2[5];
     volatile uint16_t SR;
     volatile uint16_t CORCON;
+    volatile uint16_t _padding3[6];
     volatile uint16_t DISICNT;
     volatile uint16_t TBLPAG;
 } CPU_TypeDef;

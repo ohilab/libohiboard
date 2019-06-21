@@ -57,6 +57,8 @@ extern "C" {
  */
 #define SPI_DEVICE_DISABLE(REGMAP)       (REGMAP->SPICON1L &= ~_SPI1CON1L_SPIEN_MASK)
 
+#define SPI_DEVICE_IS_ENABLED(REGMAP)    (((REGMAP->SPICON1L & _SPI1CON1L_SPIEN_MASK) == 0)?(false):(true))
+
 #define SPI_DEVICE_STOP(REGMAP)         do {                                       \
                                              REGMAP->SPICON1L = 0;                 \
                                              REGMAP->SPICON1H = 0;                 \
@@ -265,21 +267,25 @@ static System_Errors Spi_setNssPin(Spi_DeviceHandle dev, Spi_PcsPins nssPin)
 
 System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed)
 {
+    bool enabled = SPI_DEVICE_IS_ENABLED(dev->regmap);
     uint32_t peripheralClock = Clock_getOutputValue(CLOCK_OUTPUT_PERIPHERAL);
 
     if (peripheralClock != 0u)
     {
-        uint16_t brg = (peripheralClock / (2 * speed)) - 1;
-        uint16_t baudRate = (peripheralClock / (2 *(brg + 1)));
-        uint32_t difference = ((uint32_t)baudRate > (uint32_t)speed)?((uint32_t)baudRate - (uint32_t)speed):((uint32_t)speed - (uint32_t)baudRate);
+        uint32_t brg = (peripheralClock / (2 * speed)) - 1;
+        uint32_t baudRate = (peripheralClock / (2 *(brg + 1)));
+        uint32_t difference = (baudRate > speed)?(baudRate - speed):(speed - baudRate);
 
         if (difference < 1000000)
         {
             // The peripheral must be disabled:
             // Changing the BRG value when SPIEN = 1 causes undefined behavior
             SPI_DEVICE_DISABLE(dev->regmap);
-            UTILITY_MODIFY_REGISTER(dev->regmap->SPIBRGL, _SPI1BRGL_BRG_MASK, brg);
-            SPI_DEVICE_ENABLE(dev->regmap);
+            UTILITY_MODIFY_REGISTER(dev->regmap->SPIBRGL, _SPI1BRGL_BRG_MASK, (uint16_t)brg);
+            if(enabled == true)
+            {
+                SPI_DEVICE_ENABLE(dev->regmap);
+            }
         }
         else
         {
@@ -460,6 +466,7 @@ System_Errors Spi_writeByte (Spi_DeviceHandle dev, uint8_t data)
 static System_Errors spi_exchange16bit(Spi_DeviceHandle dev, const uint16_t *txData, uint16_t *rxData, uint32_t timeout)
 {
     System_Errors err = ERRORS_NO_ERROR;
+    uint16_t spibufl = 0;
     
     while (UTILITY_READ_REGISTER_BIT(dev->regmap->SPISTATL,_SPI1STATL_SPIRBF_MASK) > 0)
     {
@@ -483,7 +490,8 @@ static System_Errors spi_exchange16bit(Spi_DeviceHandle dev, const uint16_t *txD
 //        }
     }
 
-    *((uint16_t*)rxData) = dev->regmap->SPIBUFL;
+    spibufl = dev->regmap->SPIBUFL;
+    *((uint16_t*)rxData) = spibufl;
 
 //spierror:
     return err;
@@ -492,32 +500,52 @@ static System_Errors spi_exchange16bit(Spi_DeviceHandle dev, const uint16_t *txD
 static System_Errors spi_exchange8bit(Spi_DeviceHandle dev, const uint8_t *txData, uint8_t *rxData, uint32_t timeout)
 {
     System_Errors err = ERRORS_NO_ERROR;
+    uint32_t timeoutEnd = 0;
+    uint16_t spibufl = 0;//Overrrun
     
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SPISTATL,_SPI1STATL_SPIRBF_MASK) > 0)
+    timeoutEnd = System_currentTick() + timeout;
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SPISTATH, _SPI1STATH_RXELM_MASK) > 0)
     {
-//        if (System_currentTick() > timeoutEnd)
-//        {
-//            err = ERRORS_SPI_TIMEOUT_TX;
-//            // Release the device.
-//            goto spierror;
-//        }
+        uint8_t dummy = 0;
+        dummy = dev->regmap->SPIBUFL;
+
+        if (System_currentTick() > timeoutEnd)
+        {
+            err = ERRORS_SPI_TIMEOUT_TX;
+            // Release the device.
+            goto spierror;
+        }
+    }
+
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->SPISTATL, _SPI1STATL_SPIROV_MASK);
+    timeoutEnd = System_currentTick() + timeout;    
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SPISTATL, _SPI1STATL_SPIRBF_MASK) > 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            err = ERRORS_SPI_TIMEOUT_TX;
+            // Release the device.
+            goto spierror;
+        }
     }
 
     dev->regmap->SPIBUFL = *((uint8_t*)txData);
 
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SPISTATL,_SPI1STATL_SPIRBE_MASK) > 0)
+    timeoutEnd = System_currentTick() + timeout;
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->SPISTATL ,_SPI1STATL_SPIRBE_MASK) > 0)
     {
-//        if (System_currentTick() > timeoutEnd)
-//        {
-//            err = ERRORS_SPI_TIMEOUT_TX;
-//            // Release the device.
-//            goto spierror;
-//        }
+        if (System_currentTick() > timeoutEnd)
+        {
+            err = ERRORS_SPI_TIMEOUT_TX;
+            // Release the device.
+            goto spierror;
+        }
     }
 
-    *((uint8_t*)rxData) = dev->regmap->SPIBUFL;
+    spibufl = dev->regmap->SPIBUFL;
+    *((uint8_t*)rxData) = spibufl;
 
-//spierror:
+spierror:
     return err;
 }
 

@@ -1,12 +1,11 @@
 /*
  * This file is part of the libohiboard project.
- *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
+ * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
- *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
+ *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,35 +26,30 @@
  */
 
 /**
- * @file libohiboard/include/errors.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Errors definition
+ * @file libohiboard/source/STM32L4/flash_STM32L4.c
+ * @author Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ * @brief FLASH Function for implementing Reading and Writing on memory code
  */
 
-#include "platforms.h"
-#include "errors.h"
+#if defined(LIBOHIBOARD_FLASH)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-System_Errors Errors_assert (const char* file, const int line)
-{
-    (void)file;
-    (void)line;
-    /* Set breakpoint to control the execution! */
-#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
-    __builtin_software_breakpoint();
-    __builtin_nop();
-#endif
-#if defined LIBOHIBOARD_ST_STM32
-    asm("BKPT #1");
-    asm("NOP");
-#endif
-    return ERRORS_ASSERT;
-}
+#include "platforms.h"
+#include "utility.h"
+#include "critical.h"
+
+#if defined (LIBOHIBOARD_STM32L4)
+#include "hardware/STM32L4/flash_STM32L4.h"
+
+
+
+#endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // LIBOHIBOARD_FLASH

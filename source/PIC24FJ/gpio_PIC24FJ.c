@@ -324,9 +324,9 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
     if(options & GPIO_PINS_INPUT)
     {
-        // Check configuration for direction
-        ohiassert(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) ^
-                  ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN));
+        // Check configuration pullup or pulldown configuration
+        ohiassert(~(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) &&
+                    ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN)));
 
         if(options & GPIO_PINS_ENABLE_PULLUP)
         {
@@ -344,7 +344,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
     }
     else
     {
-        // Check configuration for direction
+        // Check configuration for output mode
         ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
                     ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
 
@@ -506,11 +506,16 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 {
+    if(pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_TypeDef* port = 0;
     uint8_t pinNumber = 0;
 
     // Check configuration for direction
-    ohiassert(((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING) ^
+    ohiassert(((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING) ||
               ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING));
 
     pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
@@ -549,6 +554,11 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
+    if(pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_TypeDef* port = 0;
     uint8_t pinNumber = 0;
 

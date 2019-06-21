@@ -39,18 +39,25 @@ extern "C" {
 
 Clock_Device clockDevice =
 {
-    .regmap = OSCILLATOR,
-    .regmapRefo = REFO,
-    .regmapPmd = PMD,
-    
+    .regmap               = OSCILLATOR,
+    .regmapRefo           = REFO,
+    .regmapPmd            = PMD,
+
     .systemCoreClock      = 32000000U,
     .secondaryOscillator  = 32768U,
     .primaryOscillator    = 0U,
     .rccError             = ERRORS_NO_ERROR,
 };
 
+Clock_Config clockConfig =
+{
+    .source = CLOCK_NO_SOURCE,
+    .fext = 0,
+    .foutSys = 0,
+};
+
 static System_Errors Clock_deInit (void);
-    
+
 System_Errors Clock_init (Clock_Config* config)
 {
     System_Errors error = ERRORS_NO_ERROR;
@@ -58,21 +65,25 @@ System_Errors Clock_init (Clock_Config* config)
     {
         return ERRORS_CLOCK_NO_CONFIG;
     }
-    
+    if ((memcmp(&clockConfig, config, sizeof(Clock_Config)) == 0) && (clockConfig.foutSys != 0))
+    {
+        return ERRORS_NO_ERROR;
+    }
+
     //Reset the Oscillator to FRC source
     Clock_deInit();
-    
+
     // Initialize SysTick with default clock value (8MHz)
     System_systickInit(0);
-    
+
     uint8_t oscconh = 0, oscconl = 0;
-    
+
     //Enable Secondary Oscillator
     if(config->source & CLOCK_EXTERNAL_SOSC)
     {
         oscconl |= _OSCCON_SOSCEN_MASK;
     }
-    
+
     //Select the system oscillator source
     if(config->source & CLOCK_INTERNAL_OSCFDIV)
     {
@@ -106,7 +117,7 @@ System_Errors Clock_init (Clock_Config* config)
     {
         oscconh = OSCSCR_SOSC;
     }
-    
+
     if((config->source & CLOCK_EXTERNAL_XTPLL) || (config->source & CLOCK_INTERNAL_FRCPLL))
     {
         // in case of PLL enable clock switching
@@ -122,22 +133,28 @@ System_Errors Clock_init (Clock_Config* config)
         while (OSCCONbits.OSWEN != 0);
         while (OSCCONbits.LOCK != 1);
     }
-    
+
     Nop();
     Nop();
     Nop();
     Nop();
-    
+
+    // Save current configuration
+    clockConfig = *config;
+
     // Initialize SysTick with correct clock value
     System_systickInit(0);
-    
+
+    clockConfig = *config;
+    clockConfig.foutSys = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
+    config->foutSys = clockConfig.foutSys;
     return error;
 }
 
 static System_Errors Clock_deInit (void)
 {
     System_Errors error = ERRORS_NO_ERROR;
-    
+
     // CPDIV 1:1; PLLEN disabled; DOZE 1:8; RCDIV FRC; DOZEN disabled; ROI disabled; 
     UTILITY_WRITE_REGISTER(clockDevice.regmap->CLKDIV, 0x3000);
     // STOR disabled; STORPOL Interrupt when STOR is 1; STSIDL disabled; STLPOL Interrupt when STLOCK is 1; STLOCK disabled; STSRC SOSC; STEN disabled; TUN Center frequency; 
@@ -173,12 +190,12 @@ static System_Errors Clock_deInit (void)
     // CF no clock failure; NOSC FRC; SOSCEN enabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
     __builtin_write_OSCCONH((uint8_t) (0x00));
     __builtin_write_OSCCONL((uint8_t) (0x02));
-    
+
     Nop();
     Nop();
     Nop();
     Nop();
-    
+
     return error;
 }
 
@@ -190,7 +207,7 @@ uint32_t Clock_getOutputValue (Clock_Output output)
         case CLOCK_OUTPUT_SYSCLK:
             outputValue = Clock_getOscillatorValue();
             break;
-            
+
         case CLOCK_OUTPUT_PERIPHERAL:
             outputValue = Clock_getOscillatorValue() / 2;
             break;
@@ -267,36 +284,36 @@ uint32_t Clock_getOscillatorValue (void)
         case OSCSCR_OSCFDIV:
             clockValue = 8000000;
             break;
-            
+
         case OSCSCR_DCO:
             clockValue = Clock_getDcoOscillatorValue();
             break;
-            
+
         case OSCSCR_LPRC:
             clockValue = 31000;
             break;
-            
+
         case OSCSCR_SOSC:
             clockValue = clockDevice.secondaryOscillator;
             break;
-            
+
         case OSCSCR_XTPLL:
             clockValue = 8000000;
             break;
-            
+
         case OSCSCR_XT:
             clockValue = clockDevice.primaryOscillator;
             break;
-            
+
         case OSCSCR_FRCPLL:
             clockValue = 32000000;
             break;
-            
+
         case OSCSCR_FRC:
             clockValue = 8000000;
             break;
-            
-    }    
+
+    }
     return clockValue;
 }
 

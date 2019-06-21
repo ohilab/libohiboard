@@ -1,12 +1,11 @@
 /*
  * This file is part of the libohiboard project.
- *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
+ * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
- *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
+ *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,35 +26,44 @@
  */
 
 /**
- * @file libohiboard/include/errors.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Errors definition
+ * @file libohiboard/source/PIC24FJ/critical_PIC24FJ.c
+ * @author Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ * @brief CRITICAL Function for implementing Critical Section on PIC24FJ
  */
 
-#include "platforms.h"
-#include "errors.h"
+#if defined(LIBOHIBOARD_CRITICAL)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-System_Errors Errors_assert (const char* file, const int line)
+#include "platforms.h"
+#include "utility.h"
+#include "critical.h"
+
+#if defined (LIBOHIBOARD_PIC24FJ)
+
+inline uint8_t Critical_getCpuIpl(void)
 {
-    (void)file;
-    (void)line;
-    /* Set breakpoint to control the execution! */
-#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
-    __builtin_software_breakpoint();
-    __builtin_nop();
-#endif
-#if defined LIBOHIBOARD_ST_STM32
-    asm("BKPT #1");
-    asm("NOP");
-#endif
-    return ERRORS_ASSERT;
+    uint8_t value = (UTILITY_READ_REGISTER_BIT(CPU->SR, _SR_IPL_MASK) >> _SR_IPL_POSITION);
+    return value;
 }
+
+inline void Critical_setCpuIpl(uint8_t value)
+{
+    UTILITY_MODIFY_REGISTER(CPU->SR, _SR_IPL_MASK, (value << _SR_IPL_POSITION));
+}
+
+inline bool Critical_isActive(void)
+{
+    uint8_t value = Critical_getCpuIpl();
+    return (value == CRITICAL_MAX_PRIORITY)?(true):(false);
+}
+
+#endif // LIBOHIBOARD_PIC24FJ
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // LIBOHIBOARD_CRITICAL

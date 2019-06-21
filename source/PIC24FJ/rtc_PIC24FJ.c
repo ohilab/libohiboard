@@ -406,7 +406,7 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time)
     // Now the peripheral is ready
     RTC_ENABLE();
     RTC_ENABLE_WRITE_PROTECTION();
-    dev->state = RTC_DEVICESTATE_READY;
+    dev->state = RTC_DEVICESTATE_SET;
 
     return ERRORS_NO_ERROR;
 }
@@ -456,6 +456,11 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
     mDate.month = Rtc_convertBCDToHex(value.fields.month);
 
     return (Rtc_Time)Time_getUnixTime(&mDate,&mTime);
+}
+
+Rtc_DeviceState Rtc_getState (Rtc_DeviceHandle dev)
+{
+    return dev->state;
 }
 
 void Rtc_enableAlarm(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm)

@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/PIC24FJ/lowpower-timer_PIC24FJ.h
+ * @file libohiboard/include/hardware/PIC24FJ/lowpower_PIC24FJ.h
  * @author Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
  * @brief Low-Power useful definitions for PIC24FJ
  */

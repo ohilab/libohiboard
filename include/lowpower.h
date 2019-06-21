@@ -159,6 +159,8 @@ uint32_t LowPower_getWakeUpflags (void);
  */
 void LowPower_clearWakeUpflags (uint32_t flags);
 
+#endif // (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
+
 /**
  * Set the frequency of CPU and the low-power mode.
  *
@@ -185,8 +187,6 @@ System_Errors LowPower_setModeByConfiguration (Clock_Config* config, LowPower_Mo
  * @note the returned value is in MCU-specific enumeration;  please compare with the comfort macros for a portable usage.
  */
 LowPower_Mode LowPower_getMode(void);
-
-#endif // (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
 
 #ifdef __cplusplus
 }
