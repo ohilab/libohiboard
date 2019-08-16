@@ -77,6 +77,8 @@ typedef enum _Utility_State
 #define UTILITY_VALID_STATE(STATE) (((STATE) == UTILITY_STATE_ENABLE) || \
                                     ((STATE) == UTILITY_STATE_DISABLE))
 
+#define UTILITY_STRING(x)              #x
+#define UTILITY_STRING1(x)             UTILITY_STRING(x)
 #define UTILITY_STRING2(x,y)           x##y
 #define UTILITY_STRING3(x,y,z)         x##y##z
 
