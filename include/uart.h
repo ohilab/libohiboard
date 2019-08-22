@@ -466,6 +466,11 @@ System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
 System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout);
 
 /**
+ * This function flush the peripheral rx buffer.
+ */
+void Uart_flushRx (Uart_DeviceHandle dev);
+
+/**
  * Check the receiving queue to see if packet has arrived.
  *
  * @param[in] dev Uart device handle

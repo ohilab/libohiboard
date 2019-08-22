@@ -450,9 +450,13 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
     err |= ohiassert(UART_VALID_SLEEPMODE(config->sleepMode));
     err |= ohiassert(UART_VALID_IDLEMODE(config->idleMode));
     if (config->callbackRx != 0)
+    {
         err |= ohiassert(INTERRUPT_IS_VALID_PRIORITY(config->isrRxPriority));
+    }
     if (config->callbackTx != 0)
+    {
         err |= ohiassert(INTERRUPT_IS_VALID_PRIORITY(config->isrTxPriority));
+    }
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_UART_WRONG_PARAM;
@@ -471,10 +475,14 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
         {
             // Enable pins
             if (config->rxPin != UART_PINS_RXNONE)
+            {
                 Uart_setRxPin(dev, config->rxPin);
+            }
 
             if (config->txPin != UART_PINS_TXNONE)
+            {
                 Uart_setTxPin(dev, config->txPin);
+            }
         }
     }
     dev->state = UART_DEVICESTATE_BUSY;
@@ -496,13 +504,23 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
 {
     System_Errors error = ERRORS_NO_ERROR;
 
+    Uart_flushRx(dev);
+
+    // Disable the peripheral
+    UART_DEVICE_DISABLE(dev->regmap);
+
+    // Clear all registers
+    dev->regmap->UMODE = 0;
+    dev->regmap->UBRG  = 0;
+    dev->regmap->USTA  = 0;
+
     // Check callback and delete it
     if (dev->callbackRx != 0)
     {
         dev->callbackRx = 0;
         Interrupt_clearFlag(dev->isrNumberRx);
         Interrupt_disable(dev->isrNumberRx);
-        
+
         dev->callbackErr = 0;
         Interrupt_clearFlag(dev->isrNumberErr);
         Interrupt_disable(dev->isrNumberErr);
@@ -681,6 +699,17 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
     return error;
 }
 
+void Uart_flushRx (Uart_DeviceHandle dev)
+{
+    uint16_t dummy = 0;
+    for(uint16_t i = 0; i < 4; i++)
+    {
+        (void)dummy;
+        dummy = (uint16_t) (dev->regmap->URXREG);
+    }
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->USTA, _U1STA_OERR_MASK);
+}
+
 bool Uart_isPresent (Uart_DeviceHandle dev)
 {
     return (UTILITY_READ_REGISTER_BIT(dev->regmap->USTA,_U1STA_URXDA_MASK) == 0) ? FALSE : TRUE;
@@ -716,9 +745,9 @@ void __isr_noautopsv _U1TXInterrupt(void)
 
 void __isr_noautopsv _U1ErrInterrupt (void)
 {
-    if ((U1STAbits.OERR == 1))
+    if (UTILITY_READ_REGISTER_BIT(OB_UART1->regmap->USTA, _U1STA_OERR_MASK) != 0)
     {
-        U1STAbits.OERR = 0;
+        UTILITY_CLEAR_REGISTER_BIT(OB_UART1->regmap->USTA, _U1STA_OERR_MASK);
     }
     Interrupt_clearFlag(INTERRUPT_UART1_ERROR);
 }
@@ -735,9 +764,9 @@ void __isr_noautopsv _U2TXInterrupt(void)
 
 void __isr_noautopsv _U2ErrInterrupt (void)
 {
-    if ((U2STAbits.OERR == 1))
+    if (UTILITY_READ_REGISTER_BIT(OB_UART2->regmap->USTA, _U2STA_OERR_MASK) != 0)
     {
-        U2STAbits.OERR = 0;
+        UTILITY_CLEAR_REGISTER_BIT(OB_UART2->regmap->USTA, _U2STA_OERR_MASK);
     }
     Interrupt_clearFlag(INTERRUPT_UART2_ERROR);
 }
@@ -752,6 +781,15 @@ void __isr_noautopsv _U3TXInterrupt(void)
     Uart_isrTxHandler(OB_UART3);
 }
 
+void __isr_noautopsv _U3ErrInterrupt (void)
+{
+    if (UTILITY_READ_REGISTER_BIT(OB_UART3->regmap->USTA, _U3STA_OERR_MASK) != 0)
+    {
+        UTILITY_CLEAR_REGISTER_BIT(OB_UART3->regmap->USTA, _U3STA_OERR_MASK);
+    }
+    Interrupt_clearFlag(INTERRUPT_UART3_ERROR);
+}
+
 void __isr_noautopsv _U4RXInterrupt(void)
 {
     Uart_isrRxHandler(OB_UART4);
@@ -760,6 +798,15 @@ void __isr_noautopsv _U4RXInterrupt(void)
 void __isr_noautopsv _U4TXInterrupt(void)
 {
     Uart_isrTxHandler(OB_UART4);
+}
+
+void __isr_noautopsv _U4ErrInterrupt (void)
+{
+    if (UTILITY_READ_REGISTER_BIT(OB_UART4->regmap->USTA, _U4STA_OERR_MASK) != 0)
+    {
+        UTILITY_CLEAR_REGISTER_BIT(OB_UART4->regmap->USTA, _U4STA_OERR_MASK);
+    }
+    Interrupt_clearFlag(INTERRUPT_UART4_ERROR);
 }
 
 #endif // LIBOHIBOARD_PIC24FJ

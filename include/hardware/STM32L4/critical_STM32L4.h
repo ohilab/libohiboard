@@ -53,23 +53,12 @@ extern "C" {
  */
 
 /**
- * @defgroup CRITICAL Critical Section for specific Hardware
+/**
+ * @defgroup CRITICAL_Hardware Critical Section for specific Hardware
  * @{
  */
 
-/**
- * Disable interrupts, begins critical section
- *
- * @param[IN] mask Pointer to a variable where to store the CPU IRQ mask
- */
-void Critical_sectionBegin (uint32_t *mask);
-
-/**
- * Ends critical section
- *
- * @param[IN] mask Pointer to a variable where the CPU IRQ mask was stored
- */
-void Critical_sectionEnd (uint32_t *mask);
+// Nothing to add!
 
 /**
  * @}

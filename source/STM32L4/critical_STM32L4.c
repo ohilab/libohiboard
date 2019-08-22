@@ -43,38 +43,15 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L4)
 
-
-inline void Critical_sectionBegin( uint32_t *mask )
+inline void Critical_sectionBegin (uint32_t* mask)
 {
-    *mask = __get_BASEPRI( );  __set_BASEPRI( CRITICAL_DEFAULT_TICK_PRIO + 1 );
-    //*mask = __get_PRIMASK( ); __disable_irq( );
+    *mask = __get_BASEPRI();
+    __set_BASEPRI(CRITICAL_DEFAULT_TICK_PRIO + 1);
 }
 
-// from [1], section 2.1.3: Core Register
-// Base Priority Mask Register
-//The BASEPRI register defines the minimum priority for exception processing.
-// When BASEPRI is set to a nonzero value, it prevents the activation of all exceptions
-// with the same or lower priority level as the BASEPRI.
-//    Priority mask bits:
-//          0x00 = no effect
-//          Nonzero = defines the base priority for exception processing.
-//                The processor does not process any exception with a priority
-//                value greater than or equal to BASEPRI
-// // ... Remember that higher priority field values correspond to lower exception priorities.
-//
-// [1]:: http://infocenter.arm.com/help/topic/com.arm.doc.dui0553b/DUI0553.pdf
-// [2]:: https://www.keil.com/pack/doc/cmsis/Core/html/index.html#ref_man_sec
-//
-
-// lascio vivo il valore zero di priorita'
-//    *mask = __get_BASEPRI( );  __set_BASEPRI( 0x00000001 );
-// __set_BASEPRI( *mask );
-
-
-inline void Critical_sectionEnd( uint32_t *mask )
+inline void Critical_sectionEnd (uint32_t* mask)
 {
     __set_BASEPRI( *mask );
-    //__set_PRIMASK( *mask );
 }
 
 #endif // LIBOHIBOARD_STM32L4
