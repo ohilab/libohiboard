@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -107,7 +109,6 @@ uint32_t System_currentTick (void);
  */
 void System_delay (uint32_t msec);
 
-
 /**
  * This function provides delay in milliseconds from a given time tick previously taken.
  * The delay is blocking.
@@ -132,6 +133,10 @@ void System_suspendTick (void);
  */
 void System_resumeTick (void);
 
+/*!
+ * TODO
+ */
+void System_softwareBreakpoint (void);
 
 /**
  * Force to be ON the configuration of MCUDBG peripheral to force clock to MCU on low power states.\n

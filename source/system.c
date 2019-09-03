@@ -1,4 +1,6 @@
 /*
+ * This file is part of the libohiboard project.
+ *
  * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
@@ -187,6 +189,24 @@ void System_resumeTick (void)
 {
 #if !defined (LIBOHIBOARD_MICROCHIP_PIC)
     SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
+#endif
+}
+
+void System_softwareBreakpoint (void)
+{
+#if defined (__DEBUG)
+
+#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4)
+    asm("BKPT #1");
+    asm("NOP");
+#endif
+#if defined (LIBOHIBOARD_MKL)
+    // TODO
+#endif
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    __builtin_software_breakpoint;
+#endif
+
 #endif
 }
 
