@@ -174,6 +174,10 @@ typedef struct _Iic_Device* Iic_DeviceHandle;
 typedef struct Iic_Device* Iic_DeviceHandle;
 #endif
 
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/i2c_STM32L0.h"
+
 #if defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/STM32L4/i2c_STM32L4.h"
