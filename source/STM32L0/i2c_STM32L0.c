@@ -151,6 +151,8 @@ typedef struct _Iic_Device
     uint16_t bufferSize;                        /**< I2C buffer transfer size */
     volatile uint16_t bufferCount;           /**< I2C buffer transfer counter */
 
+    Iic_DeviceState state;                     /**< Current peripheral state. */
+
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Iic_Device;
 
@@ -158,14 +160,14 @@ typedef struct _Iic_Device
 
 static Iic_Device iic1 =
 {
-        .regmap              = I2C1,
+        .regmap               = I2C1,
 
-        .rccRegisterPtr      = &RCC->APB1ENR,
-        .rccRegisterEnable   = RCC_APB1ENR_I2C1EN,
+        .rccRegisterPtr       = &RCC->APB1ENR,
+        .rccRegisterEnable    = RCC_APB1ENR_I2C1EN,
 
-        .rccTypeRegisterPtr  = &RCC->CCIPR,
-        .rccTypeRegisterMask = RCC_CCIPR_I2C1SEL,
-        .rccTypeRegisterPos  = RCC_CCIPR_I2C1SEL_Pos,
+        .rccTypeRegisterPtr   = &RCC->CCIPR,
+        .rccTypeRegisterMask  = RCC_CCIPR_I2C1SEL,
+        .rccTypeRegisterPos   = RCC_CCIPR_I2C1SEL_Pos,
 
         .sclPins              =
         {
@@ -204,20 +206,22 @@ static Iic_Device iic1 =
                                GPIO_ALTERNATE_1,
                                GPIO_ALTERNATE_4,
         },
+
+        .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC1 = &iic1;
 
 static Iic_Device iic2 =
 {
-        .regmap              = I2C2,
+        .regmap               = I2C2,
 
-        .rccRegisterPtr      = &RCC->APB1ENR,
-        .rccRegisterEnable   = RCC_APB1ENR_I2C2EN,
+        .rccRegisterPtr       = &RCC->APB1ENR,
+        .rccRegisterEnable    = RCC_APB1ENR_I2C2EN,
 
         // WARNING: This peripheral support only PCLK clock!
-        .rccTypeRegisterPtr  = nullptr,
-        .rccTypeRegisterMask = 0,
-        .rccTypeRegisterPos  = 0,
+        .rccTypeRegisterPtr   = nullptr,
+        .rccTypeRegisterMask  = 0,
+        .rccTypeRegisterPos   = 0,
 
         .sclPins              =
         {
@@ -250,19 +254,21 @@ static Iic_Device iic2 =
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_5,
         },
+
+        .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC2 = &iic2;
 
 static Iic_Device iic3 =
 {
-        .regmap              = I2C3,
+        .regmap               = I2C3,
 
-        .rccRegisterPtr      = &RCC->APB1ENR,
-        .rccRegisterEnable   = RCC_APB1ENR_I2C3EN,
+        .rccRegisterPtr       = &RCC->APB1ENR,
+        .rccRegisterEnable    = RCC_APB1ENR_I2C3EN,
 
-        .rccTypeRegisterPtr  = &RCC->CCIPR,
-        .rccTypeRegisterMask = RCC_CCIPR_I2C3SEL,
-        .rccTypeRegisterPos  = RCC_CCIPR_I2C3SEL_Pos,
+        .rccTypeRegisterPtr   = &RCC->CCIPR,
+        .rccTypeRegisterMask  = RCC_CCIPR_I2C3SEL,
+        .rccTypeRegisterPos   = RCC_CCIPR_I2C3SEL_Pos,
 
         .sclPins              =
         {
@@ -328,16 +334,16 @@ static Iic_Device iic3 =
                                GPIO_ALTERNATE_7,
 #endif
         },
+
+        .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC3 = &iic3;
 
 #endif
 
-#if 0
-
 #define IIC_PIN_CONFIGURATION             (GPIO_PINS_PULL                    | \
-		                                   GPIO_PINS_ENABLE_PULLUP           | \
-		                                   GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
+                                           GPIO_PINS_ENABLE_PULLUP           | \
+                                           GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
 
 static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, bool pullupEnable)
 {
@@ -381,29 +387,44 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, boo
     return ERRORS_IIC_NO_PIN_FOUND;
 }
 
-
-
 static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
 {
     uint32_t frequency = 0;
     uint32_t scaled = 0;
 
-    // Get current parent clock
-    switch (dev->clockSource)
+    if (baudrate > IIC_MAX_BAUDRATE)
     {
-    case IIC_CLOCKSOURCE_HSI:
-        frequency = (uint32_t)CLOCK_FREQ_HSI;
-        break;
-    case IIC_CLOCKSOURCE_SYSCLK:
-        frequency = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
-        break;
-    case IIC_CLOCKSOURCE_PCLK:
-        frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
-        break;
-    default:
-        ohiassert(0);
-        return ERRORS_IIC_NO_CLOCKSOURCE;
+        return ERRORS_IIC_WRONG_BAUDRATE;
     }
+
+    // Get current parent clock
+#if defined (STM32L073xx)
+    if (dev == OB_IIC2)
+    {
+        frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
+    }
+    else
+    {
+        switch (dev->clockSource)
+        {
+        case IIC_CLOCKSOURCE_HSI:
+            frequency = (uint32_t)CLOCK_FREQ_HSI;
+            break;
+        case IIC_CLOCKSOURCE_SYSCLK:
+            frequency = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
+            break;
+        case IIC_CLOCKSOURCE_PCLK:
+            frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
+            break;
+        default:
+            ohiassert(0);
+            return ERRORS_IIC_NO_CLOCKSOURCE;
+        }
+    }
+#else
+    ohiassert(0);
+    return ERRORS_IIC_NO_CLOCKSOURCE;
+#endif
 
     // Current clock is different from 0
     if (frequency != 0u)
@@ -541,23 +562,36 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     }
     dev->clockSource = config->clockSource;
 
-    // Select clock source
-    UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,(config->clockSource << dev->rccTypeRegisterPos));
-    // Enable peripheral clock
-    IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+    // Enable peripheral clock if needed
+    if (dev->state == IIC_DEVICESTATE_RESET)
+    {
+#if defined (STM32L073xx)
+        if (dev == OB_IIC2)
+        {
+            // Select clock source
+            UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,(config->clockSource << dev->rccTypeRegisterPos));
+        }
+        // Enable peripheral clock
+        IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+#else
+        ohiassert(0);
+        return ERRORS_IIC_WRONG_PARAM;
+#endif
 
-    // Enable pins
-    if (config->sclPin != IIC_PINS_SCLNONE)
-        Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
+        // Enable pins
+        if (config->sclPin != IIC_PINS_SCLNONE)
+            Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
 
-    if (config->sdaPin != IIC_PINS_SDANONE)
-        Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
+        if (config->sdaPin != IIC_PINS_SDANONE)
+            Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
+    }
+    dev->state = IIC_DEVICESTATE_BUSY;
 
     // Configure the peripheral
     err = Iic_config(dev,config);
     if (err != ERRORS_NO_ERROR)
     {
-        // FIXME: Call deInit?
+        Iic_deInit(dev);
         return err;
     }
 
@@ -566,6 +600,8 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
 
     // Clear STOPF flag
     dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
+
+    dev->state = IIC_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
@@ -584,12 +620,17 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev)
     {
         return ERRORS_IIC_WRONG_DEVICE;
     }
+    dev->state = IIC_DEVICESTATE_BUSY;
 
     // Disable the device
     IIC_DEVICE_DISABLE(dev->regmap);
 
+    dev->state = IIC_DEVICESTATE_RESET;
     return err;
 }
+
+
+#if 0
 
 #define IIC_TRANSFER_CONFIG_MASK          (I2C_CR2_SADD_Msk    | \
                                            I2C_CR2_NBYTES_Msk  | \
