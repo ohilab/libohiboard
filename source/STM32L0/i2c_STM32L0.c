@@ -629,26 +629,6 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev)
     return err;
 }
 
-
-#if 0
-
-#define IIC_TRANSFER_CONFIG_MASK          (I2C_CR2_SADD_Msk    | \
-                                           I2C_CR2_NBYTES_Msk  | \
-                                           I2C_CR2_RELOAD_Msk  | \
-                                           I2C_CR2_AUTOEND_Msk | \
-                                           I2C_CR2_START_Msk   | \
-                                           I2C_CR2_STOP_Msk    | \
-                                           I2C_CR2_RD_WRN_Msk)
-
-static inline void __attribute__((always_inline)) Iic_flushTransmission (Iic_DeviceHandle dev)
-{
-    // Clear flag TXE
-    if ((dev->regmap->ISR & I2C_ISR_TXE_Msk) == 0u)
-    {
-        dev->regmap->ISR |= I2C_ISR_TXE_Msk;
-    }
-}
-
 static inline System_Errors __attribute__((always_inline)) Iic_waitUntilTXSI (Iic_DeviceHandle dev, uint32_t timeout)
 {
     while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,I2C_ISR_TXIS) == 0)
@@ -727,6 +707,24 @@ static inline System_Errors __attribute__((always_inline)) Iic_waitUntilSet (Iic
     }
     return ERRORS_NO_ERROR;
 }
+
+static inline void __attribute__((always_inline)) Iic_flushTransmission (Iic_DeviceHandle dev)
+{
+    // Clear flag TXE
+    if ((dev->regmap->ISR & I2C_ISR_TXE_Msk) == 0u)
+    {
+        dev->regmap->ISR |= I2C_ISR_TXE_Msk;
+    }
+}
+
+
+#define IIC_TRANSFER_CONFIG_MASK          (I2C_CR2_SADD_Msk    | \
+                                           I2C_CR2_NBYTES_Msk  | \
+                                           I2C_CR2_RELOAD_Msk  | \
+                                           I2C_CR2_AUTOEND_Msk | \
+                                           I2C_CR2_START_Msk   | \
+                                           I2C_CR2_STOP_Msk    | \
+                                           I2C_CR2_RD_WRN_Msk)
 
 System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
                                uint16_t address,
@@ -1297,7 +1295,6 @@ i2cerror:
 
     return err;
 }
-#endif
 
 #endif // LIBOHIBOARD_STM32L0
 
