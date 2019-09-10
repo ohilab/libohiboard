@@ -328,19 +328,27 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         ohiassert(~(((options & GPIO_PINS_ENABLE_PULLUP) == GPIO_PINS_ENABLE_PULLUP) &&
                     ((options & GPIO_PINS_ENABLE_PULLDOWN) == GPIO_PINS_ENABLE_PULLDOWN)));
 
+        uint16_t tPullUp = port->IOCPU;
         if(options & GPIO_PINS_ENABLE_PULLUP)
         {
-            uint16_t tPullUp = port->IOCPU;
             tPullUp |= (0x0001 << pinNumber);
-            port->IOCPU = tPullUp;
         }
+        else
+        {
+            tPullUp &= (~(0x0001 << pinNumber));
+        }
+        port->IOCPU = tPullUp;
 
+        uint16_t tPullDown = port->IOCPD;
         if(options & GPIO_PINS_ENABLE_PULLDOWN)
         {
-            uint16_t tPullDown = port->IOCPD;
             tPullDown |= (0x0001 << pinNumber);
-            port->IOCPD = tPullDown;
         }
+        else
+        {
+            tPullDown &= (~(0x0001 << pinNumber));
+        }
+        port->IOCPD = tPullDown;
     }
     else
     {
@@ -352,14 +360,14 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         // the pin is configured as a digital output.
         uint16_t tPullUp = port->IOCPU;
         tPullUp &= (~(0x0001 << pinNumber));
-        port->IOCPU = tPullUp;            
+        port->IOCPU = tPullUp;
         uint16_t tPullDown = port->IOCPD;
         tPullDown &= (~(0x0001 << pinNumber));
         port->IOCPD = tPullDown;
 
         uint16_t tOdc = port->ODC;
         if(options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
-        {        
+        {
             tOdc |= (0x0001 << pinNumber);
         }
         else

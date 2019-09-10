@@ -231,6 +231,8 @@ typedef enum _Gpio_Pins
     GPIO_PINS_PG14,
     GPIO_PINS_PG15,
 #endif
+
+    GPIO_PINS_NUMBER,
 } Gpio_Pins;
 
 /**
@@ -253,6 +255,8 @@ typedef enum _Gpio_Ports
     GPIO_PORTS_F,
     GPIO_PORTS_G,
 #endif
+
+    GPIO_PORTS_NUMBER,
 } Gpio_Ports;
 
 /**
