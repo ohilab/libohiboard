@@ -89,10 +89,11 @@ typedef struct _LowPower_ResetFlags
     uint16_t EXTR                        : 1; //External Reset
     uint16_t VREGS                       : 1; //Fast Wake-up from Sleep bit
     uint16_t CM                          : 1; //Configuration Word Mismatch Reset Flag bit
-    uint16_t                             : 2;
+    uint16_t DPSLP                       : 1; //Deep Sleep Flag bit
+    uint16_t                             : 1;
     uint16_t RETEN                       : 1; //Retention Mode Enable bit
     uint16_t SBOREN                      : 1; //Software Enable/Disable of BOR bit
-    uint16_t IOPUWR                      : 1; //Illegal Opcode or Uninitialized W Access Reset Flag bit(
+    uint16_t IOPUWR                      : 1; //Illegal Opcode or Uninitialized W Access Reset Flag bit
     uint16_t TRAPR                       : 1; //Trap Reset Flag bit
 } LowPower_ResetFlags;
 
