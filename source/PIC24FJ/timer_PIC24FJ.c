@@ -66,7 +66,7 @@ extern "C" {
 /**
  * Disable the selected peripheral.
  */
-#define TIMER_DEVICE_DISABLE(REGISTER)           ((*REGISTER) &= ~(_T2CON_TON_MASK))      
+#define TIMER_DEVICE_DISABLE(REGISTER)           ((*REGISTER) &= ~(_T2CON_TON_MASK))
 
 #if 0
 #define TIMER_VALID_MODE(MODE) (((MODE) == TIMER_MODE_FREE)           || \
@@ -89,13 +89,18 @@ extern "C" {
 typedef struct _Timer_Device
 {
     TMR_TypeDef* regmap;                         /**< Device memory pointer */
-    
+
     bool isDouble; /**< This field is TRUE when two timers are used together, FALSE otherwise. */
      /**
       * This field is TRUE when single timer is just used and can't be used
       * as double timer, FALSE otherwise.
       */
     bool justUsed;
+
+    /**
+     * This field is used to save the timer stutus: running or not.
+     */
+    bool isRunning;
 
     volatile uint16_t* pmdRegisterPtr1;    /**< Register for device enabling. */
     uint16_t pmdRegisterEnable1;       /**< Register mask for current device. */
@@ -105,7 +110,7 @@ typedef struct _Timer_Device
     volatile uint16_t* tconRegisterPtr;
     volatile uint16_t* tmrRegisterPtr;
     volatile uint16_t* prRegisterPtr;
-    
+
     // Timer_Pins pins[TIMER_MAX_PINS];/**< List of the pin for the timer channel. */
     // Timer_Channels pinsChannel[TIMER_MAX_PINS];
     // Gpio_Pins pinsGpio[TIMER_MAX_PINS];
@@ -129,21 +134,22 @@ typedef struct _Timer_Device
 static Timer_Device tim2 =
 {
         .regmap              = TMR23,
-        
+
         .isDouble            = FALSE,
         .justUsed            = FALSE,
+        .isRunning           = FALSE,
 
         .pmdRegisterPtr1     = &PMD->PMD1,
         .pmdRegisterEnable1  = _PMD1_T2MD_MASK,
         .pmdRegisterPtr2     = 0,
         .pmdRegisterEnable2  = 0,
-        
+
         .tconRegisterPtr     = &TMR23->TxCON,
         .tmrRegisterPtr      = &TMR23->TMRx,
         .prRegisterPtr       = &TMR23->PRx,
 
         .isrNumber           = INTERRUPT_TIMER2,
-        
+
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
@@ -151,9 +157,10 @@ Timer_DeviceHandle OB_TIM2 = &tim2;
 static Timer_Device tim3 =
 {
         .regmap              = TMR23,
-        
+
         .isDouble            = FALSE,
         .justUsed            = FALSE,
+        .isRunning           = FALSE,
 
         .pmdRegisterPtr1     = &PMD->PMD1,
         .pmdRegisterEnable1  = _PMD1_T3MD_MASK,
@@ -163,9 +170,9 @@ static Timer_Device tim3 =
         .tconRegisterPtr     = &TMR23->TyCON,
         .tmrRegisterPtr      = &TMR23->TMRy,
         .prRegisterPtr       = &TMR23->PRy,
-        
+
         .isrNumber           = INTERRUPT_TIMER3,
-        
+
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM3 = &tim3;
@@ -173,21 +180,22 @@ Timer_DeviceHandle OB_TIM3 = &tim3;
 static Timer_Device tim23 =
 {
         .regmap              = TMR23,
-        
+
         .isDouble            = TRUE,
         .justUsed            = FALSE,
+        .isRunning           = FALSE,
 
         .pmdRegisterPtr1     = &PMD->PMD1,
         .pmdRegisterEnable1  = _PMD1_T2MD_MASK,
         .pmdRegisterPtr2     = &PMD->PMD1,
         .pmdRegisterEnable2  = _PMD1_T3MD_MASK,
-        
+
         .tconRegisterPtr     = 0,
         .tmrRegisterPtr      = 0,
         .prRegisterPtr       = 0,
 
         .isrNumber           = INTERRUPT_TIMER3,
-        
+
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM23 = &tim23;
@@ -195,21 +203,22 @@ Timer_DeviceHandle OB_TIM23 = &tim23;
 static Timer_Device tim4 =
 {
         .regmap              = TMR45,
-        
+
         .isDouble            = FALSE,
         .justUsed            = FALSE,
+        .isRunning           = FALSE,
 
         .pmdRegisterPtr1     = &PMD->PMD1,
         .pmdRegisterEnable1  = _PMD1_T4MD_MASK,
         .pmdRegisterPtr2     = 0,
         .pmdRegisterEnable2  = 0,
-        
+
         .tconRegisterPtr     = &TMR45->TxCON,
         .tmrRegisterPtr      = &TMR45->TMRx,
         .prRegisterPtr       = &TMR45->PRx,
 
         .isrNumber           = INTERRUPT_TIMER4,
-        
+
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM4 = &tim4;
@@ -217,9 +226,10 @@ Timer_DeviceHandle OB_TIM4 = &tim4;
 static Timer_Device tim5 =
 {
         .regmap              = TMR45,
-        
+
         .isDouble            = FALSE,
         .justUsed            = FALSE,
+        .isRunning           = FALSE,
 
         .pmdRegisterPtr1     = &PMD->PMD1,
         .pmdRegisterEnable1  = _PMD1_T5MD_MASK,
@@ -229,9 +239,9 @@ static Timer_Device tim5 =
         .tconRegisterPtr     = &TMR45->TyCON,
         .tmrRegisterPtr      = &TMR45->TMRy,
         .prRegisterPtr       = &TMR45->PRy,
-        
+
         .isrNumber           = INTERRUPT_TIMER5,
-        
+
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM5 = &tim5;
@@ -239,9 +249,10 @@ Timer_DeviceHandle OB_TIM5 = &tim5;
 static Timer_Device tim45 =
 {
         .regmap              = TMR45,
-        
+
         .isDouble            = TRUE,
         .justUsed            = FALSE,
+        .isRunning           = FALSE,
 
         .pmdRegisterPtr1     = &PMD->PMD1,
         .pmdRegisterEnable1  = _PMD1_T4MD_MASK,
@@ -249,7 +260,7 @@ static Timer_Device tim45 =
         .pmdRegisterEnable2  = _PMD1_T5MD_MASK,
 
         .isrNumber           = INTERRUPT_TIMER5,
-        
+
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM45 = &tim45;
@@ -268,7 +279,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
 }
 
 /**
- * Useful constant to detect timer prescaler register value. 
+ * Useful constant to detect timer prescaler register value.
  */
 static const uint16_t TIMER_CLOCK_PRESCALER[4]  =
 {
@@ -296,7 +307,7 @@ static void Timer_computeCounterValues (Timer_DeviceHandle dev,
 {
     uint32_t moduloComputed = 0;
     uint32_t prescalerComputed = 0;
-    
+
     uint32_t clock = Clock_getOutputValue(CLOCK_OUTPUT_PERIPHERAL);
 
      // Search the correct prescaler
@@ -342,11 +353,11 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
     if (dev->isDouble)
     {
         UTILITY_SET_REGISTER_BIT(dev->regmap->TxCON,_T2CON_T32_MASK);
-        
+
         // Store prescaler and modulo
         dev->regmap->TxCON &= ~(_T2CON_TCKPS_MASK);
         dev->regmap->TxCON |= prescaler;
-        
+
         // LSB period part
         dev->regmap->PRx = (uint16_t) (modulo & 0x0000FFFF);
         // MSB period part
@@ -363,14 +374,14 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
         // Store prescaler
         *dev->tconRegisterPtr &= ~(_T2CON_TCKPS_MASK);
         *dev->tconRegisterPtr |= prescaler;
-        
+
         // write period
         *dev->prRegisterPtr = (uint16_t)(modulo & 0x0000FFFF);
-        
+
         // Clear counter
         *dev->tmrRegisterPtr = 0;
     }
-    
+
     // Check callback and enable interrupts
     if (config->freeCounterCallback != 0)
     {
@@ -381,11 +392,35 @@ static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *con
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *config)
+void Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config* config)
 {
-    System_Errors err = ERRORS_NO_ERROR;
-    // Intentionally empty
-    return err;
+    // Set Clock Source
+    if(config->clockSource == TIMER_CLOCKSOURCE_INTERNAL)
+    {
+        // Set clock source for FOSC/2
+        if (dev->isDouble)
+        {
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->TxCON, _T2CON_TCS_MASK);
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->TxCON, _T2CON_TECS_MASK);
+        }
+        else
+        {
+            UTILITY_CLEAR_REGISTER_BIT((*dev->tconRegisterPtr), _T2CON_TCS_MASK);
+            UTILITY_CLEAR_REGISTER_BIT((*dev->tconRegisterPtr), _T2CON_TECS_MASK);
+        }
+    }
+    else
+    {
+        // Set clock source for other input
+        if (dev->isDouble)
+        {
+            UTILITY_MODIFY_REGISTER(dev->regmap->TxCON,(_T1CON_TECS_MASK | _T2CON_TCS_MASK),(config->clockSource));
+        }
+        else
+        {
+            UTILITY_MODIFY_REGISTER((*dev->tconRegisterPtr),(_T1CON_TECS_MASK | _T2CON_TCS_MASK),(config->clockSource));
+        }
+    }
 }
 
 System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
@@ -410,20 +445,20 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         return ERRORS_TIMER_WRONG_PARAM;
     }
     dev->config = *config;
-    
-    // Check if the double device is just used and vice-versa! 
-    if (((dev == OB_TIM23) && ((OB_TIM2->justUsed) || (OB_TIM3->justUsed))) || 
+
+    // Check if the double device is just used and vice-versa!
+    if (((dev == OB_TIM23) && ((OB_TIM2->justUsed) || (OB_TIM3->justUsed))) ||
        (((dev == OB_TIM2) || (dev == OB_TIM3)) && (OB_TIM23->justUsed)))
     {
         return ERRORS_TIMER_DEVICE_JUST_USED;
     }
 
-    if (((dev == OB_TIM45) && ((OB_TIM4->justUsed) || (OB_TIM5->justUsed))) || 
+    if (((dev == OB_TIM45) && ((OB_TIM4->justUsed) || (OB_TIM5->justUsed))) ||
        (((dev == OB_TIM4) || (dev == OB_TIM5)) && (OB_TIM45->justUsed)))
     {
         return ERRORS_TIMER_DEVICE_JUST_USED;
     }
-    
+
     // Enable peripheral clock if needed
     if (dev->state == TIMER_DEVICESTATE_RESET)
     {
@@ -441,8 +476,8 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     // Now the peripheral is busy
     dev->state = TIMER_DEVICESTATE_BUSY;
 
-    // FIXME: Configure clock source
-    //Timer_configClockSource(dev,config);
+    // Configure clock source
+    Timer_configClockSource(dev,config);
 
     // Configure the peripheral
     switch (dev->config.mode)
@@ -458,6 +493,8 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         ohiassert(0);
         break;
     }
+
+    dev->isRunning = FALSE;
 
     // Now the peripheral is busy
     dev->state = TIMER_DEVICESTATE_READY;
@@ -478,6 +515,7 @@ System_Errors Timer_deInit (Timer_DeviceHandle dev)
     }
 
     dev->state = TIMER_DEVICESTATE_BUSY;
+    dev->isRunning = FALSE;
 
     // Disable the peripheral
     if (dev->isDouble)
@@ -489,10 +527,10 @@ System_Errors Timer_deInit (Timer_DeviceHandle dev)
     {
         UTILITY_SET_REGISTER_BIT(*dev->pmdRegisterPtr1, dev->pmdRegisterEnable1);
     }
-        
+
     Interrupt_disable(dev->isrNumber);
     Interrupt_clearFlag(dev->isrNumber);
-    
+
     dev->state = TIMER_DEVICESTATE_RESET;
     return ERRORS_NO_ERROR;
 }
@@ -514,13 +552,14 @@ System_Errors Timer_start (Timer_DeviceHandle dev)
     {
         return ERRORS_TIMER_DEVICE_NOT_READY;
     }
-    
+
     dev->state = TIMER_DEVICESTATE_BUSY;
 
     // In case of callback... enable interrupt
     if (dev->freeCounterCallback != 0)
     {
         Interrupt_clearFlag(dev->isrNumber);
+        Interrupt_setPriority(dev->isrNumber,dev->config.isrPriority);
         Interrupt_enable(dev->isrNumber);
     }
 
@@ -534,6 +573,7 @@ System_Errors Timer_start (Timer_DeviceHandle dev)
         TIMER_DEVICE_ENABLE(dev->tconRegisterPtr);
     }
 
+    dev->isRunning = TRUE;
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
 }
@@ -575,9 +615,34 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
         TIMER_DEVICE_DISABLE(dev->tconRegisterPtr);
     }
 
+    dev->isRunning = FALSE;
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
 }
+
+bool Timer_isRunning (Timer_DeviceHandle dev)
+{
+    // Check the TIMER instance type
+    ohiassert(TIMER_IS_DEVICE(dev));
+
+    return dev->isRunning;
+}
+
+uint32_t Timer_getCurrentCounter (Timer_DeviceHandle dev)
+{
+    // Check the TIMER instance type
+    ohiassert(TIMER_IS_DEVICE(dev));
+
+    if (dev->isDouble)
+    {
+        return (uint32_t)((((uint32_t)dev->regmap->TMRy << 16) & 0xFFFF0000) && (((uint32_t)dev->regmap->TMRx) & 0x0000FFFF));
+    }
+    else
+    {
+        return (uint32_t)(*dev->tmrRegisterPtr);
+    }
+}
+
 
 void __attribute__ (( interrupt, no_auto_psv )) _T2Interrupt ( void )
 {

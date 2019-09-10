@@ -63,7 +63,7 @@ typedef enum _Timer_DeviceState
 } Timer_DeviceState;
 
 /**
- * 
+ *
  */
 typedef enum _Timer_Mode
 {
@@ -93,13 +93,13 @@ typedef enum _Timer_Mode
 
 /**
  * Clock source selection for Timer peripheral.
- * 
+ *
  * @note The value is MCU-specific.
  */
 typedef enum _Timer_ClockSource
 {
 #if defined (LIBOHIBOARD_STM32L4)
-    
+
     TIMER_CLOCKSOURCE_INTERNAL,          /**< Internal clock selection CK_INT */
     TIMER_CLOCKSOURCE_INTERNAL_ITR0,           /**< Internal trigger input #0 */
     TIMER_CLOCKSOURCE_INTERNAL_ITR1,           /**< Internal trigger input #1 */
@@ -121,10 +121,10 @@ typedef enum _Timer_ClockSource
     /** LPRC oscillator clock selection. */
     TIMER_CLOCKSOURCE_LPRC_OSC = _T2CON_TCS_MASK | _T2CON_TECS1_MASK,
     /** TxCK generic timer external input. */
-    TIMER_CLOCKSOURCE_TxCK     = _T2CON_TCS_MASK | _T2CON_TECS_MASK,            
+    TIMER_CLOCKSOURCE_TxCK     = _T2CON_TCS_MASK | _T2CON_TECS_MASK,
 
 #endif
-            
+
 } Timer_ClockSource;
 
 typedef enum _Timer_ClockPrescaler
@@ -142,7 +142,7 @@ typedef enum _Timer_ClockPrescaler
     TIMER_CLOCKPRESCALER_64  = _T2CON_TCKPS1_MASK,
     TIMER_CLOCKPRESCALER_256 = _T2CON_TCKPS0_MASK | _T2CON_TCKPS1_MASK,
 #endif
-            
+
 } Timer_ClockPrescaler;
 
 #if defined (LIBOHIBOARD_STM32L4)
@@ -241,9 +241,9 @@ typedef enum _Timer_Pins
 typedef struct _Timer_Config
 {
     Timer_Mode mode;                                /**< Modes of operations. */
-    
+
     uint32_t modulo;             /**< The modulo value for the timer counter. */
-    
+
 #if defined (LIBOHIBOARD_MICROCHIP_PIC)
     /**< A fixed prescaler value for the timer counter. */
     Timer_ClockPrescaler prescaler;
@@ -252,7 +252,7 @@ typedef struct _Timer_Config
 #endif
 
     uint32_t timerFrequency;                            /**< Timer frequency. */
-    
+
     uint8_t configurationBits;        /**< A useful variable to configure FTM */
 
     Timer_ClockSource clockSource;                 /**< Selected clock source */
@@ -275,6 +275,8 @@ typedef struct _Timer_Config
     void (* outputCompareCallback)(struct _Timer_Device *dev);
     void (* inputCaptureCallback)(struct _Timer_Device *dev);
 
+    uint8_t isrPriority;
+
     /**< Define the counter type for a specific operational mode */
     Timer_CounterMode counterMode;
 
@@ -294,7 +296,7 @@ typedef struct _Timer_Config
     bool enableInitTrigger;
     Ftm_SyncEvent syncEvent;
 
-    
+
     /* For Combine mode */
     Ftm_CombineChannelConfig channelPair[FTM_MAX_CHANNEL>>1];
     uint32_t deadTime;  /**< Only valid in combine or complementary mode [ns] */
@@ -353,6 +355,22 @@ System_Errors Timer_start (Timer_DeviceHandle dev);
  */
 System_Errors Timer_stop (Timer_DeviceHandle dev);
 
+/**
+ * Return the status of the selected timer.
+ *
+ * @param[in] dev Timer device handle
+ * @return TRUE if timer is active and running, FALSE otherwise.
+ */
+bool Timer_isRunning (Timer_DeviceHandle dev);
+
+/**
+ * This function return the current timer counter.
+ *
+ * @param[in] dev Timer device handle
+ * @return The current timer counter.
+ */
+uint32_t Timer_getCurrentCounter (Timer_DeviceHandle dev);
+
 ///@}
 
 typedef enum _Timer_OutputCompareMode
@@ -377,7 +395,7 @@ typedef enum _Timer_OutputCompareMode
 #endif
 
     TIMER_OUTPUTCOMPAREMODE_NONE,
-            
+
 } Timer_OutputCompareMode;
 
 typedef struct _Timer_OutputCompareConfig
@@ -510,7 +528,7 @@ typedef enum _Timer_InputCapturePolarity
     TIMER_INPUTCAPTUREPOLARITY_BOTH    = (TIM_CCER_CC1P | TIM_CCER_CC1NP),
 
 #endif
-            
+
     TIMER_INPUTCAPTUREPOLARITY_NONE,
 
 } Timer_InputCapturePolarity;
@@ -524,7 +542,7 @@ typedef enum _Timer_InputCapturePrescaler
     TIMER_INPUTCAPTUREPRESCALER_DIV4  = TIM_CCMR1_IC1PSC_1,
     TIMER_INPUTCAPTUREPRESCALER_DIV8  = TIM_CCMR1_IC1PSC,
 #endif
-            
+
     TIMER_INPUTCAPTUREPRESCALER_NONE,
 
 } Timer_InputCapturePrescaler;
