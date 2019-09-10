@@ -65,7 +65,12 @@ System_Errors System_controlDevice (void);
 #define LIBOHIBOARD_SYSTEM_TICK   LIBOHIBOARD_SYSTEM_TICK_1_MILLISEC
 #endif
 
-
+/**
+ * Return the status of SysTick Timer.
+ * 
+ * @return TRUE if SysTick is running, FALSE Otherwise.
+ */
+bool System_systickIsRunning (void);
 
 
 /**
@@ -108,6 +113,7 @@ uint32_t System_currentTick (void);
  * @param[in] msec The delay time length in millisecond
  */
 void System_delay (uint32_t msec);
+
 
 /**
  * This function provides delay in milliseconds from a given time tick previously taken.

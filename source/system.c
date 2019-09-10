@@ -59,6 +59,15 @@ System_Errors System_controlDevice (void)
     return ERRORS_NO_ERROR;
 }
 
+bool System_systickIsRunning (void)
+{
+#if defined (LIBOHIBOARD_MICROCHIP_PIC)
+    return Timer_isRunning(OB_TIM23);
+#else
+    return true; //TODO: review
+#endif
+}
+
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
 
 System_Errors System_systickConfig (uint32_t ticks)
@@ -67,17 +76,23 @@ System_Errors System_systickConfig (uint32_t ticks)
 #if !defined (LIBOHIBOARD_MICROCHIP_PIC)
     error = (SysTick_Config(ticks) ? ERRORS_SYSTEM_TICK_INIT_FAILED : ERRORS_NO_ERROR);
 #else
-    
+
     // Timer configuration...
     Timer_Config systickTimer =
     {
-        .counterMode = TIMER_MODE_FREE,
-        .freeCounterCallback = SysTick_Handler,
-        .timerFrequency = 1000, // The base time is 1ms!
-        //.timerFrequency = LIBOHIBOARD_SYSTEM_TICK,
-        .prescaler = 0,
+        .mode = TIMER_MODE_FREE,
         .modulo = 0,
+        .prescaler = 0,
+        .timerFrequency = 1000, // The base time is 1ms!
+        .configurationBits = 0,
         .clockSource  = TIMER_CLOCKSOURCE_INTERNAL,
+
+        .freeCounterCallback = SysTick_Handler,
+        .pwmPulseFinishedCallback = nullptr,
+        .outputCompareCallback = nullptr,
+        .inputCaptureCallback = nullptr,
+
+        .isrPriority = 6,
         .counterMode = TIMER_COUNTERMODE_UP,
     };
 
@@ -164,7 +179,7 @@ static void wait(uint32_t msec)
 void System_delay (uint32_t msec)
 {
 #if defined (LIBOHIBOARD_MICROCHIP_PIC)
-    if (Critical_isActive())
+    if ((Critical_isActive() == true) || (System_systickIsRunning() == false))
     {
         delay(msec);
     }
