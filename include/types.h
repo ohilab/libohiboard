@@ -48,11 +48,14 @@ extern "C" {
 typedef void (*voidFuncPtr)(void);
 typedef void (*voidArgumentFuncPtr)(void *);
 
+typedef void (*pFunc)(void);
+
 typedef void (*pFuncPtrParam)(void *);
 
 typedef void (*pFuncU32Param) (uint32_t param);
 typedef void (*pFuncU32Param2)(uint32_t param1, uint32_t param2);
 typedef void (*pFuncU32Param3)(uint32_t param1, uint32_t param2, uint32_t param3);
+typedef void (*pFuncArrayParam)(void *data, size_t length);
 
 #if defined ( __GNUC__ ) && !defined (__CC_ARM)
 
@@ -112,6 +115,10 @@ typedef void (*pFuncU32Param3)(uint32_t param1, uint32_t param2, uint32_t param3
 #ifndef __packed
 #define __packed            __attribute__((packed))
 #endif // __packed
+
+#ifndef __unused
+#define __unused            __attribute__((unused))
+#endif // __unused
 
 #ifndef __io
 #define __io   volatile
