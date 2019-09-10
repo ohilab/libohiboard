@@ -64,6 +64,8 @@ extern "C" {
  */
 typedef enum _Spi_PcsPins
 {
+#if defined (LIBOHIBOARD_STM32L073)
+
     SPI_PINS_PA4,
     SPI_PINS_PA15,
 
@@ -78,6 +80,8 @@ typedef enum _Spi_PcsPins
     SPI_PINS_PE12,
 #endif
 
+#endif
+
     SPI_PINS_PCSNONE,
 
 } Spi_PcsPins;
@@ -87,6 +91,8 @@ typedef enum _Spi_PcsPins
  */
 typedef enum _Spi_SoutPins
 {
+#if defined (LIBOHIBOARD_STM32L073)
+
     SPI_PINS_PA7,
     SPI_PINS_PA12,
 
@@ -106,6 +112,8 @@ typedef enum _Spi_SoutPins
     SPI_PINS_PE15,
 #endif
 
+#endif
+
     SPI_PINS_SOUTNONE,
 
 } Spi_SoutPins;
@@ -115,6 +123,8 @@ typedef enum _Spi_SoutPins
  */
 typedef enum _Spi_SinPins
 {
+#if defined (LIBOHIBOARD_STM32L073)
+
     SPI_PINS_PA6,
     SPI_PINS_PA11,
 
@@ -135,6 +145,8 @@ typedef enum _Spi_SinPins
     SPI_PINS_PE14,
 #endif
 
+#endif
+
     SPI_PINS_SINNONE,
 
 } Spi_SinPins;
@@ -144,6 +156,8 @@ typedef enum _Spi_SinPins
  */
 typedef enum _Spi_SckPins
 {
+#if defined (LIBOHIBOARD_STM32L073)
+
     SPI_PINS_PA5,
 
     SPI_PINS_PB3,
@@ -155,6 +169,8 @@ typedef enum _Spi_SckPins
     SPI_PINS_PD1,
 
     SPI_PINS_PE13,
+#endif
+
 #endif
 
     SPI_PINS_SCKNONE,
