@@ -89,6 +89,12 @@ typedef enum _Utility_State
  */
 #define UTILITY_DIMOF(ARRAYDIM) (sizeof(ARRAYDIM)/sizeof(ARRAYDIM[0]))
 
+#define UTILITY_SWAP_INT16(a,b) do { \
+    int16_t t = a;                   \
+    a = b;                           \
+    b = t;                           \
+    } while (0);
+
 extern const char hexDigits[];
 
 System_Errors xdigit (uint8_t digit, uint8_t* result);
