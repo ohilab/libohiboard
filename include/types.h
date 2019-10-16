@@ -57,7 +57,7 @@ typedef void (*pFuncU32Param2)(uint32_t param1, uint32_t param2);
 typedef void (*pFuncU32Param3)(uint32_t param1, uint32_t param2, uint32_t param3);
 typedef void (*pFuncArrayParam)(void *data, size_t length);
 
-#if defined ( __GNUC__ ) && !defined (__CC_ARM)
+#if ((defined ( __GNUC__ ) && !defined (__CC_ARM)) || defined( __XC16__ ))
 
 
 #ifndef _inline
@@ -193,7 +193,7 @@ typedef void (*pFuncArrayParam)(void *data, size_t length);
 #endif // null
 
 #ifndef nullptr
-#define nullptr NULL
+#define nullptr ((void *)NULL)
 #endif // nullptr
 
 #endif // defined ( __GNUC__ ) && !defined (__CC_ARM)

@@ -78,6 +78,7 @@ typedef enum _System_Errors
 	ERRORS_GPIO_WRONG_CONFIG,
     ERRORS_GPIO_WRONG_PIN,
     ERRORS_GPIO_NULL_PIN,
+    ERRORS_GPIO_NULL_IOC_CALLBACK,
 
     ERRORS_UART_DEVICE_NOT_INIT,
     ERRORS_UART_DEVICE_JUST_INIT,
@@ -247,6 +248,8 @@ typedef enum _System_Errors
     ERRORS_FLASH_PROTECTION_VIOLATION,
     ERRORS_FLASH_COMPLETION_STATUS,
     ERRORS_FLASH_JUST_INIT,
+	ERRORS_FLASH_TIMEOUT,
+	ERRORS_FLASH_ERROR,
 
     ERRORS_COMMUTILITY_MAX_DEVICE_ACHIEVE,
     ERRORS_COMMUTILITY_DEVICE_NOT_FOUND,
@@ -264,11 +267,11 @@ System_Errors Errors_assert (const char* file, const int line);
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
 
-#define ohiassert(condition) ((condition) ? ERRORS_NO_ERROR : Errors_assert(__FILE__,__LINE__))
+#define ohiassert(condition) ((condition) ? (ERRORS_NO_ERROR) : (Errors_assert(__FILE__,__LINE__)))
 
 #else
 
-#define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+#define assert(condition) ((condition) ? ((void)0) : (Errors_assert(__FILE__,__LINE__)))
 
 #endif
 

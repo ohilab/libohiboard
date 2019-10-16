@@ -67,32 +67,40 @@ typedef enum _Time_Month
 
 typedef enum _Time_DayOfWeek
 {
-    TIME_DAYOFWEEK_MONDAY = 0,
+    TIME_DAYOFWEEK_SUNDAY = 0,
+    TIME_DAYOFWEEK_MONDAY,
     TIME_DAYOFWEEK_TUESDAY,
     TIME_DAYOFWEEK_WEDNESDAY,
     TIME_DAYOFWEEK_THURSDAY,
     TIME_DAYOFWEEK_FRIDAY,
     TIME_DAYOFWEEK_SATURDAY,
-    TIME_DAYOFWEEK_SUNDAY,
 } __packed Time_DayOfWeek;
 
 typedef struct
 {
+    // hours since midnight - [0, 23] 
     uint8_t hours;
+    // minutes after the hour - [0, 59] 
     uint8_t minutes;
+    // seconds after the minute - [0, 59]
     uint8_t seconds;
 } Time_TimeType;
 
 typedef struct
 {
+    // days since Sunday - [0, 6]
     Time_DayOfWeek  wday;
+    // day of the month - [1, 31] 
     uint8_t  day;
+    // months since January - [0, 11] 
     Time_Month  month;
+    // years since 0 
     uint16_t year;
 } Time_DateType;
 
 typedef uint32_t Time_UnixTime;
 
+bool Time_isValid (Time_DateType* date, Time_TimeType* time);
 Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time);
 
 void Time_unixtimeToTime (Time_UnixTime unixEpoch, Time_DateType* date, Time_TimeType* time);

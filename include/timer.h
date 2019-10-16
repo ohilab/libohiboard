@@ -392,6 +392,10 @@ typedef enum _Timer_OutputCompareMode
     TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM1    = (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_3),
     TIMER_OUTPUTCOMPAREMODE_ASYMMETRIC_PWM2    = TIM_CCMR1_OC1M,
 
+#elif defined (LIBOHIBOARD_MICROCHIP_PIC) 
+    
+    TIMER_OUTPUTCOMPAREMODE_PWM,
+
 #endif
 
     TIMER_OUTPUTCOMPAREMODE_NONE,
@@ -401,12 +405,25 @@ typedef enum _Timer_OutputCompareMode
 typedef struct _Timer_OutputCompareConfig
 {
     Timer_OutputCompareMode mode;
+    
+    /**
+     * This field is used only in some architecture because there isn't a direct 
+     * correlation between pin and channel.
+     */
+    Timer_Channels channel;
 
     /**
      * The duty-cycle usable in PWM mode.
      * Must be between 0 and 100.
      */
     uint8_t duty;
+    
+    /**
+     * This value is frequency of the output signal.
+     * 
+     * @note It is used only into Microchip architecture. 
+     */
+    uint32_t frequency;
 
     /**
      * This value is the compare value in OC or OPM.
@@ -417,7 +434,9 @@ typedef struct _Timer_OutputCompareConfig
     /**
      * This flag must be used to choice if accelerate the effect of an event
      * on the trigger in input on the CC output or not.
-     * This flag acts only if the channel is configured in PWM1 or PWM2 mode.
+     * 
+     * @note This flag acts only if the channel is configured in PWM1 or PWM2 mode.
+     * @note It is used only into STM32 architecture. 
      */
     bool fastMode;
 
@@ -430,10 +449,11 @@ typedef struct _Timer_OutputCompareConfig
 } Timer_OutputCompareConfig;
 
 
-/** @name PWM functions
- *  Functions to manage PWM pins of a Timer peripheral.
+/*!
+ * @defgroup Timer_PWM PWM functions
+ * Functions to manage PWM pins of a Timer peripheral.
+ * @{
  */
-///@{
 
 /**
  * This function configure the selected pin to generate a PWM signal
@@ -480,7 +500,9 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel);
  */
 System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel);
 
-///@}
+/*
+ * @}
+ */
 
 /** @name Output Compare functions
  *  Functions to manage OC pins of a Timer peripheral.
@@ -517,7 +539,9 @@ System_Errors Timer_startOutputCompare (Timer_DeviceHandle dev, Timer_Channels c
  */
 System_Errors Timer_stopOutputCompare (Timer_DeviceHandle dev, Timer_Channels channel);
 
-///@}
+/**
+ * @}
+ */ 
 
 typedef enum _Timer_InputCapturePolarity
 {

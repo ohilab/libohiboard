@@ -287,6 +287,8 @@ typedef struct _Uart_Config
     void (*callbackRx)(struct _Uart_Device* dev, void* obj);
     /** Callback Function to handle TX Interrupt.*/
     void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+        /** Callback Function to handle Error Interrupt.*/
+    void (*callbackError)(struct _Uart_Device* dev, void* obj);
     /** Useful object added to callback when interrupt triggered. */
     void* callbackObj;
 #else

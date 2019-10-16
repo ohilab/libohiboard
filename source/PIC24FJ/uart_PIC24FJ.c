@@ -1,6 +1,6 @@
 /*
  * This file is part of the libohiboard project.
- * 
+ *
  * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
@@ -58,7 +58,7 @@ extern "C" {
  * @brief Disable the UART peripheral
  */
 #define UART_DEVICE_DISABLE(REGMAP)       (UTILITY_CLEAR_REGISTER_BIT(REGMAP->UMODE,_U1MODE_UARTEN_MASK))
-    
+
 /**
   * @brief Check that number of stop bits is valid for UART.
   * @param STOPBITS Number of stop bits.
@@ -85,11 +85,11 @@ extern "C" {
 
 #define UART_VALID_MODE(MODE) (((MODE) == UART_MODE_TRANSMIT) || \
                                ((MODE) == UART_MODE_RECEIVE)  || \
-                               ((MODE) == UART_MODE_BOTH))    
+                               ((MODE) == UART_MODE_BOTH))
 
 #define UART_VALID_SLEEPMODE(MODE) (((MODE) == UART_WAKEUPSLEEPMODE_ENABLE)  || \
                                     ((MODE) == UART_WAKEUPSLEEPMODE_DISABLE))
-    
+
 #define UART_VALID_IDLEMODE(MODE) (((MODE) == UART_STOPIDLEMODE_CONTINUES)    || \
                                    ((MODE) == UART_STOPIDLEMODE_DISCONTINUES))
 
@@ -112,7 +112,7 @@ typedef struct _Uart_Device
     volatile uint16_t* ppsCtsRegisterPtr;
     uint16_t ppsCtsRegisterMask;
     uint16_t ppsCtsRegisterPosition;
-    
+
     Gpio_PpsOutputFunction ppsTxRegisterValue;
 
     Gpio_PpsOutputFunction ppsRtsRegisterValue;
@@ -153,7 +153,7 @@ typedef struct _Uart_Device
                                         ((DEVICE) == OB_UART3) || \
                                         ((DEVICE) == OB_UART4))
 
-static Uart_Device uart1 = 
+static Uart_Device uart1 =
 {
         .regmap                 = UART1B,
 
@@ -178,7 +178,7 @@ static Uart_Device uart1 =
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
-static Uart_Device uart2 = 
+static Uart_Device uart2 =
 {
         .regmap                 = UART2B,
 
@@ -203,7 +203,7 @@ static Uart_Device uart2 =
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
-static Uart_Device uart3 = 
+static Uart_Device uart3 =
 {
         .regmap                 = UART3B,
 
@@ -228,7 +228,7 @@ static Uart_Device uart3 =
 };
 Uart_DeviceHandle OB_UART3 = &uart3;
 
-static Uart_Device uart4 = 
+static Uart_Device uart4 =
 {
         .regmap                 = UART4B,
 
@@ -254,7 +254,7 @@ static Uart_Device uart4 =
 Uart_DeviceHandle OB_UART4 = &uart4;
 
 // This peripheral have all interface pin not configurable, but fixed!
-static Uart_Device uart5 = 
+static Uart_Device uart5 =
 {
         .regmap                 = UART5B,
 
@@ -280,7 +280,7 @@ static Uart_Device uart5 =
 Uart_DeviceHandle OB_UART5 = &uart5;
 
 // This peripheral have all interface pin not configurable, but fixed!
-static Uart_Device uart6 = 
+static Uart_Device uart6 =
 {
         .regmap                 = UART6B,
 
@@ -374,12 +374,12 @@ static System_Errors Uart_config (Uart_DeviceHandle dev)
     dev->regmap->UMODE = dev->regmap->UMODE & (~(_U1MODE_WAKE_MASK | _U1MODE_USIDL_MASK));
     dev->regmap->UMODE |= dev->config.sleepMode;
     dev->regmap->UMODE |= dev->config.idleMode;
-    
+
     // Configure Baudrate
     err = Uart_setBaudrate(dev,dev->config.baudrate);
     if (err != ERRORS_NO_ERROR)
         return ERRORS_UART_WRONG_PARAM;
-    
+
     // Check callback and save it
     if (dev->config.callbackRx != 0)
     {
@@ -388,9 +388,9 @@ static System_Errors Uart_config (Uart_DeviceHandle dev)
         Interrupt_clearFlag(dev->isrNumberRx);
         Interrupt_enable(dev->isrNumberRx);
 
-        // FIXME: no callback used!
         Interrupt_clearFlag(dev->isrNumberErr);
         Interrupt_enable(dev->isrNumberErr);
+        dev->callbackErr = dev->config.callbackError;
     }
     if (dev->config.callbackTx != 0)
     {
@@ -576,14 +576,14 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
         {
             uint16_t brgLow  = (uint16_t) ((float)(((frequency / (16 * baudrate)) + 0.5f) - 1));
             uint16_t brgHigh = (uint16_t) ((float)(((frequency / (4  * baudrate)) + 0.5f) - 1));
-            
+
             // Compute baudrate
             uint32_t baudrateComputeLow  = frequency / (16 * (brgLow  + 1));
             uint32_t baudrateComputeHigh = frequency / (4 * (brgHigh + 1));
-            
+
             uint32_t diffLow  = 0xFFFFFFFFul;
             uint32_t diffHigh = 0xFFFFFFFFul;
-            
+
             if (baudrateComputeLow > baudrate) diffLow = baudrateComputeLow - baudrate;
             else                               diffLow = baudrate - baudrateComputeLow;
 
@@ -593,12 +593,12 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
             if (diffLow < diffHigh)
             {
                 brg = brgLow;
-                dev->regmap->UMODE &= ~(_U1MODE_BRGH_MASK);                
+                dev->regmap->UMODE &= ~(_U1MODE_BRGH_MASK);
             }
             else
             {
                 brg = brgHigh;
-                dev->regmap->UMODE |= (_U1MODE_BRGH_MASK);                
+                dev->regmap->UMODE |= (_U1MODE_BRGH_MASK);
             }
         }
         else
@@ -613,7 +613,7 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     }
 
     dev->regmap->UBRG = brg;
-    
+
     return ERRORS_NO_ERROR;
 }
 
@@ -656,7 +656,7 @@ System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t *data, uint32_t timeout)
         }
     }
 
-    // In case of 9B 
+    // In case of 9B
     if (dev->config.dataBits == UART_DATABITS_NINE)
     {
         // Cast the pointer
@@ -685,7 +685,7 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
             return ERRORS_UART_TIMEOUT_TX;
         }
     }
-    
+
     if (dev->config.dataBits == UART_DATABITS_NINE)
     {
         uint16_t* temp = (uint16_t *) data;
@@ -733,6 +733,15 @@ static inline void Uart_isrRxHandler (Uart_DeviceHandle dev)
     Interrupt_clearFlag(dev->isrNumberRx);
 }
 
+static inline void Uart_isrErrorHandler (Uart_DeviceHandle dev)
+{
+    if (dev->callbackErr)
+    {
+        dev->callbackErr(dev,dev->callbackObj);
+    }
+    Interrupt_clearFlag(dev->isrNumberErr);
+}
+
 void __isr_noautopsv _U1RXInterrupt(void)
 {
     Uart_isrRxHandler(OB_UART1);
@@ -749,6 +758,9 @@ void __isr_noautopsv _U1ErrInterrupt (void)
     {
         UTILITY_CLEAR_REGISTER_BIT(OB_UART1->regmap->USTA, _U1STA_OERR_MASK);
     }
+
+    Uart_isrErrorHandler(OB_UART1);
+
     Interrupt_clearFlag(INTERRUPT_UART1_ERROR);
 }
 
@@ -768,6 +780,9 @@ void __isr_noautopsv _U2ErrInterrupt (void)
     {
         UTILITY_CLEAR_REGISTER_BIT(OB_UART2->regmap->USTA, _U2STA_OERR_MASK);
     }
+
+    Uart_isrErrorHandler(OB_UART2);
+
     Interrupt_clearFlag(INTERRUPT_UART2_ERROR);
 }
 
@@ -787,6 +802,9 @@ void __isr_noautopsv _U3ErrInterrupt (void)
     {
         UTILITY_CLEAR_REGISTER_BIT(OB_UART3->regmap->USTA, _U3STA_OERR_MASK);
     }
+
+    Uart_isrErrorHandler(OB_UART3);
+
     Interrupt_clearFlag(INTERRUPT_UART3_ERROR);
 }
 
@@ -806,6 +824,9 @@ void __isr_noautopsv _U4ErrInterrupt (void)
     {
         UTILITY_CLEAR_REGISTER_BIT(OB_UART4->regmap->USTA, _U4STA_OERR_MASK);
     }
+
+    Uart_isrErrorHandler(OB_UART4);
+
     Interrupt_clearFlag(INTERRUPT_UART4_ERROR);
 }
 

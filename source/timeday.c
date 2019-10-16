@@ -67,8 +67,45 @@ static const char* Time_monthString[] =
 
 static const char* Time_dayString[] =
 {
-    "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
 };
+
+bool Time_isValid (Time_DateType* date, Time_TimeType* time)
+{
+    bool isValid = true;
+
+    if(date->year < 1970)
+    {
+        isValid = false;
+    }
+    if(date->month > TIME_MONTH_DECEMBER)
+    {
+        isValid = false;
+    }
+    if(date->day < 1 || date->day > 31)
+    {
+        isValid = false;
+    }
+    if(date->wday > TIME_DAYOFWEEK_SATURDAY)
+    {
+        isValid = false;
+    }
+
+    if(time->hours > 23)
+    {
+        isValid = false;
+    }
+    if(time->minutes > 59)
+    {
+        isValid = false;
+    }
+    if(time->seconds > 59)
+    {
+        isValid = false;
+    }
+
+    return isValid;
+}
 
 Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 {
@@ -97,8 +134,11 @@ Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 
 void Time_unixtimeToTime (Time_UnixTime unixEpoch, Time_DateType* date, Time_TimeType* time)
 {
-    uint32_t dayClock, dayNumber;
+    uint32_t dayClock = 0, dayNumber = 0;
     uint16_t year = TIME_UNIX_YEAR;
+
+    memset(date, 0, sizeof(Time_DateType));
+    memset(time, 0, sizeof(Time_TimeType));
 
     dayClock = (uint32_t) unixEpoch % TIME_SECOND_PER_DAY; /* Seconds of actual day */
     dayNumber = (uint32_t) unixEpoch / TIME_SECOND_PER_DAY;/* days from epoch year */
@@ -123,18 +163,16 @@ void Time_unixtimeToTime (Time_UnixTime unixEpoch, Time_DateType* date, Time_Tim
         date->month++;
     }
     date->day = dayNumber + 1;
-    date->month++;
-    date->wday++;
 }
 
 void Time_unixtimeToString (Time_UnixTime unixEpoch, char * dateString)
 {
-    Time_DateType date;
-    Time_TimeType time;
+    Time_DateType date = {0};
+    Time_TimeType time = {0};
 
     Time_unixtimeToTime(unixEpoch,&date,&time);
 
-    strcpy(dateString,Time_dayString[(date.wday)-1]);
+    strcpy(dateString,Time_dayString[(date.wday)]);
     dateString += 3;
 
     *dateString = ',';
@@ -159,7 +197,7 @@ void Time_unixtimeToString (Time_UnixTime unixEpoch, char * dateString)
     dateString++;
 
     /* Month */
-    strcpy(dateString,Time_monthString[(date.month)-1]);
+    strcpy(dateString,Time_monthString[(date.month)]);
     dateString += 3;
 
     *dateString = ' ';
@@ -252,12 +290,12 @@ void Time_unixtimeToNumberString (Time_UnixTime unixEpoch, char * dateString, bo
     {
         *dateString = '0';
         dateString++;
-        u16td((uint8_t *)dateString,(uint16_t)date.month);
+        u16td((uint8_t *)dateString,(uint16_t)date.month + 1);
         dateString++;
     }
     else
     {
-        u16td((uint8_t *)dateString,(uint16_t)date.month);
+        u16td((uint8_t *)dateString,(uint16_t)date.month + 1);
         dateString += 2;
     }
     *dateString = '.';

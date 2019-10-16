@@ -525,16 +525,18 @@ uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
 uint16_t Adc_getAvarageRead (Adc_DeviceHandle dev, Adc_ChannelConfig* config, Adc_Pins pin, uint8_t count)
 {
     if (dev->state != ADC_DEVICESTATE_READY)
+    {
         return 0;
-    
+    }
+
     if (count == 0)
         count = ADC_SAMPLE_NUMBER;
 
     uint16_t adcValue = 0;
     float adcValueAvarage = 0.0f;
-    
+
     Adc_configPin(dev,config,pin);
-    
+
     for (uint8_t i = 0; i < count; ++i)
     {
         Adc_start(dev);

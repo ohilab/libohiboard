@@ -45,40 +45,6 @@ extern "C" {
 #include "flash.h"
 #include "hardware/PIC24FJ/flash_PIC24FJ.h"
 
-typedef union _Flash_Latch 
-{
-    uint32_t l_value;
-
-    struct _word 
-    {
-        uint16_t low;
-        uint16_t high;
-    } __packed word;
-
-    struct _byte 
-    {
-        uint8_t low;
-        uint8_t mlow;
-        uint8_t mhigh;
-        uint8_t high;
-    } __packed byte;
-
-    struct _program 
-    {
-        uint32_t code   : 24;
-        uint8_t  phantom;
-    } __packed program;
-
-    struct _address 
-    {
-        uint16_t offset;
-        uint8_t  page;
-        uint8_t  phantom;
-    } __packed address;
-
-    char val[4];
-} __packed Flash_Latch;
-
 void _isr_noautopsv _NVMInterrupt (void)
 {
     UTILITY_CLEAR_REGISTER_BIT(INTERRUPT->IFS[0], _IFS0_NVMIF_MASK);
@@ -118,33 +84,43 @@ uint32_t Flash_getBank (uint32_t address)
 
 uint32_t Flash_getPage (uint32_t address)
 {
-    uint32_t page = (address & FLASH_PAGE_MASK_B) / FLASH_PAGE_SIZE_B;
+    uint32_t page = (address & FLASH_PAGE_MASK_W) / FLASH_PAGE_SIZE_W;
     return page;
+}
+
+uint32_t Flash_getPageSize(void)
+{
+    return FLASH_PAGE_SIZE_W;
 }
 
 uint32_t Flash_getRow (uint32_t address)
 {
-    uint32_t row = (address & FLASH_ROW_MASK_B) / FLASH_ROW_SIZE_B;
+    uint32_t row = (address & FLASH_ROW_MASK_W) / FLASH_ROW_SIZE_W;
     return row;   
+}
+
+uint32_t Flash_getRowSize(void)
+{
+    return FLASH_ROW_SIZE_W;
 }
 
 uint32_t Flash_readWord (uint32_t address)
 {
-    Flash_Latch adr  = {.l_value = (address & FLASH_ADDRESS_MASK)};
-    Flash_Latch code = {.l_value = 0};
+    Flash_MemoryLatch_t adr  = {.value = (address & FLASH_ADDRESS_MASK)};
+    Flash_MemoryLatch_t code = {.value = 0};
 
     UTILITY_WRITE_REGISTER(CPU->TBLPAG, adr.address.page);
     code.word.low  = __builtin_tblrdl(adr.address.offset);
     code.word.high = __builtin_tblrdh(adr.address.offset);
-    return code.l_value;
+    return code.value;
 }
 
 System_Errors Flash_readRow (uint32_t address, uint32_t *value_array)
 {
-    Flash_Latch adr = {.l_value = (address & FLASH_ROW_MASK_B)};
+    Flash_MemoryLatch_t adr = {.value = (address & FLASH_ROW_MASK_W)};
     for (int i = 0; i < FLASH_ROW_SIZE_I; i++)
     {
-        *(value_array + i) = Flash_readWord(adr.l_value + i);
+        *(value_array + i) = Flash_readWord(adr.value + i);
     }
     return ERRORS_NO_ERROR;
 }
@@ -167,7 +143,7 @@ System_Errors Flash_eraseBank (uint32_t bank)
 
 System_Errors Flash_erasePage (uint32_t page)
 {
-    Flash_Latch adr = {.l_value = (page * FLASH_PAGE_SIZE_B)};
+    Flash_MemoryLatch_t adr = {.value = (page * FLASH_PAGE_SIZE_W)};
 
     UTILITY_WRITE_REGISTER(NVM->NVMCON,  FLASH_ERASE_PAGE);
     UTILITY_WRITE_REGISTER(NVM->NVMADR,  adr.word.low);
@@ -204,11 +180,11 @@ System_Errors Flash_erase (uint32_t address, uint32_t length)
 
 System_Errors Flash_writeDoubleWord (uint32_t address, uint32_t word1, uint32_t word2)
 {
-    Flash_Latch adr   = {.l_value = (address & FLASH_ADDRESS_MASK)};
-    Flash_Latch code1 = {.l_value = word1};
-    Flash_Latch code2 = {.l_value = word2};
-    Flash_Latch test1 = {.l_value = 0};
-    Flash_Latch test2 = {.l_value = 0};
+    Flash_MemoryLatch_t adr   = {.value = (address & FLASH_ADDRESS_MASK)};
+    Flash_MemoryLatch_t code1 = {.value = word1};
+    Flash_MemoryLatch_t code2 = {.value = word2};
+    Flash_MemoryLatch_t test1 = {.value = 0};
+    Flash_MemoryLatch_t test2 = {.value = 0};
 
     UTILITY_WRITE_REGISTER(NVM->NVMCON,  FLASH_DWORD_WRITE);
     UTILITY_WRITE_REGISTER(CPU->TBLPAG,  0xFA);
@@ -224,8 +200,8 @@ System_Errors Flash_writeDoubleWord (uint32_t address, uint32_t word1, uint32_t 
     while(UTILITY_READ_REGISTER_BIT(NVM->NVMCON, _NVMCON_WR_MASK) != 0);
     CRITICAL_SECTION_END();
 
-    test1.l_value = Flash_readWord(address);
-    test2.l_value = Flash_readWord(address + 2);
+    test1.value = Flash_readWord(address);
+    test2.value = Flash_readWord(address + 2);
 
     Flash_init();
     if ((code1.program.code == test1.program.code) &&
@@ -237,9 +213,9 @@ System_Errors Flash_writeDoubleWord (uint32_t address, uint32_t word1, uint32_t 
 }
 
 System_Errors Flash_writeRow (uint32_t address, uint32_t *words)
-{    
-    Flash_Latch adr        = {.l_value = (address & FLASH_ROW_MASK_B)};
-    Flash_Latch *codearray = (Flash_Latch *)words;
+{
+    Flash_MemoryLatch_t adr        = {.value = (address & FLASH_ROW_MASK_B)};
+    Flash_MemoryLatch_t *codearray = (Flash_MemoryLatch_t *)words;
 
     UTILITY_WRITE_REGISTER(NVM->NVMCON,  FLASH_ROW_WRITE);
     UTILITY_WRITE_REGISTER(CPU->TBLPAG,  0xFA);
@@ -262,7 +238,7 @@ System_Errors Flash_writeRow (uint32_t address, uint32_t *words)
 System_Errors Flash_readData (uint32_t startAddress, uint8_t *data, uint16_t length)
 {
     uint16_t buffer[FLASH_ROW_SIZE_I];
-    Flash_Latch addressSource = {.l_value = startAddress};
+    Flash_MemoryLatch_t addressSource = {.value = startAddress};
     uint16_t fixedLength = ((length % 2) == 0) ? (length) : (length + 1);
     uint16_t i = 0;
     memset((void *) buffer, 0x00, sizeof (buffer));
@@ -271,9 +247,9 @@ System_Errors Flash_readData (uint32_t startAddress, uint8_t *data, uint16_t len
 
     for (i = 0; i < fixedLength; i += 1)
     {
-        Flash_Latch latch = {.l_value = FLASH_EMPTY_INSTRUCTION};
-        latch.l_value = Flash_readWord(addressSource.l_value);
-        addressSource.l_value += 2;
+        Flash_MemoryLatch_t latch = {.value = FLASH_EMPTY_INSTRUCTION};
+        latch.value = Flash_readWord(addressSource.value);
+        addressSource.value += 2;
         buffer[i] = latch.word.low;
     }
 
@@ -284,7 +260,7 @@ System_Errors Flash_readData (uint32_t startAddress, uint8_t *data, uint16_t len
 System_Errors Flash_writeData (uint32_t startAddress, uint8_t *data, uint16_t length)
 {
     uint16_t buffer[FLASH_ROW_SIZE_I];
-    Flash_Latch addressDest = {.l_value = startAddress};
+    Flash_MemoryLatch_t addressDest = {.value = startAddress};
     uint16_t fixedLength = ((length % 2) == 0) ? (length) : (length + 1);
     memset((void *) buffer, 0xFF, sizeof (buffer));
     memcpy((void *) buffer, data, MIN(length, FLASH_ROW_SIZE_W));
@@ -292,12 +268,12 @@ System_Errors Flash_writeData (uint32_t startAddress, uint8_t *data, uint16_t le
 
     for (uint16_t i = 0; i < fixedLength; i += 2)
     {
-        Flash_Latch latch1 = {.word.high = 0, .word.low = *(buffer + i)};
-        Flash_Latch latch2 = {.word.high = 0, .word.low = *(buffer + i + 1)};
-        Flash_writeDoubleWord(addressDest.l_value, latch1.l_value, latch2.l_value);
-        if (Flash_writeDoubleWord(addressDest.l_value, latch1.l_value, latch2.l_value) == ERRORS_NO_ERROR)
+        Flash_MemoryLatch_t latch1 = {.word.high = 0, .word.low = *(buffer + i)};
+        Flash_MemoryLatch_t latch2 = {.word.high = 0, .word.low = *(buffer + i + 1)};
+        Flash_writeDoubleWord(addressDest.value, latch1.value, latch2.value);
+        if (Flash_writeDoubleWord(addressDest.value, latch1.value, latch2.value) == ERRORS_NO_ERROR)
         {
-            addressDest.l_value += 4;
+            addressDest.value += 4;
         }
         else
         {

@@ -89,6 +89,39 @@ extern "C" {
 #define LENGTH_DUAL_PARTITION             (ADDRESS_END_DUAL_PARTITION - ADDRESS_START_DUAL_PARTITION)
 #define BOOT_SECTOR_DATA_ADR              (ADDRESS_END_DUAL_PARTITION)
 
+typedef union _Flash_MemoryLatch_t {
+    uint32_t value;
+
+    struct
+    {
+        uint16_t low;
+        uint16_t high;
+    } __packed word;
+
+    struct
+    {
+        uint8_t low;
+        uint8_t mlow;
+        uint8_t mhigh;
+        uint8_t high;
+    } __packed byte;
+
+    struct 
+    {
+        uint32_t code : 24;
+        uint8_t phantom;
+    } __packed program;
+
+    struct
+    {
+        uint16_t offset;
+        uint8_t page;
+        uint8_t phantom;
+    } __packed address;
+
+    char array[4];
+} __packed Flash_MemoryLatch_t;
+
 #endif // defined (LIBOHIBOARD_PIC24FJ1024)
 
 /**

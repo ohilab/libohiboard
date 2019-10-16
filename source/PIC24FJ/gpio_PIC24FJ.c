@@ -296,7 +296,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
               ((options & GPIO_PINS_INPUT) == GPIO_PINS_INPUT));
 
     //Check if pin definition exist
-    ohiassert(pinNumber < GPIO_AVAILABLE_PINS_COUNT);
+    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
     pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
@@ -503,6 +503,7 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    ohiassert(callback != nullptr);
 
     pinNum = (uint16_t)GPIO_AVAILABLE_PINS[pin].pinNumber;
     portNum = (uint16_t)GPIO_AVAILABLE_PINS[pin].portIndex;
@@ -523,24 +524,38 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     uint8_t pinNumber = 0;
 
     // Check configuration for direction
-    ohiassert(((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING) ||
+    ohiassert( (event == GPIO_EVENT_NONE) ||
+              ((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING)   ||
               ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING));
 
     pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-
-    if(event & GPIO_EVENT_ON_RISING)
+ 
+    if(event == GPIO_EVENT_NONE)
     {
         uint16_t tIocp = port->IOCP;
-        tIocp |= (0x0001 << pinNumber);
+        tIocp &= (~(0x0001 << pinNumber));
         port->IOCP = tIocp;
-    }
 
-    if(event & GPIO_EVENT_ON_FALLING)
-    {
         uint16_t tIocn = port->IOCN;
-        tIocn |= (0x0001 << pinNumber);
+        tIocn &= (~(0x0001 << pinNumber));
         port->IOCN = tIocn;
+    }
+    else
+    {
+        if(event & GPIO_EVENT_ON_RISING)
+        {
+            uint16_t tIocp = port->IOCP;
+            tIocp |= (0x0001 << pinNumber);
+            port->IOCP = tIocp;
+        }
+
+        if(event & GPIO_EVENT_ON_FALLING)
+        {
+            uint16_t tIocn = port->IOCN;
+            tIocn |= (0x0001 << pinNumber);
+            port->IOCN = tIocn;
+        }
     }
 
     // Clear Pin Flag
@@ -571,7 +586,7 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
     uint8_t pinNumber = 0;
 
     //Check if pin definition exist
-    ohiassert(pinNumber < GPIO_AVAILABLE_PINS_COUNT);
+    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
     pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
@@ -598,7 +613,7 @@ void __attribute__ (( interrupt, no_auto_psv )) _IOCInterrupt ( void )
     uint16_t flags = 0xFFFF;
 
     if (UTILITY_READ_REGISTER_BIT(gpioDevice.regmapInt->IFS[1], _IFS1_IOCIF_MASK) != 0)
-    {         
+    {
         while (flags != 0x0000)
         {
             flags = 0;

@@ -157,9 +157,14 @@ typedef struct _Uart_Device
     uint16_t mask;              /**< Computed mask to use with received data. */
 
     /** The function pointer for user Rx callback. */
-    void (*callbackRx)(struct _Uart_Device* dev);
+    void (*callbackRx)(struct _Uart_Device* dev, void* obj);
     /** The function pointer for user Tx callback. */
-    void (*callbackTx)(struct _Uart_Device* dev);
+    void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+    /** The function pointer for user Errore callback. */
+    void (*callbackErr)(struct _Uart_Device* dev, void* obj);
+    /** Useful object added to callback when interrupt triggered. */
+    void* callbackObj;
+
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
 //    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
@@ -953,7 +958,7 @@ static void Uart_isrHandler (Uart_DeviceHandle dev)
         // Check if the interrupt is in reception
         if (((isrreg & USART_ISR_RXNE) != 0) && ((cr1reg & USART_CR1_RXNEIE) > 0))
         {
-            dev->callbackRx(dev);
+            dev->callbackRx(dev, dev->callbackObj);
             // Clear flag, just to increase the safety
             UTILITY_SET_REGISTER_BIT(dev->regmap->RQR,USART_RQR_RXFRQ);
         }
@@ -966,7 +971,7 @@ static void Uart_isrHandler (Uart_DeviceHandle dev)
     // Check if the interrupt is in transmission
     if (((isrreg & USART_ISR_TXE) != 0) && ((cr1reg & USART_CR1_TXEIE) > 0))
     {
-        dev->callbackTx(dev);
+        dev->callbackTx(dev, dev->callbackObj);
     }
 }
 

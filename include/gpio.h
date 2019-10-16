@@ -88,6 +88,7 @@ extern "C" {
 #if defined LIBOHIBOARD_PIC24FJ
 #define GPIO_PINS_ENABLE_OUTPUT_PUSHPULL    0x0020
 #define GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN   0x0040
+#define GPIO_PINS_ANALOG                    0x0080
 #endif
 #endif
 /**
@@ -149,13 +150,15 @@ typedef enum _Gpio_Ports
 
 typedef enum
 {
+    GPIO_EVENT_NONE            = 0x00,
+
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
-    GPIO_EVENT_WHEN_0     = 0x8,
-    GPIO_EVENT_ON_RISING  = 0x9,
-    GPIO_EVENT_ON_FALLING = 0xA,
-    GPIO_EVENT_WHEN_1     = 0xC,
-    GPIO_EVENT_ON_BOOTH   = 0xB,
+    GPIO_EVENT_WHEN_0          = 0x08,
+    GPIO_EVENT_ON_RISING       = 0x09,
+    GPIO_EVENT_ON_FALLING      = 0x0A,
+    GPIO_EVENT_WHEN_1          = 0x0C,
+    GPIO_EVENT_ON_BOOTH        = 0x0B,
 
 #elif defined (LIBOHIBOARD_ST_STM32)
 
@@ -169,10 +172,6 @@ typedef enum
 
     GPIO_EVENT_ON_RISING       = 0x01,
     GPIO_EVENT_ON_FALLING      = 0x02,
-
-#else
-
-    GPIO_EVENT_NONE = 0,
 
 #endif
 } Gpio_EventType;

@@ -100,12 +100,22 @@ uint32_t Flash_getBank(uint32_t address);
 uint32_t Flash_getPage(uint32_t address);
 
 /**
+ * Returns the size in word of a Page
+ */
+uint32_t Flash_getPageSize (void);
+
+/**
  * Gets the row of a given address
  * 
  * @param[IN] address: Address of the FLASH Memory
  * @retval The row of a given address
  */
 uint32_t Flash_getRow(uint32_t address);
+
+/**
+ * Returns the size in word of a Row
+ */
+uint32_t Flash_getRowSize (void);
 
 /**
  * Read a word of code from a given address
@@ -229,6 +239,13 @@ bool Flash_pagecmp(uint32_t address1, uint32_t address2);
  * @retval true: copy operation worked well, false: otherwise.
  */
 bool Flash_memcpy(uint32_t destAddress, uint32_t sourceAddress, uint32_t length);
+
+/**
+ * Test the Flash functions.
+ * @note erase the settings of device.
+ * @retval result of test: true: operation worked well, false: otherwise.
+ */
+bool Flash_test (void);
 
 #ifdef __cplusplus
 }
