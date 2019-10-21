@@ -584,7 +584,7 @@ typedef struct _Clock_Config
 
 #elif defined (LIBOHIBOARD_MKL)
 
-#include "hardware/clock_MKL.h"
+#include "hardware/NXPMKL/clock_MKL.h"
 
 #elif defined (LIBOHIBOARD_PIC24FJ)
 

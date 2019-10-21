@@ -63,7 +63,7 @@ typedef enum {
 
 #elif defined (LIBOHIBOARD_MKL)
 
-#include "hardware/interrupt_MKL.h"
+#include "hardware/NXPMKL/interrupt_MKL.h"
 
 #elif defined (LIBOHIBOARD_PIC24FJ)
 

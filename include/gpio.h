@@ -126,7 +126,7 @@ typedef enum _Gpio_Level
 
 #elif defined (LIBOHIBOARD_MKL)
 
-#include "hardware/gpio_MKL.h"
+#include "hardware/NXPMKL/gpio_MKL.h"
 
 #elif defined (LIBOHIBOARD_PIC24FJ)
 
