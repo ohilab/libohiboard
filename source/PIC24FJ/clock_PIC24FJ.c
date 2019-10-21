@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ *  Federico Robuffo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@
 /**
  * @file libohiboard/source/PIC24FJ/clock_PIC24FJ.c
  * @author Leonardo Morichelli
+ * @author Federico Robuffo
  * @brief Clock implementations for PIC24FJ
  */
 
@@ -57,6 +59,9 @@ Clock_Config clockConfig =
 };
 
 static System_Errors Clock_deInit (void);
+
+static void Clock_setDcoFrequency (uint32_t frequency);
+static void Clock_setDcoTuneValue (uint16_t tune);
 
 System_Errors Clock_init (Clock_Config* config)
 {
@@ -91,6 +96,7 @@ System_Errors Clock_init (Clock_Config* config)
     }
     else if(config->source & CLOCK_INTERNAL_DCO)
     {
+        Clock_setDcoFrequency(clockDevice.systemCoreClock);
         oscconh = OSCSCR_DCO;
     }
     else if(config->source & CLOCK_INTERNAL_LPRC)
@@ -215,7 +221,67 @@ uint32_t Clock_getOutputValue (Clock_Output output)
     return outputValue;
 }
 
-static uint32_t Clock_getDcoOscillatorValue(void)
+static void Clock_setDcoTuneValue (uint16_t tune)
+{
+    UTILITY_WRITE_REGISTER(clockDevice.regmap->DCOTUN,tune);
+}
+
+static void Clock_setDcoFrequency (uint32_t frequency)
+{
+    Clock_setDcoTuneValue(0);
+    switch (frequency)
+    {
+    case 1000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,0);
+        break;
+
+    case 2000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(1 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 3000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(2 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 4000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(3 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 5000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(4 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 6000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(5 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 7000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(6 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    default:
+    case 8000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(7 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 15000000:
+    case 16000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(14 << _DCOCON_DCOFSEL_POSITION));
+        break;
+
+    case 30000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(15 << _DCOCON_DCOFSEL_POSITION));
+        Clock_setDcoTuneValue(10);
+        break;
+
+    case 32000000:
+        UTILITY_MODIFY_REGISTER(clockDevice.regmap->DCOCON,_DCOCON_DCOFSEL_MASK,(15 << _DCOCON_DCOFSEL_POSITION));
+        Clock_setDcoTuneValue(31);
+        break;
+    }
+}
+
+static uint32_t Clock_getDcoOscillatorValue (void)
 {
     uint32_t frequency = 0ul;
     uint8_t dcofsel = DCOCONbits.DCOFSEL;
@@ -280,38 +346,39 @@ uint32_t Clock_getOscillatorValue (void)
 {
     uint32_t clockValue = 0;
     uint32_t cosc = _COSC;
-    switch(cosc) {
-        case OSCSCR_OSCFDIV:
-            clockValue = 8000000;
-            break;
+    switch (cosc) 
+    {
+    case OSCSCR_OSCFDIV:
+        clockValue = 8000000;
+        break;
 
-        case OSCSCR_DCO:
-            clockValue = Clock_getDcoOscillatorValue();
-            break;
+    case OSCSCR_DCO:
+        clockValue = Clock_getDcoOscillatorValue();
+        break;
 
-        case OSCSCR_LPRC:
-            clockValue = 31000;
-            break;
+    case OSCSCR_LPRC:
+        clockValue = 31000;
+        break;
 
-        case OSCSCR_SOSC:
-            clockValue = clockDevice.secondaryOscillator;
-            break;
+    case OSCSCR_SOSC:
+        clockValue = clockDevice.secondaryOscillator;
+        break;
 
-        case OSCSCR_XTPLL:
-            clockValue = 8000000;
-            break;
+    case OSCSCR_XTPLL:
+        clockValue = 8000000;
+        break;
 
-        case OSCSCR_XT:
-            clockValue = clockDevice.primaryOscillator;
-            break;
+    case OSCSCR_XT:
+        clockValue = clockDevice.primaryOscillator;
+        break;
 
-        case OSCSCR_FRCPLL:
-            clockValue = 32000000;
-            break;
+    case OSCSCR_FRCPLL:
+        clockValue = 32000000;
+        break;
 
-        case OSCSCR_FRC:
-            clockValue = 8000000;
-            break;
+    case OSCSCR_FRC:
+        clockValue = 8000000;
+        break;
 
     }
     return clockValue;
