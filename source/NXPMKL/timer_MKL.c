@@ -68,10 +68,10 @@ typedef struct _Timer_Device
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
-    Timer_Pins pins[FTM_MAX_PINS];  /**< List of the pin for the FTM channel. */
-    volatile uint32_t* pinsPtr[FTM_MAX_PINS];
-    Timer_Channels channel[FTM_MAX_PINS];
-    uint8_t pinMux[FTM_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
+    Timer_Pins pins[TIMER_PINS_NUMBER];  /**< List of the pin for the FTM channel. */
+    volatile uint32_t* pinsPtr[TIMER_PINS_NUMBER];
+    Timer_Channels channel[TIMER_PINS_NUMBER];
+    uint8_t pinMux[TIMER_PINS_NUMBER];     /**< Mux of the pin of the FTM channel. */
 
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
@@ -91,200 +91,333 @@ typedef struct _Timer_Device
                                  ((DEVICE) == OB_TIM1)   || \
                                  ((DEVICE) == OB_TIM2))
 
-#if 0
-static Ftm_Device ftm0 = {
-        .regMap           = TPM0_BASE_PTR,
+static Timer_Device tim0 =
+{
+        .regmap           = TPM0_BASE_PTR,
 
         .simScgcPtr       = &SIM_SCGC6,
         .simScgcBitEnable = SIM_SCGC6_TPM0_MASK,
 
-        .pins             = {FTM_PINS_PTA0,
-                             FTM_PINS_PTA3,
-                             FTM_PINS_PTA4,
-                             FTM_PINS_PTA5,
-                             FTM_PINS_PTC1,
-                             FTM_PINS_PTC2,
-                             FTM_PINS_PTC3,
-                             FTM_PINS_PTC4,
-                             FTM_PINS_PTC8,
-                             FTM_PINS_PTC9,
-                             FTM_PINS_PTD0,
-                             FTM_PINS_PTD1,
-                             FTM_PINS_PTD2,
-                             FTM_PINS_PTD3,
-                             FTM_PINS_PTD4,
-                             FTM_PINS_PTD5,
-                             FTM_PINS_PTE24,
-                             FTM_PINS_PTE25,
-                             FTM_PINS_PTE29,
-                             FTM_PINS_PTE30,
-                             FTM_PINS_PTE31,
+        .pins             =
+        {
+                            TIMER_PINS_PTA0,
+                            TIMER_PINS_PTA3,
+                            TIMER_PINS_PTA4,
+                            TIMER_PINS_PTA5,
+                            TIMER_PINS_PTC1,
+                            TIMER_PINS_PTC2,
+                            TIMER_PINS_PTC3,
+                            TIMER_PINS_PTC4,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTC8,
+                            TIMER_PINS_PTC9,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTD0,
+                            TIMER_PINS_PTD1,
+                            TIMER_PINS_PTD2,
+                            TIMER_PINS_PTD3,
+#endif
+                            TIMER_PINS_PTD4,
+                            TIMER_PINS_PTD5,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTE24,
+                            TIMER_PINS_PTE25,
+                            TIMER_PINS_PTE29,
+#endif
+                            TIMER_PINS_PTE30,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTE31,
+#endif
         },
-        .pinsPtr          = {&PORTA_PCR0,
-                             &PORTA_PCR3,
-                             &PORTA_PCR4,
-                             &PORTA_PCR5,
-                             &PORTC_PCR1,
-                             &PORTC_PCR2,
-                             &PORTC_PCR3,
-                             &PORTC_PCR4,
-                             &PORTC_PCR8,
-                             &PORTC_PCR9,
-                             &PORTD_PCR0,
-                             &PORTD_PCR1,
-                             &PORTD_PCR2,
-                             &PORTD_PCR3,
-                             &PORTD_PCR4,
-                             &PORTD_PCR5,
-                             &PORTE_PCR24,
-                             &PORTE_PCR25,
-                             &PORTE_PCR29,
-                             &PORTE_PCR30,
-                             &PORTE_PCR31,
+        .pinsPtr          =
+        {
+                            &PORTA_PCR0,
+                            &PORTA_PCR3,
+                            &PORTA_PCR4,
+                            &PORTA_PCR5,
+                            &PORTC_PCR1,
+                            &PORTC_PCR2,
+                            &PORTC_PCR3,
+                            &PORTC_PCR4,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTC_PCR8,
+                            &PORTC_PCR9,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTD_PCR0,
+                            &PORTD_PCR1,
+                            &PORTD_PCR2,
+                            &PORTD_PCR3,
+#endif
+                            &PORTD_PCR4,
+                            &PORTD_PCR5,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTE_PCR24,
+                            &PORTE_PCR25,
+                            &PORTE_PCR29,
+#endif
+                            &PORTE_PCR30,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTE_PCR31,
+#endif
         },
-        .pinMux           = {3,
-                             3,
-                             3,
-                             3,
-                             4,
-                             4,
-                             4,
-                             4,
-                             3,
-                             3,
-                             4,
-                             4,
-                             4,
-                             4,
-                             4,
-                             4,
-                             3,
-                             3,
-                             3,
-                             3,
-                             3,
+        .pinMux           =
+        {
+                            3,
+                            3,
+                            3,
+                            3,
+                            4,
+                            4,
+                            4,
+                            4,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+                            3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            4,
+                            4,
+                            4,
+                            4,
+#endif
+                            4,
+                            4,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+                            3,
+                            3,
+#endif
+                            3,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+#endif
         },
-        .channel          = {FTM_CHANNELS_CH5,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH2,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH2,
-                             FTM_CHANNELS_CH3,
-                             FTM_CHANNELS_CH4,
-                             FTM_CHANNELS_CH5,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH2,
-                             FTM_CHANNELS_CH3,
-                             FTM_CHANNELS_CH4,
-                             FTM_CHANNELS_CH5,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH2,
-                             FTM_CHANNELS_CH3,
-                             FTM_CHANNELS_CH4,
+        .channel          =
+        {
+                            TIMER_CHANNELS_CH5,
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+                            TIMER_CHANNELS_CH2,
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+                            TIMER_CHANNELS_CH2,
+                            TIMER_CHANNELS_CH3,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH4,
+                            TIMER_CHANNELS_CH5,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+                            TIMER_CHANNELS_CH2,
+                            TIMER_CHANNELS_CH3,
+#endif
+                            TIMER_CHANNELS_CH4,
+                            TIMER_CHANNELS_CH5,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+                            TIMER_CHANNELS_CH2,
+#endif
+                            TIMER_CHANNELS_CH3,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH4,
+#endif
         },
 
-        .isr              = TPM0_IRQHandler,
         .isrNumber        = INTERRUPT_TPM0,
 
-        .devInitialized   = 0,
 };
-Ftm_DeviceHandle OB_FTM0 = &ftm0;
+Timer_DeviceHandle OB_TIM0 = &tim0;
 
-static Ftm_Device ftm1 = {
-        .regMap           = TPM1_BASE_PTR,
+static Timer_Device tim1 =
+{
+        .regmap           = TPM1_BASE_PTR,
 
         .simScgcPtr       = &SIM_SCGC6,
         .simScgcBitEnable = SIM_SCGC6_TPM1_MASK,
 
-        .pins             = {FTM_PINS_PTA12,
-                             FTM_PINS_PTA13,
-                             FTM_PINS_PTB0,
-                             FTM_PINS_PTB1,
-                             FTM_PINS_PTE20,
-                             FTM_PINS_PTE21,
+        .pins             =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTA12,
+                            TIMER_PINS_PTA13,
+#endif
+                            TIMER_PINS_PTB0,
+                            TIMER_PINS_PTB1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTE20,
+                            TIMER_PINS_PTE21,
+#endif
         },
-        .pinsPtr          = {&PORTA_PCR12,
-                             &PORTA_PCR13,
-                             &PORTB_PCR0,
-                             &PORTB_PCR1,
-                             &PORTE_PCR20,
-                             &PORTE_PCR21,
+        .pinsPtr          =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTA_PCR12,
+                            &PORTA_PCR13,
+#endif
+                            &PORTB_PCR0,
+                            &PORTB_PCR1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTE_PCR20,
+                            &PORTE_PCR21,
+#endif
         },
-        .pinMux           = {3,
-                             3,
-                             3,
-                             3,
-                             3,
-                             3,
+        .pinMux           =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+                            3,
+#endif
+                            3,
+                            3,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+                            3,
+#endif
         },
-        .channel          = {FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
+        .channel          =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+#endif
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+#endif
         },
 
-        .isr              = TPM1_IRQHandler,
         .isrNumber        = INTERRUPT_TPM1,
-
-        .devInitialized   = 0,
 };
-Ftm_DeviceHandle OB_FTM1 = &ftm1;
+Timer_DeviceHandle OB_TIM1 = &tim1;
 
-static Ftm_Device ftm2 = {
-        .regMap           = TPM2_BASE_PTR,
+static Timer_Device tim2 =
+{
+        .regmap           = TPM2_BASE_PTR,
 
         .simScgcPtr       = &SIM_SCGC6,
         .simScgcBitEnable = SIM_SCGC6_TPM2_MASK,
 
-        .pins             = {FTM_PINS_PTA1,
-                             FTM_PINS_PTA2,
-                             FTM_PINS_PTB2,
-                             FTM_PINS_PTB3,
-                             FTM_PINS_PTB18,
-                             FTM_PINS_PTB19,
-                             FTM_PINS_PTE22,
-                             FTM_PINS_PTE23,
+        .pins             =
+        {
+                            TIMER_PINS_PTA1,
+                            TIMER_PINS_PTA2,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTB2,
+                            TIMER_PINS_PTB3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_PINS_PTB18,
+                            TIMER_PINS_PTB19,
+                            TIMER_PINS_PTE22,
+                            TIMER_PINS_PTE23,
+#endif
         },
-        .pinsPtr          = {&PORTA_PCR1,
-                             &PORTA_PCR2,
-                             &PORTB_PCR2,
-                             &PORTB_PCR3,
-                             &PORTB_PCR18,
-                             &PORTB_PCR19,
-                             &PORTE_PCR22,
-                             &PORTE_PCR23,
+        .pinsPtr          =
+        {
+                            &PORTA_PCR1,
+                            &PORTA_PCR2,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTB_PCR2,
+                            &PORTB_PCR3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            &PORTB_PCR18,
+                            &PORTB_PCR19,
+                            &PORTE_PCR22,
+                            &PORTE_PCR23,
+#endif
         },
-        .pinMux           = {3,
-                             3,
-                             3,
-                             3,
-                             3,
-                             3,
-                             3,
-                             3,
+        .pinMux           =
+        {
+                            3,
+                            3,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+                            3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            3,
+                            3,
+                            3,
+                            3,
+#endif
         },
-        .channel          = {FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
-                             FTM_CHANNELS_CH0,
-                             FTM_CHANNELS_CH1,
+        .channel          =
+        {
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+                            TIMER_CHANNELS_CH0,
+                            TIMER_CHANNELS_CH1,
+#endif
         },
 
-        .isr              = TPM2_IRQHandler,
         .isrNumber        = INTERRUPT_TPM2,
 
-        .devInitialized   = 0,
 };
-Ftm_DeviceHandle OB_FTM2 = &ftm2;
+Timer_DeviceHandle OB_TIM2 = &tim2;
+
+#if 0
 
 static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
 {
