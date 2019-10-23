@@ -220,6 +220,10 @@ typedef struct _Timer_Device* Timer_DeviceHandle;
 
 #include "hardware/STM32L4/timer_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/NXPMKL/timer_MKL.h"
+
 #elif defined (LIBOHIBOARD_PIC24FJ)
 
 #include "hardware/PIC24FJ/timer_PIC24FJ.h"

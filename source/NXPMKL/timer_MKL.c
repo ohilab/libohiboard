@@ -1,4 +1,7 @@
-/* Copyright (C) 2014-2017 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2014-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -20,23 +23,29 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
-
-/**
- * @file libohiboard/source/ftm_K15Z4.c
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Ftm implementations for KL15Z4.
  */
 
-#ifdef LIBOHIBOARD_FTM
+/**
+ * @file libohiboard/source/NXPMKL/timer_MKL.c
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @brief Timer implementations for NXP MKL Series.
+ */
+
+#if defined (LIBOHIBOARD_TIMER)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "timer.h"
 
 #include "platforms.h"
-
-#include "ftm.h"
+#include "utility.h"
+#include "system.h"
 #include "interrupt.h"
 #include "clock.h"
 
-#if defined (LIBOHIBOARD_KL15Z4)
+#if defined (LIBOHIBOARD_MKL)
 
 #define FTM_MAX_PINS                     21
 
@@ -52,29 +61,37 @@ typedef enum
     FTM_PRESCALER_128 = 7,
 } Ftm_Prescaler;
 
-typedef struct Ftm_Device
+typedef struct _Timer_Device
 {
-    TPM_MemMapPtr regMap;                          /**< Device memory pointer */
+    TPM_MemMapPtr regmap;                          /**< Device memory pointer */
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
-    Ftm_Pins pins[FTM_MAX_PINS];    /**< List of the pin for the FTM channel. */
+    Timer_Pins pins[FTM_MAX_PINS];  /**< List of the pin for the FTM channel. */
     volatile uint32_t* pinsPtr[FTM_MAX_PINS];
-    Ftm_Channels channel[FTM_MAX_PINS];
+    Timer_Channels channel[FTM_MAX_PINS];
     uint8_t pinMux[FTM_MAX_PINS];     /**< Mux of the pin of the FTM channel. */
 
-    void (*isr)(void);                     /**< The function pointer for ISR. */
-    void (*callback)(void);      /**< The function pointer for user callback. */
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
-    Ftm_Mode mode;                                  /**< Modes of operations. */
+    void (* freeCounterCallback)(struct _Timer_Device *dev);
+    void (* pwmPulseFinishedCallback)(struct _Timer_Device *dev);
+    void (* outputCompareCallback)(struct _Timer_Device *dev);
+    void (* inputCaptureCallback)(struct _Timer_Device *dev);
+
+    Timer_Mode mode;                                /**< Modes of operations. */
 
     uint8_t configurationBits;       /**< A useful variable to configure FTM. */
 
-    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
-} Ftm_Device;
+    Timer_DeviceState state;                   /**< Current peripheral state. */
+} Timer_Device;
 
+#define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM0)   || \
+                                 ((DEVICE) == OB_TIM1)   || \
+                                 ((DEVICE) == OB_TIM2))
+
+#if 0
 static Ftm_Device ftm0 = {
         .regMap           = TPM0_BASE_PTR,
 
@@ -767,6 +784,12 @@ System_Errors Ftm_addInputCapturePin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16
     return ERRORS_FTM_OK;
 }
 
-#endif // LIBOHIBOARD_KL15Z4
+#endif
 
-#endif //  LIBOHIBOARD_FTM
+#endif // LIBOHIBOARD_MKL
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //  LIBOHIBOARD_TIMER
