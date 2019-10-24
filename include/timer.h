@@ -74,7 +74,7 @@ typedef enum _Timer_Mode
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
-    FTM_MODE_QUADRATURE_DECODE,
+    TIMER_MODE_QUADRATURE_DECODE,
 
 #if defined (LIBOHIBOARD_FRDMK64F) || \
     defined (LIBOHIBOARD_K64F12)   || \
@@ -108,6 +108,12 @@ typedef enum _Timer_ClockSource
     TIMER_CLOCKSOURCE_EXTERNAL_MODE_1,                /**< External input pin */
     TIMER_CLOCKSOURCE_EXTERNAL_MODE_2,            /**< External trigger input */
 
+#endif
+
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+    TIMER_CLOCKSOURCE_INTERNAL,                 /**< Internal clock selection */
+    TIMER_CLOCKSOURCE_MCG,
+    TIMER_CLOCKSOURCE_OSCILLATOR,
 #endif
 
 #if defined (LIBOHIBOARD_PIC24FJ)

@@ -81,8 +81,9 @@ typedef struct _Timer_Device
     void (* inputCaptureCallback)(struct _Timer_Device *dev);
 
     Timer_Mode mode;                                /**< Modes of operations. */
+    uint32_t inputClock;                       /**< Current clock input value */
 
-    uint8_t configurationBits;       /**< A useful variable to configure FTM. */
+    Timer_Config config;
 
     Timer_DeviceState state;                   /**< Current peripheral state. */
 } Timer_Device;
@@ -90,6 +91,15 @@ typedef struct _Timer_Device
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM0)   || \
                                  ((DEVICE) == OB_TIM1)   || \
                                  ((DEVICE) == OB_TIM2))
+
+#define TIMER_VALID_MODE(MODE) (((MODE) == TIMER_MODE_FREE)           || \
+                                ((MODE) == TIMER_MODE_PWM)            || \
+                                ((MODE) == TIMER_MODE_INPUT_CAPTURE)  || \
+                                ((MODE) == TIMER_MODE_OUTPUT_COMPARE))
+
+#define TIMER_VALID_CLOCKSOURCE(CLOCKSOURCE) (((CLOCKSOURCE) == TIMER_CLOCKSOURCE_INTERNAL)        || \
+                                              ((CLOCKSOURCE) == TIMER_CLOCKSOURCE_OSCILLATOR)      || \
+											  ((CLOCKSOURCE) == TIMER_CLOCKSOURCE_MCG))
 
 static Timer_Device tim0 =
 {
@@ -251,7 +261,12 @@ static Timer_Device tim0 =
 #endif
         },
 
+        .config           = {0},
+        .inputClock       = 0,
+
         .isrNumber        = INTERRUPT_TPM0,
+
+        .state            = TIMER_DEVICESTATE_RESET,
 
 };
 Timer_DeviceHandle OB_TIM0 = &tim0;
@@ -328,7 +343,12 @@ static Timer_Device tim1 =
 #endif
         },
 
+        .config           = {0},
+        .inputClock       = 0,
+
         .isrNumber        = INTERRUPT_TPM1,
+
+        .state            = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
 
@@ -412,50 +432,172 @@ static Timer_Device tim2 =
 #endif
         },
 
+        .config           = {0},
+        .inputClock       = 0,
+
         .isrNumber        = INTERRUPT_TPM2,
 
+        .state            = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
 
-#if 0
 
-static void Ftm_callbackInterrupt (Ftm_DeviceHandle dev)
+static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer_DeviceHandle dev)
 {
     switch (dev->mode)
     {
-    case FTM_MODE_INPUT_CAPTURE:
-        dev->callback();
+    case TIMER_MODE_INPUT_CAPTURE:
+        //dev->callback();
         break;
-    case FTM_MODE_OUTPUT_COMPARE:
+    case TIMER_MODE_OUTPUT_COMPARE:
         break;
-    case FTM_MODE_QUADRATURE_DECODE:
+    case TIMER_MODE_QUADRATURE_DECODE:
         break;
-    case FTM_MODE_PWM:
-    case FTM_MODE_FREE:
+    case TIMER_MODE_PWM:
+    case TIMER_MODE_FREE:
         /* Reading SC register and clear TOF bit */
         TPM_SC_REG(dev->regMap) |= TPM_SC_TOF_MASK;
-        dev->callback();
+        //dev->callback();
         break;
     default:
-        assert(0);
+        ohiassert(0);
         break;
     }
 }
 
+static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *config)
+{
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *config)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    switch (dev->clockSource)
+    {
+    default:
+        ohiassert(0);
+        return ERRORS_TIMER_WRONG_PARAM;
+        break;
+
+    case TIMER_CLOCKSOURCE_INTERNAL:
+        // FIXME: is not sysclock!
+        dev->inputClock = Clock_getOutputValue(output);
+        SIM_SOPT2 |= SIM_SOPT2_TPMSRC(3);
+        break;
+    case TIMER_CLOCKSOURCE_MCG:
+        // FIXME: is not sysclock!
+        dev->inputClock = Clock_getOutputValue(output);
+        SIM_SOPT2 |= SIM_SOPT2_TPMSRC(1);
+        break;
+    case TIMER_CLOCKSOURCE_OSCILLATOR:
+        dev->inputClock = Clock_getOscillatorValue();
+        SIM_SOPT2 |= SIM_SOPT2_TPMSRC(2);
+        break;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    err = ohiassert(TIMER_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    err  = ohiassert(TIMER_VALID_MODE(config->mode));
+    err |= ohiassert(TIMER_VALID_CLOCKSOURCE(config->clockSource));
+//    err |= ohiassert(TIMER_VALID_COUNTERMODE(config->counterMode));
+//    err |= ohiassert(TIMER_VALID_AUTORELOAD_PRELOAD(config->autoreload));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+    dev->config = *config;
+
+    // Enable peripheral clock if needed
+    if (dev->state == TIMER_DEVICESTATE_RESET)
+    {
+        // Enable peripheral clock
+        UTILITY_SET_REGISTER_BIT(*dev->simScgcPtr,dev->simScgcBitEnable);
+    }
+
+    // Configure clock source
+    Timer_configClockSource(dev,config);
+
+    // Now the peripheral is busy
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // Configure the peripheral
+    switch (dev->mode)
+    {
+    case TIMER_MODE_FREE:
+    case TIMER_MODE_PWM:
+        // Check user choices
+        ohiassert((config->timerFrequency > 0) || ((config->prescaler > 0) && (config->modulo > 0)));
+
+        Timer_configBase(dev,config);
+        break;
+
+    case TIMER_MODE_OUTPUT_COMPARE:
+        // Check user choices
+        // FIXME: is not implemented now!
+        ohiassert(config->prescaler > 0);
+
+        Timer_configBase(dev,config);
+        break;
+
+    case TIMER_MODE_INPUT_CAPTURE:
+        // FIXME: is not implemented now!
+        //Timer_configBase(dev,config);
+        break;
+
+    default:
+        ohiassert(0);
+        break;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
 void TPM0_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(OB_FTM0);
+    Timer_callbackInterrupt(OB_TIM0);
 }
 
 void TPM1_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(OB_FTM1);
+    Timer_callbackInterrupt(OB_TIM1);
 }
 
 void TPM2_IRQHandler (void)
 {
-    Ftm_callbackInterrupt(OB_FTM2);
+    Timer_callbackInterrupt(OB_TIM2);
 }
+
+#if 0
+
+
 
 static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_t timerFrequency)
 {
@@ -627,8 +769,7 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     uint8_t devPinIndex;
 
     /* Enable the clock to the selected FTM/TPM */
-    *dev->simScgcPtr |= dev->simScgcBitEnable;
-    SIM_SOPT2 |= SIM_SOPT2_TPMSRC(1);
+
 
     /* If call back exist save it */
     if (callback)
