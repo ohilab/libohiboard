@@ -47,23 +47,33 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_MKL)
 
-#define FTM_MAX_PINS                     21
-
-typedef enum
+const Timer_ClockPrescaler TIMER_PRESCALER_REGISTER_TABLE[TIMER_CLOCKPRESCALER_NUMBER] =
 {
-    FTM_PRESCALER_1   = 0,
-    FTM_PRESCALER_2   = 1,
-    FTM_PRESCALER_4   = 2,
-    FTM_PRESCALER_8   = 3,
-    FTM_PRESCALER_16  = 4,
-    FTM_PRESCALER_32  = 5,
-    FTM_PRESCALER_64  = 6,
-    FTM_PRESCALER_128 = 7,
-} Ftm_Prescaler;
+    TIMER_CLOCKPRESCALER_1,
+    TIMER_CLOCKPRESCALER_2,
+    TIMER_CLOCKPRESCALER_4,
+    TIMER_CLOCKPRESCALER_8,
+    TIMER_CLOCKPRESCALER_16,
+    TIMER_CLOCKPRESCALER_32,
+    TIMER_CLOCKPRESCALER_64,
+    TIMER_CLOCKPRESCALER_128,
+};
+
+const uint32_t TIMER_PRESCALER_REGISTER_VALUE[TIMER_CLOCKPRESCALER_NUMBER] =
+{
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+};
 
 typedef struct _Timer_Device
 {
-    TPM_MemMapPtr regmap;                          /**< Device memory pointer */
+    TPM_Type* regmap;                          /**< Device memory pointer */
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
@@ -103,9 +113,9 @@ typedef struct _Timer_Device
 
 static Timer_Device tim0 =
 {
-        .regmap           = TPM0_BASE_PTR,
+        .regmap           = TPM0,
 
-        .simScgcPtr       = &SIM_SCGC6,
+        .simScgcPtr       = &SIM->SCGC6,
         .simScgcBitEnable = SIM_SCGC6_TPM0_MASK,
 
         .pins             =
@@ -148,7 +158,7 @@ static Timer_Device tim0 =
         },
         .pinsPtr          =
         {
-                            &PORTA_PCR0,
+                            &PORTA->PCR[0],
                             &PORTA_PCR3,
                             &PORTA_PCR4,
                             &PORTA_PCR5,
@@ -273,9 +283,9 @@ Timer_DeviceHandle OB_TIM0 = &tim0;
 
 static Timer_Device tim1 =
 {
-        .regmap           = TPM1_BASE_PTR,
+        .regmap           = TPM1,
 
-        .simScgcPtr       = &SIM_SCGC6,
+        .simScgcPtr       = &SIM->SCGC6,
         .simScgcBitEnable = SIM_SCGC6_TPM1_MASK,
 
         .pins             =
@@ -354,9 +364,9 @@ Timer_DeviceHandle OB_TIM1 = &tim1;
 
 static Timer_Device tim2 =
 {
-        .regmap           = TPM2_BASE_PTR,
+        .regmap           = TPM2,
 
-        .simScgcPtr       = &SIM_SCGC6,
+        .simScgcPtr       = &SIM->SCGC6,
         .simScgcBitEnable = SIM_SCGC6_TPM2_MASK,
 
         .pins             =
@@ -456,7 +466,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
     case TIMER_MODE_PWM:
     case TIMER_MODE_FREE:
         /* Reading SC register and clear TOF bit */
-        TPM_SC_REG(dev->regMap) |= TPM_SC_TOF_MASK;
+        //TPM_SC_REG(dev->regMap) |= TPM_SC_TOF_MASK;
         //dev->callback();
         break;
     default:
@@ -484,7 +494,7 @@ System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *con
         return ERRORS_TIMER_WRONG_DEVICE;
     }
 
-    switch (dev->clockSource)
+    switch (config->clockSource)
     {
     default:
         ohiassert(0);
@@ -494,20 +504,61 @@ System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *con
     case TIMER_CLOCKSOURCE_INTERNAL:
         // FIXME: is not sysclock!
         dev->inputClock = Clock_getOutputValue(output);
-        SIM_SOPT2 |= SIM_SOPT2_TPMSRC(3);
+        SIM->SOPT2 |= SIM_SOPT2_TPMSRC(3);
         break;
     case TIMER_CLOCKSOURCE_MCG:
         // FIXME: is not sysclock!
         dev->inputClock = Clock_getOutputValue(output);
-        SIM_SOPT2 |= SIM_SOPT2_TPMSRC(1);
+        SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1);
         break;
     case TIMER_CLOCKSOURCE_OSCILLATOR:
         dev->inputClock = Clock_getOscillatorValue();
-        SIM_SOPT2 |= SIM_SOPT2_TPMSRC(2);
+        SIM->SOPT2 |= SIM_SOPT2_TPMSRC(2);
         break;
     }
 
     return ERRORS_NO_ERROR;
+}
+
+static Timer_ClockPrescaler Timer_computeFrequencyPrescale (Timer_DeviceHandle dev,
+                                                            uint32_t frequency)
+{
+    uint32_t clock = dev->inputClock;
+    uint8_t prescaler = 0;
+
+    if (dev->mode == TIMER_MODE_INPUT_CAPTURE)
+    {
+        prescaler = (clock / frequency);
+    }
+    else
+    {
+        prescaler = (clock / frequency) / 65536;
+    }
+
+    // Scan all prescaler table, but start from the second from the high to low
+    for (int8_t i = TIMER_CLOCKPRESCALER_NUMBER - 2; i >= 0; i--)
+    {
+        if (prescaler > TIMER_PRESCALER_REGISTER_VALUE[i])
+        {
+            return TIMER_PRESCALER_REGISTER_TABLE[i+1];
+        }
+    }
+
+    // Just in case...
+    return TIMER_CLOCKPRESCALER_1;
+}
+
+static uint16_t Timer_computeModulo (Timer_DeviceHandle dev,
+                                     uint32_t frequency,
+                                     Timer_ClockPrescaler prescaler)
+{
+    uint32_t clock  = dev->inputClock;
+    uint32_t modulo = 0;
+
+    modulo = (uint16_t) ((uint32_t) clock / frequency * TIMER_PRESCALER_REGISTER_VALUE[prescaler]);
+
+    ohiassert(modulo < 0x0000FFFF);
+    return (uint16_t) modulo;
 }
 
 System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
@@ -528,7 +579,7 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     err  = ohiassert(TIMER_VALID_MODE(config->mode));
     err |= ohiassert(TIMER_VALID_CLOCKSOURCE(config->clockSource));
 //    err |= ohiassert(TIMER_VALID_COUNTERMODE(config->counterMode));
-//    err |= ohiassert(TIMER_VALID_AUTORELOAD_PRELOAD(config->autoreload));
+
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_PARAM;
@@ -548,10 +599,34 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     // Now the peripheral is busy
     dev->state = TIMER_DEVICESTATE_BUSY;
 
+    Timer_ClockPrescaler prescaler;
+    uint16_t modulo;
     // Configure the peripheral
     switch (dev->mode)
     {
     case TIMER_MODE_FREE:
+        // Check user choices
+        ohiassert((config->timerFrequency > 0) || ((config->prescaler > 0) && (config->modulo > 0)));
+
+        if (config->timerFrequency > 0)
+        {
+            // Compute prescale factor
+            prescaler = Timer_computeFrequencyPrescale(dev,config->timerFrequency);
+
+            // Compute timer modulo
+            modulo = Timer_computeModulo(dev,config->timerFrequency,prescaler);
+        }
+        else
+        {
+            prescaler = config->prescaler;
+            modulo = config->modulo;
+        }
+
+        dev->regmap->CNT = 0;
+        dev->regmap->MOD = modulo - 1;
+        dev->regmap->SC  = TPM_SC_TOIE_MASK | TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
+        break;
+
     case TIMER_MODE_PWM:
         // Check user choices
         ohiassert((config->timerFrequency > 0) || ((config->prescaler > 0) && (config->modulo > 0)));
@@ -562,9 +637,9 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     case TIMER_MODE_OUTPUT_COMPARE:
         // Check user choices
         // FIXME: is not implemented now!
-        ohiassert(config->prescaler > 0);
+        //ohiassert(config->prescaler > 0);
 
-        Timer_configBase(dev,config);
+        //Timer_configBase(dev,config);
         break;
 
     case TIMER_MODE_INPUT_CAPTURE:
@@ -597,102 +672,6 @@ void TPM2_IRQHandler (void)
 
 #if 0
 
-
-
-static Ftm_Prescaler Ftm_computeFrequencyPrescale (Ftm_DeviceHandle dev, uint32_t timerFrequency)
-{
-    uint32_t clock;
-    uint8_t prescaler;
-
-    switch(Clock_getCurrentState())
-    {
-    case CLOCK_FBE:
-    case CLOCK_FBI:
-    case CLOCK_FEI:
-    case CLOCK_FEE:
-        clock = Clock_getFrequency(CLOCK_SYSTEM);
-        break;
-
-    case CLOCK_PBE:
-    case CLOCK_PEE:
-        clock = Clock_getFrequency(CLOCK_SYSTEM)/2;
-        break;
-    }
-
-    if (dev->mode == FTM_MODE_INPUT_CAPTURE)
-        prescaler = (clock / timerFrequency);
-    else
-        prescaler = (clock / timerFrequency) / 65536;
-
-    if (prescaler > 64)
-        return FTM_PRESCALER_128;
-    else if (prescaler > 32)
-        return FTM_PRESCALER_64;
-    else if (prescaler > 16)
-        return FTM_PRESCALER_32;
-    else if (prescaler > 8)
-        return FTM_PRESCALER_16;
-    else if (prescaler > 4)
-        return FTM_PRESCALER_8;
-    else if (prescaler > 2)
-        return FTM_PRESCALER_4;
-    else if (prescaler > 1)
-        return FTM_PRESCALER_2;
-    else
-        return FTM_PRESCALER_1;
-}
-
-static uint16_t Ftm_computeModulo (uint32_t timerFrequency, Ftm_Prescaler prescaler)
-{
-    uint32_t clock;
-    uint32_t modulo;
-
-    switch(Clock_getCurrentState())
-    {
-    case CLOCK_FBE:
-    case CLOCK_FBI:
-    case CLOCK_FEI:
-    case CLOCK_FEE:
-        clock = Clock_getFrequency(CLOCK_SYSTEM);
-        break;
-
-    case CLOCK_PBE:
-    case CLOCK_PEE:
-        clock = Clock_getFrequency(CLOCK_SYSTEM)/2;
-        break;
-    }
-
-    switch (prescaler)
-    {
-    case FTM_PRESCALER_1:
-        modulo = (uint16_t) (clock / timerFrequency);
-        break;
-    case FTM_PRESCALER_2:
-        modulo = (uint16_t) (clock / (timerFrequency * 2));
-        break;
-    case FTM_PRESCALER_4:
-        modulo = (uint16_t) (clock / (timerFrequency * 4));
-        break;
-    case FTM_PRESCALER_8:
-        modulo = (uint16_t) (clock / (timerFrequency * 8));
-        break;
-    case FTM_PRESCALER_16:
-        modulo = (uint16_t) (clock / (timerFrequency * 16));
-        break;
-    case FTM_PRESCALER_32:
-        modulo = (uint16_t) (clock / (timerFrequency * 32));
-        break;
-    case FTM_PRESCALER_64:
-        modulo = (uint16_t) (clock / (timerFrequency * 64));
-        break;
-    case FTM_PRESCALER_128:
-        modulo = (uint16_t) (clock / (timerFrequency * 128));
-        break;
-    }
-
-    assert(modulo < 0xFFFF);
-    return (uint16_t) modulo;
-}
 
 static uint16_t Ftm_computeDutyValue (uint16_t dutyScaled, uint16_t modulo)
 {
@@ -849,19 +828,6 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
 
         TPM_SC_REG(dev->regMap) = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
 
-        break;
-    case FTM_MODE_FREE:
-
-        /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
-
-        /* Compute timer modulo */
-        modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
-
-        TPM_CNT_REG(dev->regMap) = 0;
-        TPM_MOD_REG(dev->regMap) = modulo - 1;
-        TPM_SC_REG(dev->regMap) = TPM_SC_TOIE_MASK | TPM_SC_CMOD(1) |
-                                  TPM_SC_PS(prescaler) | 0;
         break;
     }
 }
