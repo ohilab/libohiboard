@@ -111,6 +111,11 @@ typedef struct _Timer_Device
                                               ((CLOCKSOURCE) == TIMER_CLOCKSOURCE_OSCILLATOR)      || \
 											  ((CLOCKSOURCE) == TIMER_CLOCKSOURCE_MCG))
 
+#define TIMER_VALID_COUNTERMODE(COUNTERMODE) (((COUNTERMODE) == TIMER_COUNTERMODE_UP)             || \
+                                              ((COUNTERMODE) == TIMER_COUNTERMODE_DOWN)           || \
+                                              ((COUNTERMODE) == TIMER_COUNTERMODE_EDGE_ALIGNED)   || \
+                                              ((COUNTERMODE) == TIMER_COUNTERMODE_CENTER_ALIGNED))
+
 static Timer_Device tim0 =
 {
         .regmap           = TPM0,
@@ -159,39 +164,39 @@ static Timer_Device tim0 =
         .pinsPtr          =
         {
                             &PORTA->PCR[0],
-                            &PORTA_PCR3,
-                            &PORTA_PCR4,
-                            &PORTA_PCR5,
-                            &PORTC_PCR1,
-                            &PORTC_PCR2,
-                            &PORTC_PCR3,
-                            &PORTC_PCR4,
+                            &PORTA->PCR[3],
+                            &PORTA->PCR[4],
+                            &PORTA->PCR[5],
+                            &PORTC->PCR[1],
+                            &PORTC->PCR[2],
+                            &PORTC->PCR[3],
+                            &PORTC->PCR[4],
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTC_PCR8,
-                            &PORTC_PCR9,
+                            &PORTC->PCR[8],
+                            &PORTC->PCR[9],
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTD_PCR0,
-                            &PORTD_PCR1,
-                            &PORTD_PCR2,
-                            &PORTD_PCR3,
+                            &PORTD->PCR[0],
+                            &PORTD->PCR[1],
+                            &PORTD->PCR[2],
+                            &PORTD->PCR[3],
 #endif
-                            &PORTD_PCR4,
-                            &PORTD_PCR5,
+                            &PORTD->PCR[4],
+                            &PORTD->PCR[5],
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTE_PCR24,
-                            &PORTE_PCR25,
-                            &PORTE_PCR29,
+                            &PORTE->PCR[24],
+                            &PORTE->PCR[25],
+                            &PORTE->PCR[29],
 #endif
-                            &PORTE_PCR30,
+                            &PORTE->PCR[30],
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTE_PCR31,
+                            &PORTE->PCR[31],
 #endif
         },
         .pinMux           =
@@ -308,16 +313,16 @@ static Timer_Device tim1 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTA_PCR12,
-                            &PORTA_PCR13,
+                            &PORTA->PCR[12],
+                            &PORTA->PCR[13],
 #endif
-                            &PORTB_PCR0,
-                            &PORTB_PCR1,
+                            &PORTB->PCR[0],
+                            &PORTB->PCR[1],
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTE_PCR20,
-                            &PORTE_PCR21,
+                            &PORTE->PCR[20],
+                            &PORTE->PCR[21],
 #endif
         },
         .pinMux           =
@@ -389,20 +394,20 @@ static Timer_Device tim2 =
         },
         .pinsPtr          =
         {
-                            &PORTA_PCR1,
-                            &PORTA_PCR2,
+                            &PORTA->PCR[1],
+                            &PORTA->PCR[2],
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTB_PCR2,
-                            &PORTB_PCR3,
+                            &PORTB->PCR[2],
+                            &PORTB->PCR[3],
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-                            &PORTB_PCR18,
-                            &PORTB_PCR19,
-                            &PORTE_PCR22,
-                            &PORTE_PCR23,
+                            &PORTB->PCR[18],
+                            &PORTB->PCR[19],
+                            &PORTE->PCR[22],
+                            &PORTE->PCR[23],
 #endif
         },
         .pinMux           =
@@ -503,12 +508,12 @@ System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *con
 
     case TIMER_CLOCKSOURCE_INTERNAL:
         // FIXME: is not sysclock!
-        dev->inputClock = Clock_getOutputValue(output);
+        dev->inputClock = Clock_getOutputValue(CLOCK_OUTPUT_INTERNAL);
         SIM->SOPT2 |= SIM_SOPT2_TPMSRC(3);
         break;
     case TIMER_CLOCKSOURCE_MCG:
         // FIXME: is not sysclock!
-        dev->inputClock = Clock_getOutputValue(output);
+        dev->inputClock = Clock_getOutputValue(CLOCK_OUTPUT_MCG);
         SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1);
         break;
     case TIMER_CLOCKSOURCE_OSCILLATOR:
@@ -578,7 +583,7 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
     err  = ohiassert(TIMER_VALID_MODE(config->mode));
     err |= ohiassert(TIMER_VALID_CLOCKSOURCE(config->clockSource));
-//    err |= ohiassert(TIMER_VALID_COUNTERMODE(config->counterMode));
+    err |= ohiassert(TIMER_VALID_COUNTERMODE(config->counterMode));
 
     if (err != ERRORS_NO_ERROR)
     {
@@ -624,14 +629,40 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
         dev->regmap->CNT = 0;
         dev->regmap->MOD = modulo - 1;
-        dev->regmap->SC  = TPM_SC_TOIE_MASK | TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
+        dev->regmap->SC  = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
         break;
 
     case TIMER_MODE_PWM:
         // Check user choices
         ohiassert((config->timerFrequency > 0) || ((config->prescaler > 0) && (config->modulo > 0)));
 
-        Timer_configBase(dev,config);
+        if (config->timerFrequency > 0)
+        {
+            // Compute prescale factor
+            prescaler = Timer_computeFrequencyPrescale(dev,config->timerFrequency);
+            // Compute timer modulo
+            modulo = Timer_computeModulo(dev,config->timerFrequency,prescaler);
+        }
+        else
+        {
+            prescaler = config->prescaler;
+            modulo = config->modulo;
+        }
+
+        if (config->counterMode == TIMER_COUNTERMODE_CENTER_ALIGNED)
+        {
+            dev->regmap->SC |= TPM_SC_CPWMS_MASK;
+            modulo = (modulo / 2) - 1;
+        }
+        else
+        {
+            dev->regmap->SC &= ~TPM_SC_CPWMS_MASK;
+            modulo -= 1;
+        }
+
+        dev->regmap->CNT = 0;
+        dev->regmap->MOD = modulo;
+        dev->regmap->SC  = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
         break;
 
     case TIMER_MODE_OUTPUT_COMPARE:
@@ -652,8 +683,75 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         break;
     }
 
+    // Check callback and enable interrupts
+    if ((config->freeCounterCallback != 0)      ||
+        (config->pwmPulseFinishedCallback != 0) ||
+        (config->outputCompareCallback != 0)    ||
+        (config->inputCaptureCallback != 0))
+    {
+        // Enable interrupt
+        Interrupt_enable(dev->isrNumber);
+    }
+
     return ERRORS_NO_ERROR;
 }
+
+System_Errors Timer_start (Timer_DeviceHandle dev)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // In case of callback... enable interrupt
+    if (dev->config.freeCounterCallback != 0)
+    {
+        dev->regmap->SC |= TPM_SC_TOIE_MASK;
+    }
+
+    // Enable device
+    dev->regmap->SC |= TPM_SC_CMOD(1);
+
+    dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stop (Timer_DeviceHandle dev)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // In case of callback... enable interrupt
+    if (dev->freeCounterCallback != 0)
+    {
+        dev->regmap->SC &= ~(TPM_SC_TOIE_MASK);
+    }
+
+    // Disable device
+    dev->regmap->SC &= ~(TPM_SC_CMOD_MASK);
+
+    dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
 
 void TPM0_IRQHandler (void)
 {
@@ -671,7 +769,6 @@ void TPM2_IRQHandler (void)
 }
 
 #if 0
-
 
 static uint16_t Ftm_computeDutyValue (uint16_t dutyScaled, uint16_t modulo)
 {
@@ -787,47 +884,6 @@ void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
     case FTM_MODE_OUTPUT_COMPARE:
         break;
     case FTM_MODE_QUADRATURE_DECODE:
-        break;
-    case FTM_MODE_PWM:
-        /* Compute prescale factor */
-        prescaler = Ftm_computeFrequencyPrescale(dev,config->timerFrequency);
-
-        if (config->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
-        {
-            dev->configurationBits = FTM_CONFIG_PWM_CENTER_ALIGNED;
-            TPM_SC_REG(dev->regMap) |= TPM_SC_CPWMS_MASK;
-        }
-        else
-        {
-            dev->configurationBits = FTM_CONFIG_PWM_EDGE_ALIGNED;
-            TPM_SC_REG(dev->regMap) &= ~TPM_SC_CPWMS_MASK;
-        }
-
-        /* Compute timer modulo and set it */
-        modulo = Ftm_computeModulo(config->timerFrequency,prescaler);
-        if (dev->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
-        {
-            modulo = (modulo / 2) - 1;
-        }
-        else
-        {
-            modulo -= 1;
-        }
-        TPM_MOD_REG(dev->regMap) = modulo;
-
-        /* Initialize every selected channels */
-        for (configPinIndex = 0; configPinIndex < FTM_MAX_CHANNEL; ++configPinIndex)
-        {
-            Ftm_Pins pin = config->pins[configPinIndex];
-
-            if (pin == FTM_PINS_STOP)
-                break;
-
-            Ftm_addPwmPin(dev,pin,config->duty[configPinIndex]);
-        }
-
-        TPM_SC_REG(dev->regMap) = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
-
         break;
     }
 }

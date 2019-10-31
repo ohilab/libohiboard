@@ -193,7 +193,8 @@ typedef enum _Timer_CounterMode
     TIMER_COUNTERMODE_CENTER_ALIGNED_2,
     TIMER_COUNTERMODE_CENTER_ALIGNED_3,
 #elif defined (LIBOHIBOARD_MKL)
-    TIMER_COUTERMODE_CENTER_ALIGNED,
+    TIMER_COUNTERMODE_CENTER_ALIGNED,
+    TIMER_COUNTERMODE_EDGE_ALIGNED,
 #endif
 
 } Timer_CounterMode;
@@ -275,8 +276,6 @@ typedef struct _Timer_Config
 #endif
 
     uint32_t timerFrequency;                            /**< Timer frequency. */
-
-    uint8_t configurationBits;        /**< A useful variable to configure FTM */
 
     Timer_ClockSource clockSource;                 /**< Selected clock source */
 
