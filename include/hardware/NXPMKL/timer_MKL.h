@@ -70,9 +70,9 @@ typedef enum _Timer_Pins
     TIMER_PINS_PTA2,
     TIMER_PINS_PTA3,
     TIMER_PINS_PTA4,
-    TIMER_PINS_PTA5,
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+    TIMER_PINS_PTA5,
     TIMER_PINS_PTA12,
     TIMER_PINS_PTA13,
 #endif

@@ -79,9 +79,10 @@ typedef struct _Timer_Device
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
     Timer_Pins pins[TIMER_PINS_NUMBER];  /**< List of the pin for the FTM channel. */
+    Gpio_Pins pinsGpio[TIMER_PINS_NUMBER];
     volatile uint32_t* pinsPtr[TIMER_PINS_NUMBER];
     Timer_Channels channel[TIMER_PINS_NUMBER];
-    uint8_t pinMux[TIMER_PINS_NUMBER];     /**< Mux of the pin of the FTM channel. */
+    uint8_t pinsMux[TIMER_PINS_NUMBER];     /**< Mux of the pin of the FTM channel. */
 
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
@@ -116,6 +117,21 @@ typedef struct _Timer_Device
                                               ((COUNTERMODE) == TIMER_COUNTERMODE_EDGE_ALIGNED)   || \
                                               ((COUNTERMODE) == TIMER_COUNTERMODE_CENTER_ALIGNED))
 
+#define TIMER_IS_CHANNEL_DEVICE(DEVICE, CHANNEL)                                          \
+                                                ((((DEVICE) == OB_TIM0) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH0) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH5)))  || \
+                                                 (((DEVICE) == OB_TIM1) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH0) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
+                                                 (((DEVICE) == OB_TIM2) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH0) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH1))))
+
 static Timer_Device tim0 =
 {
         .regmap           = TPM0,
@@ -128,7 +144,10 @@ static Timer_Device tim0 =
                             TIMER_PINS_PTA0,
                             TIMER_PINS_PTA3,
                             TIMER_PINS_PTA4,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                             TIMER_PINS_PTA5,
+#endif
                             TIMER_PINS_PTC1,
                             TIMER_PINS_PTC2,
                             TIMER_PINS_PTC3,
@@ -161,12 +180,56 @@ static Timer_Device tim0 =
                             TIMER_PINS_PTE31,
 #endif
         },
+        .pinsGpio          =
+        {
+                            GPIO_PINS_PTA0,
+                            GPIO_PINS_PTA3,
+                            GPIO_PINS_PTA4,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTA5,
+#endif
+                            GPIO_PINS_PTC1,
+                            GPIO_PINS_PTC2,
+                            GPIO_PINS_PTC3,
+                            GPIO_PINS_PTC4,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTC8,
+                            GPIO_PINS_PTC9,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTD0,
+                            GPIO_PINS_PTD1,
+                            GPIO_PINS_PTD2,
+                            GPIO_PINS_PTD3,
+#endif
+                            GPIO_PINS_PTD4,
+                            GPIO_PINS_PTD5,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTE24,
+                            GPIO_PINS_PTE25,
+                            GPIO_PINS_PTE29,
+#endif
+                            GPIO_PINS_PTE30,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTE31,
+#endif
+        },
         .pinsPtr          =
         {
                             &PORTA->PCR[0],
                             &PORTA->PCR[3],
                             &PORTA->PCR[4],
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                             &PORTA->PCR[5],
+#endif
                             &PORTC->PCR[1],
                             &PORTC->PCR[2],
                             &PORTC->PCR[3],
@@ -199,12 +262,15 @@ static Timer_Device tim0 =
                             &PORTE->PCR[31],
 #endif
         },
-        .pinMux           =
+        .pinsMux          =
         {
                             3,
                             3,
                             3,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                             3,
+#endif
                             4,
                             4,
                             4,
@@ -242,7 +308,10 @@ static Timer_Device tim0 =
                             TIMER_CHANNELS_CH5,
                             TIMER_CHANNELS_CH0,
                             TIMER_CHANNELS_CH1,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                             TIMER_CHANNELS_CH2,
+#endif
                             TIMER_CHANNELS_CH0,
                             TIMER_CHANNELS_CH1,
                             TIMER_CHANNELS_CH2,
@@ -309,6 +378,22 @@ static Timer_Device tim1 =
                             TIMER_PINS_PTE21,
 #endif
         },
+        .pinsGpio         =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTA12,
+                            GPIO_PINS_PTA13,
+#endif
+                            GPIO_PINS_PTB0,
+                            GPIO_PINS_PTB1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTE20,
+                            GPIO_PINS_PTE21,
+#endif
+        },
         .pinsPtr          =
         {
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -325,7 +410,7 @@ static Timer_Device tim1 =
                             &PORTE->PCR[21],
 #endif
         },
-        .pinMux           =
+        .pinsMux          =
         {
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
@@ -392,6 +477,24 @@ static Timer_Device tim2 =
                             TIMER_PINS_PTE23,
 #endif
         },
+        .pinsGpio         =
+        {
+                            GPIO_PINS_PTA1,
+                            GPIO_PINS_PTA2,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTB2,
+                            GPIO_PINS_PTB3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                            GPIO_PINS_PTB18,
+                            GPIO_PINS_PTB19,
+                            GPIO_PINS_PTE22,
+                            GPIO_PINS_PTE23,
+#endif
+        },
         .pinsPtr          =
         {
                             &PORTA->PCR[1],
@@ -410,7 +513,7 @@ static Timer_Device tim2 =
                             &PORTE->PCR[23],
 #endif
         },
-        .pinMux           =
+        .pinsMux          =
         {
                             3,
                             3,
@@ -666,16 +769,13 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         break;
 
     case TIMER_MODE_OUTPUT_COMPARE:
-        // Check user choices
         // FIXME: is not implemented now!
-        //ohiassert(config->prescaler > 0);
 
-        //Timer_configBase(dev,config);
         break;
 
     case TIMER_MODE_INPUT_CAPTURE:
         // FIXME: is not implemented now!
-        //Timer_configBase(dev,config);
+
         break;
 
     default:
@@ -753,6 +853,251 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
 }
 
 
+static inline  volatile uint32_t* __attribute__((always_inline))  Timer_getCnVRegister (Timer_DeviceHandle dev,
+                                                                                        Timer_Channels channel)
+{
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH0:
+        return &dev->regmap->CONTROLS[0].CnV;
+    case TIMER_CHANNELS_CH1:
+        return &dev->regmap->CONTROLS[1].CnV;
+    case TIMER_CHANNELS_CH2:
+        return &dev->regmap->CONTROLS[2].CnV;
+    case TIMER_CHANNELS_CH3:
+        return &dev->regmap->CONTROLS[3].CnV;
+    case TIMER_CHANNELS_CH4:
+        return &dev->regmap->CONTROLS[4].CnV;
+    case TIMER_CHANNELS_CH5:
+        return &dev->regmap->CONTROLS[5].CnV;
+    default:
+        ohiassert(0);
+        return 0;
+    }
+}
+
+static inline volatile uint32_t* __attribute__((always_inline)) Timer_getCnSCRegister (Timer_DeviceHandle dev,
+                                                                                       Timer_Channels channel)
+{
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH0:
+        return &dev->regmap->CONTROLS[0].CnSC;
+    case TIMER_CHANNELS_CH1:
+        return &dev->regmap->CONTROLS[1].CnSC;
+    case TIMER_CHANNELS_CH2:
+        return &dev->regmap->CONTROLS[2].CnSC;
+    case TIMER_CHANNELS_CH3:
+        return &dev->regmap->CONTROLS[3].CnSC;
+    case TIMER_CHANNELS_CH4:
+        return &dev->regmap->CONTROLS[4].CnSC;
+    case TIMER_CHANNELS_CH5:
+        return &dev->regmap->CONTROLS[5].CnSC;
+    default:
+        ohiassert(0);
+        return 0;
+    }
+}
+
+System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
+                                  Timer_OutputCompareConfig* config,
+                                  Timer_Pins pin)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    //err |= ohiassert(TIMER_VALID_PWM_MODE(config->mode));
+    err |= ohiassert(config->duty <= 100);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // Configure alternate function on selected pin
+    // And save selected channel
+    Timer_Channels channel;
+    bool isPinFound = FALSE;
+    for (uint16_t i = 0; i < TIMER_PINS_NUMBER; ++i)
+    {
+        if (dev->pins[i] == pin)
+        {
+            Gpio_configAlternate(dev->pinsGpio[i],
+                                 dev->pinsMux[i],
+                                 0);
+            channel = dev->channel[i];
+            isPinFound = TRUE;
+            break;
+        }
+    }
+    if (isPinFound == FALSE)
+    {
+        dev->state = TIMER_DEVICESTATE_ERROR;
+        return ERRORS_TIMER_NO_PWM_PIN_FOUND;
+    }
+
+    // Configure Output Compare functions
+    // Temporary variables
+    volatile uint32_t* regCSCPtr = Timer_getCnSCRegister(dev,config->channel);
+
+    if (regCSCPtr)
+    {
+        if (dev->config.counterMode == TIMER_COUNTERMODE_CENTER_ALIGNED)
+        {
+            *regCSCPtr = TPM_CnSC_ELSB_MASK;
+        }
+        else
+        {
+            *regCSCPtr = TPM_CnSC_ELSB_MASK | TPM_CnSC_MSB_MASK;
+        }
+    }
+    else
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    Timer_setPwmDuty(dev, config->channel, config->duty);
+
+    dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+#if 0
+    // In case of callback, enable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Enable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,TRUE);
+
+    // Enable device
+    TIMER_DEVICE_ENABLE(dev);
+#endif
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+#if 0
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    // Disable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Disable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,FALSE);
+
+    // Disable device if all CC channel is not active
+    TIMER_DEVICE_DISABLE(dev);
+#endif
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
+                                Timer_Channels channel,
+                                uint8_t duty)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check duty-cycle value
+    if (ohiassert(duty <= 100) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    volatile uint32_t* regCVPtr = Timer_getCnVRegister(dev,channel);
+    // Compute duty-cycle pulse value
+    uint32_t pulse = (((dev->regmap->MOD + 1) / 100) * duty);
+    // Write new pulse value
+    *regCVPtr = pulse - 1;
+
+    return ERRORS_NO_ERROR;
+}
+
 void TPM0_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM0);
@@ -769,72 +1114,6 @@ void TPM2_IRQHandler (void)
 }
 
 #if 0
-
-static uint16_t Ftm_computeDutyValue (uint16_t dutyScaled, uint16_t modulo)
-{
-    if (dutyScaled > 32768)
-    {
-        return 32768;
-    }
-    else
-    {
-        return (modulo * dutyScaled) / 32768;
-    }
-}
-
-static volatile uint32_t* Ftm_getCnVRegister (Ftm_DeviceHandle dev, Ftm_Channels channel)
-{
-    switch (channel)
-    {
-    case FTM_CHANNELS_CH0:
-        return &TPM_CnV_REG(dev->regMap,0);
-    case FTM_CHANNELS_CH1:
-        return &TPM_CnV_REG(dev->regMap,1);
-    case FTM_CHANNELS_CH2:
-        return &TPM_CnV_REG(dev->regMap,2);
-    case FTM_CHANNELS_CH3:
-        return &TPM_CnV_REG(dev->regMap,3);
-    case FTM_CHANNELS_CH4:
-        return &TPM_CnV_REG(dev->regMap,4);
-    case FTM_CHANNELS_CH5:
-        return &TPM_CnV_REG(dev->regMap,5);
-    default:
-        assert(0);
-        return 0;
-    }
-}
-
-static volatile uint32_t* Ftm_getCnSCRegister (Ftm_DeviceHandle dev, Ftm_Channels channel)
-{
-    switch (channel)
-    {
-    case FTM_CHANNELS_CH0:
-        return &TPM_CnSC_REG(dev->regMap,0);
-    case FTM_CHANNELS_CH1:
-        return &TPM_CnSC_REG(dev->regMap,1);
-    case FTM_CHANNELS_CH2:
-        return &TPM_CnSC_REG(dev->regMap,2);
-    case FTM_CHANNELS_CH3:
-        return &TPM_CnSC_REG(dev->regMap,3);
-    case FTM_CHANNELS_CH4:
-        return &TPM_CnSC_REG(dev->regMap,4);
-    case FTM_CHANNELS_CH5:
-        return &TPM_CnSC_REG(dev->regMap,5);
-    default:
-        assert(0);
-        return 0;
-    }
-}
-
-void Ftm_setPwm (Ftm_DeviceHandle dev, Ftm_Channels channel, uint16_t dutyScaled)
-{
-    volatile uint32_t* regCVPtr = Ftm_getCnVRegister(dev,channel);
-
-    if (regCVPtr)
-    {
-        *regCVPtr = Ftm_computeDutyValue(dutyScaled,TPM_MOD_REG(dev->regMap));
-    }
-}
 
 void Ftm_init (Ftm_DeviceHandle dev, void *callback, Ftm_Config *config)
 {
