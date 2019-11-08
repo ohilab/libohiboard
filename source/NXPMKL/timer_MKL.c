@@ -84,6 +84,8 @@ typedef struct _Timer_Device
     Timer_Channels channel[TIMER_PINS_NUMBER];
     uint8_t pinsMux[TIMER_PINS_NUMBER];     /**< Mux of the pin of the FTM channel. */
 
+    uint32_t channelConfiguration[TIMER_CHANNELS_NUMBER];
+
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);
@@ -131,6 +133,16 @@ typedef struct _Timer_Device
                                                  (((DEVICE) == OB_TIM2) &&                \
                                                  (((CHANNEL) == TIMER_CHANNELS_CH0) ||    \
                                                   ((CHANNEL) == TIMER_CHANNELS_CH1))))
+
+#define TIMER_DISABLE_CHANNEL_MASK               (TPM_CnSC_MSB_MASK  | \
+                                                  TPM_CnSC_MSA_MASK  | \
+                                                  TPM_CnSC_ELSB_MASK | \
+                                                  TPM_CnSC_ELSA_MASK)
+#define TIMER_CHANNEL_MODE_MASK                  (TPM_CnSC_MSB_MASK  | \
+                                                  TPM_CnSC_MSA_MASK)
+#define TIMER_CHANNEL_INPUT_CAPTURE_MASK         (0ul)
+#define TIMER_CHANNEL_OUTPUT_COMPARE_MASK        (TPM_CnSC_MSA_MASK)
+#define TIMER_CHANNEL_PWM_MASK                   (TPM_CnSC_MSB_MASK)
 
 static Timer_Device tim0 =
 {
@@ -562,31 +574,42 @@ Timer_DeviceHandle OB_TIM2 = &tim2;
 
 static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer_DeviceHandle dev)
 {
-    switch (dev->mode)
+    // Update event / free couter
+    if ((dev->regmap->SC & TPM_SC_TOF_MASK) == TPM_SC_TOF_MASK)
     {
-    case TIMER_MODE_INPUT_CAPTURE:
-        //dev->callback();
-        break;
-    case TIMER_MODE_OUTPUT_COMPARE:
-        break;
-    case TIMER_MODE_QUADRATURE_DECODE:
-        break;
-    case TIMER_MODE_PWM:
-    case TIMER_MODE_FREE:
-        /* Reading SC register and clear TOF bit */
-        //TPM_SC_REG(dev->regMap) |= TPM_SC_TOF_MASK;
-        //dev->callback();
-        break;
-    default:
-        ohiassert(0);
-        break;
+        if ((dev->regmap->SC & TPM_SC_TOIE_MASK) == TPM_SC_TOIE_MASK)
+        {
+            // Clear flag... and call callback!
+            dev->regmap->SC |= TPM_SC_TOF_MASK;
+            dev->freeCounterCallback(dev);
+        }
     }
-}
 
-static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *config)
-{
+    // Capture/Compare Channel x
+    for (uint8_t i = 0; i < TIMER_CHANNELS_NUMBER; ++i)
+    {
+        if ((dev->regmap->CONTROLS[i].CnSC & TPM_CnSC_CHF_MASK) == TPM_CnSC_CHF_MASK)
+        {
+            if ((dev->regmap->CONTROLS[i].CnSC & TPM_CnSC_CHIE_MASK) == TPM_CnSC_CHIE_MASK)
+            {
+                // Clear flag...
+                dev->regmap->CONTROLS[i].CnSC |= TPM_CnSC_CHF_MASK;
 
-    return ERRORS_NO_ERROR;
+                if ((dev->regmap->CONTROLS[i].CnSC & TIMER_CHANNEL_MODE_MASK) == TIMER_CHANNEL_INPUT_CAPTURE_MASK)
+                {
+                    dev->inputCaptureCallback(dev);
+                }
+                else if ((dev->regmap->CONTROLS[i].CnSC & TIMER_CHANNEL_MODE_MASK) == TIMER_CHANNEL_OUTPUT_COMPARE_MASK)
+                {
+                    dev->outputCompareCallback(dev);
+                }
+                else if ((dev->regmap->CONTROLS[i].CnSC & TIMER_CHANNEL_MODE_MASK) == TIMER_CHANNEL_PWM_MASK)
+                {
+                    dev->pwmPulseFinishedCallback(dev);
+                }
+            }
+        }
+    }
 }
 
 System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *config)
@@ -732,7 +755,7 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
         dev->regmap->CNT = 0;
         dev->regmap->MOD = modulo - 1;
-        dev->regmap->SC  = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
+        dev->regmap->SC  = TPM_SC_PS(prescaler) | 0;
         break;
 
     case TIMER_MODE_PWM:
@@ -765,6 +788,7 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
 
         dev->regmap->CNT = 0;
         dev->regmap->MOD = modulo;
+        // The timer is enabled, but all channel are disabled
         dev->regmap->SC  = TPM_SC_CMOD(1) | TPM_SC_PS(prescaler) | 0;
         break;
 
@@ -915,6 +939,11 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,config->channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
 
     //err |= ohiassert(TIMER_VALID_PWM_MODE(config->mode));
     err |= ohiassert(config->duty <= 100);
@@ -927,7 +956,6 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
 
     // Configure alternate function on selected pin
     // And save selected channel
-    Timer_Channels channel;
     bool isPinFound = FALSE;
     for (uint16_t i = 0; i < TIMER_PINS_NUMBER; ++i)
     {
@@ -936,7 +964,6 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
             Gpio_configAlternate(dev->pinsGpio[i],
                                  dev->pinsMux[i],
                                  0);
-            channel = dev->channel[i];
             isPinFound = TRUE;
             break;
         }
@@ -950,16 +977,18 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     // Configure Output Compare functions
     // Temporary variables
     volatile uint32_t* regCSCPtr = Timer_getCnSCRegister(dev,config->channel);
-
+    // Disable channel
     if (regCSCPtr)
     {
-        if (dev->config.counterMode == TIMER_COUNTERMODE_CENTER_ALIGNED)
+        *regCSCPtr &= ~(TIMER_DISABLE_CHANNEL_MASK);
+
+        if (config->polarity == GPIO_HIGH)
         {
-            *regCSCPtr = TPM_CnSC_ELSB_MASK;
+            dev->channelConfiguration[config->channel] = TPM_CnSC_MSB_MASK  | TPM_CnSC_ELSB_MASK;
         }
         else
         {
-            *regCSCPtr = TPM_CnSC_ELSB_MASK | TPM_CnSC_MSB_MASK;
+            dev->channelConfiguration[config->channel] = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK | TPM_CnSC_ELSA_MASK;
         }
     }
     else
@@ -985,35 +1014,22 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
-#if 0
-    // In case of callback, enable CC Interrupt
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    volatile uint32_t* regCSCPtr = Timer_getCnSCRegister(dev,channel);
+
+    // In case of callback, enable Interrupt
     if (dev->pwmPulseFinishedCallback != 0)
     {
-        switch (channel)
-        {
-        case TIMER_CHANNELS_CH1:
-            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
-            break;
-        case TIMER_CHANNELS_CH2:
-            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
-            break;
-        case TIMER_CHANNELS_CH3:
-            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
-            break;
-        case TIMER_CHANNELS_CH4:
-            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
-            break;
-        default:
-            ohiassert(0);
-        }
+        UTILITY_SET_REGISTER_BIT(*regCSCPtr,TPM_CnSC_CHIE_MASK);
     }
 
     // Enable channel in the selected pin
-    Timer_manageCCxChannel(dev,channel,TRUE);
-
-    // Enable device
-    TIMER_DEVICE_ENABLE(dev);
-#endif
+    UTILITY_MODIFY_REGISTER(*regCSCPtr,TIMER_DISABLE_CHANNEL_MASK,dev->channelConfiguration[channel]);
 
     return ERRORS_NO_ERROR;
 }
@@ -1025,9 +1041,8 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
     {
         return ERRORS_TIMER_NO_DEVICE;
     }
-#if 0
     // Check the TIMER instance
-    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    if (ohiassert(TIMER_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1037,34 +1052,16 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
         return ERRORS_TIMER_WRONG_PWM_CHANNEL;
     }
 
-    // Disable CC Interrupt
+    volatile uint32_t* regCSCPtr = Timer_getCnSCRegister(dev,channel);
+
+    // In case of callback, disable Interrupt
     if (dev->pwmPulseFinishedCallback != 0)
     {
-        switch (channel)
-        {
-        case TIMER_CHANNELS_CH1:
-            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
-            break;
-        case TIMER_CHANNELS_CH2:
-            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
-            break;
-        case TIMER_CHANNELS_CH3:
-            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
-            break;
-        case TIMER_CHANNELS_CH4:
-            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
-            break;
-        default:
-            ohiassert(0);
-        }
+        UTILITY_CLEAR_REGISTER_BIT(*regCSCPtr,TPM_CnSC_CHIE_MASK);
     }
 
     // Disable channel in the selected pin
-    Timer_manageCCxChannel(dev,channel,FALSE);
-
-    // Disable device if all CC channel is not active
-    TIMER_DEVICE_DISABLE(dev);
-#endif
+    UTILITY_MODIFY_REGISTER(*regCSCPtr,TIMER_DISABLE_CHANNEL_MASK,0ul);
 
     return ERRORS_NO_ERROR;
 }
@@ -1186,64 +1183,6 @@ void Ftm_disableInterrupt (Ftm_DeviceHandle dev)
 {
     /* disable interrupt */
     TPM_SC_REG(dev->regMap) &=~ TPM_SC_TOIE_MASK;
-}
-
-void Ftm_stopCount(Ftm_DeviceHandle dev)
-{
-    TPM_SC_REG(dev->regMap) &= TPM_SC_CMOD_MASK;
-    TPM_SC_REG(dev->regMap) |= TPM_SC_CMOD(0);
-}
-
-void Ftm_startCount(Ftm_DeviceHandle dev)
-{
-    TPM_SC_REG(dev->regMap) &= TPM_SC_CMOD_MASK;
-    TPM_SC_REG(dev->regMap) |= TPM_SC_CMOD(1);
-}
-
-System_Errors Ftm_addPwmPin (Ftm_DeviceHandle dev, Ftm_Pins pin, uint16_t dutyScaled)
-{
-    uint8_t devPinIndex;
-
-    volatile uint32_t* regCSCPtr;
-    volatile uint32_t* regCVPtr;
-
-    if (dev->devInitialized == 0)
-        return ERRORS_FTM_DEVICE_NOT_INIT;
-
-    for (devPinIndex = 0; devPinIndex < FTM_MAX_PINS; ++devPinIndex)
-    {
-        if (dev->pins[devPinIndex] == pin)
-        {
-            *(dev->pinsPtr[devPinIndex]) =
-                PORT_PCR_MUX(dev->pinMux[devPinIndex]) | PORT_PCR_IRQC(0);
-            break;
-        }
-    }
-
-    /* Select the right register */
-    regCSCPtr = Ftm_getCnSCRegister(dev,dev->channel[devPinIndex]);
-    regCVPtr = Ftm_getCnVRegister(dev,dev->channel[devPinIndex]);
-
-    /* Enable channel and set PWM value */
-    if (regCSCPtr && regCVPtr)
-    {
-        if (dev->configurationBits & FTM_CONFIG_PWM_CENTER_ALIGNED)
-        {
-            *regCSCPtr = TPM_CnSC_ELSB_MASK;
-        }
-        else
-        {
-            *regCSCPtr = TPM_CnSC_ELSB_MASK | TPM_CnSC_MSB_MASK;
-        }
-
-        Ftm_setPwm (dev,dev->channel[devPinIndex],dutyScaled);
-    }
-    else
-    {
-        return ERRORS_FTM_CHANNEL_NOT_FOUND;
-    }
-
-    return ERRORS_FTM_OK;
 }
 
 void Ftm_enableChannelInterrupt (Ftm_DeviceHandle dev, Ftm_Channels channel)
