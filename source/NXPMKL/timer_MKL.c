@@ -581,7 +581,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
         {
             // Clear flag... and call callback!
             dev->regmap->SC |= TPM_SC_TOF_MASK;
-            dev->freeCounterCallback(dev);
+            dev->config.freeCounterCallback(dev);
         }
     }
 
@@ -633,12 +633,10 @@ System_Errors Timer_configClockSource (Timer_DeviceHandle dev, Timer_Config *con
         break;
 
     case TIMER_CLOCKSOURCE_INTERNAL:
-        // FIXME: is not sysclock!
         dev->inputClock = Clock_getOutputValue(CLOCK_OUTPUT_INTERNAL);
         SIM->SOPT2 |= SIM_SOPT2_TPMSRC(3);
         break;
     case TIMER_CLOCKSOURCE_MCG:
-        // FIXME: is not sysclock!
         dev->inputClock = Clock_getOutputValue(CLOCK_OUTPUT_MCG);
         SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1);
         break;
@@ -864,7 +862,7 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
     dev->state = TIMER_DEVICESTATE_BUSY;
 
     // In case of callback... enable interrupt
-    if (dev->freeCounterCallback != 0)
+    if (dev->config.freeCounterCallback != 0)
     {
         dev->regmap->SC &= ~(TPM_SC_TOIE_MASK);
     }

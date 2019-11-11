@@ -355,7 +355,7 @@ void Gpio_disablePortClock (Gpio_Ports port)
 
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
 {
-    if(pin == GPIO_PINS_NONE)
+    if (pin == GPIO_PINS_NONE)
     {
         return; //ERRORS_GPIO_NULL_PIN;
     }

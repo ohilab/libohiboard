@@ -164,6 +164,15 @@ typedef enum _Clock_Output
 {
     CLOCK_OUTPUT_SYSCLK   = 0x0001,
 
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
+#if defined (LIBOHIBOARD_MKL)
+    CLOCK_OUTPUT_MCG      = 0x0002,
+    CLOCK_OUTPUT_INTERNAL = 0x0004,
+#endif
+
+#endif
+
 #if defined (LIBOHIBOARD_ST_STM32)
     CLOCK_OUTPUT_HCLK     = 0x0002,
     CLOCK_OUTPUT_PCLK1    = 0x0004,

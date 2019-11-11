@@ -456,7 +456,38 @@ void Gpio_disablePortClock (Gpio_Ports port)
 
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
 {
-    // TODO
+    if (pin == GPIO_PINS_NONE)
+    {
+        ohiassert(0);
+        return; //ERRORS_GPIO_NULL_PIN;
+    }
+
+    GPIO_Type* gpio;
+    PORT_Type* port;
+    // Pin number into the current port
+    uint8_t number = 0;
+
+    //Check if pin definition exist
+    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+
+    // Check the alternate value: it have 16 possibility
+    ohiassert(alternate < 16);
+
+    // Enable clock and save current port
+    Gpio_enablePortClock(GPIO_AVAILABLE_PINS[pin].port);
+    //gpio = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
+    port = Gpio_getPortRegister(GPIO_AVAILABLE_PINS[pin].port);
+
+    number = GPIO_AVAILABLE_PINS[pin].pinNumber;
+
+    if (alternate >= 0)
+    {
+        port->PCR[number] = PORT_PCR_MUX(alternate) | PORT_PCR_IRQC(0);
+    }
+    else
+    {
+        ohiassert(0);
+    }
 }
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)

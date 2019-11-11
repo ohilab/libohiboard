@@ -78,6 +78,8 @@ typedef struct _Clock_Device
     Clock_State  state;                                /**< Current MCG state */
 
     uint32_t systemCoreClock; /**< Value that store current system core clock */
+    uint32_t mcgXllClock;  /**< Value that store current MCG FLL or PLL clock */
+    uint32_t mcgIrcClock;         /**< Value that store current MCG IRC clock */
 
     uint32_t externalClock;           /**< Oscillator or external clock value */
 
@@ -135,6 +137,8 @@ static Clock_Device clk =
 
     // Start-up: FEI mode, with LIRC active, DIV1 = 1
     .systemCoreClock = 20480000u,
+    .mcgIrcClock     = CLOCK_FREQ_INTERNAL_LIRC,
+    .mcgXllClock     = 20480000u,
     .state           = CLOCK_STATE_FEI,
 
     .externalClock   = 0u,
@@ -730,6 +734,8 @@ System_Errors Clock_init (Clock_Config* config)
                 clk.changeParam.foutMcg = foutMcg;
                 isConfigFound = TRUE;
                 // Exit from OUTDIV1 searching...
+                clk.mcgXllClock = 0ul;
+                clk.mcgIrcClock = 0ul;
                 goto clock_config_result;
             }
 
@@ -754,6 +760,8 @@ System_Errors Clock_init (Clock_Config* config)
                         clk.changeParam.dmx_drst = CLOCK_FLL_MULTIPLIER_REGISTER[fllmul];
                         isConfigFound = TRUE;
                         // Exit from OUTDIV1 searching...
+                        clk.mcgXllClock = foutMcg;
+                        clk.mcgIrcClock = 0ul;
                         goto clock_config_result;
                     }
                 }
@@ -817,6 +825,8 @@ System_Errors Clock_init (Clock_Config* config)
                 clk.changeParam.outdiv1 = div - 1;
                 isConfigFound = TRUE;
                 // Exit from OUTDIV1 searching...
+                clk.mcgXllClock = clk.changeParam.foutMcg / 2;
+                clk.mcgIrcClock = 0ul;
                 goto clock_config_result;
             }
         }
@@ -845,6 +855,8 @@ System_Errors Clock_init (Clock_Config* config)
                     clk.changeParam.outdiv1 = div - 1;
                     isConfigFound = TRUE;
                     // Exit from OUTDIV1 searching...
+                    clk.mcgIrcClock = CLOCK_FREQ_INTERNAL_LIRC;
+                    clk.mcgXllClock = lfrequency;
                     goto clock_config_result;
                 }
             }
@@ -868,6 +880,8 @@ System_Errors Clock_init (Clock_Config* config)
                     clk.changeParam.outdiv1 = div - 1;
                     isConfigFound = TRUE;
                     // Exit from OUTDIV1 searching...
+                    clk.mcgIrcClock = hfrequency;
+                    clk.mcgXllClock = 0;
                     goto clock_config_result;
                 }
             }
@@ -975,6 +989,12 @@ uint32_t Clock_getOutputValue (Clock_Output output)
     {
     case CLOCK_OUTPUT_SYSCLK:
         return clk.systemCoreClock;
+
+    case CLOCK_OUTPUT_MCG:
+        return clk.mcgXllClock;
+
+    case CLOCK_OUTPUT_INTERNAL:
+        return clk.mcgIrcClock;
 
     default:
         return 0;
