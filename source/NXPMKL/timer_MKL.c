@@ -86,6 +86,8 @@ typedef struct _Timer_Device
 
     uint32_t channelConfiguration[TIMER_CHANNELS_NUMBER];
 
+    uint8_t channelNumber;
+
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
     void (* freeCounterCallback)(struct _Timer_Device *dev);
@@ -357,6 +359,8 @@ static Timer_Device tim0 =
 #endif
         },
 
+        .channelNumber    = TIMER_CHANNELS_NUMBER,
+
         .config           = {0},
         .inputClock       = 0,
 
@@ -454,6 +458,8 @@ static Timer_Device tim1 =
                             TIMER_CHANNELS_CH1,
 #endif
         },
+
+        .channelNumber    = 2,
 
         .config           = {0},
         .inputClock       = 0,
@@ -562,6 +568,8 @@ static Timer_Device tim2 =
 #endif
         },
 
+        .channelNumber    = 2,
+
         .config           = {0},
         .inputClock       = 0,
 
@@ -586,7 +594,7 @@ static inline void __attribute__((always_inline)) Timer_callbackInterrupt (Timer
     }
 
     // Capture/Compare Channel x
-    for (uint8_t i = 0; i < TIMER_CHANNELS_NUMBER; ++i)
+    for (uint8_t i = 0; i < dev->channelNumber; ++i)
     {
         if ((dev->regmap->CONTROLS[i].CnSC & TPM_CnSC_CHF_MASK) == TPM_CnSC_CHF_MASK)
         {
@@ -731,7 +739,7 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     Timer_ClockPrescaler prescaler;
     uint16_t modulo;
     // Configure the peripheral
-    switch (dev->mode)
+    switch (dev->config.mode)
     {
     case TIMER_MODE_FREE:
         // Check user choices
@@ -1021,7 +1029,7 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
     volatile uint32_t* regCSCPtr = Timer_getCnSCRegister(dev,channel);
 
     // In case of callback, enable Interrupt
-    if (dev->pwmPulseFinishedCallback != 0)
+    if (dev->config.pwmPulseFinishedCallback != 0)
     {
         UTILITY_SET_REGISTER_BIT(*regCSCPtr,TPM_CnSC_CHIE_MASK);
     }
@@ -1053,7 +1061,7 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
     volatile uint32_t* regCSCPtr = Timer_getCnSCRegister(dev,channel);
 
     // In case of callback, disable Interrupt
-    if (dev->pwmPulseFinishedCallback != 0)
+    if (dev->config.pwmPulseFinishedCallback != 0)
     {
         UTILITY_CLEAR_REGISTER_BIT(*regCSCPtr,TPM_CnSC_CHIE_MASK);
     }
@@ -1086,9 +1094,13 @@ System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
 
     volatile uint32_t* regCVPtr = Timer_getCnVRegister(dev,channel);
     // Compute duty-cycle pulse value
-    uint32_t pulse = (((dev->regmap->MOD + 1) / 100) * duty);
+    uint32_t pulse = 0;
+    if (duty > 0)
+    {
+        pulse = (((dev->regmap->MOD + 1) / 100) * duty) - 1;
+    }
     // Write new pulse value
-    *regCVPtr = pulse - 1;
+    *regCVPtr = pulse;
 
     return ERRORS_NO_ERROR;
 }
