@@ -552,7 +552,8 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time)
 
     // Restore write-protection
     RTC_WRITE_PROTECTION_ENABLE(dev->regmap);
-    dev->state = RTC_DEVICESTATE_READY;
+    dev->state = RTC_DEVICESTATE_SET;
+
     return ERRORS_NO_ERROR;
 }
 
@@ -603,6 +604,11 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
     mydate.day   = Utility_bcd2ToByte(mydate.day);
 
     return (Rtc_Time)Time_getUnixTime(&mydate,&mytime);
+}
+
+Rtc_DeviceState Rtc_getState (Rtc_DeviceHandle dev)
+{
+    return dev->state;
 }
 
 void Rtc_enableAlarm(Rtc_DeviceHandle dev, void *callback, Rtc_Time alarm)

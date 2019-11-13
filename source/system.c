@@ -217,7 +217,7 @@ void System_softwareBreakpoint (void)
     // TODO
 #endif
 #if defined (LIBOHIBOARD_MICROCHIP_PIC)
-    __builtin_software_breakpoint;
+    __builtin_software_breakpoint();
 #endif
 
 #endif
