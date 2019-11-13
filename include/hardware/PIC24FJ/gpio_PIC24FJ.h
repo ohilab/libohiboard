@@ -259,6 +259,9 @@ typedef enum _Gpio_Ports
     GPIO_PORTS_NUMBER,
 } Gpio_Ports;
 
+#define GPIO_MAX_PINS_NUMBER_FOR_PORT  16
+#define GPIO_MAX_PORTS_NUMBER          7
+
 /**
  * List of possible PPS output functionality.
  */

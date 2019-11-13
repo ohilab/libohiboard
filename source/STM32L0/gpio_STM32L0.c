@@ -144,9 +144,17 @@ extern "C" {
                                      (void) UTILITY_READ_REGISTER_BIT(RCC->IOPENR,RCC_IOPENR_GPIOHEN); \
                                    } while (0)
 
-#define  PORT_MAX_PIN  16
+typedef void (*Gpio_ExtCallback_t)(Gpio_Pins pin);
 
-static void (*Gpio_isrPortRequestVector[PORT_MAX_PIN]) (void);
+typedef struct _Gpio_ExtIsrCallback
+{
+	bool enabled;
+	Gpio_Pins pin;
+	Gpio_ExtCallback_t callback;
+} Gpio_ExtIsrCallback_t;
+
+static Gpio_ExtIsrCallback_t Gpio_isrPortRequestVector[GPIO_MAX_PINS_NUMBER_FOR_PORT] = {0};
+
 static uint32_t Gpio_isrRegister = 0x0;
 
 typedef struct _Gpio_PinDevice
@@ -387,6 +395,11 @@ void Gpio_disablePortClock (Gpio_Ports port)
 
 void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t options)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return; //ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_TypeDef* port;
     uint32_t temp = 0x00;
     // Pin number into the current port
@@ -422,7 +435,7 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
         if (options)
         {
             // Only one type of configuration is possible
-            ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
+            ohiassert(!(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
                         ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
 
             // Configure IO output type
@@ -478,6 +491,11 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_TypeDef* port;
     uint32_t temp = 0x00;
 
@@ -506,7 +524,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
     if (options & GPIO_PINS_OUTPUT)
     {
         // Only one type of configuration is possible
-        ohiassert(~(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
+        ohiassert(!(((options & GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) == GPIO_PINS_ENABLE_OUTPUT_PUSHPULL) &&
                     ((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) == GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)));
 
         // Configure IO output type
@@ -555,33 +573,47 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
 void Gpio_set (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-    port->BSRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+        port->BSRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 void Gpio_clear (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-    port->BRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+        port->BRR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 void Gpio_toggle (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-    port->ODR ^= GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+        port->ODR ^= GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 Gpio_Level Gpio_get (Gpio_Pins pin)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return GPIO_TOGGLE;
+    }
+
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
@@ -589,15 +621,28 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->IDR & GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-
-System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, void* callback)
 {
+	(void)priority; //FIXMENOW: manage interrupt priority
+
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
     if (pin >= GPIO_AVAILABLE_PINS_COUNT)
         return ERRORS_GPIO_WRONG_PIN;
 
-    Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber] = callback;
+    //Check callback is empty
+	if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
+	{
+		asm("NOP");
+	}
+
+	Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
+    Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
     Gpio_isrRegister |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
 
     return ERRORS_NO_ERROR;
@@ -605,6 +650,11 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     uint32_t pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     uint32_t portIndex = GPIO_AVAILABLE_PINS[pin].portIndex;
     uint32_t temp = 0x00;
@@ -670,6 +720,9 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     }
     EXTI->FTSR = temp;
 
+    // Enable callback
+    Gpio_isrPortRequestVector[pinNumber].enabled = true;
+
     // Enable NVIC interrupt
     switch (pinNumber)
     {
@@ -702,6 +755,11 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     uint32_t pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     uint32_t portIndex = GPIO_AVAILABLE_PINS[pin].portIndex;
     uint32_t temp = 0x00;
@@ -727,16 +785,45 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         EXTI->RTSR &= ~((uint32_t)GPIO_PIN(pinNumber));
         EXTI->FTSR &= ~((uint32_t)GPIO_PIN(pinNumber));
 
+        // Disable callback
+        Gpio_isrPortRequestVector[pinNumber].enabled = false;
+
         // Disable NVIC interrupt
         switch (pinNumber)
         {
             case 0:
             case 1:
-                Interrupt_disable(INTERRUPT_EXTI1_0);
+	        {
+	        	bool disable = true;
+	        	for(int i = 0; i < 2; i++)
+	        	{
+	        		if(Gpio_isrPortRequestVector[i].enabled == true)
+	        		{
+	        			disable = false;
+	        		}
+	        	}
+	        	if(disable == true)
+	        	{
+	        		Interrupt_disable(INTERRUPT_EXTI1_0);
+	        	}
+	        }                
                 break;
             case 2:
             case 3:
-                Interrupt_disable(INTERRUPT_EXTI3_2);
+	        {
+	        	bool disable = true;
+	        	for(int i = 2; i < 4; i++)
+	        	{
+	        		if(Gpio_isrPortRequestVector[i].enabled == true)
+	        		{
+	        			disable = false;
+	        		}
+	        	}
+	        	if(disable == true)
+	        	{
+	        		Interrupt_disable(INTERRUPT_EXTI3_2);
+	        	}
+	        }                
                 break;
             case 4:
             case 5:
@@ -750,14 +837,27 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
             case 13:
             case 14:
             case 15:
-                Interrupt_disable(INTERRUPT_EXTI4_15);
+	        {
+	        	bool disable = true;
+	        	for(int i = 4; i < 16; i++)
+	        	{
+	        		if(Gpio_isrPortRequestVector[i].enabled == true)
+	        		{
+	        			disable = false;
+	        		}
+	        	}
+	        	if(disable == true)
+	        	{
+	        		Interrupt_disable(INTERRUPT_EXTI4_15);
+	        	}
+	        }                
                 break;
         }
     }
     return ERRORS_NO_ERROR;
 }
 
-_weak void EXTI0_1_IRQHandler (void)
+void EXTI0_1_IRQHandler (void)
 {
     uint32_t pending = EXTI->PR;
     if (pending & GPIO_PIN(0))
@@ -765,8 +865,11 @@ _weak void EXTI0_1_IRQHandler (void)
         // Clear pending flag
         EXTI->PR = GPIO_PIN(0);
 
-        if (Gpio_isrPortRequestVector[0] != NULL)
-            Gpio_isrPortRequestVector[0]();
+        if ((Gpio_isrPortRequestVector[0].callback != nullptr) &&
+            (Gpio_isrPortRequestVector[0].enabled == true))
+        {
+            Gpio_isrPortRequestVector[0].callback(Gpio_isrPortRequestVector[0].pin);
+        }
     }
 
     if (pending & GPIO_PIN(1))
@@ -774,12 +877,15 @@ _weak void EXTI0_1_IRQHandler (void)
         // Clear pending flag
         EXTI->PR = GPIO_PIN(1);
 
-        if (Gpio_isrPortRequestVector[1] != NULL)
-            Gpio_isrPortRequestVector[1]();
+        if ((Gpio_isrPortRequestVector[1].callback != nullptr) &&
+            (Gpio_isrPortRequestVector[1].enabled == true))
+        {
+            Gpio_isrPortRequestVector[1].callback(Gpio_isrPortRequestVector[1].pin);
+        }
     }
 }
 
-_weak void EXTI2_3_IRQHandler (void)
+void EXTI2_3_IRQHandler (void)
 {
     uint32_t pending = EXTI->PR;
     if (pending & GPIO_PIN(2))
@@ -787,8 +893,11 @@ _weak void EXTI2_3_IRQHandler (void)
         // Clear pending flag
         EXTI->PR = GPIO_PIN(2);
 
-        if (Gpio_isrPortRequestVector[2] != NULL)
-            Gpio_isrPortRequestVector[2]();
+        if ((Gpio_isrPortRequestVector[2].callback != nullptr) &&
+            (Gpio_isrPortRequestVector[2].enabled == true))
+        {
+            Gpio_isrPortRequestVector[2].callback(Gpio_isrPortRequestVector[2].pin);
+        }
     }
 
     if (pending & GPIO_PIN(3))
@@ -796,25 +905,28 @@ _weak void EXTI2_3_IRQHandler (void)
         // Clear pending flag
         EXTI->PR = GPIO_PIN(3);
 
-        if (Gpio_isrPortRequestVector[3] != NULL)
-            Gpio_isrPortRequestVector[3]();
+        if ((Gpio_isrPortRequestVector[3].callback != nullptr) &&
+            (Gpio_isrPortRequestVector[3].enabled == true))
+        {
+            Gpio_isrPortRequestVector[3].callback(Gpio_isrPortRequestVector[3].pin);
+        }
     }
 }
 
-_weak void EXTI4_15_IRQHandler (void)
+void EXTI4_15_IRQHandler (void)
 {
-    uint8_t i = 0;
     uint32_t pending = EXTI->PR;
 
-    for (i = 4; i < 16; i++)
+    for (int i = 4; i < 16; i++)
     {
         if (pending & GPIO_PIN(i))
         {
             // Clear flag interrupt
             EXTI->PR = GPIO_PIN(i);
-            if (Gpio_isrPortRequestVector[i] != NULL)
+            if ((Gpio_isrPortRequestVector[i].callback != nullptr) &&
+                (Gpio_isrPortRequestVector[i].enabled == true))
             {
-                Gpio_isrPortRequestVector[i]();
+                Gpio_isrPortRequestVector[i].callback(Gpio_isrPortRequestVector[i].pin);
             }
         }
     }

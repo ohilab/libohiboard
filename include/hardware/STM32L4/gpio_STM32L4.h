@@ -141,6 +141,9 @@ typedef enum
 	GPIO_PORTS_NUMBER,
 } Gpio_Ports;
 
+#define GPIO_MAX_PINS_NUMBER_FOR_PORT  16
+#define GPIO_MAX_PORTS_NUMBER          GPIO_PORTS_NUMBER
+
 #define GPIO_PORTS_BASE               ((GPIO_TypeDef *) GPIOA_BASE)
 
 #endif // LIBOHIBOARD_STM32L4
