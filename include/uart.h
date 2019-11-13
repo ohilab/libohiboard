@@ -357,6 +357,29 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config);
  */
 System_Errors Uart_deInit (Uart_DeviceHandle dev);
 
+/**
+ * This function resume (enable bit in register) the previous suspended uart
+ * 
+ * @param[in] dev Uart device handle
+ * @return The function return one of the following error:
+ *   @arg @ref ERRORS_NO_ERROR when the function success
+ *   @arg @ref ERRORS_UART_WRONG_DEVICE when the device doesn't exit
+ *   @arg @ref ERRORS_UART_no_DEVICE when the param dev is NULL
+ */
+System_Errors Uart_resume(Uart_DeviceHandle dev);
+
+/**
+ * This function suspend (disable bit in register) the active uart
+ * 
+ * @param[in] dev Uart device handle
+ * @return The function return one of the following error:
+ *   @arg @ref ERRORS_NO_ERROR when the function success
+ *   @arg @ref ERRORS_UART_WRONG_DEVICE when the device doesn't exit
+ *   @arg @ref ERRORS_UART_no_DEVICE when the param dev is NULL
+ */
+System_Errors Uart_suspend(Uart_DeviceHandle dev);
+
+
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin);
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
 
