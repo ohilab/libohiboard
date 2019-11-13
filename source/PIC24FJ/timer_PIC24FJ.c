@@ -86,6 +86,8 @@ extern "C" {
 
 #define TIMER_VALID_COUNTERMODE(COUNTERMODE) ((COUNTERMODE) == TIMER_COUNTERMODE_UP)
 
+#define TIMER_MAX_PWM_PINS                       6
+    
 typedef struct _Timer_Device
 {
     TMR_TypeDef* regmap;                         /**< Device memory pointer */
@@ -110,6 +112,10 @@ typedef struct _Timer_Device
     volatile uint16_t* tconRegisterPtr;
     volatile uint16_t* tmrRegisterPtr;
     volatile uint16_t* prRegisterPtr;
+
+    
+    Gpio_PpsOutputFunction ppsOCRegisterValue[OC_NUM];
+    OC_TypeDef* ocRegisterPointer[OC_NUM];
 
     // Timer_Pins pins[TIMER_MAX_PINS];/**< List of the pin for the timer channel. */
     // Timer_Channels pinsChannel[TIMER_MAX_PINS];
@@ -264,6 +270,51 @@ static Timer_Device tim45 =
         .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM45 = &tim45;
+
+static Timer_Device timPwm =
+{
+/* Unused for PWM *************************************************************/
+        .regmap              = nullptr,
+
+        .isDouble            = FALSE,
+        .justUsed            = FALSE,
+        .isRunning           = FALSE,
+
+        .pmdRegisterPtr1     = 0,
+        .pmdRegisterEnable1  = 0,
+        .pmdRegisterPtr2     = 0,
+        .pmdRegisterEnable2  = 0,
+
+        .tconRegisterPtr     = 0,
+        .tmrRegisterPtr      = 0,
+        .prRegisterPtr       = 0,
+
+        .isrNumber           = INTERRUPT_TIMER3,
+
+        .state               = TIMER_DEVICESTATE_RESET,
+/* END - Unused for PWM *******************************************************/
+        
+        .ppsOCRegisterValue = 
+        {
+                              GPIO_PPSOUTPUTFUNCTION_OC1,
+                              GPIO_PPSOUTPUTFUNCTION_OC1,
+                              GPIO_PPSOUTPUTFUNCTION_OC3,
+                              GPIO_PPSOUTPUTFUNCTION_NULL,
+                              GPIO_PPSOUTPUTFUNCTION_NULL,
+                              GPIO_PPSOUTPUTFUNCTION_NULL,
+        },
+        
+        .ocRegisterPointer  = 
+        {
+                              OC1,
+                              OC2,
+                              OC3,
+                              OC4,
+                              OC5,
+                              OC6,
+        },
+};
+Timer_DeviceHandle OB_TIMPWM = &timPwm;
 
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM2)   || \
                                  ((DEVICE) == OB_TIM3)   || \
@@ -430,6 +481,11 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     if (dev == NULL)
     {
         return ERRORS_TIMER_NO_DEVICE;
+    }
+    // In case of PWM module, nothing to do into this function
+    if (dev == OB_TIMPWM)
+    {
+        return ERRORS_NO_ERROR;
     }
     // Check the TIMER instance
     if (ohiassert(TIMER_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
@@ -643,6 +699,143 @@ uint32_t Timer_getCurrentCounter (Timer_DeviceHandle dev)
     }
 }
 
+#define TIMER_IS_CHANNEL(CHANNEL) (((CHANNEL) == TIMER_CHANNELS_CH1) || \
+                                   ((CHANNEL) == TIMER_CHANNELS_CH2) || \
+                                   ((CHANNEL) == TIMER_CHANNELS_CH3) || \
+                                   ((CHANNEL) == TIMER_CHANNELS_CH4) || \
+                                   ((CHANNEL) == TIMER_CHANNELS_CH5) || \
+                                   ((CHANNEL) == TIMER_CHANNELS_CH6))
+
+System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
+                                  Timer_OutputCompareConfig* config,
+                                  Timer_Pins pin)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+
+    if (dev != OB_TIMPWM)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    if (!TIMER_IS_CHANNEL(config->channel))
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+    
+    uint8_t ch = config->channel - 1;
+    
+    switch (config->channel)
+    {
+    case TIMER_CHANNELS_CH1:
+    case TIMER_CHANNELS_CH2:
+    case TIMER_CHANNELS_CH3:
+        {
+            uint8_t regIndex = pin / 2;
+            uint8_t regPosIndex = ((pin % 2 ) * 8);
+
+            UTILITY_MODIFY_REGISTER(PPS->RPOR[regIndex], (0x3F << regPosIndex),(dev->ppsOCRegisterValue[ch] << regPosIndex));
+        }
+        break;
+    default:
+        // Nothing to do!
+        // Channel 4,5 and 6 are bound to the selected pin!
+        break;
+    }
+    
+    uint16_t frequency = (uint16_t)((uint32_t)Clock_getOutputValue(CLOCK_OUTPUT_PERIPHERAL)/config->frequency);
+    uint16_t period = (uint16_t)(((uint32_t)frequency * (uint32_t)config->duty) / 100);
+    
+    UTILITY_WRITE_REGISTER(dev->ocRegisterPointer[ch]->OCRS,frequency);
+    UTILITY_WRITE_REGISTER(dev->ocRegisterPointer[ch]->OCR,period);
+    
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
+                                Timer_Channels channel,
+                                uint8_t duty)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+
+    if (dev != OB_TIMPWM)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    if (!TIMER_IS_CHANNEL(channel))
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+    
+    if (duty > 100)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    uint8_t ch = channel - 1;
+    uint16_t period = (uint16_t)(((uint32_t)dev->ocRegisterPointer[ch]->OCRS * (uint32_t)duty) / 100);
+    UTILITY_WRITE_REGISTER(dev->ocRegisterPointer[ch]->OCR,period);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+
+    if (dev != OB_TIMPWM)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    if (!TIMER_IS_CHANNEL(channel))
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    uint8_t ch = channel - 1;
+    
+    UTILITY_WRITE_REGISTER(dev->ocRegisterPointer[ch]->OCCON1,0x1C06);
+    UTILITY_WRITE_REGISTER(dev->ocRegisterPointer[ch]->OCCON2,0x001F);
+    
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+
+    if (dev != OB_TIMPWM)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    if (!TIMER_IS_CHANNEL(channel))
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    uint8_t ch = channel - 1;
+    
+    UTILITY_MODIFY_REGISTER(dev->ocRegisterPointer[ch]->OCCON1,0x1C06,0x0000);
+    
+    return ERRORS_NO_ERROR;
+}
 
 void __attribute__ (( interrupt, no_auto_psv )) _T2Interrupt ( void )
 {

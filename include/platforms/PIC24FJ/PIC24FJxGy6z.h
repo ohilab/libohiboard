@@ -129,6 +129,15 @@ typedef struct
 	volatile uint16_t TyCON;
 } TMR_TypeDef;
 
+typedef struct 
+{
+    volatile uint16_t OCCON1;
+    volatile uint16_t OCCON2;
+    volatile uint16_t OCRS;
+    volatile uint16_t OCR;
+    volatile uint16_t OCTMR;
+} OC_TypeDef;
+
 typedef struct
 {
     volatile uint16_t ANCFG;
@@ -266,6 +275,12 @@ typedef struct
 #define TMR23_BASE          (0x0196ul)
 #define TMR45_BASE          (0x01A4ul)
 #define RTC_BASE            (0x01CCul)
+#define OC1_BASE            (0x0230ul)
+#define OC2_BASE            (0x023Aul)
+#define OC3_BASE            (0x0244ul)
+#define OC4_BASE            (0x024Eul)
+#define OC5_BASE            (0x0258ul)
+#define OC6_BASE            (0x0262ul)
 #define ANCFG_BASE          (0x02F4ul)
 #define UART1_BASE          (0x0398ul)
 #define UART2_BASE          (0x03AEul)
@@ -302,6 +317,13 @@ typedef struct
 #define TMR23               ((TMR_TypeDef *) TMR23_BASE)
 #define TMR45               ((TMR_TypeDef *) TMR45_BASE)
 #define RTC                 ((RTC_TypeDef *) RTC_BASE)
+#define OC1                 ((OC_TypeDef *) OC1_BASE)
+#define OC2                 ((OC_TypeDef *) OC2_BASE)
+#define OC3                 ((OC_TypeDef *) OC3_BASE)
+#define OC4                 ((OC_TypeDef *) OC4_BASE)
+#define OC5                 ((OC_TypeDef *) OC5_BASE)
+#define OC6                 ((OC_TypeDef *) OC6_BASE)
+#define OC_NUM              (6)
 #define ANCFG1              ((ANCFG_TypeDef *) ANCFG_BASE)
 #define UART1B              ((UART_TypeDef *) UART1_BASE)
 #define UART2B              ((UART_TypeDef *) UART2_BASE)
@@ -309,12 +331,18 @@ typedef struct
 #define UART4B              ((UART_TypeDef *) UART4_BASE)
 #define UART5B              ((UART_TypeDef *) UART5_BASE)
 #define UART6B              ((UART_TypeDef *) UART6_BASE)
+#define UART_BASE           ((UART_TypeDef **) UART1_BASE)
+#define UART_NUM            (6)
 #define SPI1                ((SPI_TypeDef *) SPI1_BASE)
 #define SPI2                ((SPI_TypeDef *) SPI2_BASE)
 #define SPI3                ((SPI_TypeDef *) SPI3_BASE)
+#define SPI_BASE            ((SPI_TypeDef **) SPI1_BASE)
+#define SPI_NUM             (3)
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
 #define I2C2                ((I2C_TypeDef *) I2C2_BASE)
 #define I2C3                ((I2C_TypeDef *) I2C3_BASE)
+#define I2C_BASE            ((I2C_TypeDef **) I2C1_BASE)
+#define I2C_NUM             (3)
 #define IO                  ((IO_TypeDef *) IO_BASE)
 #define GPIOA               ((GPIO_TypeDef *) GPIOA_BASE)
 #define GPIOB               ((GPIO_TypeDef *) GPIOB_BASE)
@@ -323,6 +351,15 @@ typedef struct
 #define GPIOE               ((GPIO_TypeDef *) GPIOE_BASE)
 #define GPIOF               ((GPIO_TypeDef *) GPIOF_BASE)
 #define GPIOG               ((GPIO_TypeDef *) GPIOG_BASE)
+
+#if   defined (LIBOHIBOARD_PIC24FJxGA610) || \
+      defined (LIBOHIBOARD_PIC24FJxGB610)
+#define GPIO_PORTS_BASE     GPIOA
+#elif defined (LIBOHIBOARD_PIC24FJxGA606) || \
+      defined (LIBOHIBOARD_PIC24FJxGB606)
+#define GPIO_PORTS_BASE     GPIOB
+#endif
+
 #define ADC1                ((ADC_TypeDef *) ADC1_BASE)
 #define NVM                 ((NVM_TypeDef *) NVM_BASE)
 #define PPS                 ((PPS_TypeDef *) PPS_BASE)
