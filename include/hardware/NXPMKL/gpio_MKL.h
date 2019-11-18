@@ -338,6 +338,8 @@ typedef enum _Gpio_Ports
 
 } Gpio_Ports;
 
+#define GPIO_MAX_PINS_NUMBER_FOR_PORT            32
+
 /**
  * @}
  */

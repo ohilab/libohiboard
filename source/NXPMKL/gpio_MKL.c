@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2014-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -51,9 +51,19 @@ extern "C" {
                                      ((EVENT) == GPIO_EVENT_WHEN_1)     || \
                                      ((EVENT) == GPIO_EVENT_ON_BOOTH))
 
+typedef void (*Gpio_IsrCallback)(Gpio_Pins pin);
+
+typedef struct _Gpio_IsrPinCallback
+{
+    bool enabled;
+    Gpio_Pins pin;
+    Gpio_IsrCallback callback;
+} Gpio_IsrPinCallback;
+
 // Callback array for each usable port
-static void (*Gpio_isrPortARequestVector[PORT_MAX_PIN]) (void);
-static void (*Gpio_isrPortDRequestVector[PORT_MAX_PIN]) (void);
+static Gpio_IsrPinCallback Gpio_isrPortARequestVector[GPIO_MAX_PINS_NUMBER_FOR_PORT] = {0};
+static Gpio_IsrPinCallback Gpio_isrPortDRequestVector[GPIO_MAX_PINS_NUMBER_FOR_PORT] = {0};
+
 // Useful variable to store enabled ISR pins
 static uint32_t Gpio_isrRegisterPortA = 0x0;
 static uint32_t Gpio_isrRegisterPortD = 0x0;
@@ -492,6 +502,11 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
 
 System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     GPIO_Type* gpio;
     PORT_Type* port;
 
@@ -552,33 +567,47 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
 
 void Gpio_set (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_Type* port = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
-    port->PSOR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_Type* port = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
+        port->PSOR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 void Gpio_clear (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_Type* port = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
-    port->PCOR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_Type* port = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
+        port->PCOR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 void Gpio_toggle (Gpio_Pins pin)
 {
-    //Check if pin definition exist
-    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
+    if (pin != GPIO_PINS_NONE)
+    {
+        //Check if pin definition exist
+        ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    GPIO_Type* port = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
-    port->PTOR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        GPIO_Type* port = Gpio_getGpioRegister(GPIO_AVAILABLE_PINS[pin].port);
+        port->PTOR = GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+    }
 }
 
 Gpio_Level Gpio_get (Gpio_Pins pin)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return GPIO_TOGGLE;
+    }
+
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
@@ -586,8 +615,15 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->PDIR & GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, void* callback)
 {
+    (void)priority; //FIXME: manage interrupt priority
+
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     // Check callback value
     ohiassert(callback != 0);
 
@@ -599,11 +635,13 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
     switch (GPIO_AVAILABLE_PINS[pin].port)
     {
     case GPIO_PORTS_A:
-        Gpio_isrPortARequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber] = callback;
+        Gpio_isrPortARequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin      = pin;
+        Gpio_isrPortARequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
         Gpio_isrRegisterPortA |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
         break;
     case GPIO_PORTS_D:
-        Gpio_isrPortDRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber] = callback;
+        Gpio_isrPortDRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin      = pin;
+        Gpio_isrPortDRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
         Gpio_isrRegisterPortD |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
         break;
     default:
@@ -629,13 +667,15 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     case GPIO_PORTS_A:
         port->PCR[GPIO_AVAILABLE_PINS[pin].pinNumber] &= ~PORT_PCR_IRQC_MASK;
         port->PCR[GPIO_AVAILABLE_PINS[pin].pinNumber] |= PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrRegisterPortA |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
+        Gpio_isrPortARequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].enabled = true;
+        //Gpio_isrRegisterPortA |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTA);
         break;
     case GPIO_PORTS_D:
         port->PCR[GPIO_AVAILABLE_PINS[pin].pinNumber] &= ~PORT_PCR_IRQC_MASK;
         port->PCR[GPIO_AVAILABLE_PINS[pin].pinNumber] |= PORT_PCR_IRQC(event)|PORT_PCR_MUX(0x1);
-        Gpio_isrRegisterPortD |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
+        Gpio_isrPortDRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].enabled = true;
+        //Gpio_isrRegisterPortD |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
         Interrupt_enable (INTERRUPT_PORTD);
         break;
     default:
@@ -683,7 +723,7 @@ _weak void PORTA_IRQHandler (void)
         {
             if (PORTA->PCR[i] & PORT_PCR_ISF_MASK)
             {
-                Gpio_isrPortARequestVector[i]();
+                Gpio_isrPortARequestVector[i].callback(Gpio_isrPortARequestVector[i].pin);
                 //reset interrupt
                 PORTA->PCR[i] |= PORT_PCR_ISF_MASK;
             }
@@ -702,7 +742,7 @@ _weak void PORTD_IRQHandler (void)
         {
             if (PORTD->PCR[i] & PORT_PCR_ISF_MASK)
             {
-                Gpio_isrPortDRequestVector[i]();
+                Gpio_isrPortDRequestVector[i].callback(Gpio_isrPortDRequestVector[i].pin);
                 //reset interrupt
                 PORTD->PCR[i] |= PORT_PCR_ISF_MASK;
             }
