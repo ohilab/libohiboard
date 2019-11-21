@@ -40,18 +40,21 @@ extern "C" {
 
 #include "platforms.h"
 
-#if defined(LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) ||\
+	defined (LIBOHIBOARD_STM32WB)
 
 typedef enum
 {
     GPIO_PINS_NONE = 0,
 
-#if defined (LIBOHIBOARD_STM32L476)
-
+#if defined (LIBOHIBOARD_STM32L476) ||\
+	defined (LIBOHIBOARD_STM32WB55)
 // WLCSP72 ballout
 // LQFP64
+// VFQFPN68
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+    defined (LIBOHIBOARD_STM32L476Rx) || \
+	defined (LIBOHIBOARD_STM32WB55Rx)
 
     GPIO_PINS_PA0,
     GPIO_PINS_PA1,
@@ -94,9 +97,13 @@ typedef enum
     GPIO_PINS_PC4,
     GPIO_PINS_PC5,
     GPIO_PINS_PC6,
+
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     GPIO_PINS_PC7,
     GPIO_PINS_PC8,
     GPIO_PINS_PC9,
+#endif
+
     GPIO_PINS_PC10,
     GPIO_PINS_PC11,
     GPIO_PINS_PC12,
@@ -104,7 +111,13 @@ typedef enum
     GPIO_PINS_PC14,
     GPIO_PINS_PC15,
 
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     GPIO_PINS_PD2,
+
+#if defined (LIBOHIBOARD_STM32WB55Rx)
+	GPIO_PINS_PD0,
+	GPIO_PINS_PD1,
+#endif
 
 #if defined (LIBOHIBOARD_STM32L476Jx)
     GPIO_PINS_PG9,
@@ -115,8 +128,14 @@ typedef enum
     GPIO_PINS_PG14,
 #endif
 
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     GPIO_PINS_PH0,
     GPIO_PINS_PH1,
+#endif
+
+#if defined (LIBOHIBOARD_STM32WB55Rx)
+	GPIO_PINS_PH3,
+#endif
 
 #endif
 
