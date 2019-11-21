@@ -26,32 +26,32 @@
  */
 
 /**
- * @file libohiboard/include/hardware/STM32L4/gpio_STM32L4.h
+ * @file libohiboard/include/hardware/STM32WB/gpio_STM32WB.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief GPIO pins and device definitions for STM32L4 series
+ * @brief GPIO pins and device definitions for STM32WB series
  */
 
-#ifndef __GPIO_STM32L4_H
-#define __GPIO_STM32L4_H
+#ifndef __GPIO_STM32WB_H
+#define __GPIO_STM32WB_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "platforms.h"
+#include "platforms.h" //File da modificare (va aggiunto STM32WB)
 
-#if defined(LIBOHIBOARD_STM32L4)
-
+#if defined(LIBOHIBOARD_STM32L4) //Si trova all'interno di platform.h e andrà aggiunto LIBOHIBOARD_STM32WB
+								 //Se definisco il processore STM32L4 (LIBOHIBOARD_STM32WB)
 typedef enum
 {
-    GPIO_PINS_NONE = 0,
+    GPIO_PINS_NONE = 0, //Se non definisco nessun processore non ho definito nessun pin
 
-#if defined (LIBOHIBOARD_STM32L476)
-
+#if defined (LIBOHIBOARD_STM32L476) //Si trova all'interno di platform.h e andrà aggiunto LIBOHIBOARD_STM32WB
+									//Se definisco il processore STM32L476 (LIBOHIBOARD_STM32WB55)
 // WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+// LQFP64 (VFQFPN68)
+#if defined (LIBOHIBOARD_STM32L476Rx) //|| \
+	defined (LIBOHIBOARD_STM32L476Jx) (LIBOHIBOARD_STM32WB55Rx)
 
     GPIO_PINS_PA0,
     GPIO_PINS_PA1,
@@ -66,15 +66,15 @@ typedef enum
     GPIO_PINS_PA10,
     GPIO_PINS_PA11,
     GPIO_PINS_PA12,
-    GPIO_PINS_PA13, // JTMS-SWDIO
-    GPIO_PINS_PA14, // JTCK-SWCLK
-    GPIO_PINS_PA15, // JTDI
+    GPIO_PINS_PA13,
+    GPIO_PINS_PA14,
+    GPIO_PINS_PA15,
 
     GPIO_PINS_PB0,
     GPIO_PINS_PB1,
     GPIO_PINS_PB2,
-    GPIO_PINS_PB3, // JTDO-TRACE SWO
-    GPIO_PINS_PB4, // NJTRST
+    GPIO_PINS_PB3,
+    GPIO_PINS_PB4,
     GPIO_PINS_PB5,
     GPIO_PINS_PB6,
     GPIO_PINS_PB7,
@@ -94,35 +94,38 @@ typedef enum
     GPIO_PINS_PC4,
     GPIO_PINS_PC5,
     GPIO_PINS_PC6,
-    GPIO_PINS_PC7,
-    GPIO_PINS_PC8,
-    GPIO_PINS_PC9,
+	//GPIO_PINS_PC7, Non ci sono sull'STM32WB55Rx
+	//GPIO_PINS_PC8,
+	//GPIO_PINS_PC9,
     GPIO_PINS_PC10,
     GPIO_PINS_PC11,
     GPIO_PINS_PC12,
     GPIO_PINS_PC13,
-    GPIO_PINS_PC14,
-    GPIO_PINS_PC15,
+    GPIO_PINS_PC14, //OSC32_IN
+    GPIO_PINS_PC15, //OSC32_OUT
 
-    GPIO_PINS_PD2,
+    GPIO_PINS_PD0, //Aggiunto PD0 e PD1 e rimosso PD2
+	GPIO_PINS_PD1,
+	//GPIO_PINS_PD2,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
-    GPIO_PINS_PG9,
-    GPIO_PINS_PG10,
-    GPIO_PINS_PG11,
-    GPIO_PINS_PG12,
-    GPIO_PINS_PG13,
-    GPIO_PINS_PG14,
-#endif
+//#if defined (LIBOHIBOARD_STM32L476Jx)
+    //GPIO_PINS_PG9,
+    //GPIO_PINS_PG10,
+    //GPIO_PINS_PG11,
+    //GPIO_PINS_PG12,
+    //GPIO_PINS_PG13,
+    //GPIO_PINS_PG14,
+//#endif
 
-    GPIO_PINS_PH0,
-    GPIO_PINS_PH1,
+    //GPIO_PINS_PH0,
+	//GPIO_PINS_PH1,
+	GPIO_PINS_PH3, //Aggiunto PH3 e rimosso PH0 e PH1
 
 #endif
 
 #endif // LIBOHIBOARD_STM32L476
 
-} Gpio_Pins;
+} Gpio_Pins; //I gpio_pins possono assumere tutti i volaori sopra descritti
 
 /**
  * List of possible GPIO ports.
@@ -144,12 +147,12 @@ typedef enum
 #define GPIO_MAX_PINS_NUMBER_FOR_PORT	16
 #define GPIO_MAX_PORTS_NUMBER			GPIO_PORTS_NUMBER
 
-#define GPIO_PORTS_BASE               ((GPIO_TypeDef *) GPIOA_BASE)
+#define GPIO_PORTS_BASE               ((GPIO_TypeDef *) GPIOA_BASE) //Dove si trova GPIOA_BASE
 
-#endif // LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L4 (STM32WB)
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __GPIO_STM32L4_H
+#endif // __GPIO_STM32L4_H (STM32WB_H)
