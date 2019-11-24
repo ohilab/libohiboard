@@ -26,9 +26,9 @@
  */
 
 /**
- * @file libohiboard/include/hardware/STM32L4/timer_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4-WB/timer_STM32L4-WB.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Timer useful definitions for STM32L4 series
+ * @brief Timer useful definitions for STM32L4-WB series
  */
 
 #ifndef __TIMER_STM32L4_H
@@ -40,11 +40,11 @@ extern "C" {
 
 #include "platforms.h"
 
-#if defined (LIBOHIBOARD_STM32L4) && defined (LIBOHIBOARD_TIMER)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB) && defined (LIBOHIBOARD_TIMER)
 
 typedef enum _Timer_Channels
 {
-    TIMER_CHANNELS_CH1 = 0x00u,
+    TIMER_CHANNELS_CH1 = 0x00u, //Chiedere cosa significano le assegnazioni
     TIMER_CHANNELS_CH2 = 0x04u,
     TIMER_CHANNELS_CH3 = 0x08u,
     TIMER_CHANNELS_CH4 = 0x0Cu,
@@ -55,17 +55,23 @@ typedef enum _Timer_Channels
 
 typedef enum
 {
-//#if defined (LIBOHIBOARD_STM32L476)
+//#if defined (LIBOHIBOARD_STM32L476) o (LIBOHIBOARD_STM32WB55)
 
 // WLCSP72 ballout
 // LQFP64
+// VFQFPN68
+
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+    defined (LIBOHIBOARD_STM32L476Rx) || \
+	defined (LIBOHIBOARD_STM32WB55Rx)
+
+// PA
 
     TIMER_PINS_PA0,
     TIMER_PINS_PA1,
     TIMER_PINS_PA2,
     TIMER_PINS_PA3,
+
     TIMER_PINS_PA5,
     TIMER_PINS_PA6,
     TIMER_PINS_PA7,
@@ -73,32 +79,47 @@ typedef enum
     TIMER_PINS_PA9,
     TIMER_PINS_PA10,
     TIMER_PINS_PA11,
+
     TIMER_PINS_PA15,
 
+// PB
+
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     TIMER_PINS_PB0,
     TIMER_PINS_PB1,
+#endif
+
     TIMER_PINS_PB3,
+
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     TIMER_PINS_PB4,
-    TIMER_PINS_PB5,
+	TIMER_PINS_PB5,
+#endif
+
     TIMER_PINS_PB6,
     TIMER_PINS_PB7,
     TIMER_PINS_PB8,
     TIMER_PINS_PB9,
     TIMER_PINS_PB10,
     TIMER_PINS_PB11,
+
     TIMER_PINS_PB13,
     TIMER_PINS_PB14,
     TIMER_PINS_PB15,
 
+// PC
+
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     TIMER_PINS_PC6,
     TIMER_PINS_PC7,
     TIMER_PINS_PC8,
     TIMER_PINS_PC9,
+#endif
 
-    TIMER_PINS_PE0,
-    TIMER_PINS_PE1,
+	//TIMER_PINS_PE0,
+    //TIMER_PINS_PE1,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476Jx) //Da controllare!!
     TIMER_PINS_PG9,
     TIMER_PINS_PG10,
     TIMER_PINS_PG11,
@@ -114,8 +135,11 @@ typedef enum
 
 // WLCSP72 ballout
 // LQFP64
+//VFQFPN68
+
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+    defined (LIBOHIBOARD_STM32L476Rx) || \
+	defined (LIBOHIBOARD_STM32WB55Rx)
 
 extern Timer_DeviceHandle OB_TIM1;
 extern Timer_DeviceHandle OB_TIM2;
@@ -146,7 +170,7 @@ void TIM8_CC_IRQHandler (void);
 
 #endif
 
-#endif // LIBOHIBOARD_STM32L4 && LIBOHIBOARD_TIMER
+#endif // LIBOHIBOARD_STM32L4-WB && LIBOHIBOARD_TIMER
 
 #ifdef __cplusplus
 }

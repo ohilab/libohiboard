@@ -26,9 +26,9 @@
  */
 
 /**
- * @file libohiboard/include/hardware/STM32L4/gpio_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4-WB/gpio_STM32L4-WB.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief GPIO pins and device definitions for STM32L4 series
+ * @brief GPIO pins and device definitions for STM32L4-WB series
  */
 
 #ifndef __GPIO_STM32L4_H
@@ -49,9 +49,11 @@ typedef enum
 
 #if defined (LIBOHIBOARD_STM32L476) ||\
 	defined (LIBOHIBOARD_STM32WB55)
+
 // WLCSP72 ballout
 // LQFP64
 // VFQFPN68
+
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
     defined (LIBOHIBOARD_STM32L476Rx) || \
 	defined (LIBOHIBOARD_STM32WB55Rx)
@@ -113,10 +115,15 @@ typedef enum
 
 #if !defined (LIBOHIBOARD_STM32WB55Rx)
     GPIO_PINS_PD2,
+#endif
 
 #if defined (LIBOHIBOARD_STM32WB55Rx)
 	GPIO_PINS_PD0,
 	GPIO_PINS_PD1,
+#endif
+
+#if defined (LIBOHIBOARD_STM32WB55Rx)
+	GPIO_PINS_PE4,
 #endif
 
 #if defined (LIBOHIBOARD_STM32L476Jx)

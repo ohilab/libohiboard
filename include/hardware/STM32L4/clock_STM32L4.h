@@ -26,9 +26,9 @@
  */
 
 /**
- * @file libohiboard/include/hardware/STM32L4/clock_STM32L4.h
+ * @file libohiboard/include/hardware/STM32L4-WB/clock_STM32L4-WB.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Clock useful definitions for STM32L4 series
+ * @brief Clock useful definitions for STM32L4-WB series
  */
 
 #ifndef __CLOCK_STM32L4_H
@@ -40,18 +40,45 @@ extern "C" {
 
 #include "platforms.h"
 
-#if defined(LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) ||\
+	defined (LIBOHIBOARD_STM32WB)
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+	defined (LIBOHIBOARD_STM32WB55)
 
 #define CLOCK_MIN_FREQ_MSI                         100u
 #define CLOCK_MAX_FREQ_MSI                    48000000u
-#define CLOCK_MIN_FREQ_HSE                     4000000u
-#define CLOCK_MAX_FREQ_HSE                    48000000u
-#define CLOCK_MAX_FREQ_PLL                    80000000u
+
+#if !defined (LIBOHIBOARD_STM32WB55)
+	#define CLOCK_MIN_FREQ_HSE                 4000000u
+	#define CLOCK_MAX_FREQ_HSE                48000000u
+#endif
+
+#if defined (LIBOHIBOARD_STM32WB55)
+	#define CLOCK_FREQ_HSE					  32000000u
+#endif
+
+#if !defined (LIBOHIBOARD_STM32WB55)
+	#define CLOCK_MAX_FREQ_PLL                80000000u
+#endif
+
+#if defined (LIBOHIBOARD_STM32WB55)
+	#define CLOCK_MAX_FREQ_PLL                64000000u
+#endif
+
 #define CLOCK_FREQ_HSI                        16000000u
+
+#if defined (LIBOHIBOARD_STM32WB55)
+	#define CLOCK_FREQ_HSI48                  48000000u
+#endif
+
 #define CLOCK_FREQ_LSE                ((uint32_t)32768u)
+
 #define CLOCK_FREQ_LSI                ((uint32_t)32000u)
+
+#if defined (LIBOHIBOARD_STM32WB55)
+	#define CLOCK_FREQ_LSI2           ((uint32_t)32000u)
+#endif
 
 #endif
 
