@@ -28,7 +28,7 @@
 /**
  * @file libohiboard/include/STM32L4/timer_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Timer implementations for STM32L4 Series
+ * @brief Timer implementations for STM32L4-WB Series
  */
 
 #if defined (LIBOHIBOARD_TIMER)
@@ -45,7 +45,7 @@ extern "C" {
 #include "clock.h"
 #include "interrupt.h"
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #define TIMER_CLOCK_ENABLE(REG,MASK)      do { \
                                             UTILITY_SET_REGISTER_BIT(REG,MASK); \
@@ -186,8 +186,9 @@ typedef struct _Timer_Device
 
 } Timer_Device;
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L476) || defined (LIBOHIBOARD_STM32WB55)
 
+#if !defined (LIBOHIBOARD_STM32WB55)
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
                                  ((DEVICE) == OB_TIM2)   || \
                                  ((DEVICE) == OB_TIM3)   || \
@@ -339,8 +340,83 @@ typedef struct _Timer_Device
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
                                                  (((DEVICE) == OB_TIM17) &&               \
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1))))
+#endif
 
+#if defined (LIBOHIBOARD_STM32WB55)
+#define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                 ((DEVICE) == OB_TIM2)   || \
+                                 ((DEVICE) == OB_TIM16)  || \
+                                 ((DEVICE) == OB_TIM17))
 
+#define TIMER_IS_DEVICE_COUNTER_MODE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                              ((DEVICE) == OB_TIM2))
+
+#define TIMER_IS_APB1_DEVICE(DEVICE) ((DEVICE) == OB_TIM2)
+
+#define TIMER_IS_APB2_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                      ((DEVICE) == OB_TIM16)  || \
+                                      ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_32BIT_COUNTER_DEVICE(DEVICE) ((DEVICE) == OB_TIM2)
+
+#define TIMER_IS_OC_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                    ((DEVICE) == OB_TIM2)   || \
+                                    ((DEVICE) == OB_TIM16)  || \
+                                    ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_IC_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
+                                    ((DEVICE) == OB_TIM2)   || \
+                                    ((DEVICE) == OB_TIM16)  || \
+                                    ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_CHANNEL1_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
+                                          ((DEVICE) == OB_TIM2)  || \
+                                          ((DEVICE) == OB_TIM16) || \
+                                          ((DEVICE) == OB_TIM17))
+
+#define TIMER_IS_CHANNEL2_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
+                                          ((DEVICE) == OB_TIM2))
+
+#define TIMER_IS_CHANNEL3_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)  || \
+                                          ((DEVICE) == OB_TIM2))
+
+#define TIMER_IS_CHANNEL4_DEVICE(DEVICE) (((DEVICE) == OB_TIM1) || \
+                                          ((DEVICE) == OB_TIM2))
+
+#define TIMER_IS_CHANNEL5_DEVICE(DEVICE) ((DEVICE) == OB_TIM1)
+
+#define TIMER_IS_CHANNEL6_DEVICE(DEVICE) ((DEVICE) == OB_TIM1)
+
+#define TIMER_IS_CHANNEL_DEVICE(DEVICE, CHANNEL)                                          \
+                                                ((((DEVICE) == OB_TIM1) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH5) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH6)))  || \
+                                                 (((DEVICE) == OB_TIM2) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH4)))  || \
+                                                 (((DEVICE) == OB_TIM16) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
+                                                 (((DEVICE) == OB_TIM17) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1))))
+
+#define TIMER_IS_NCHANNEL_DEVICE(DEVICE, CHANNEL)                                          \
+                                                ((((DEVICE) == OB_TIM1) &&                \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
+                                                  ((CHANNEL) == TIMER_CHANNELS_CH3)))  || \
+                                                 (((DEVICE) == OB_TIM16) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1)))  || \
+                                                 (((DEVICE) == OB_TIM17) &&               \
+                                                 (((CHANNEL) == TIMER_CHANNELS_CH1))))
+#endif
+
+#if !defined (LIBOHIBOARD_STM32WB55)
 static Timer_Device tim1 =
 {
         .regmap              = TIM1,
@@ -380,6 +456,49 @@ static Timer_Device tim1 =
         .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
+#endif
+
+#if defined (LIBOHIBOARD_STM32WB55)
+static Timer_Device tim1 =
+{
+        .regmap              = TIM1,
+
+        .rccRegisterPtr      = &RCC->APB2ENR,
+        .rccRegisterEnable   = RCC_APB2ENR_TIM1EN,
+
+        .pins             =
+        {
+                               TIMER_PINS_PA8,
+                               TIMER_PINS_PA9,
+                               TIMER_PINS_PA10,
+                               TIMER_PINS_PA11,
+        },
+        .pinsChannel      =
+        {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+        },
+        .pinsGpio         =
+        {
+                               GPIO_PINS_PA8,
+                               GPIO_PINS_PA9,
+                               GPIO_PINS_PA10,
+                               GPIO_PINS_PA11,
+        },
+        .pinsMux          =
+        {
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+        },
+
+        .isrNumber           = INTERRUPT_TIM1BRK,
+};
+Timer_DeviceHandle OB_TIM1 = &tim1;
+#endif
 
 static Timer_Device tim2 =
 {
@@ -441,6 +560,7 @@ static Timer_Device tim2 =
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
 
+#if !defined (LIBOHIBOARD_STM32WB55)
 static Timer_Device tim3 =
 {
         .regmap              = TIM3,
@@ -703,6 +823,7 @@ static Timer_Device tim15 =
         .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
 };
 Timer_DeviceHandle OB_TIM15 = &tim15;
+#endif
 
 static Timer_Device tim16 =
 {
@@ -1135,7 +1256,7 @@ System_Errors Timer_deInit (Timer_DeviceHandle dev)
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1157,7 +1278,7 @@ System_Errors Timer_start (Timer_DeviceHandle dev)
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1185,7 +1306,7 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1298,7 +1419,7 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1552,7 +1673,7 @@ System_Errors Timer_configOutputComparePin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1780,7 +1901,7 @@ System_Errors Timer_configInputCapturePin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_NO_DEVICE;
     }
     // Check the TIMER instance
-    if (ohiassert((TIMER_IS_DEVICE(dev)) || (TIMER_IS_LOWPOWER_DEVICE(dev))) != ERRORS_NO_ERROR)
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
     {
         return ERRORS_TIMER_WRONG_DEVICE;
     }
@@ -1997,6 +2118,7 @@ System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels cha
     return ERRORS_NO_ERROR;
 }
 
+#if !defined (LIBOHIBOARD_STM32WB55)
 _weak void TIM1_BRK_TIM15_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
@@ -2008,8 +2130,9 @@ _weak void TIM1_BRK_TIM15_IRQHandler (void)
         Timer_callbackInterrupt(OB_TIM15);
     }
 }
+#endif
 
-_weak void TIM1_UP_TIM16_IRQHandler (void)
+void TIM1_UP_TIM16_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2021,7 +2144,7 @@ _weak void TIM1_UP_TIM16_IRQHandler (void)
     }
 }
 
-_weak void TIM1_TRG_COM_TIM17_IRQHandler (void)
+void TIM1_TRG_COM_TIM17_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2033,16 +2156,17 @@ _weak void TIM1_TRG_COM_TIM17_IRQHandler (void)
     }
 }
 
-_weak void TIM1_CC_IRQHandler (void)
+void TIM1_CC_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM1);
 }
 
-_weak void TIM2_IRQHandler (void)
+void TIM2_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM2);
 }
 
+#if !defined (LIBOHIBOARD_STM32WB55)
 _weak void TIM3_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM3);
@@ -2087,6 +2211,7 @@ _weak void TIM8_CC_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM8);
 }
+#endif
 
 #endif // LIBOHIBOARD_STM32L4
 

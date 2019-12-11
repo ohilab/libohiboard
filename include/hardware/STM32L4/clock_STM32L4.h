@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/STM32L4-WB/clock_STM32L4-WB.h
+ * @file libohiboard/include/hardware/STM32L4/clock_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Clock useful definitions for STM32L4-WB series
  */
@@ -50,26 +50,26 @@ extern "C" {
 #define CLOCK_MAX_FREQ_MSI                    48000000u
 
 #if !defined (LIBOHIBOARD_STM32WB55)
-	#define CLOCK_MIN_FREQ_HSE                 4000000u
-	#define CLOCK_MAX_FREQ_HSE                48000000u
+#define CLOCK_MIN_FREQ_HSE                     4000000u
+#define CLOCK_MAX_FREQ_HSE                    48000000u
 #endif
 
 #if defined (LIBOHIBOARD_STM32WB55)
-	#define CLOCK_FREQ_HSE					  32000000u
+#define CLOCK_FREQ_HSE					      32000000u
 #endif
 
 #if !defined (LIBOHIBOARD_STM32WB55)
-	#define CLOCK_MAX_FREQ_PLL                80000000u
+#define CLOCK_MAX_FREQ_PLL                    80000000u
 #endif
 
 #if defined (LIBOHIBOARD_STM32WB55)
-	#define CLOCK_MAX_FREQ_PLL                64000000u
+#define CLOCK_MAX_FREQ_PLL                    64000000u
 #endif
 
 #define CLOCK_FREQ_HSI                        16000000u
 
 #if defined (LIBOHIBOARD_STM32WB55)
-	#define CLOCK_FREQ_HSI48                  48000000u
+#define CLOCK_FREQ_HSI_48                     48000000u
 #endif
 
 #define CLOCK_FREQ_LSE                ((uint32_t)32768u)
@@ -77,16 +77,20 @@ extern "C" {
 #define CLOCK_FREQ_LSI                ((uint32_t)32000u)
 
 #if defined (LIBOHIBOARD_STM32WB55)
-	#define CLOCK_FREQ_LSI2           ((uint32_t)32000u)
+#define CLOCK_FREQ_LSI_2              ((uint32_t)32000u)
 #endif
 
 #endif
 
+#if !defined (LIBOHIBOARD_STM32WB)
 #define CLOCK_ENABLE_SYSCFG() do { \
                                 UTILITY_SET_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
                                 asm("nop"); \
                                 (void) UTILITY_READ_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
                               } while (0)
+#else
+#define CLOCK_ENABLE_SYSCFG() asm("nop")
+#endif
 
 #define CLOCK_DISABLE_SYSCFG()do { \
                                 UTILITY_CLEAR_REGISTER_BIT(RCC->APB2ENR,RCC_APB2ENR_SYSCFGEN); \
@@ -108,7 +112,7 @@ extern "C" {
 
 #define CLOCK_BACKUP_ENABLE_WRITE_PROTECTION() UTILITY_CLEAR_REGISTER_BIT(PWR->CR1,PWR_CR1_DBP)
 
-#endif // LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L4 & LIBOHIBOARD_STM32WB
 
 #ifdef __cplusplus
 }

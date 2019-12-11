@@ -28,7 +28,7 @@
 /**
  * @file libohiboard/include/hardware/STM32L4/lowpower-timer_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Low-Power Timer useful definitions for STM32L4 series
+ * @brief Low-Power Timer useful definitions for STM32L4-WB series
  */
 
 #ifndef __LOWPOWER_TIMER_STM32L4_H
@@ -40,12 +40,13 @@ extern "C" {
 
 #include "platforms.h"
 
-#if defined (LIBOHIBOARD_STM32L4) && defined (LIBOHIBOARD_LOWPOWER_TIMER)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB) && defined (LIBOHIBOARD_LOWPOWER_TIMER)
 
 // WLCSP72 ballout
 // LQFP64
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+    defined (LIBOHIBOARD_STM32L476Rx) || \
+	defined (LIBOHIBOARD_STM32WB55Rx)
 
 extern LowPowerTimer_DeviceHandle OB_LPTIM1;
 extern LowPowerTimer_DeviceHandle OB_LPTIM2;

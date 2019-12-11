@@ -57,7 +57,7 @@ typedef enum {
 
 #include "hardware/STM32L0/interrupt_STM32L0.h"
 
-#elif defined (LIBOHIBOARD_STM32L4)
+#elif defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #include "hardware/STM32L4/interrupt_STM32L4.h"
 

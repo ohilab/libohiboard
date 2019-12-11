@@ -98,7 +98,7 @@ typedef enum _Timer_Mode
  */
 typedef enum _Timer_ClockSource
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
     TIMER_CLOCKSOURCE_INTERNAL,          /**< Internal clock selection CK_INT */
     TIMER_CLOCKSOURCE_INTERNAL_ITR0,           /**< Internal trigger input #0 */
@@ -135,7 +135,7 @@ typedef enum _Timer_ClockSource
 
 typedef enum _Timer_ClockPrescaler
 {
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     TIMER_CLOCKPRESCALER_1,
     TIMER_CLOCKPRESCALER_2,
     TIMER_CLOCKPRESCALER_4,
@@ -164,7 +164,7 @@ typedef enum _Timer_ClockPrescaler
 
 } Timer_ClockPrescaler;
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 typedef enum _Timer_ClockPolarity
 {
@@ -188,7 +188,7 @@ typedef enum _Timer_CounterMode
     TIMER_COUNTERMODE_DOWN,
 #endif
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     TIMER_COUNTERMODE_CENTER_ALIGNED_1,
     TIMER_COUNTERMODE_CENTER_ALIGNED_2,
     TIMER_COUNTERMODE_CENTER_ALIGNED_3,
@@ -236,7 +236,7 @@ typedef struct _Timer_Device* Timer_DeviceHandle;
 #define FTM_CONFIG_INPUT_BOTH_EDGES		 0x10
 
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #include "hardware/STM32L4/timer_STM32L4.h"
 
@@ -279,7 +279,7 @@ typedef struct _Timer_Config
 
     Timer_ClockSource clockSource;                 /**< Selected clock source */
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     Timer_ClockPolarity clockPolarity;             /**< Clock source polarity */
     Timer_ClockPrescaler clockPrescaler;          /**< Clock source prescaler */
     /**< Clock source input filter: must be between 0x0 and 0xF */

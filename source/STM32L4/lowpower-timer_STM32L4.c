@@ -45,7 +45,7 @@ extern "C" {
 #include "clock.h"
 #include "interrupt.h"
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #define LOWPOWERTIMER_CLOCK_ENABLE(REG,MASK) do { \
                                                UTILITY_SET_REGISTER_BIT(REG,MASK); \
@@ -115,7 +115,7 @@ typedef struct _LowPowerTimer_Device
 
 } LowPowerTimer_Device;
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L476) || defined (LIBOHIBOARD_STM32WB55)
 
 #define LOWPOWERTIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_LPTIM1)  || \
                                          ((DEVICE) == OB_LPTIM2))

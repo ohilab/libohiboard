@@ -81,7 +81,7 @@ extern "C" {
 #define GPIO_PINS_SPEED_MEDIUM              0x0100
 #define GPIO_PINS_SPEED_HIGH                0x0200
 #define GPIO_PINS_SPEED_VERY_HIGH           0x0400
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 #define GPIO_PINS_ADC_CONNECTED             0x0800
 #endif
 #elif defined LIBOHIBOARD_MICROCHIP_PIC
@@ -120,7 +120,7 @@ typedef enum _Gpio_Level
 
 #include "hardware/STM32L0/gpio_STM32L0.h"
 
-#elif defined (LIBOHIBOARD_STM32L4)
+#elif defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #include "hardware/STM32L4/gpio_STM32L4.h"
 
@@ -187,7 +187,7 @@ typedef enum _Gpio_Alternate
     GPIO_ALTERNATE_DIGITAL = -2,
 #endif
     GPIO_ALTERNATE_ANALOG  = -1,
-#if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
+#if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4)) || defined (LIBOHIBOARD_STM32WB)
     GPIO_ALTERNATE_0       = 0,
     GPIO_ALTERNATE_1       = 1,
     GPIO_ALTERNATE_2       = 2,
@@ -197,7 +197,7 @@ typedef enum _Gpio_Alternate
     GPIO_ALTERNATE_6       = 6,
     GPIO_ALTERNATE_7       = 7,
 #endif
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     GPIO_ALTERNATE_8       = 8,
     GPIO_ALTERNATE_9       = 9,
     GPIO_ALTERNATE_10      = 10,
@@ -284,7 +284,7 @@ void Gpio_toggle (Gpio_Pins pin);
  * This function read the input pin level value.
  *
  * @param[in] pin The selected pins
- * @return @ref GPIO_LOW in case the input pis is low, @ref GPIO_HIGH otherwise.
+ * @return @ref GPIO_LOW in case the input pin is low, @ref GPIO_HIGH otherwise.
  */
 Gpio_Level Gpio_get (Gpio_Pins pin);
 

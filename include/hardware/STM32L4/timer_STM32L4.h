@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/include/hardware/STM32L4-WB/timer_STM32L4-WB.h
+ * @file libohiboard/include/hardware/STM32L4/timer_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Timer useful definitions for STM32L4-WB series
  */
@@ -44,7 +44,7 @@ extern "C" {
 
 typedef enum _Timer_Channels
 {
-    TIMER_CHANNELS_CH1 = 0x00u, //Chiedere cosa significano le assegnazioni
+    TIMER_CHANNELS_CH1 = 0x00u,
     TIMER_CHANNELS_CH2 = 0x04u,
     TIMER_CHANNELS_CH3 = 0x08u,
     TIMER_CHANNELS_CH4 = 0x0Cu,
@@ -143,6 +143,8 @@ typedef enum
 
 extern Timer_DeviceHandle OB_TIM1;
 extern Timer_DeviceHandle OB_TIM2;
+
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
 extern Timer_DeviceHandle OB_TIM3;
 extern Timer_DeviceHandle OB_TIM4;
 extern Timer_DeviceHandle OB_TIM5;
@@ -150,14 +152,21 @@ extern Timer_DeviceHandle OB_TIM6;
 extern Timer_DeviceHandle OB_TIM7;
 extern Timer_DeviceHandle OB_TIM8;
 extern Timer_DeviceHandle OB_TIM15;
+#endif
+
 extern Timer_DeviceHandle OB_TIM16;
 extern Timer_DeviceHandle OB_TIM17;
 
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
 void TIM1_BRK_TIM15_IRQHandler (void);
+#endif
+
 void TIM1_UP_TIM16_IRQHandler (void);
 void TIM1_TRG_COM_TIM17_IRQHandler (void);
 void TIM1_CC_IRQHandler (void);
 void TIM2_IRQHandler (void);
+
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
 void TIM3_IRQHandler (void);
 void TIM4_IRQHandler (void);
 void TIM5_IRQHandler (void);
@@ -167,6 +176,7 @@ void TIM8_BRK_IRQHandler (void);
 void TIM8_UP_IRQHandler (void);
 void TIM8_TRG_COM_IRQHandler (void);
 void TIM8_CC_IRQHandler (void);
+#endif
 
 #endif
 

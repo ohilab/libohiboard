@@ -109,7 +109,7 @@ __weak System_Errors System_systickInit (uint32_t priority)
 #if defined (LIBOHIBOARD_STM32L0)
     basetime = (Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / 1000ul);
     //basetime = (Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / LIBOHIBOARD_SYSTEM_TICK );
-#elif defined (LIBOHIBOARD_STM32L4)
+#elif defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     //basetime = (Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / LIBOHIBOARD_SYSTEM_TICK );
     basetime = (Clock_getOutputValue(CLOCK_OUTPUT_HCLK) / 1000ul);
 #elif defined (LIBOHIBOARD_MKL)
@@ -209,7 +209,7 @@ void System_softwareBreakpoint (void)
 {
 #if defined (__DEBUG)
 
-#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     asm("BKPT #1");
     asm("NOP");
 #endif
@@ -225,7 +225,7 @@ void System_softwareBreakpoint (void)
 
 void System_forceEnableDebug (void)
 {
-#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     DBGMCU_TypeDef* mcuDgb = (DBGMCU_TypeDef *) DBGMCU;
     mcuDgb->CR |=  ( DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY );
 #endif
@@ -239,7 +239,7 @@ void System_forceEnableDebug (void)
 
 void System_forceDisableDebug (void)
 {
-#if defined (LIBOHIBOARD_STM32L0) | defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     DBGMCU_TypeDef* mcuDgb = ( DBGMCU_TypeDef * )DBGMCU;
     mcuDgb->CR &= ~( DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY );
 #endif
