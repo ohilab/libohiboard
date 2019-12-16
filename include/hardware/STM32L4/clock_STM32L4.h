@@ -54,14 +54,12 @@ extern "C" {
 #endif
 
 #if defined (LIBOHIBOARD_STM32WB)
-#define CLOCK_FREQ_HSE					      32000000u
+#define CLOCK_FREQ_HSE                        32000000u
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
 #define CLOCK_MAX_FREQ_PLL                    80000000u
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB55)
+#elif defined (LIBOHIBOARD_STM32WB)
 #define CLOCK_MAX_FREQ_PLL                    64000000u
 #endif
 
