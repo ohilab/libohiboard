@@ -66,7 +66,11 @@ extern "C" {
 /**
  * Enable selected peripheral
  */
-#define TIMER_DEVICE_ENABLE(DEVICE)       ((DEVICE)->regmap->CR1 |= (TIM_CR1_CEN))
+#define TIMER_DEVICE_ENABLE(DEVICE)       do { \
+                                              (DEVICE)->regmap->CR1 |= (TIM_CR1_CEN); \
+                                              asm("nop");                             \
+                                              (void)(DEVICE)->regmap->CR1; \
+                                          } while (0)
 
 /**
  * Disable the selected peripheral.
@@ -2118,7 +2122,7 @@ System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels cha
     return ERRORS_NO_ERROR;
 }
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
 _weak void TIM1_BRK_TIM15_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
@@ -2130,9 +2134,16 @@ _weak void TIM1_BRK_TIM15_IRQHandler (void)
         Timer_callbackInterrupt(OB_TIM15);
     }
 }
+#elif defined (LIBOHIBOARD_STM32WB55)
+
+_weak void TIM1_BRK_IRQHandler(void)
+{
+    Timer_callbackInterrupt(OB_TIM1);
+}
+
 #endif
 
-void TIM1_UP_TIM16_IRQHandler (void)
+_weak void TIM1_UP_TIM16_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2144,7 +2155,7 @@ void TIM1_UP_TIM16_IRQHandler (void)
     }
 }
 
-void TIM1_TRG_COM_TIM17_IRQHandler (void)
+_weak void TIM1_TRG_COM_TIM17_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2156,12 +2167,12 @@ void TIM1_TRG_COM_TIM17_IRQHandler (void)
     }
 }
 
-void TIM1_CC_IRQHandler (void)
+_weak void TIM1_CC_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM1);
 }
 
-void TIM2_IRQHandler (void)
+_weak void TIM2_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM2);
 }

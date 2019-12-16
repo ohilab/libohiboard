@@ -157,8 +157,10 @@ extern Timer_DeviceHandle OB_TIM15;
 extern Timer_DeviceHandle OB_TIM16;
 extern Timer_DeviceHandle OB_TIM17;
 
-#if !defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L476Rx)
 void TIM1_BRK_TIM15_IRQHandler (void);
+#elif defined (LIBOHIBOARD_STM32WB55Rx)
+void TIM1_BRK_IRQHandler (void);
 #endif
 
 void TIM1_UP_TIM16_IRQHandler (void);
