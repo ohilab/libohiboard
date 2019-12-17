@@ -98,7 +98,7 @@ typedef enum _Timer_Mode
  */
 typedef enum _Timer_ClockSource
 {
-#if defined (LIBOHIBOARD_STM32L4) || \ 
+#if defined (LIBOHIBOARD_STM32L4) || \
     defined (LIBOHIBOARD_STM32WB)
 
     TIMER_CLOCKSOURCE_INTERNAL,          /**< Internal clock selection CK_INT */
