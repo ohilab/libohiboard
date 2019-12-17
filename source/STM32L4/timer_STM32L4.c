@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -28,7 +28,7 @@
 /**
  * @file libohiboard/include/STM32L4/timer_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Timer implementations for STM32L4-WB Series
+ * @brief Timer implementations for STM32L4 and STM32WB Series
  */
 
 #if defined (LIBOHIBOARD_TIMER)
@@ -192,7 +192,7 @@ typedef struct _Timer_Device
 
 #if defined (LIBOHIBOARD_STM32L476) || defined (LIBOHIBOARD_STM32WB55)
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
                                  ((DEVICE) == OB_TIM2)   || \
                                  ((DEVICE) == OB_TIM3)   || \
@@ -420,7 +420,7 @@ typedef struct _Timer_Device
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1))))
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
 static Timer_Device tim1 =
 {
         .regmap              = TIM1,
@@ -460,9 +460,7 @@ static Timer_Device tim1 =
         .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB55)
+#elif defined (LIBOHIBOARD_STM32WB55)
 static Timer_Device tim1 =
 {
         .regmap              = TIM1,
@@ -564,7 +562,7 @@ static Timer_Device tim2 =
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
 static Timer_Device tim3 =
 {
         .regmap              = TIM3,
@@ -2123,7 +2121,7 @@ System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels cha
 }
 
 #if defined (LIBOHIBOARD_STM32L476)
-_weak void TIM1_BRK_TIM15_IRQHandler (void)
+void TIM1_BRK_TIM15_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2135,15 +2133,13 @@ _weak void TIM1_BRK_TIM15_IRQHandler (void)
     }
 }
 #elif defined (LIBOHIBOARD_STM32WB55)
-
-_weak void TIM1_BRK_IRQHandler(void)
+void TIM1_BRK_IRQHandler(void)
 {
     Timer_callbackInterrupt(OB_TIM1);
 }
-
 #endif
 
-_weak void TIM1_UP_TIM16_IRQHandler (void)
+void TIM1_UP_TIM16_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2155,7 +2151,7 @@ _weak void TIM1_UP_TIM16_IRQHandler (void)
     }
 }
 
-_weak void TIM1_TRG_COM_TIM17_IRQHandler (void)
+void TIM1_TRG_COM_TIM17_IRQHandler (void)
 {
     if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
     {
@@ -2167,64 +2163,64 @@ _weak void TIM1_TRG_COM_TIM17_IRQHandler (void)
     }
 }
 
-_weak void TIM1_CC_IRQHandler (void)
+void TIM1_CC_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM1);
 }
 
-_weak void TIM2_IRQHandler (void)
+void TIM2_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM2);
 }
 
-#if !defined (LIBOHIBOARD_STM32WB55)
-_weak void TIM3_IRQHandler (void)
+#if defined (LIBOHIBOARD_STM32L476)
+void TIM3_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM3);
 }
 
-_weak void TIM4_IRQHandler (void)
+void TIM4_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM4);
 }
 
-_weak void TIM5_IRQHandler (void)
+void TIM5_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM5);
 }
 
-_weak void TIM6_DAC_IRQHandler (void)
+void TIM6_DAC_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM6);
 }
 
-_weak void TIM7_IRQHandler (void)
+void TIM7_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM7);
 }
 
-_weak void TIM8_BRK_IRQHandler (void)
+void TIM8_BRK_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM8);
 }
 
-_weak void TIM8_UP_IRQHandler (void)
+void TIM8_UP_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM8);
 }
 
-_weak void TIM8_TRG_COM_IRQHandler (void)
+void TIM8_TRG_COM_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM8);
 }
 
-_weak void TIM8_CC_IRQHandler (void)
+void TIM8_CC_IRQHandler (void)
 {
     Timer_callbackInterrupt(OB_TIM8);
 }
 #endif
 
-#endif // LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L4 || LIBOHIBOARD_STM32WB
 
 #ifdef __cplusplus
 }
