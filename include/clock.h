@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -111,7 +111,7 @@ typedef enum _Clock_Origin
     CLOCK_INTERNAL_PLL         = 0x0020,
     CLOCK_EXTERNAL_LSE_CRYSTAL = 0x0040,
 
-#if defined (LIBOHIBOARD_STM32L0) ||\
+#if defined (LIBOHIBOARD_STM32L0) || \
     defined (LIBOHIBOARD_STM32WB)
     CLOCK_INTERNAL_HSI_48      = 0x0080,
 #endif
@@ -266,7 +266,6 @@ typedef enum _Clock_PllSource
     CLOCK_PLLSOURCE_HSI  = (RCC_PLLCFGR_PLLSRC_1),
     CLOCK_PLLSOURCE_HSE  = (RCC_PLLCFGR_PLLSRC),
 #endif
-
 
 #if defined (LIBOHIBOARD_STM32L0)
     CLOCK_PLLSOURCE_NONE = 0xFFFFFFFFu,
@@ -567,14 +566,14 @@ typedef struct _Clock_Config
     Clock_OscillatorState hsiState;
 
 #if defined (LIBOHIBOARD_STM32WB)
-    Clock_OscillatorState hsi_48_State;
+    Clock_OscillatorState hsi48State;
 #endif
 
     Clock_OscillatorState msiState;
     Clock_OscillatorState lsiState;
 
 #if defined (LIBOHIBOARD_STM32WB)
-    Clock_OscillatorState lsi_2_State;
+    Clock_OscillatorState lsi2State;
 #endif
 
     Clock_OscillatorState lseState;
