@@ -181,9 +181,9 @@
 
 #elif defined (LIBOHIBOARD_STM32WB55Rx)
 
-#include "platforms/STM32L476/stm32wb55xx.h"
-#include "platforms/STM32L476/stm32wbxx.h"
-#include "platforms/STM32L476/system_stm32wbxx.h"
+#include "platforms/STM32WB55/stm32wb55xx.h"
+#include "platforms/STM32WB55/stm32wbxx.h"
+#include "platforms/STM32WB55/system_stm32wbxx.h"
 
 #ifndef LIBOHIBOARD_STM32WB
 #define LIBOHIBOARD_STM32WB
