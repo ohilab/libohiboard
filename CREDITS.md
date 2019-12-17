@@ -15,4 +15,6 @@ Credits
 * Matteo Pirro
 * Francesco Piunti
 * Federico Robuffo
+* Matteo Veglio'
+* Alessandro Zacchilli
 
