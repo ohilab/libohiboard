@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -28,7 +28,7 @@
  * @file libohiboard/source/STM32L4/clock_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Leonardo Morichelli
- * @brief Clock implementations for STM32L4_WB Series
+ * @brief Clock implementations for STM32L4 and STM32WB Series
  */
 
 #ifdef __cplusplus
@@ -46,9 +46,9 @@ extern "C" {
                                         (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)                         || \
                                          ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)                           || \
                                          ((OSC & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)                 || \
-										 ((OSC & CLOCK_INTERNAL_LSI_2) == CLOCK_INTERNAL_LSI_2)				|| \
+                                         ((OSC & CLOCK_INTERNAL_LSI_2) == CLOCK_INTERNAL_LSI_2)             || \
                                          ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)                 || \
-										 ((OSC & CLOCK_INTERNAL_HSI_48) == CLOCK_INTERNAL_HSI_48)           || \
+                                         ((OSC & CLOCK_INTERNAL_HSI_48) == CLOCK_INTERNAL_HSI_48)           || \
                                          ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)                 || \
                                          ((OSC & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL))
 
@@ -69,7 +69,7 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32WB)
 #define CLOCK_IS_VALID_HSI_48_STATE(HSI_48_STATE) (((HSI_48_STATE) == CLOCK_OSCILLATORSTATE_OFF) || \
-                                            ((HSI_48_STATE) == CLOCK_OSCILLATORSTATE_ON))
+                                                   ((HSI_48_STATE) == CLOCK_OSCILLATORSTATE_ON))
 #endif
 
 #define CLOCK_IS_VALID_LSI_STATE(LSISTATE) (((LSISTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
@@ -77,7 +77,7 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32WB)
 #define CLOCK_IS_VALID_LSI_2_STATE(LSI_2_STATE) (((LSI_2_STATE) == CLOCK_OSCILLATORSTATE_OFF) || \
-                                            ((LSI_2_STATE) == CLOCK_OSCILLATORSTATE_ON))
+                                                 ((LSI_2_STATE) == CLOCK_OSCILLATORSTATE_ON))
 #endif
 
 #define CLOCK_IS_VALID_LSE_STATE(LSESTATE) (((LSESTATE) == CLOCK_OSCILLATORSTATE_OFF) || \
@@ -183,7 +183,7 @@ static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[9] =
     RCC_CFGR_HPRE_DIV512,
 };
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
 static const uint8_t CLOCK_AHB_PRESCALE_SHIFT_TABLE[16] =
 {
     0U, // DIV1 - NOT USED
@@ -224,7 +224,7 @@ static const uint32_t CLOCK_APB2_PRESCALE_REGISTER_TABLE[5] =
     RCC_CFGR_PPRE2_DIV16
 };
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
 static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 {
     0U, // DIV1 - NOT USED
@@ -262,7 +262,7 @@ typedef struct _Clock_Device
     uint8_t devLSIInitialized;
 
 #if defined (LIBOHIBOARD_STM32WB)
-    uint8_t devLSI_2Initialized;
+    uint8_t devLSI2Initialized;
 #endif
 
     uint8_t devLSEInitialized;
@@ -270,7 +270,7 @@ typedef struct _Clock_Device
     uint8_t devHSIInitialized;
 
 #if defined (LIBOHIBOARD_STM32WB)
-    uint8_t devHSI_48Initialized;
+    uint8_t devHSI48Initialized;
 #endif
 
     uint8_t devPLLInitialized;
@@ -296,14 +296,14 @@ static Clock_Device clk0 =
     .devLSIInitialized = 0,
 
 #if defined (LIBOHIBOARD_STM32WB)
-	.devLSI_2Initialized = 0,
+    .devLSI2Initialized = 0,
 #endif
 
     .devLSEInitialized = 0,
     .devHSIInitialized = 0,
 
 #if defined (LIBOHIBOARD_STM32WB)
-	.devHSI_48Initialized = 0,
+    .devHSI48Initialized = 0,
 #endif
 
     .devHSEInitialized = 0,
@@ -424,31 +424,25 @@ static void Clock_updateOutputValue (void)
     uint32_t cfgr = clk0.regmap->CFGR;
     uint32_t shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     clk0.hclkClock = (clk0.systemCoreClock >> CLOCK_AHB_PRESCALE_SHIFT_TABLE[shifter]);
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     clk0.hclkClock = (clk0.systemCoreClock >> AHBPrescTable[shifter]);
 #endif
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     clk0.pclk1Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     clk0.pclk1Clock = (clk0.hclkClock >> APBPrescTable[shifter]);
 #endif
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos;
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     clk0.pclk2Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     clk0.pclk2Clock = (clk0.hclkClock >> APBPrescTable[shifter]);
 #endif
 
@@ -460,7 +454,7 @@ static void Clock_updateOutputValue (void)
     clk0.pllqClock = (((pllmClock) * pllnReg) / ((pllqReg + 1) * 2));
     clk0.pllpClock = (((pllmClock) * pllnReg) / ((pllpReg == 0)?(7):(17)));
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     uint32_t pllsai1nReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1N_Pos;
     uint32_t pllsai1rReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos;
     uint32_t pllsai1qReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos;
@@ -468,19 +462,17 @@ static void Clock_updateOutputValue (void)
     clk0.pllsai1rClock = (((pllmClock) * pllsai1nReg) / ((pllsai1rReg + 1) * 2));
     clk0.pllsai1qClock = (((pllmClock) * pllsai1nReg) / ((pllsai1qReg + 1) * 2));
     clk0.pllsai1pClock = (((pllmClock) * pllsai1nReg) / ((pllsai1pReg == 0)?(7):(17)));
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     uint32_t pllsai1nReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLN_Msk) >> RCC_PLLSAI1CFGR_PLLN_Pos;
-        uint32_t pllsai1rReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk) >> RCC_PLLSAI1CFGR_PLLR_Pos;
-        uint32_t pllsai1qReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk) >> RCC_PLLSAI1CFGR_PLLR_Pos;
-        uint32_t pllsai1pReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk) >> RCC_PLLSAI1CFGR_PLLR_Pos;
-        clk0.pllsai1rClock = (((pllmClock) * pllsai1nReg) / ((pllsai1rReg + 1) * 2));
-        clk0.pllsai1qClock = (((pllmClock) * pllsai1nReg) / ((pllsai1qReg + 1) * 2));
-        clk0.pllsai1pClock = (((pllmClock) * pllsai1nReg) / ((pllsai1pReg == 0)?(7):(17)));
+    uint32_t pllsai1rReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk) >> RCC_PLLSAI1CFGR_PLLR_Pos;
+    uint32_t pllsai1qReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk) >> RCC_PLLSAI1CFGR_PLLR_Pos;
+    uint32_t pllsai1pReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk) >> RCC_PLLSAI1CFGR_PLLR_Pos;
+    clk0.pllsai1rClock = (((pllmClock) * pllsai1nReg) / ((pllsai1rReg + 1) * 2));
+    clk0.pllsai1qClock = (((pllmClock) * pllsai1nReg) / ((pllsai1qReg + 1) * 2));
+    clk0.pllsai1pClock = (((pllmClock) * pllsai1nReg) / ((pllsai1pReg == 0)?(7):(17)));
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     uint32_t pllsai2nReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N_Msk) >> RCC_PLLSAI2CFGR_PLLSAI2N_Pos;
     uint32_t pllsai2rReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R_Msk) >> RCC_PLLSAI2CFGR_PLLSAI2R_Pos;
     uint32_t pllsai2pReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R_Msk) >> RCC_PLLSAI2CFGR_PLLSAI2R_Pos;
@@ -580,8 +572,6 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
         else
         {
-
-
             if (config->hseState == CLOCK_OSCILLATORSTATE_OFF)
             {
                 // Switch off this oscillator
@@ -663,9 +653,9 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
     if ((config->source & CLOCK_INTERNAL_HSI_48) == CLOCK_INTERNAL_HSI_48)
         {
             // Check the HSI48 state value
-            ohiassert(CLOCK_IS_VALID_HSI_48_STATE(config->hsi_48_State));
+            ohiassert(CLOCK_IS_VALID_HSI_48_STATE(config->hsi48State));
 
-            if (config->hsi_48_State == CLOCK_OSCILLATORSTATE_OFF)
+            if (config->hsi48State == CLOCK_OSCILLATORSTATE_OFF)
             {
                 // Switch off the oscillator
                 UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CRRCR_HSI48ON);
@@ -695,7 +685,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 #endif
 
     // LSI Configuration
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     if ((config->source & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)
     {
         // Check the LSI state value
@@ -728,78 +718,75 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             }
         }
     }
-#endif
-
-    // LSI1 Configuration
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     if ((config->source & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)
+    {
+        // Check the LSI1 state value
+        ohiassert(CLOCK_IS_VALID_LSI_STATE(config->lsiState));
+
+        if (config->lsiState == CLOCK_OSCILLATORSTATE_OFF)
         {
-            // Check the LSI1 state value
-            ohiassert(CLOCK_IS_VALID_LSI_STATE(config->lsiState));
+            // Switch off the oscillator
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI1ON);
 
-            if (config->lsiState == CLOCK_OSCILLATORSTATE_OFF)
+            // Wait until LSI1 is disabled
+            tickstart = System_currentTick();
+            while ((clk0.regmap->CSR & RCC_CSR_LSI1RDY) > 0)
             {
-                // Switch off the oscillator
-                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI1ON);
-
-                // Wait until LSI1 is disabled
-                tickstart = System_currentTick();
-                while ((clk0.regmap->CSR & RCC_CSR_LSI1RDY) > 0)
-                {
-                    if ((System_currentTick() - tickstart) > 2u)
-                        return ERRORS_CLOCK_TIMEOUT;
-                }
-            }
-            else
-            {
-                // Switch on the oscillator
-                UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI1ON);
-
-                // Wait until LSI1 is ready
-                tickstart = System_currentTick();
-                while ((clk0.regmap->CSR & RCC_CSR_LSI1RDY) == 0)
-                {
-                    if ((System_currentTick() - tickstart) > 2u)
-                        return ERRORS_CLOCK_TIMEOUT;
-                }
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
             }
         }
+        else
+        {
+            // Switch on the oscillator
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI1ON);
+
+            // Wait until LSI1 is ready
+            tickstart = System_currentTick();
+            while ((clk0.regmap->CSR & RCC_CSR_LSI1RDY) == 0)
+            {
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+    }
 #endif
 
     // LSI2 Configuration
 #if defined (LIBOHIBOARD_STM32WB)
     if ((config->source & CLOCK_INTERNAL_LSI_2) == CLOCK_INTERNAL_LSI_2)
+    {
+        // Check the LSI state value
+        ohiassert(CLOCK_IS_VALID_LSI_2_STATE(config->lsi2State));
+
+        if (config->lsi2State == CLOCK_OSCILLATORSTATE_OFF)
         {
-            // Check the LSI state value
-            ohiassert(CLOCK_IS_VALID_LSI_2_STATE(config->lsi_2_State));
+            // Switch off the oscillator
+            UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI2ON);
 
-            if (config->lsi_2_State == CLOCK_OSCILLATORSTATE_OFF)
+            // Wait until LSI is disabled
+            tickstart = System_currentTick();
+            while ((clk0.regmap->CSR & RCC_CSR_LSI2RDY) > 0)
             {
-                // Switch off the oscillator
-                UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI2ON);
-
-                // Wait until LSI is disabled
-                tickstart = System_currentTick();
-                while ((clk0.regmap->CSR & RCC_CSR_LSI2RDY) > 0)
-                {
-                    if ((System_currentTick() - tickstart) > 2u)
-                        return ERRORS_CLOCK_TIMEOUT;
-                }
-            }
-            else
-            {
-                // Switch on the oscillator
-                UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI2ON);
-
-                // Wait until LSI is ready
-                tickstart = System_currentTick();
-                while ((clk0.regmap->CSR & RCC_CSR_LSI2RDY) == 0)
-                {
-                    if ((System_currentTick() - tickstart) > 2u)
-                        return ERRORS_CLOCK_TIMEOUT;
-                }
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
             }
         }
+        else
+        {
+            // Switch on the oscillator
+            UTILITY_SET_REGISTER_BIT(clk0.regmap->CSR,RCC_CSR_LSI2ON);
+
+            // Wait until LSI is ready
+            tickstart = System_currentTick();
+            while ((clk0.regmap->CSR & RCC_CSR_LSI2RDY) == 0)
+            {
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+    }
 #endif
 
     // LSE Configuration
@@ -918,7 +905,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
                     return ERRORS_CLOCK_TIMEOUT;
             }
         }
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
         //*** PLLSAI1, PLLSAI2 ***/
         //1. Disable the PLLSAI1/PLLSAI2 by setting PLLSAI1ON/PLLSAI2ON to 0 in Clock control register (RCC_CR).
 
@@ -931,8 +918,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             if ((System_currentTick() - tickstart) > 5000u)
                 return ERRORS_CLOCK_TIMEOUT;
         }
-#endif
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
         //*** PLLSAI1
         //1. Disable the PLLSAI1 by setting PLLSAI1ON to 0 in Clock control register (RCC_CR).
         UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLSAI1ON);
@@ -946,7 +932,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
         //3. Change the desired parameter.
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N_Msk, (config->pllSai1.multiplier << RCC_PLLSAI1CFGR_PLLSAI1N_Pos)); // ->*N
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R_Msk, (config->pllSai1.dividerR << RCC_PLLSAI1CFGR_PLLSAI1R_Pos)); // /R->
@@ -956,9 +942,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N_Msk, (config->pllSai2.multiplier << RCC_PLLSAI2CFGR_PLLSAI2N_Pos)); // ->*N
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R_Msk, (config->pllSai2.dividerR << RCC_PLLSAI2CFGR_PLLSAI2R_Pos)); // /R->
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2P_Msk, (config->pllSai2.dividerP << RCC_PLLSAI2CFGR_PLLSAI2P_Pos)); // /P->
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
         //3. Change the desired parameter.
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLN_Msk, (config->pllSai1.multiplier << RCC_PLLSAI1CFGR_PLLN_Pos)); // ->*N
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLR_Msk, (config->pllSai1.dividerR << RCC_PLLSAI1CFGR_PLLR_Pos)); // /R->
@@ -966,7 +950,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         UTILITY_MODIFY_REGISTER(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLP_Msk, (config->pllSai1.dividerP << RCC_PLLSAI1CFGR_PLLP_Pos)); // /P->
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
         //4. Enable the PLLSAI1/PLLSAI2 again by setting PLLSAI1ON/PLLSAI2ON to 1.
         if (config->output & CLOCK_OUTPUT_PLLSAI1R)
         {
@@ -976,9 +960,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         {
             UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLSAI2ON);
         }
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
         //4. Enable the PLLSAI1 again by setting PLLSAI1ON to 1.
         if (config->output & CLOCK_OUTPUT_PLLSAI1R)
         {
@@ -986,7 +968,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
         //5. Enable the desired PLL outputs by configuring PLLSAI1PEN/PLLSAI2PEN, PLLSAI1QEN/PLLSAI2QEN, PLLSAI1REN/PLLSAI2REN in PLLSAI1 configuration register (RCC_PLLSAI1CFGR) and PLLSAI2 configuration register (RCC_PLLSAI2CFGR).
         if ((config->output & CLOCK_OUTPUT_PLLSAI1R) && (config->pllSai1.dividerR != CLOCK_PLLDIVIDER_R_DISABLED))
         {
@@ -1028,9 +1010,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         {
             UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR,RCC_PLLSAI2CFGR_PLLSAI2PEN);
         }
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
         //5. Enable the desired PLL outputs by configuring PLLSAI1PEN, PLLSAI1QEN, PLLSAI1REN in PLLSAI1 configuration register (RCC_PLLSAI1CFGR).
         if ((config->output & CLOCK_OUTPUT_PLLSAI1R) && (config->pllSai1.dividerR != CLOCK_PLLDIVIDER_R_DISABLED))
         {
@@ -1071,7 +1051,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             }
         }
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
         //6b. Wait until PLLSAI2RDY is set. The PLLSAI2 is now running.
         if ((config->output & CLOCK_OUTPUT_PLLSAI2R) || (config->output & CLOCK_OUTPUT_PLLSAI2P))
         {
@@ -1528,17 +1508,15 @@ static System_Errors Clock_deInit (void)
             return ERRORS_CLOCK_TIMEOUT;
     }
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     // Clear HSI, HSE and PLL
     UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR, RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON| RCC_CR_HSIASFS | RCC_CR_PLLON | RCC_CR_PLLSAI1ON | RCC_CR_PLLSAI2ON);
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     // Clear HSI, HSE and PLL
     UTILITY_CLEAR_REGISTER_BIT(clk0.regmap->CR, RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON| RCC_CR_HSIASFS | RCC_CR_PLLON | RCC_CR_PLLSAI1ON);
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     // Wait until PLLs are reset
     tickstart = System_currentTick();
     while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY | RCC_CR_PLLSAI2RDY) != 0)
@@ -1546,9 +1524,7 @@ static System_Errors Clock_deInit (void)
         if ((System_currentTick() - tickstart) > 5000u)
             return ERRORS_CLOCK_TIMEOUT;
     }
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     // Wait until PLLs are reset
     tickstart = System_currentTick();
     while (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR, RCC_CR_PLLRDY | RCC_CR_PLLSAI1RDY) != 0)
@@ -1563,15 +1539,13 @@ static System_Errors Clock_deInit (void)
 
     UTILITY_WRITE_REGISTER(clk0.regmap->PLLSAI1CFGR, 0);
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N_4);
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#elif defined (LIBOHIBOARD_STM32WB)
     UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLN_4);
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     UTILITY_WRITE_REGISTER(clk0.regmap->PLLSAI2CFGR, 0);
     UTILITY_SET_REGISTER_BIT(clk0.regmap->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N_4);
 #endif
