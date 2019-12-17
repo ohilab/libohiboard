@@ -114,6 +114,30 @@ typedef enum  _Interrupt_Vector
 
 } Interrupt_Vector;
 
+/**
+ * List of all possible value for interrupt priority.
+ */
+typedef enum  _Interrupt_Priority
+{
+    INTERRUPT_PRIORITY_0  = 0x0F,
+    INTERRUPT_PRIORITY_1  = 0x0E,
+    INTERRUPT_PRIORITY_2  = 0x0D,
+    INTERRUPT_PRIORITY_3  = 0x0C,
+    INTERRUPT_PRIORITY_4  = 0x0B,
+    INTERRUPT_PRIORITY_5  = 0x0A,
+    INTERRUPT_PRIORITY_6  = 0x09,
+    INTERRUPT_PRIORITY_7  = 0x08,
+    INTERRUPT_PRIORITY_8  = 0x07,
+    INTERRUPT_PRIORITY_9  = 0x06,
+    INTERRUPT_PRIORITY_10 = 0x05,
+    INTERRUPT_PRIORITY_11 = 0x04,
+    INTERRUPT_PRIORITY_12 = 0x03,
+    INTERRUPT_PRIORITY_13 = 0x02,
+    INTERRUPT_PRIORITY_14 = 0x01,
+    INTERRUPT_PRIORITY_15 = 0x00,
+
+} Interrupt_Priority;
+
 #endif // LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus

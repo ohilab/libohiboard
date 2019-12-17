@@ -535,6 +535,45 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
 
     return error;
 }
+System_Errors Uart_resume(Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
+    if (dev == NULL)
+    {
+        return ERRORS_UART_NO_DEVICE;
+    }
+    // Check the UART instance
+    if (ohiassert(UART_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+    UART_DEVICE_ENABLE(dev->regmap);
+    UTILITY_SET_REGISTER_BIT(dev->regmap->USTA,_U1STA_URXEN_MASK);
+    UTILITY_SET_REGISTER_BIT(dev->regmap->USTA,_U1STA_UTXEN_MASK);    
+    
+    return err;
+}
+
+System_Errors Uart_suspend(Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
+    if (dev == NULL)
+    {
+        return ERRORS_UART_NO_DEVICE;
+    }
+    // Check the UART instance
+    if (ohiassert(UART_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+    UART_DEVICE_DISABLE(dev->regmap);
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->USTA,_U1STA_URXEN_MASK);
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->USTA,_U1STA_UTXEN_MASK);
+    
+    return err;
+}
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
 {

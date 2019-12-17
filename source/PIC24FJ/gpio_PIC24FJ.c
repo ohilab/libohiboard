@@ -48,15 +48,20 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_PIC24FJ)
 
-#define  PORT_MAX_PIN_NUM  16
-#define  PORT_NUM  7
+typedef void (*Gpio_IocCallback_t)(Gpio_Pins pin);
 
-typedef void (*IocCallback_t)(void);
-IocCallback_t IocCallback[PORT_NUM][PORT_MAX_PIN_NUM] = { };
+typedef struct _Gpio_IocIsrCallback
+{
+	bool enabled;
+	Gpio_Pins pin;
+	Gpio_IocCallback_t callback;
+} Gpio_IocIsrCallback_t;
+
+Gpio_IocIsrCallback_t IocCallback[GPIO_MAX_PORTS_NUMBER][GPIO_MAX_PINS_NUMBER_FOR_PORT] = { };
 
 typedef struct _Gpio_Device
 {
-    GPIO_TypeDef* regmap[PORT_NUM];
+    GPIO_TypeDef* regmap[GPIO_MAX_PORTS_NUMBER];
     IO_TypeDef* regMapIo;
     INTERRUPT_TypeDef* regmapInt;
 } Gpio_Device;
@@ -492,7 +497,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return (tPort > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, void* callback)
 {
     if(pin == GPIO_PINS_NONE)
     {
@@ -508,7 +513,11 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
     pinNum = (uint16_t)GPIO_AVAILABLE_PINS[pin].pinNumber;
     portNum = (uint16_t)GPIO_AVAILABLE_PINS[pin].portIndex;
 
-    IocCallback[portNum][pinNum] = callback;
+    IocCallback[portNum][pinNum].pin = pin;
+    IocCallback[portNum][pinNum].callback = callback;
+    
+    //Set Priority 
+    Interrupt_setPriority(INTERRUPT_IOC, priority);
 
     return ERRORS_NO_ERROR;
 }
@@ -521,15 +530,17 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     }
 
     GPIO_TypeDef* port = 0;
-    uint8_t pinNumber = 0;
+    uint16_t portNumber = 0, pinNumber = 0;
 
     // Check configuration for direction
     ohiassert( (event == GPIO_EVENT_NONE) ||
               ((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING)   ||
               ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING));
+    ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+    pinNumber  = (uint16_t)GPIO_AVAILABLE_PINS[pin].pinNumber;
+    portNumber = (uint16_t)GPIO_AVAILABLE_PINS[pin].portIndex;
  
     if(event == GPIO_EVENT_NONE)
     {
@@ -563,6 +574,9 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     tIocf &= (~(0x0001 << pinNumber));
     port->IOCF = tIocf;
 
+    // Enable callback
+    IocCallback[portNum][pinNum].enabled = true;
+
     // Enable Interrupt-on-Change functionality
     UTILITY_SET_REGISTER_BIT(gpioDevice.regMapIo->PADCON, _PADCON_IOCON_MASK);
 
@@ -575,6 +589,41 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     return ERRORS_NO_ERROR;
 }
 
+Gpio_EventType Gpio_getEnabledInterrupt (Gpio_Pins pin)
+{
+    Gpio_EventType event = GPIO_EVENT_NONE;
+
+    if(pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
+    GPIO_TypeDef* port = 0;
+    uint8_t pinNum = 0;
+
+    // Check configuration for direction
+    ohiassert( (event == GPIO_EVENT_NONE) ||
+              ((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING)   ||
+              ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING));
+
+    pinNum = GPIO_AVAILABLE_PINS[pin].pinNumber;
+    port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+
+    uint16_t tIocp = port->IOCP;
+    if(tIocp & (0x0001 << pinNum))
+    {
+        event |= GPIO_EVENT_ON_RISING;
+    }
+
+    uint16_t tIocn = port->IOCN;
+    if(tIocn & (0x0001 << pinNum))
+    {
+        event |= GPIO_EVENT_ON_FALLING;
+    }
+
+    return event;
+}
+
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
     if(pin == GPIO_PINS_NONE)
@@ -583,13 +632,17 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
     }
 
     GPIO_TypeDef* port = 0;
-    uint8_t pinNumber = 0;
+    uint16_t portNumber = 0, pinNumber = 0;
 
     //Check if pin definition exist
     ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
-    pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
+    pinNumber = (uint16_t)GPIO_AVAILABLE_PINS[pin].pinNumber;
+    portNumber = (uint16_t)GPIO_AVAILABLE_PINS[pin].portIndex;
+
+    // Disable callback
+    IocCallback[portNumber][pinNumber].enabled = false;
 
     // Disable IOC for pin
     uint16_t tIocp = port->IOCP;
@@ -629,9 +682,12 @@ void __attribute__ (( interrupt, no_auto_psv )) _IOCInterrupt ( void )
                         if (UTILITY_READ_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, pinField) != 0)
                         {
                             // CallBack
-                            if (IocCallback[portNum][pinNum] != 0)
+                            if ((IocCallback[portNum][pinNum].callback != nullptr) &&
+                                (IocCallback[portNum][pinNum].enabled == true))
                             {
-                                IocCallback[portNum][pinNum]();
+                                Gpio_Pins pin = IocCallback[portNum][pinNum].pin;
+                                Gpio_IocCallback_t callback = IocCallback[portNum][pinNum].callback;
+                                callback(pin);
                             }
 
                             // Clear Flag Pin

@@ -247,6 +247,8 @@ extern "C" {
 
 #include "utility-buffer.h"
 
+#include "utility-debouncing.h"
+
 #ifdef __cplusplus
 }
 #endif

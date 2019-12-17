@@ -205,9 +205,16 @@ typedef enum _Gpio_Ports
     GPIO_PORTS_E,
     GPIO_PORTS_H,
 
+	GPIO_PORTS_NUMBER,
+
 #endif // LIBOHIBOARD_STM32L073
 
 } Gpio_Ports;
+
+#define GPIO_MAX_PINS_NUMBER_FOR_PORT  16
+#define GPIO_MAX_PORTS_NUMBER          GPIO_PORTS_NUMBER
+
+#define GPIO_PORTS_BASE               ((GPIO_TypeDef *) GPIOA_BASE)
 
 /**
  * @}

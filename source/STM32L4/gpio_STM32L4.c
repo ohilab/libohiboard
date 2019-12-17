@@ -46,6 +46,7 @@ extern "C" {
 #include "interrupt.h"
 #include "clock.h"
 #include "utility.h"
+#include "types.h"
 
 #define GPIO_ENABLE_CLOCK_PORTA() do { \
                                     UTILITY_SET_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOAEN); \
@@ -149,9 +150,17 @@ extern "C" {
                                      (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOHEN); \
                                    } while (0)
 
-#define  PORT_MAX_PIN  16
+typedef void (*Gpio_ExtCallback_t)(Gpio_Pins pin);
 
-static void (*Gpio_isrPortRequestVector[PORT_MAX_PIN]) (void);
+typedef struct _Gpio_ExtIsrCallback
+{
+	bool enabled;
+	Gpio_Pins pin;
+	Gpio_ExtCallback_t callback;
+} Gpio_ExtIsrCallback_t;
+
+static Gpio_ExtIsrCallback_t Gpio_isrPortRequestVector[GPIO_MAX_PINS_NUMBER_FOR_PORT] = {0};
+
 static uint32_t Gpio_isrRegister = 0x0;
 
 typedef struct _Gpio_PinDevice
@@ -611,8 +620,10 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
     return ((port->IDR & GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber)) > 0) ? GPIO_HIGH : GPIO_LOW;
 }
 
-System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
+System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, void* callback)
 {
+	(void)priority; //FIXMENOW: manage interrupt priority
+
     if (pin == GPIO_PINS_NONE)
     {
         return ERRORS_GPIO_NULL_PIN;
@@ -623,7 +634,14 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
     if (pin >= GPIO_AVAILABLE_PINS_COUNT)
         return ERRORS_GPIO_WRONG_PIN;
 
-    Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber] = callback;
+    //Check callback is empty
+	if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
+	{
+		asm("NOP");
+	}
+
+	Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
+    Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
     Gpio_isrRegister |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
 
     return ERRORS_NO_ERROR;
@@ -631,6 +649,11 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, void* callback)
 
 System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     uint32_t pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     uint32_t portIndex = GPIO_AVAILABLE_PINS[pin].portIndex;
     uint32_t temp = 0x00;
@@ -696,6 +719,9 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     }
     EXTI->FTSR1 = temp;
 
+    // Enable callback
+    Gpio_isrPortRequestVector[pinNumber].enabled = true;
+
     // Enable NVIC interrupt
     switch (pinNumber)
     {
@@ -736,6 +762,11 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
 
 System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 {
+    if (pin == GPIO_PINS_NONE)
+    {
+        return ERRORS_GPIO_NULL_PIN;
+    }
+
     uint32_t pinNumber = GPIO_AVAILABLE_PINS[pin].pinNumber;
     uint32_t portIndex = GPIO_AVAILABLE_PINS[pin].portIndex;
     uint32_t temp = 0x00;
@@ -761,6 +792,9 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         EXTI->RTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
         EXTI->FTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
 
+        // Disable callback
+        Gpio_isrPortRequestVector[pinNumber].enabled = false;
+
         // Disable NVIC interrupt
         switch (pinNumber)
         {
@@ -784,7 +818,20 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         case 7:
         case 8:
         case 9:
-            Interrupt_disable(INTERRUPT_EXTI9_5);
+        {
+        	bool disable = true;
+        	for(int i = 5; i < 10; i++)
+        	{
+        		if(Gpio_isrPortRequestVector[i].enabled == true)
+        		{
+        			disable = false;
+        		}
+        	}
+        	if(disable == true)
+        	{
+        		Interrupt_disable(INTERRUPT_EXTI9_5);
+        	}
+        }
             break;
         case 10:
         case 11:
@@ -792,59 +839,86 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         case 13:
         case 14:
         case 15:
-            Interrupt_disable(INTERRUPT_EXTI15_10);
+        {
+        	bool disable = true;
+        	for(int i = 10; i < 16; i++)
+        	{
+        		if(Gpio_isrPortRequestVector[i].enabled == true)
+        		{
+        			disable = false;
+        		}
+        	}
+        	if(disable == true)
+        	{
+        		Interrupt_disable(INTERRUPT_EXTI15_10);
+        	}
+        }
             break;
         }
     }
     return ERRORS_NO_ERROR;
 }
 
-_weak void EXTI0_IRQHandler (void)
+void EXTI0_IRQHandler (void)
 {
-    if (Gpio_isrPortRequestVector[0] != NULL)
-        Gpio_isrPortRequestVector[0]();
+    if ((Gpio_isrPortRequestVector[0].callback != nullptr) &&
+        (Gpio_isrPortRequestVector[0].enabled == true))
+    {
+        Gpio_isrPortRequestVector[0].callback(Gpio_isrPortRequestVector[0].pin);
+    }
     EXTI->PR1 = GPIO_PIN(0);
 }
 
-_weak void EXTI1_IRQHandler (void)
+void EXTI1_IRQHandler (void)
 {
-    if (Gpio_isrPortRequestVector[1] != NULL)
-        Gpio_isrPortRequestVector[1]();
+	if ((Gpio_isrPortRequestVector[1].callback != nullptr) &&
+	    (Gpio_isrPortRequestVector[1].enabled == true))
+    {
+        Gpio_isrPortRequestVector[1].callback(Gpio_isrPortRequestVector[1].pin);
+    }
     EXTI->PR1 = GPIO_PIN(1);
 }
 
-_weak void EXTI2_IRQHandler (void)
+void EXTI2_IRQHandler (void)
 {
-    if (Gpio_isrPortRequestVector[2] != NULL)
-        Gpio_isrPortRequestVector[2]();
+	if ((Gpio_isrPortRequestVector[2].callback != nullptr) &&
+	    (Gpio_isrPortRequestVector[2].enabled == true))
+    {
+        Gpio_isrPortRequestVector[2].callback(Gpio_isrPortRequestVector[2].pin);
+    }
     EXTI->PR1 = GPIO_PIN(2);
 }
 
-_weak void EXTI3_IRQHandler (void)
+void EXTI3_IRQHandler (void)
 {
-    if (Gpio_isrPortRequestVector[3] != NULL)
-        Gpio_isrPortRequestVector[3]();
+	if ((Gpio_isrPortRequestVector[3].callback != nullptr) &&
+	    (Gpio_isrPortRequestVector[3].enabled == true))
+    {
+        Gpio_isrPortRequestVector[3].callback(Gpio_isrPortRequestVector[3].pin);
+    }
     EXTI->PR1 = GPIO_PIN(3);
 }
 
-_weak void EXTI4_IRQHandler (void)
+void EXTI4_IRQHandler (void)
 {
-    if (Gpio_isrPortRequestVector[4] != NULL)
-        Gpio_isrPortRequestVector[4]();
+	if ((Gpio_isrPortRequestVector[4].callback != nullptr) &&
+	    (Gpio_isrPortRequestVector[4].enabled == true))
+    {
+        Gpio_isrPortRequestVector[4].callback(Gpio_isrPortRequestVector[4].pin);
+    }
     EXTI->PR1 = GPIO_PIN(4);
 }
 
-_weak void EXTI9_5_IRQHandler (void)
+void EXTI9_5_IRQHandler (void)
 {
-    uint8_t i=0;
-
-    for (i = 5; i < 10; i++)
+    for (int i = 5; i < 10; i++)
     {
         if (Gpio_isrRegister & (1 << i))
         {
-            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i] != NULL))
+            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i].callback != nullptr) &&
+            	                          (Gpio_isrPortRequestVector[i].enabled == true))
             {
-                Gpio_isrPortRequestVector[i]();
+                Gpio_isrPortRequestVector[i].callback(Gpio_isrPortRequestVector[i].pin);
                 // Clear flag interrupt
                 EXTI->PR1 = GPIO_PIN(i);
             }
@@ -852,17 +926,16 @@ _weak void EXTI9_5_IRQHandler (void)
     }
 }
 
-_weak void EXTI15_10_IRQHandler (void)
+void EXTI15_10_IRQHandler (void)
 {
-    uint8_t i=0;
-
-    for (i = 10; i < 16; i++)
+    for (int i = 10; i < 16; i++)
     {
         if (Gpio_isrRegister & (1 << i))
         {
-            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i] != NULL))
+            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i].callback != nullptr) &&
+                                          (Gpio_isrPortRequestVector[i].enabled == true))
             {
-                Gpio_isrPortRequestVector[i]();
+                Gpio_isrPortRequestVector[i].callback(Gpio_isrPortRequestVector[i].pin);
                 // Clear flag interrupt
                 EXTI->PR1 = GPIO_PIN(i);
             }

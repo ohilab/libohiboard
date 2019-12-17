@@ -438,12 +438,12 @@ uint32_t LowPowerTimer_getCurrentCounter (LowPowerTimer_DeviceHandle dev)
     return (dev->regmap->CNT & 0x0000FFFF);
 }
 
-_weak void LPTIM1_IRQHandler (void)
+void LPTIM1_IRQHandler (void)
 {
     LowPowerTimer_callbackInterrupt(OB_LPTIM1);
 }
 
-_weak void LPTIM2_IRQHandler (void)
+void LPTIM2_IRQHandler (void)
 {
     LowPowerTimer_callbackInterrupt(OB_LPTIM2);
 }

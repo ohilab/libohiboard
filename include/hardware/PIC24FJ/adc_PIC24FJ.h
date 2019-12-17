@@ -44,51 +44,54 @@ extern "C" {
 
 typedef enum _Adc_Pins
 {
+    ADC_PINS_NONE,
+
 #if defined (LIBOHIBOARD_PIC24FJxGA610) || \
     defined (LIBOHIBOARD_PIC24FJxGB610)
 
-    ADC_PINS_PA6,
-    ADC_PINS_PA7,
+    ADC_PINS_PA6, //AN23
+    ADC_PINS_PA7, //AN24
 
 #endif
 
-    ADC_PINS_PB0,
-    ADC_PINS_PB1,
-    ADC_PINS_PB2,
-    ADC_PINS_PB3,
-    ADC_PINS_PB4,
-    ADC_PINS_PB5,
-    ADC_PINS_PB6,
-    ADC_PINS_PB7,
-    ADC_PINS_PB8,
-    ADC_PINS_PB9,
-    ADC_PINS_PB10,
-    ADC_PINS_PB11,
-    ADC_PINS_PB12,
-    ADC_PINS_PB13,
-    ADC_PINS_PB14,
-    ADC_PINS_PB15,
-            
+    ADC_PINS_PB0, //AN0
+    ADC_PINS_PB1, //AN1
+    ADC_PINS_PB2, //AN2
+    ADC_PINS_PB3, //AN3
+    ADC_PINS_PB4, //AN4
+    ADC_PINS_PB5, //AN5
+    ADC_PINS_PB6, //AN6
+    ADC_PINS_PB7, //AN7
+    ADC_PINS_PB8, //AN8
+    ADC_PINS_PB9, //AN9
+    ADC_PINS_PB10, //AN10
+    ADC_PINS_PB11, //AN11
+    ADC_PINS_PB12, //AN12
+    ADC_PINS_PB13, //AN13
+    ADC_PINS_PB14, //AN14
+    ADC_PINS_PB15, //AN15
+
 #if defined (LIBOHIBOARD_PIC24FJxGA610) || \
     defined (LIBOHIBOARD_PIC24FJxGB610)
 
-    ADC_PINS_PC4,
+    ADC_PINS_PC4, //AN16
 
-    ADC_PINS_PE9,
+    ADC_PINS_PE9, //AN21
 
-    ADC_PINS_PG6,
-    ADC_PINS_PG7,
-    ADC_PINS_PG8,
-    ADC_PINS_PG9,
+    ADC_PINS_PG6, //AN17
+    ADC_PINS_PG7, //AN18
+    ADC_PINS_PG8, //AN19
+    ADC_PINS_PG9, //AN20
 
 #endif
-            
+
     ADC_PINS_INTERNAL,
 
 } Adc_Pins;
 
 typedef enum _Adc_Channels
 {
+    ADC_CHANNELS_NONE    = 0xFFFF,
     ADC_CHANNELS_CH0     = 0x0000,
     ADC_CHANNELS_CH1     = _AD1CHS0_CH0SA0_MASK,
     ADC_CHANNELS_CH2     = _AD1CHS0_CH0SA1_MASK,
