@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -28,7 +28,7 @@
 /**
  * @file libohiboard/source/STM32L4/interrupt_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Interrupt implementations for STM32L4 Series.
+ * @brief Interrupt implementations for STM32L4 and STM32WB Series.
  */
 
 #ifdef __cplusplus
@@ -37,7 +37,7 @@ extern "C" {
 
 #include "platforms.h"
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #include "interrupt.h"
 

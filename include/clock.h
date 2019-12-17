@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -97,18 +97,26 @@ typedef enum _Clock_Origin
 #elif defined (LIBOHIBOARD_ST_STM32)
 
 #if defined (LIBOHIBOARD_STM32L0) || \
-    defined (LIBOHIBOARD_STM32L4)
+    defined (LIBOHIBOARD_STM32L4) || \
+    defined (LIBOHIBOARD_STM32WB)
 
     CLOCK_INTERNAL_LSI         = 0x0004,
+
+#if defined (LIBOHIBOARD_STM32WB)
+    CLOCK_INTERNAL_LSI_2       = 0x0100,
+#endif
+
     CLOCK_INTERNAL_HSI         = 0x0008,
     CLOCK_INTERNAL_MSI         = 0x0010,
     CLOCK_INTERNAL_PLL         = 0x0020,
     CLOCK_EXTERNAL_LSE_CRYSTAL = 0x0040,
-#if defined (LIBOHIBOARD_STM32L0)
+
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32WB)
     CLOCK_INTERNAL_HSI_48      = 0x0080,
 #endif
 
-#endif // LIBOHIBOARD_STM32L0 | LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L0 | LIBOHIBOARD_STM32L4 | LIBOHIBOARD_STM32WB
 
 // END IF: LIBOHIBOARD_ST_STM32
 #endif
@@ -182,7 +190,7 @@ typedef enum _Clock_Output
     CLOCK_OUTPUT_PLL      = 0x0010,
 #endif
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     CLOCK_OUTPUT_PLLR     = 0x0010,
     CLOCK_OUTPUT_PLLQ     = 0x0020,
     CLOCK_OUTPUT_PLLP     = 0x0040,
@@ -252,6 +260,13 @@ typedef enum _Clock_PllSource
     CLOCK_PLLSOURCE_HSE  = (RCC_PLLCFGR_PLLSRC_HSE),
 #endif
 
+#if defined (LIBOHIBOARD_STM32WB)
+    CLOCK_PLLSOURCE_NONE = 0x00000000u,
+    CLOCK_PLLSOURCE_MSI  = (RCC_PLLCFGR_PLLSRC_0),
+    CLOCK_PLLSOURCE_HSI  = (RCC_PLLCFGR_PLLSRC_1),
+    CLOCK_PLLSOURCE_HSE  = (RCC_PLLCFGR_PLLSRC),
+#endif
+
 #if defined (LIBOHIBOARD_STM32L0)
     CLOCK_PLLSOURCE_NONE = 0xFFFFFFFFu,
     CLOCK_PLLSOURCE_HSI  = (RCC_CFGR_PLLSRC_HSI),
@@ -313,7 +328,7 @@ typedef enum _Clock_MSIRange
     CLOCK_MSIRANGE_4194kHz   = (RCC_ICSCR_MSIRANGE_6),
 #endif
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) ||  defined (LIBOHIBOARD_STM32WB)
     CLOCK_MSIRANGE_100KHz  = (RCC_CR_MSIRANGE_0),
     CLOCK_MSIRANGE_200KHz  = (RCC_CR_MSIRANGE_1),
     CLOCK_MSIRANGE_400KHz  = (RCC_CR_MSIRANGE_2),
@@ -427,7 +442,7 @@ typedef enum _Clock_PLLMultiplier
 
 } Clock_PLLMultiplier;
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 typedef enum _Clock_PLLDividerR
 {
@@ -549,8 +564,18 @@ typedef struct _Clock_Config
 
     Clock_OscillatorState hseState;
     Clock_OscillatorState hsiState;
+
+#if defined (LIBOHIBOARD_STM32WB)
+    Clock_OscillatorState hsi48State;
+#endif
+
     Clock_OscillatorState msiState;
     Clock_OscillatorState lsiState;
+
+#if defined (LIBOHIBOARD_STM32WB)
+    Clock_OscillatorState lsi2State;
+#endif
+
     Clock_OscillatorState lseState;
     Clock_OscillatorState pllState;
 
@@ -563,12 +588,13 @@ typedef struct _Clock_Config
     Clock_APBDivider apb1Divider;
     Clock_APBDivider apb2Divider;
     Clock_MSIRange msiRange;
+
 #if defined (LIBOHIBOARD_STM32L0)
     Clock_HSIDivider hsiDivider;
 #endif
 
     Clock_PLLPrescaler pllPrescaler;
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
     Clock_PLLConfig pll;
     Clock_PLLConfig pllSai1;
     Clock_PLLConfig pllSai2;
@@ -587,7 +613,7 @@ typedef struct _Clock_Config
 
 #include "hardware/STM32L0/clock_STM32L0.h"
 
-#elif defined (LIBOHIBOARD_STM32L4)
+#elif defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
 #include "hardware/STM32L4/clock_STM32L4.h"
 
