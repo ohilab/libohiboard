@@ -30,7 +30,7 @@
  * @file libohiboard/source/STM32L4/gpio_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @author Leonardo Morichelli
- * @brief GPIO implementations for STM32L4 Series.
+ * @brief GPIO implementations for STM32L4 and STM32WB Series.
  */
 
 #ifdef __cplusplus
@@ -77,7 +77,7 @@ extern "C" {
                                     (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOEEN); \
                                   } while (0)
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
 
 #define GPIO_ENABLE_CLOCK_PORTF() do { \
                                     UTILITY_SET_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOFEN); \
@@ -127,7 +127,8 @@ extern "C" {
                                      asm("nop"); \
                                      (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOEEN); \
                                    } while (0)
-#if !defined (LIBOHIBOARD_STM32WB55)
+
+#if defined (LIBOHIBOARD_STM32L476)
 
 #define GPIO_DISABLE_CLOCK_PORTF() do { \
                                      UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOFEN); \
@@ -141,6 +142,7 @@ extern "C" {
                                      (void) UTILITY_READ_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOGEN); \
                                    } while (0)
 #endif
+
 #define GPIO_DISABLE_CLOCK_PORTH() do { \
                                      UTILITY_CLEAR_REGISTER_BIT(RCC->AHB2ENR,RCC_AHB2ENR_GPIOHEN); \
                                      asm("nop"); \
@@ -163,12 +165,9 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
 {
     {0xFF,0xFF,0},
 
-// WLCSP72 ballout
-// LQFP64
 #if defined (LIBOHIBOARD_STM32L476Jx) || \
     defined (LIBOHIBOARD_STM32L476Rx) || \
-	defined (LIBOHIBOARD_STM32WB55Rx)
-
+    defined (LIBOHIBOARD_STM32WB55Rx)
 
     {GPIO_PORTS_A,0,0},
     {GPIO_PORTS_A,1,0},
@@ -212,7 +211,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_C,5,2},
     {GPIO_PORTS_C,6,2},
 
-#if !defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
     {GPIO_PORTS_C,7,2},
     {GPIO_PORTS_C,8,2},
     {GPIO_PORTS_C,9,2},
@@ -224,7 +224,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_C,14,2},
     {GPIO_PORTS_C,15,2},
 
-#if !defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
     {GPIO_PORTS_D,2,3},
 #endif
 
@@ -246,7 +247,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_G,14,6},
 #endif
 
-#if !defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L476Jx) || \
+    defined (LIBOHIBOARD_STM32L476Rx)
     {GPIO_PORTS_H,0,7},
     {GPIO_PORTS_H,1,7},
 #endif
@@ -279,7 +281,7 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Ports port)
     case GPIO_PORTS_E:
         return GPIOE;
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
 
     case GPIO_PORTS_F:
         return GPIOF;
@@ -321,7 +323,7 @@ void Gpio_enablePortClock (Gpio_Ports port)
         GPIO_ENABLE_CLOCK_PORTE();
         break;
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
     case GPIO_PORTS_F:
         GPIO_ENABLE_CLOCK_PORTF();
         break;
@@ -366,7 +368,7 @@ void Gpio_disablePortClock (Gpio_Ports port)
         GPIO_DISABLE_CLOCK_PORTE();
         break;
 
-#if !defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L476)
     case GPIO_PORTS_F:
         GPIO_DISABLE_CLOCK_PORTF();
         break;
