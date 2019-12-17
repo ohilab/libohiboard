@@ -28,7 +28,7 @@
 /**
  * @file libohiboard/include/hardware/STM32L4/interrupt_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief INTERRUPT vector definitions for STM32L4-WB series
+ * @brief INTERRUPT vector definitions for STM32L4 and STM32WB series
  */
 
 #ifndef __INTERRUPT_STM32L4_H
@@ -64,30 +64,26 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_ADC1_2           = 18,
 
     INTERRUPT_EXTI9_5          = 23,
-
-#if !defined (LIBOHIBOARD_STM32WB)
-	INTERRUPT_TIM1BRK_TIM15    = 24,
-#endif
-
-#if defined (LIBOHIBOARD_STM32WB)
+#if defined(LIBOHIBOARD_STM32L4)
+    INTERRUPT_TIM1BRK_TIM15    = 24,
+#elif defined (LIBOHIBOARD_STM32WB)
     INTERRUPT_TIM1BRK          = 24,
 #endif
-
     INTERRUPT_TIM1UP_TIM16     = 25,
     INTERRUPT_TIM1TRG_TIM17    = 26,
     INTERRUPT_TIM1CC           = 27,
     INTERRUPT_TIM2             = 28,
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     INTERRUPT_TIM3             = 29,
     INTERRUPT_TIM4             = 30,
 
-	INTERRUPT_UART1            = 37,
+    INTERRUPT_UART1            = 37,
     INTERRUPT_UART2            = 38,
     INTERRUPT_UART3            = 39,
 #endif
     INTERRUPT_EXTI15_10        = 40,
 
-#if !defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4)
     INTERRUPT_TIM8BRK          = 43,
     INTERRUPT_TIM8UP           = 44,
     INTERRUPT_TIM8TRG          = 45,
