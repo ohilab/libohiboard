@@ -183,7 +183,6 @@ static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[9] =
     RCC_CFGR_HPRE_DIV512,
 };
 
-#if defined (LIBOHIBOARD_STM32L4)
 static const uint8_t CLOCK_AHB_PRESCALE_SHIFT_TABLE[16] =
 {
     0U, // DIV1 - NOT USED
@@ -203,8 +202,6 @@ static const uint8_t CLOCK_AHB_PRESCALE_SHIFT_TABLE[16] =
     8U, // DIV256
     9U, // DIV512
 };
-#endif
-
 
 static const uint32_t CLOCK_APB1_PRESCALE_REGISTER_TABLE[5] =
 {
@@ -224,7 +221,6 @@ static const uint32_t CLOCK_APB2_PRESCALE_REGISTER_TABLE[5] =
     RCC_CFGR_PPRE2_DIV16
 };
 
-#if defined (LIBOHIBOARD_STM32L4)
 static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
 {
     0U, // DIV1 - NOT USED
@@ -236,7 +232,6 @@ static const uint8_t CLOCK_APB_PRESCALE_SHIFT_TABLE[8] =
     3U, // DIV8
     4U, // DIV16
 };
-#endif
 
 typedef struct _Clock_Device
 {
@@ -424,27 +419,16 @@ static void Clock_updateOutputValue (void)
     uint32_t cfgr = clk0.regmap->CFGR;
     uint32_t shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
 
-#if defined (LIBOHIBOARD_STM32L4)
     clk0.hclkClock = (clk0.systemCoreClock >> CLOCK_AHB_PRESCALE_SHIFT_TABLE[shifter]);
-#elif defined (LIBOHIBOARD_STM32WB)
-    clk0.hclkClock = (clk0.systemCoreClock >> AHBPrescTable[shifter]);
-#endif
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
 
-#if defined (LIBOHIBOARD_STM32L4)
     clk0.pclk1Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
-#elif defined (LIBOHIBOARD_STM32WB)
-    clk0.pclk1Clock = (clk0.hclkClock >> APBPrescTable[shifter]);
-#endif
 
     shifter = UTILITY_READ_REGISTER_BIT(cfgr,RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos;
 
-#if defined (LIBOHIBOARD_STM32L4)
     clk0.pclk2Clock = (clk0.hclkClock >> CLOCK_APB_PRESCALE_SHIFT_TABLE[shifter]);
-#elif defined (LIBOHIBOARD_STM32WB)
-    clk0.pclk2Clock = (clk0.hclkClock >> APBPrescTable[shifter]);
-#endif
+
 
     uint32_t pllnReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
     uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
