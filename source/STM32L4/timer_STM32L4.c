@@ -457,7 +457,7 @@ static Timer_Device tim1 =
                                GPIO_ALTERNATE_1,
         },
 
-        .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
+        .isrNumber           = INTERRUPT_TIM1UP_TIM16,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
 #elif defined (LIBOHIBOARD_STM32WB55)
@@ -497,7 +497,7 @@ static Timer_Device tim1 =
                                GPIO_ALTERNATE_1,
         },
 
-        .isrNumber           = INTERRUPT_TIM1BRK,
+        .isrNumber           = INTERRUPT_TIM1UP_TIM16,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
 #endif
@@ -2123,14 +2123,8 @@ System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels cha
 #if defined (LIBOHIBOARD_STM32L476)
 void TIM1_BRK_TIM15_IRQHandler (void)
 {
-    if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
-    {
-        Timer_callbackInterrupt(OB_TIM1);
-    }
-    else if (TIMER_DEVICE_IS_ENABLE(OB_TIM15))
-    {
-        Timer_callbackInterrupt(OB_TIM15);
-    }
+    Timer_callbackInterrupt(OB_TIM1);
+    Timer_callbackInterrupt(OB_TIM15);
 }
 #elif defined (LIBOHIBOARD_STM32WB55)
 void TIM1_BRK_IRQHandler(void)
@@ -2141,26 +2135,14 @@ void TIM1_BRK_IRQHandler(void)
 
 void TIM1_UP_TIM16_IRQHandler (void)
 {
-    if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
-    {
-        Timer_callbackInterrupt(OB_TIM1);
-    }
-    else if (TIMER_DEVICE_IS_ENABLE(OB_TIM16))
-    {
-        Timer_callbackInterrupt(OB_TIM16);
-    }
+    Timer_callbackInterrupt(OB_TIM1);
+    Timer_callbackInterrupt(OB_TIM16);
 }
 
 void TIM1_TRG_COM_TIM17_IRQHandler (void)
 {
-    if (TIMER_DEVICE_IS_ENABLE(OB_TIM1))
-    {
-        Timer_callbackInterrupt(OB_TIM1);
-    }
-    else if (TIMER_DEVICE_IS_ENABLE(OB_TIM17))
-    {
-        Timer_callbackInterrupt(OB_TIM17);
-    }
+    Timer_callbackInterrupt(OB_TIM1);
+    Timer_callbackInterrupt(OB_TIM17);
 }
 
 void TIM1_CC_IRQHandler (void)
