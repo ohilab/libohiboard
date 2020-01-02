@@ -160,6 +160,35 @@
 #define LIBOHIBOARD_ST_STM32
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L072CxE) || \
+      defined (LIBOHIBOARD_STM32L072CxT) || \
+      defined (LIBOHIBOARD_STM32L072CxU) || \
+      defined (LIBOHIBOARD_STM32L072CxY) || \
+      defined (LIBOHIBOARD_STM32L072KxT) || \
+      defined (LIBOHIBOARD_STM32L072KxU) || \
+      defined (LIBOHIBOARD_STM32L072RxH) || \
+      defined (LIBOHIBOARD_STM32L072RxI) || \
+      defined (LIBOHIBOARD_STM32L072RxT) || \
+      defined (LIBOHIBOARD_STM32L072RxZ) || \
+      defined (LIBOHIBOARD_STM32L072VxI) || \
+      defined (LIBOHIBOARD_STM32L072VxT)
+
+#include "platforms/STM32L072/stm32l072xx.h"
+#include "platforms/STM32L072/stm32l0xx.h"
+#include "platforms/STM32L072/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L072
+#define LIBOHIBOARD_STM32L072
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L476Jx) || \
       defined (LIBOHIBOARD_STM32L476Rx)
 
