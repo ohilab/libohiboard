@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -53,7 +53,7 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_RCC_CRS          = 4,
     INTERRUPT_EXTI1_0          = 5,
     INTERRUPT_EXTI3_2          = 6,
-    INTERRUPT_EXTI4_15         = 7,
+    INTERRUPT_EXTI15_4         = 7,
     INTERRUPT_TSC              = 8,
     INTERRUPT_DMA1_CH1         = 9,
     INTERRUPT_DMA1_CH3_2       = 10,
@@ -76,7 +76,9 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_USART1           = 27,
     INTERRUPT_USART2           = 28,
     INTERRUPT_LPUART1          = 29,
+#if defined (LIBOHIBOARD_STM32L0x3)
     INTERRUPT_LCD              = 30,
+#endif
     INTERRUPT_USB              = 31,
 
 } Interrupt_Vector;

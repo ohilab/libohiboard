@@ -152,6 +152,10 @@
 #define LIBOHIBOARD_STM32L0
 #endif
 
+#ifndef LIBOHIBOARD_STM32L0x3
+#define LIBOHIBOARD_STM32L0x3
+#endif
+
 #ifndef LIBOHIBOARD_STM32L073
 #define LIBOHIBOARD_STM32L073
 #endif
@@ -171,7 +175,8 @@
       defined (LIBOHIBOARD_STM32L072RxT) || \
       defined (LIBOHIBOARD_STM32L072RxZ) || \
       defined (LIBOHIBOARD_STM32L072VxI) || \
-      defined (LIBOHIBOARD_STM32L072VxT)
+      defined (LIBOHIBOARD_STM32L072VxT) || \
+      defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 
 #include "platforms/STM32L072/stm32l072xx.h"
 #include "platforms/STM32L072/stm32l0xx.h"
@@ -179,6 +184,10 @@
 
 #ifndef LIBOHIBOARD_STM32L0
 #define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L0x2
+#define LIBOHIBOARD_STM32L0x2
 #endif
 
 #ifndef LIBOHIBOARD_STM32L072

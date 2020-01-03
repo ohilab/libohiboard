@@ -746,7 +746,7 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     case 13:
     case 14:
     case 15:
-        Interrupt_enable(INTERRUPT_EXTI4_15);
+        Interrupt_enable(INTERRUPT_EXTI15_4);
         break;
     }
 
@@ -848,7 +848,7 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
 	        	}
 	        	if(disable == true)
 	        	{
-	        		Interrupt_disable(INTERRUPT_EXTI4_15);
+	        		Interrupt_disable(INTERRUPT_EXTI15_4);
 	        	}
 	        }                
                 break;

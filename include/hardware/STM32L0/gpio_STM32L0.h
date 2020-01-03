@@ -64,6 +64,8 @@ typedef enum
 {
     GPIO_PINS_NONE = 0,
 
+#if defined (LIBOHIBOARD_STM32L0x2)
+
 #if defined (LIBOHIBOARD_STM32L072)
 
     GPIO_PINS_PA0,
@@ -234,13 +236,18 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PH0,
     GPIO_PINS_PH1,
+#endif
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PH9,
     GPIO_PINS_PH10,
 #endif
 
-#elif defined (LIBOHIBOARD_STM32L073)
+#endif // LIBOHIBOARD_STM32L072
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
+
+#if defined (LIBOHIBOARD_STM32L073)
 
     GPIO_PINS_PA0,
     GPIO_PINS_PA1,
@@ -365,6 +372,8 @@ typedef enum
 
 #endif // LIBOHIBOARD_STM32L073
 
+#endif
+
 } Gpio_Pins;
 
 /**
@@ -372,8 +381,8 @@ typedef enum
  */
 typedef enum _Gpio_Ports
 {
-#if defined (LIBOHIBOARD_STM32L072) || \
-    defined (LIBOHIBOARD_STM32L073)
+#if defined (LIBOHIBOARD_STM32L0x2) || \
+    defined (LIBOHIBOARD_STM32L0x3)
     GPIO_PORTS_A,
     GPIO_PORTS_B,
     GPIO_PORTS_C,
