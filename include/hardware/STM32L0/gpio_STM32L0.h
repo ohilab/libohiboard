@@ -28,7 +28,7 @@
 /**
  * @file libohiboard/include/hardware/STM32L0/gpio_STM32L0.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief GPIO pins and device definitions for STM32L4 series
+ * @brief GPIO pins and device definitions for STM32L0 series
  */
 
 #ifndef __GPIO_STM32L0_H
