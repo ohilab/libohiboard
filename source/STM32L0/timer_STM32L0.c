@@ -1079,6 +1079,328 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
     return ERRORS_NO_ERROR;
 }
 
+/**
+ * This function enable or disable the TIM Capture/Compare Channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @param[in] enable The enable status of CC channel (TRUE for the enable, FALSE otherwise)
+ */
+static inline void __attribute__((always_inline)) Timer_manageCCxChannel (Timer_DeviceHandle dev,
+                                                                          Timer_Channels channel,
+                                                                          bool enable)
+{
+    uint32_t tmp = 0;
+
+    ohiassert(TIMER_VALID_CHANNEL(channel));
+    ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel));
+
+    tmp = TIM_CCER_CC1E << channel;
+    // Reset channel state
+    dev->regmap->CCER &= ~tmp;
+
+    // Enable or disable the channel
+    dev->regmap->CCER |= (((enable == TRUE) ? TIM_CCER_CC1E : 0u) << channel);
+}
+
+/**
+ * This function return the address of CCRn register of selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return The register CCRn address
+ */
+static inline volatile uint32_t* __attribute__((always_inline)) Timer_getCCRnRegister (Timer_DeviceHandle dev,
+                                                                                       Timer_Channels channel)
+{
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        return &(dev->regmap->CCR1);
+    case TIMER_CHANNELS_CH2:
+        return &(dev->regmap->CCR2);
+    case TIMER_CHANNELS_CH3:
+        return &(dev->regmap->CCR3);
+    case TIMER_CHANNELS_CH4:
+        return &(dev->regmap->CCR4);
+    default:
+        ohiassert(0);
+        return 0;
+    }
+}
+
+/**
+ * This function return the address of CCMRn register of selected channel.
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] channel The output channel
+ * @return The register CCMRn address
+ */
+static inline volatile uint32_t* __attribute__((always_inline)) Timer_getCCMRnRegister (Timer_DeviceHandle dev,
+                                                                                        Timer_Channels channel)
+{
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+    case TIMER_CHANNELS_CH2:
+        return &(dev->regmap->CCMR1);
+    case TIMER_CHANNELS_CH3:
+    case TIMER_CHANNELS_CH4:
+        return &(dev->regmap->CCMR2);
+    default:
+        ohiassert(0);
+        return 0;
+    }
+}
+
+System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
+                                  Timer_OutputCompareConfig* config,
+                                  Timer_Pins pin)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    err  = ohiassert(TIMER_IS_OC_DEVICE(dev));
+    err |= ohiassert(TIMER_VALID_PWM_MODE(config->mode));
+    err |= ohiassert(TIMER_VALID_OC_FAST_MODE(config->fastMode));
+    err |= ohiassert(TIMER_VALID_OC_POLARITY(config->polarity));
+    err |= ohiassert(config->duty <= 100);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    dev->state = TIMER_DEVICESTATE_BUSY;
+
+    // Configure alternate function on selected pin
+    // And save selected channel
+    Timer_Channels channel;
+    bool isPinFound = FALSE;
+    for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
+    {
+        if (dev->pins[i] == pin)
+        {
+            Gpio_configAlternate(dev->pinsGpio[i],
+                                 dev->pinsMux[i],
+                                 0);
+            channel = dev->pinsChannel[i];
+            isPinFound = TRUE;
+            break;
+        }
+    }
+    if (isPinFound == FALSE)
+    {
+        dev->state = TIMER_DEVICESTATE_ERROR;
+        return ERRORS_TIMER_NO_PWM_PIN_FOUND;
+    }
+
+    // Configure Output Compare functions
+    // Temporary variables
+    volatile uint32_t* regCCMRxPtr = Timer_getCCMRnRegister(dev,channel);
+    uint32_t tmpccmrx = *regCCMRxPtr;
+    uint32_t tmpccer;
+
+    uint32_t shiftccmrx;
+
+    // Disable Channel
+    dev->regmap->CCER &= ~(TIM_CCER_CC1E << channel);
+
+    // Set-up registers for specific channel
+    switch (channel)
+    {
+    case TIMER_CHANNELS_CH1:
+        shiftccmrx = 0u;
+        break;
+    case TIMER_CHANNELS_CH2:
+        shiftccmrx = 8u;
+        break;
+    case TIMER_CHANNELS_CH3:
+        shiftccmrx = 0u;
+        break;
+    case TIMER_CHANNELS_CH4:
+        shiftccmrx = 8u;
+        break;
+    default:
+        ohiassert(0);
+    }
+
+    // Get common register values
+    tmpccer = dev->regmap->CCER;
+
+    // Reset output compare mode and selection bits
+    tmpccmrx &= ~(TIM_CCMR1_OC1M_Msk << shiftccmrx);
+    tmpccmrx &= ~(TIM_CCMR1_CC1S_Msk << shiftccmrx);
+
+    // Set selected compare mode
+    tmpccmrx |= (config->mode << shiftccmrx);
+
+    // Set preload bit
+    tmpccmrx |= ((TIM_CCMR1_OC1PE) << shiftccmrx);
+
+    // Set fast mode
+    tmpccmrx &= ~((TIM_CCMR1_OC1FE) << shiftccmrx);
+    tmpccmrx |= (((config->fastMode == TRUE) ? TIM_CCMR1_OC1FE : 0u) << shiftccmrx);
+
+    // Set polarity
+    tmpccer &= ~(TIM_CCER_CC1P_Msk << channel);
+    tmpccer |= (((config->polarity == GPIO_LOW) ? TIM_CCER_CC1P : 0u) << channel);
+
+    // Save new register value
+    *regCCMRxPtr = tmpccmrx;
+    dev->regmap->CCER = tmpccer;
+
+    // Compute duty-cycle pulse value
+    uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * config->duty);
+    volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
+    // Write new pulse value
+    *regCCRn = pulse - 1;
+
+    dev->state = TIMER_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    // In case of callback, enable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_SET_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Enable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,TRUE);
+
+    // Enable device
+    TIMER_DEVICE_ENABLE(dev);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+
+    // Disable CC Interrupt
+    if (dev->pwmPulseFinishedCallback != 0)
+    {
+        switch (channel)
+        {
+        case TIMER_CHANNELS_CH1:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC1IE);
+            break;
+        case TIMER_CHANNELS_CH2:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC2IE);
+            break;
+        case TIMER_CHANNELS_CH3:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC3IE);
+            break;
+        case TIMER_CHANNELS_CH4:
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->DIER,TIM_DIER_CC4IE);
+            break;
+        default:
+            ohiassert(0);
+        }
+    }
+
+    // Disable channel in the selected pin
+    Timer_manageCCxChannel(dev,channel,FALSE);
+
+    // Disable device if all CC channel is not active
+    TIMER_DEVICE_DISABLE(dev);
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
+                                Timer_Channels channel,
+                                uint8_t duty)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert(TIMER_IS_OC_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+    // Check the channel: exist into the device?
+    if (ohiassert(TIMER_IS_CHANNEL_DEVICE(dev,channel)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PWM_CHANNEL;
+    }
+    // Check duty-cycle value
+    if (ohiassert(duty <= 100) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_PARAM;
+    }
+
+    volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
+    // Compute duty-cycle pulse value
+    uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * duty);
+    // Write new pulse value
+    *regCCRn = pulse - 1;
+
+    return ERRORS_NO_ERROR;
+}
+
 #endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
