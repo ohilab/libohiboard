@@ -45,14 +45,18 @@ extern "C" {
 
 typedef enum _Timer_Channels
 {
-    TIMER_CHANNELS_CH1 = 0x00u,
-    TIMER_CHANNELS_CH2 = 0x04u,
-    TIMER_CHANNELS_CH3 = 0x08u,
-    TIMER_CHANNELS_CH4 = 0x0Cu,
+    TIMER_CHANNELS_CH1  = 0x00u,
+    TIMER_CHANNELS_CH2  = 0x04u,
+    TIMER_CHANNELS_CH3  = 0x08u,
+    TIMER_CHANNELS_CH4  = 0x0Cu,
+
+    TIMER_CHANNELS_NONE = 0xFFu,
+
 } Timer_Channels;
 
 typedef enum
 {
+    TIMER_PINS_NONE,
 
 #if defined (LIBOHIBOARD_STM32L0x2)
 
@@ -136,7 +140,7 @@ typedef enum
 
 #endif
 
-    TIMER_PINS_NONE,
+    TIMER_PINS_NUMBER,
 
 } Timer_Pins;
 
