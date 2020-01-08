@@ -117,9 +117,6 @@ typedef enum
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
     TIMER_PINS_PD0,
-#endif
-#if defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
     TIMER_PINS_PD7,
 #endif
 
