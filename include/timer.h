@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2014-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2020 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -35,7 +35,18 @@
  * @brief Timer definitions and prototypes.
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
 #ifdef LIBOHIBOARD_TIMER
+
+/**
+ * @defgroup TIMER TIMER
+ * @brief TIMER HAL driver
+ * @{
+ */
 
 #ifndef __TIMER_H
 #define __TIMER_H
@@ -49,6 +60,12 @@ extern "C" {
 #include "types.h"
 #include "system.h"
 #include "gpio.h"
+
+/**
+ * @defgroup TIMER_Configuration_Types Timer configuration types
+ * @brief Types for Timer configuration.
+ * @{
+ */
 
 /**
  * The list of the possible peripheral HAL state.
@@ -342,6 +359,10 @@ typedef struct _Timer_Config
 } Timer_Config;
 
 /**
+ * @}
+ */
+
+/**
  * @defgroup TIMER_Configuration_Functions Timer configuration functions
  * @brief Functions to initialize and de-initialize a Timer peripheral.
  * @{
@@ -368,10 +389,11 @@ System_Errors Timer_deInit (Timer_DeviceHandle dev);
  * @}
  */
 
-/** @name Free-Counter functions
- *  Functions to manage free counting of Timer peripheral.
+/**
+ * @defgroup TIMER_Free_Counter TIMER Free Counter functions
+ * @brief Functions to manage free counting of a Timer peripheral.
+ * @{
  */
-///@{
 
 /**
  * This functions start free-counting. In case callback was defined,
@@ -406,7 +428,15 @@ bool Timer_isRunning (Timer_DeviceHandle dev);
  */
 uint32_t Timer_getCurrentCounter (Timer_DeviceHandle dev);
 
-///@}
+/**
+ * @}
+ */
+
+/**
+ * @defgroup TIMER_PWM_Output_Compare TIMER PWM and Output Compare types and functions
+ * @brief Functions to manage PWM and Output Compare pins of a Timer peripheral.
+ * @{
+ */
 
 typedef enum _Timer_OutputCompareMode
 {
@@ -486,13 +516,6 @@ typedef struct _Timer_OutputCompareConfig
 
 } Timer_OutputCompareConfig;
 
-
-/*!
- * @defgroup Timer_PWM PWM functions
- * Functions to manage PWM pins of a Timer peripheral.
- * @{
- */
-
 /**
  * This function configure the selected pin to generate a PWM signal
  * with the frequency chose during initialization procedure with
@@ -538,15 +561,6 @@ System_Errors Timer_startPwm (Timer_DeviceHandle dev, Timer_Channels channel);
  */
 System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel);
 
-/*
- * @}
- */
-
-/** @name Output Compare functions
- *  Functions to manage OC pins of a Timer peripheral.
- */
-///@{
-
 /**
  * This function configure the selected pin to work in Output Compare mode.
  *
@@ -580,6 +594,12 @@ System_Errors Timer_stopOutputCompare (Timer_DeviceHandle dev, Timer_Channels ch
 /**
  * @}
  */ 
+
+/**
+ * @defgroup TIMER_Input_Capture TIMER Input Capture types and functions
+ * @brief Functions to manage Input Capture pins of a Timer peripheral.
+ * @{
+ */
 
 typedef enum _Timer_InputCapturePolarity
 {
@@ -654,11 +674,6 @@ typedef struct _Timer_InputCaptureConfig
 
 } Timer_InputCaptureConfig;
 
-/** @name Input Capture functions
- *  Functions to manage IC pins of a Timer peripheral.
- */
-///@{
-
 /**
  * This function configure the selected pin to work in Input Capture mode.
  *
@@ -689,7 +704,9 @@ System_Errors Timer_startInputCapture (Timer_DeviceHandle dev, Timer_Channels ch
  */
 System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels channel);
 
-///@}
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }
@@ -697,4 +714,12 @@ System_Errors Timer_stopInputCapture (Timer_DeviceHandle dev, Timer_Channels cha
 
 #endif // __TIMER_H
 
+/**
+ * @}
+ */
+
 #endif // LIBOHIBOARD_TIMER
+
+/**
+ * @}
+ */
