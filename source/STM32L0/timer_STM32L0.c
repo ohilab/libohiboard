@@ -110,6 +110,23 @@ extern "C" {
                                       ((CHANNEL) == TIMER_CHANNELS_CH3) || \
                                       ((CHANNEL) == TIMER_CHANNELS_CH4))
 
+#define TIMER_VALID_PWM_MODE(MODE) (((MODE) == TIMER_OUTPUTCOMPAREMODE_PWM1) || \
+                                    ((MODE) == TIMER_OUTPUTCOMPAREMODE_PWM2))
+
+#define TIMER_VALID_OC_MODE(MODE) (((MODE) == TIMER_OUTPUTCOMPAREMODE_COUNTING)           || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_ACTIVE_ON_MATCH)    || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_INACTIVE_ON_MATCH)  || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_TOGGLE)             || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_FORCED_INACTIVE)    || \
+                                   ((MODE) == TIMER_OUTPUTCOMPAREMODE_FORCED_ACTIVE))
+
+#define TIMER_VALID_OC_POLARITY(POLARITY) (((POLARITY) == GPIO_HIGH) || \
+                                           ((POLARITY) == GPIO_LOW))
+
+#define TIMER_VALID_OC_FAST_MODE(FASTMODE) (((FASTMODE) == TRUE)  || \
+                                            ((FASTMODE) == FALSE))
+
+
 #define TIMER_VALID_AUTORELOAD_PRELOAD(AUTORELOAD) (((AUTORELOAD) == TRUE) || \
                                                     ((AUTORELOAD) == FALSE))
 
@@ -1186,7 +1203,7 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     // And save selected channel
     Timer_Channels channel;
     bool isPinFound = FALSE;
-    for (uint16_t i = 0; i < TIMER_MAX_PINS; ++i)
+    for (uint16_t i = 0; i < TIMER_MAX_PINS_NUMBER; ++i)
     {
         if (dev->pins[i] == pin)
         {
@@ -1399,6 +1416,36 @@ System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
     *regCCRn = pulse - 1;
 
     return ERRORS_NO_ERROR;
+}
+
+void TIM2_IRQHandler (void)
+{
+    Timer_callbackInterrupt(OB_TIM2);
+}
+
+void TIM3_IRQHandler (void)
+{
+    Timer_callbackInterrupt(OB_TIM3);
+}
+
+void TIM6_DAC_IRQHandler (void)
+{
+    Timer_callbackInterrupt(OB_TIM6);
+}
+
+void TIM7_IRQHandler (void)
+{
+    Timer_callbackInterrupt(OB_TIM7);
+}
+
+void TIM21_IRQHandler (void)
+{
+    Timer_callbackInterrupt(OB_TIM21);
+}
+
+void TIM22_IRQHandler (void)
+{
+    Timer_callbackInterrupt(OB_TIM22);
 }
 
 #endif // LIBOHIBOARD_STM32L0
