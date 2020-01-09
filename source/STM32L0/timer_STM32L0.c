@@ -1277,10 +1277,7 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     dev->regmap->CCER = tmpccer;
 
     // Compute duty-cycle pulse value
-    uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * config->duty);
-    volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
-    // Write new pulse value
-    *regCCRn = pulse - 1;
+    Timer_setPwmDuty(dev,channel,config->duty);
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
@@ -1411,9 +1408,14 @@ System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
 
     volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
     // Compute duty-cycle pulse value
-    uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * duty);
+    uint32_t pulse = 0;
+    if (duty > 0)
+    {
+        pulse = (((dev->regmap->ARR + 1) / 100) * duty);
+        pulse -= 1;
+    }
     // Write new pulse value
-    *regCCRn = pulse - 1;
+    *regCCRn = pulse;
 
     return ERRORS_NO_ERROR;
 }
