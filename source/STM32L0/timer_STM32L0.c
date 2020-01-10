@@ -1230,6 +1230,16 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     {
         dev->regmap->OR &= (~TIM3_OR_TI2_RMP);
     }
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    else if ((pin == TIMER_PINS_PC9) && (dev == OB_TIM3))
+    {
+        dev->regmap->OR |= TIM3_OR_TI4_RMP;
+    }
+#endif
 #endif
 
     // Configure Output Compare functions
