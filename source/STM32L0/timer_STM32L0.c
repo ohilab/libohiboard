@@ -1221,6 +1221,17 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_NO_PWM_PIN_FOUND;
     }
 
+#if defined (LIBOHIBOARD_STM32L0x2)
+    if ((pin == TIMER_PINS_PB5) && (dev == OB_TIM3))
+    {
+        dev->regmap->OR |= TIM3_OR_TI2_RMP;
+    }
+    else if ((pin == TIMER_PINS_PB5) && (dev == OB_TIM22))
+    {
+        dev->regmap->OR &= (~TIM3_OR_TI2_RMP);
+    }
+#endif
+
     // Configure Output Compare functions
     // Temporary variables
     volatile uint32_t* regCCMRxPtr = Timer_getCCMRnRegister(dev,channel);
