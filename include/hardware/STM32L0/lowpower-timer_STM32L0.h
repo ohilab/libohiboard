@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -42,7 +42,8 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L0) && defined (LIBOHIBOARD_LOWPOWER_TIMER)
 
-#if defined (LIBOHIBOARD_STM32L073)
+#if defined (LIBOHIBOARD_STM32L0x3) || \
+    defined (LIBOHIBOARD_STM32L0x2)
 
 #define RCC_CCIPR_LPTIM1SEL_Pos            (18u)
 
@@ -50,12 +51,12 @@ extern LowPowerTimer_DeviceHandle OB_LPTIM1;
 
 void LPTIM1_IRQHandler (void);
 
-#endif // defined(LIBOHIBOARD_STM32L073)
+#endif // defined(LIBOHIBOARD_STM32L0x3) || (LIBOHIBOARD_STM32L0x2)
 
-#endif // LIBOHIBOARD_STM32L4 && LIBOHIBOARD_LOWPOWER_TIMER
+#endif // LIBOHIBOARD_STM32L0 && LIBOHIBOARD_LOWPOWER_TIMER
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __LOWPOWER_TIMER_STM32L4_H
+#endif // __LOWPOWER_TIMER_STM32L0_H

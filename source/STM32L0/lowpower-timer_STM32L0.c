@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -26,9 +26,9 @@
  */
 
 /**
- * @file libohiboard/source/STM32L4/lowpower-timer_STM32L4.c
+ * @file libohiboard/source/STM32L4/lowpower-timer_STM32L0.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Low-Power Timer implementations for STM32L4 Series
+ * @brief Low-Power Timer implementations for STM32L0 Series
  */
 
 #if defined (LIBOHIBOARD_LOWPOWER_TIMER)
@@ -115,7 +115,8 @@ typedef struct _LowPowerTimer_Device
 
 } LowPowerTimer_Device;
 
-#if defined (LIBOHIBOARD_STM32L073)
+#if defined (LIBOHIBOARD_STM32L0x3) || \
+    defined (LIBOHIBOARD_STM32L0x2)
 
 #define LOWPOWERTIMER_IS_DEVICE(DEVICE) ((DEVICE) == OB_LPTIM1)
 
@@ -420,12 +421,12 @@ uint32_t LowPowerTimer_getCurrentCounter (LowPowerTimer_DeviceHandle dev)
     return (dev->regmap->CNT & 0x0000FFFF);
 }
 
-_weak void LPTIM1_IRQHandler (void)
+void LPTIM1_IRQHandler (void)
 {
     LowPowerTimer_callbackInterrupt(OB_LPTIM1);
 }
 
-#endif // LIBOHIBOARD_STM32L4
+#endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }
