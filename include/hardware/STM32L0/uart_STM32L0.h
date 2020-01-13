@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -57,11 +57,13 @@ extern "C" {
  * @{
  */
 
+#if defined (LIBOHIBOARD_STM32L0x3)
 #define RCC_CCIPR_USART1SEL_Pos            (0u)
 #define RCC_CCIPR_USART2SEL_Pos            (2u)
 #define RCC_CCIPR_LPUART1SEL_Pos           (10u)
 
 #define USART_CR2_STOP_Pos                 (12u)
+#endif
 
 /**
  * The maximum Baud Rate is derived from the maximum clock on L0 that is 32MHz
@@ -74,6 +76,80 @@ extern "C" {
  */
 typedef enum _Uart_RxPins
 {
+#if defined (LIBOHIBOARD_STM32L0x2)
+
+#if defined (LIBOHIBOARD_STM32L072)
+
+    UART_PINS_PA1,
+    UART_PINS_PA3,
+    UART_PINS_PA10,
+    UART_PINS_PA13,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PA15,
+#endif
+
+    UART_PINS_PB4,
+    UART_PINS_PB7,
+
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PB10_RX,
+    UART_PINS_PB11_RX,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PC0,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PC5,
+    UART_PINS_PC11,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PD2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PD6,
+    UART_PINS_PD9,
+
+    UART_PINS_PE9,
+    UART_PINS_PE11,
+#endif
+
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
+
+#if defined (LIBOHIBOARD_STM32L073
+
     UART_PINS_PA1,
     UART_PINS_PA3,
     UART_PINS_PA10,
@@ -105,6 +181,10 @@ typedef enum _Uart_RxPins
     UART_PINS_PE11,
 #endif
 
+#endif
+
+#endif
+
     UART_PINS_RXNONE,
 
 } Uart_RxPins;
@@ -114,6 +194,72 @@ typedef enum _Uart_RxPins
  */
 typedef enum _Uart_TxPins
 {
+#if defined (LIBOHIBOARD_STM32L0x2)
+
+#if defined (LIBOHIBOARD_STM32L072)
+
+    UART_PINS_PA0,
+    UART_PINS_PA2,
+    UART_PINS_PA9,
+    UART_PINS_PA14,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PB3,
+#endif
+    UART_PINS_PB6,
+
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PB10_TX,
+    UART_PINS_PB11_TX,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PC1,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PC4,
+    UART_PINS_PC10,
+    UART_PINS_PC12,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PD5,
+    UART_PINS_PD8,
+
+    UART_PINS_PE8,
+    UART_PINS_PE10,
+#endif
+
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
+
+#if defined (LIBOHIBOARD_STM32L073
+
     UART_PINS_PA0,
     UART_PINS_PA2,
     UART_PINS_PA9,
@@ -143,10 +289,119 @@ typedef enum _Uart_TxPins
     UART_PINS_PE10,
 #endif
 
+#endif
+
+#endif
+
     UART_PINS_TXNONE,
 
 } Uart_TxPins;
 
+/**
+ * List of all Cts pins.
+ */
+typedef enum _Uart_CtsPins
+{
+#if defined (LIBOHIBOARD_STM32L0x2)
+
+#if defined (LIBOHIBOARD_STM32L072)
+
+    UART_PINS_PA0_CTS,
+    UART_PINS_PA6_CTS,
+
+    UART_PINS_PB4_CTS,
+    UART_PINS_PB7_CTS,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PB13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+    UART_PINS_PD3,
+    UART_PINS_PD11,
+#endif
+
+#endif
+
+#endif
+
+    UART_PINS_CTSNONE,
+
+} Uart_CtsPins;
+
+/**
+ * List of all Rts pins.
+ */
+typedef enum _Uart_RtsPins
+{
+#if defined (LIBOHIBOARD_STM32L0x2)
+
+#if defined (LIBOHIBOARD_STM32L072)
+
+    UART_PINS_PA1_RTS,
+    UART_PINS_PA12,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PA15_RTS,
+#endif
+
+    UART_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PB3_RTS,
+#endif
+    UART_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PB12,
+    UART_PINS_PB14,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    UART_PINS_PD2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+    UART_PINS_PD4,
+    UART_PINS_PD12,
+    UART_PINS_PE7,
+#endif
+
+#endif
+
+#endif
+
+    UART_PINS_RTSNONE,
+
+} Uart_RtsPins;
+
+#if defined (LIBOHIBOARD_STM32L0x3)
 
 void LPUART1_IRQHandler(void);
 void USART1_IRQHandler(void);
@@ -161,6 +416,21 @@ extern Uart_DeviceHandle OB_UART3;
 extern Uart_DeviceHandle OB_UART4;
 extern Uart_DeviceHandle OB_UART5;
 extern Uart_DeviceHandle OB_LPUART1;
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+void RNG_LPUART1_IRQHandler(void);
+void USART1_IRQHandler(void);
+void USART2_IRQHandler(void);
+void USART4_5_IRQHandler(void);
+
+extern Uart_DeviceHandle OB_UART1;
+extern Uart_DeviceHandle OB_UART2;
+extern Uart_DeviceHandle OB_UART4;
+extern Uart_DeviceHandle OB_UART5;
+extern Uart_DeviceHandle OB_LPUART1;
+
+#endif
 
 #endif // LIBOHIBOARD_UART & LIBOHIBOARD_STM32L0
 
