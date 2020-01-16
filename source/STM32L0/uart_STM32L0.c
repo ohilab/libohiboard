@@ -112,17 +112,6 @@ extern "C" {
                                ((MODE) == UART_MODE_RECEIVE)  || \
                                ((MODE) == UART_MODE_BOTH))
 
-#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
-                                ((DEVICE) == OB_UART2)  || \
-                                ((DEVICE) == OB_UART4)  || \
-                                ((DEVICE) == OB_UART5))
-
-#define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
-
-#define UART_IS_DUAL_CLOCK_DOMAIN(DEVICE) (((DEVICE) == OB_UART1)  || \
-                                           ((DEVICE) == OB_UART2)  || \
-                                           ((DEVICE) == OB_LPUART1))
-
 #define UART_IS_VALID_CLOCK_SOURCE(CLOCKSOURCE) (((CLOCKSOURCE) == UART_CLOCKSOURCE_PCLK)  || \
                                                  ((CLOCKSOURCE) == UART_CLOCKSOURCE_LSE)   || \
                                                  ((CLOCKSOURCE) == UART_CLOCKSOURCE_HSI)   || \
@@ -149,25 +138,731 @@ typedef struct _Uart_Device
 
     Uart_RxPins rxPins[UART_MAX_PINS];
     Uart_TxPins txPins[UART_MAX_PINS];
+    Uart_CtsPins ctsPins[UART_MAX_PINS];
+    Uart_RtsPins rtsPins[UART_MAX_PINS];
 
     Gpio_Pins rxPinsGpio[UART_MAX_PINS];
     Gpio_Pins txPinsGpio[UART_MAX_PINS];
+    Gpio_Pins ctsPinsGpio[UART_MAX_PINS];
+    Gpio_Pins rtsPinsGpio[UART_MAX_PINS];
     Gpio_Alternate rxPinsMux[UART_MAX_PINS];
     Gpio_Alternate txPinsMux[UART_MAX_PINS];
+    Gpio_Alternate ctsPinsMux[UART_MAX_PINS];
+    Gpio_Alternate rtsPinsMux[UART_MAX_PINS];
 
     Uart_Config config;
 
     uint16_t mask;              /**< Computed mask to use with received data. */
 
     /** The function pointer for user Rx callback. */
-    void (*callbackRx)(struct _Uart_Device* dev);
+    void (*callbackRx)(struct _Uart_Device* dev, void* obj);
     /** The function pointer for user Tx callback. */
-    void (*callbackTx)(struct _Uart_Device* dev);
+    void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+    /** Callback Function to handle Error Interrupt. */
+    void (*callbackError)(struct _Uart_Device* dev, void* obj);
+    /** Useful object added to callback when interrupt triggered. */
+    void* callbackObj;
+
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
     Uart_DeviceState state;
 
 } Uart_Device;
+
+#if defined (LIBOHIBOARD_STM32L0x2)
+
+#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                ((DEVICE) == OB_UART2)  || \
+                                ((DEVICE) == OB_UART4)  || \
+                                ((DEVICE) == OB_UART5))
+
+#define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
+
+#define UART_IS_DUAL_CLOCK_DOMAIN(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                           ((DEVICE) == OB_UART2)  || \
+                                           ((DEVICE) == OB_LPUART1))
+
+static Uart_Device uart1 =
+{
+        .regmap              = USART1,
+
+        .rccRegisterPtr      = &RCC->APB2ENR,
+        .rccRegisterEnable   = RCC_APB2ENR_USART1EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_USART1SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_USART1SEL_Pos,
+
+        .rxPins              =
+        {
+                               UART_PINS_PA10,
+                               UART_PINS_PB7_RX,
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA10,
+                               GPIO_PINS_PB7,
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_0,
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PA9,
+                               UART_PINS_PB6,
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA9,
+                               GPIO_PINS_PB6,
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_0,
+        },
+
+        .ctsPins             =
+        {
+                               UART_PINS_PA11,
+                               UART_PINS_PB4_CTS,
+        },
+        .ctsPinsGpio         =
+        {
+                               GPIO_PINS_PA11,
+                               GPIO_PINS_PB4,
+        },
+        .ctsPinsMux          =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_5,
+        },
+
+        .rtsPins             =
+        {
+                               UART_PINS_PA12,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PB3_RTS,
+#endif
+        },
+        .rtsPinsGpio         =
+        {
+                               GPIO_PINS_PA12,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PB3,
+#endif
+        },
+        .rtsPinsMux          =
+        {
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_5,
+#endif
+        },
+
+        .isrNumber           = INTERRUPT_USART1,
+
+        .state               = UART_DEVICESTATE_RESET,
+};
+Uart_DeviceHandle OB_UART1 = &uart1;
+
+static Uart_Device uart2 =
+{
+        .regmap              = USART2,
+
+        .rccRegisterPtr      = &RCC->APB1ENR,
+        .rccRegisterEnable   = RCC_APB1ENR_USART2EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_USART2SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_USART2SEL_Pos,
+
+        .rxPins              =
+        {
+                               UART_PINS_PA3,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PA15_RX,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PD6,
+#endif
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA3,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PA15,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PD6,
+#endif
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_4,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PA2,
+                               UART_PINS_PA14,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PD5,
+#endif
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA14,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD5,
+#endif
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .ctsPins             =
+        {
+                               UART_PINS_PA0_CTS,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PD3,
+#endif
+
+        },
+        .ctsPinsGpio         =
+        {
+                               GPIO_PINS_PA0,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD3,
+#endif
+        },
+        .ctsPinsMux          =
+        {
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .rtsPins             =
+        {
+                               UART_PINS_PA1_RTS,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PD4,
+#endif
+
+        },
+        .rtsPinsGpio         =
+        {
+                               GPIO_PINS_PA1,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD4,
+#endif
+
+        },
+        .rtsPinsMux          =
+        {
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .isrNumber           = INTERRUPT_USART2,
+
+        .state               = UART_DEVICESTATE_RESET,
+};
+Uart_DeviceHandle OB_UART2 = &uart2;
+
+static Uart_Device uart4 =
+{
+        .regmap              = USART4,
+
+        .rccRegisterPtr      = &RCC->APB1ENR,
+        .rccRegisterEnable   = RCC_APB1ENR_USART4EN,
+
+        .rccTypeRegisterPtr  = 0,
+        .rccTypeRegisterMask = 0,
+        .rccTypeRegisterPos  = 0,
+
+        .txPins              =
+        {
+                               UART_PINS_PA0_TX,
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC10,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PE8,
+#endif
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA0,
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC10,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PE8,
+#endif
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+        },
+
+        .rxPins              =
+        {
+                               UART_PINS_PA1_RX,
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC11,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PE9,
+#endif
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA1,
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC11,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PE9,
+#endif
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+        },
+
+        .ctsPins             =
+        {
+                               UART_PINS_PB7_CTS,
+        },
+        .ctsPinsGpio         =
+        {
+                               GPIO_PINS_PB7,
+        },
+        .ctsPinsMux          =
+        {
+                               GPIO_ALTERNATE_6,
+        },
+
+        .rtsPins             =
+        {
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PA15_RTS,
+#else
+                               UART_PINS_RTSNONE,
+#endif
+        },
+        .rtsPinsGpio         =
+        {
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PA15,
+#else
+                               GPIO_PINS_NONE,
+#endif
+        },
+        .rtsPinsMux          =
+        {
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#else
+                               GPIO_ALTERNATE_ANALOG,
+#endif
+        },
+
+        .isrNumber           = INTERRUPT_USART4_5,
+
+        .state               = UART_DEVICESTATE_RESET,
+};
+Uart_DeviceHandle OB_UART4 = &uart4;
+
+static Uart_Device uart5 =
+{
+        .regmap              = USART5,
+
+        .rccRegisterPtr      = &RCC->APB1ENR,
+        .rccRegisterEnable   = RCC_APB1ENR_USART5EN,
+
+        .rccTypeRegisterPtr  = 0,
+        .rccTypeRegisterMask = 0,
+        .rccTypeRegisterPos  = 0,
+
+        .txPins              =
+        {
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PB3_TX,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC12,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PE10,
+#endif
+        },
+        .txPinsGpio          =
+        {
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PB3,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC12,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE10,
+#endif
+        },
+        .txPinsMux           =
+        {
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+        },
+
+        .rxPins              =
+        {
+                               UART_PINS_PB4_RX,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PD2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PE11,
+#endif
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PB4,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD2,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE11,
+#endif
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L073RxT) || \
+    defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+        },
+
+        .ctsPins             =
+        {
+                               UART_PINS_CTSNONE,
+        },
+        .ctsPinsGpio         =
+        {
+                               GPIO_PINS_NONE,
+        },
+        .ctsPinsMux          =
+        {
+                               GPIO_ALTERNATE_ANALOG,
+        },
+
+        .rtsPins             =
+        {
+                               UART_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               UART_PINS_PE7,
+#endif
+        },
+        .rtsPinsGpio         =
+        {
+                               GPIO_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PE7,
+#endif
+        },
+        .rtsPinsMux          =
+        {
+                               GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L073VxT) || \
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+        },
+
+        .isrNumber           = INTERRUPT_USART4_5,
+
+        .state               = UART_DEVICESTATE_RESET,
+};
+Uart_DeviceHandle OB_UART5 = &uart5;
+
+//static Uart_Device uart2 = {
+//        .regmap              = USART2,
+//
+//        .rccRegisterPtr      = &RCC->APB1ENR,
+//        .rccRegisterEnable   = RCC_APB1ENR_USART2EN,
+//
+//        .rccTypeRegisterPtr  = &RCC->CCIPR,
+//        .rccTypeRegisterMask = RCC_CCIPR_USART2SEL,
+//        .rccTypeRegisterPos  = RCC_CCIPR_USART2SEL_Pos,
+//
+//        .rxPins              =
+//        {
+//                               UART_PINS_PA10,
+//        },
+//        .rxPinsGpio          =
+//        {
+//                               GPIO_PINS_PA10,
+//        },
+//        .rxPinsMux           =
+//        {
+//                               GPIO_ALTERNATE_4,
+//        },
+//
+//        .txPins              =
+//        {
+//                               UART_PINS_PA9,
+//        },
+//        .txPinsGpio          =
+//        {
+//                               GPIO_PINS_PA9,
+//        },
+//        .txPinsMux           =
+//        {
+//                               GPIO_ALTERNATE_4,
+//        },
+//
+//        .ctsPins             =
+//        {
+//                               UART_PINS_PA11,
+//        },
+//        .ctsPinsGpio         =
+//        {
+//                               GPIO_PINS_PA11,
+//        },
+//        .ctsPinsMux          =
+//        {
+//                               GPIO_ALTERNATE_4,
+//        },
+//
+//        .rtsPins             =
+//        {
+//                               UART_PINS_PA12,
+//        },
+//        .rtsPinsGpio         =
+//        {
+//                               GPIO_PINS_PA12,
+//        },
+//        .rtsPinsMux          =
+//        {
+//                               GPIO_ALTERNATE_4,
+//        },
+//
+//        .isrNumber           = INTERRUPT_USART2,
+//
+//        .state               = UART_DEVICESTATE_RESET,
+//};
+//Uart_DeviceHandle OB_UART2 = &uart2;
+
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
+
+#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                ((DEVICE) == OB_UART2)  || \
+                                ((DEVICE) == OB_UART4)  || \
+                                ((DEVICE) == OB_UART5))
+
+#define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
+
+#define UART_IS_DUAL_CLOCK_DOMAIN(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                           ((DEVICE) == OB_UART2)  || \
+                                           ((DEVICE) == OB_LPUART1))
 
 static Uart_Device uart1 = {
         .regmap              = USART1,
@@ -624,6 +1319,8 @@ static Uart_Device lpuart1 = {
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
+#endif
+
 static inline __attribute__((always_inline)) void Uart_computeRxMask (Uart_DeviceHandle dev)
 {
     switch (dev->config.dataBits)
@@ -946,20 +1643,38 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
     if (config->callbackRx)
     {
         dev->callbackRx = config->callbackRx;
+        if (config->callbackError)
+        {
+            dev->callbackError = config->callbackError;
+        }
         // Enable NVIC interrupt
         Interrupt_enable(dev->isrNumber);
         // Enable the UART Error Interrupt
         UTILITY_SET_REGISTER_BIT(dev->regmap->CR3, USART_CR3_EIE);
-        //FIXME: Enable UART Parity Error interrupt and Data Register Not Empty interrupt
-        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+        // Enable UART Data Register Not Empty interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1, USART_CR1_RXNEIE);
+        // FIXME: Enable UART Parity Error, only when parity was request!
     }
 
     if (config->callbackTx)
     {
         dev->callbackTx = config->callbackTx;
+        if (config->callbackError)
+        {
+            dev->callbackError = config->callbackError;
+        }
         // Enable NVIC interrupt
         Interrupt_enable(dev->isrNumber);
         UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,USART_CR1_TXEIE);
+    }
+
+    if (dev->config.callbackObj != NULL)
+    {
+        dev->callbackObj = dev->config.callbackObj;
+    }
+    else
+    {
+        dev->callbackObj = NULL;
     }
 
     dev->state = UART_DEVICESTATE_READY;
@@ -1179,21 +1894,27 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         if (((isrreg & USART_ISR_RXNE) != 0) && ((cr1reg & USART_CR1_RXNEIE) > 0))
         {
             if (dev->callbackRx != NULL)
-                dev->callbackRx(dev);
-
+            {
+                dev->callbackRx(dev,dev->callbackObj);
+            }
             return;
         }
     }
     else
     {
-        // TODO: managing errors
+        if (dev->callbackError != NULL)
+        {
+            dev->callbackError(dev,dev->callbackObj);
+        }
     }
 
     // Check if the interrupt is in transmission
     if (((isrreg & USART_ISR_TXE) != 0) && ((cr1reg & USART_CR1_TXEIE) > 0))
     {
         if (dev->callbackTx != NULL)
-            dev->callbackTx(dev);
+        {
+            dev->callbackTx(dev,dev->callbackObj);
+        }
     }
 }
 

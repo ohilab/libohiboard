@@ -45,7 +45,9 @@ extern "C" {
 #if defined (LIBOHIBOARD_STM32L0x3) || \
     defined (LIBOHIBOARD_STM32L0x2)
 
+#if defined (LIBOHIBOARD_STM32L0x3)
 #define RCC_CCIPR_LPTIM1SEL_Pos            (18u)
+#endif
 
 extern LowPowerTimer_DeviceHandle OB_LPTIM1;
 
