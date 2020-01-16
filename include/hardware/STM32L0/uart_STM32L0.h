@@ -321,8 +321,8 @@ typedef enum _Uart_CtsPins
     UART_PINS_PB13,
 #endif
 
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
     UART_PINS_PD3,
     UART_PINS_PD11,
 #endif
@@ -387,8 +387,8 @@ typedef enum _Uart_RtsPins
     UART_PINS_PD2,
 #endif
 
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
     UART_PINS_PD4,
     UART_PINS_PD12,
     UART_PINS_PE7,

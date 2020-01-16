@@ -314,8 +314,8 @@ static Uart_Device uart2 =
     defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PA15_RX,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PD6,
 #endif
         },
@@ -350,8 +350,8 @@ static Uart_Device uart2 =
     defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_4,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_0,
 #endif
         },
@@ -360,8 +360,8 @@ static Uart_Device uart2 =
         {
                                UART_PINS_PA2,
                                UART_PINS_PA14,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PD5,
 #endif
         },
@@ -369,8 +369,8 @@ static Uart_Device uart2 =
         {
                                GPIO_PINS_PA2,
                                GPIO_PINS_PA14,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PD5,
 #endif
         },
@@ -378,8 +378,8 @@ static Uart_Device uart2 =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_0,
 #endif
         },
@@ -387,8 +387,8 @@ static Uart_Device uart2 =
         .ctsPins             =
         {
                                UART_PINS_PA0_CTS,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PD3,
 #endif
 
@@ -396,16 +396,16 @@ static Uart_Device uart2 =
         .ctsPinsGpio         =
         {
                                GPIO_PINS_PA0,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PD3,
 #endif
         },
         .ctsPinsMux          =
         {
                                GPIO_ALTERNATE_4,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_0,
 #endif
         },
@@ -413,8 +413,8 @@ static Uart_Device uart2 =
         .rtsPins             =
         {
                                UART_PINS_PA1_RTS,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PD4,
 #endif
 
@@ -422,8 +422,8 @@ static Uart_Device uart2 =
         .rtsPinsGpio         =
         {
                                GPIO_PINS_PA1,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PD4,
 #endif
 
@@ -431,8 +431,8 @@ static Uart_Device uart2 =
         .rtsPinsMux          =
         {
                                GPIO_ALTERNATE_4,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_0,
 #endif
         },
@@ -641,8 +641,8 @@ static Uart_Device uart5 =
     defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PC12,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PE10,
 #endif
         },
@@ -665,8 +665,8 @@ static Uart_Device uart5 =
     defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PC12,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PE10,
 #endif
         },
@@ -689,8 +689,8 @@ static Uart_Device uart5 =
     defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_2,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_6,
 #endif
         },
@@ -698,42 +698,42 @@ static Uart_Device uart5 =
         .rxPins              =
         {
                                UART_PINS_PB4_RX,
-#if defined (LIBOHIBOARD_STM32L073RxT) || \
-    defined (LIBOHIBOARD_STM32L073RxI) || \
-    defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PD2,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PE11,
 #endif
         },
         .rxPinsGpio          =
         {
                                GPIO_PINS_PB4,
-#if defined (LIBOHIBOARD_STM32L073RxT) || \
-    defined (LIBOHIBOARD_STM32L073RxI) || \
-    defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PD2,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PE11,
 #endif
         },
         .rxPinsMux           =
         {
                                GPIO_ALTERNATE_6,
-#if defined (LIBOHIBOARD_STM32L073RxT) || \
-    defined (LIBOHIBOARD_STM32L073RxI) || \
-    defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_6,
 #endif
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_6,
 #endif
         },
@@ -754,24 +754,24 @@ static Uart_Device uart5 =
         .rtsPins             =
         {
                                UART_PINS_PB5,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PE7,
 #endif
         },
         .rtsPinsGpio         =
         {
                                GPIO_PINS_PB5,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PE7,
 #endif
         },
         .rtsPinsMux          =
         {
                                GPIO_ALTERNATE_6,
-#if defined (LIBOHIBOARD_STM32L073VxT) || \
-    defined (LIBOHIBOARD_STM32L073VxI)
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_6,
 #endif
         },
@@ -782,74 +782,356 @@ static Uart_Device uart5 =
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
 
-//static Uart_Device uart2 = {
-//        .regmap              = USART2,
-//
-//        .rccRegisterPtr      = &RCC->APB1ENR,
-//        .rccRegisterEnable   = RCC_APB1ENR_USART2EN,
-//
-//        .rccTypeRegisterPtr  = &RCC->CCIPR,
-//        .rccTypeRegisterMask = RCC_CCIPR_USART2SEL,
-//        .rccTypeRegisterPos  = RCC_CCIPR_USART2SEL_Pos,
-//
-//        .rxPins              =
-//        {
-//                               UART_PINS_PA10,
-//        },
-//        .rxPinsGpio          =
-//        {
-//                               GPIO_PINS_PA10,
-//        },
-//        .rxPinsMux           =
-//        {
-//                               GPIO_ALTERNATE_4,
-//        },
-//
-//        .txPins              =
-//        {
-//                               UART_PINS_PA9,
-//        },
-//        .txPinsGpio          =
-//        {
-//                               GPIO_PINS_PA9,
-//        },
-//        .txPinsMux           =
-//        {
-//                               GPIO_ALTERNATE_4,
-//        },
-//
-//        .ctsPins             =
-//        {
-//                               UART_PINS_PA11,
-//        },
-//        .ctsPinsGpio         =
-//        {
-//                               GPIO_PINS_PA11,
-//        },
-//        .ctsPinsMux          =
-//        {
-//                               GPIO_ALTERNATE_4,
-//        },
-//
-//        .rtsPins             =
-//        {
-//                               UART_PINS_PA12,
-//        },
-//        .rtsPinsGpio         =
-//        {
-//                               GPIO_PINS_PA12,
-//        },
-//        .rtsPinsMux          =
-//        {
-//                               GPIO_ALTERNATE_4,
-//        },
-//
-//        .isrNumber           = INTERRUPT_USART2,
-//
-//        .state               = UART_DEVICESTATE_RESET,
-//};
-//Uart_DeviceHandle OB_UART2 = &uart2;
+static Uart_Device lpuart1 =
+{
+        .regmap              = LPUART1,
 
+        .rccRegisterPtr      = &RCC->APB1ENR,
+        .rccRegisterEnable   = RCC_APB1ENR_LPUART1EN,
+
+        .rccTypeRegisterPtr  = &RCC->CCIPR,
+        .rccTypeRegisterMask = RCC_CCIPR_LPUART1SEL,
+        .rccTypeRegisterPos  = RCC_CCIPR_LPUART1SEL_Pos,
+
+        .rxPins              =
+        {
+                               UART_PINS_PA3,
+                               UART_PINS_PA13,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PB10_RX,
+                               UART_PINS_PB11_RX,
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC0,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC5,
+                               UART_PINS_PC11,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PD9,
+#endif
+        },
+        .rxPinsGpio          =
+        {
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PA13,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PB11,
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC0,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC5,
+                               GPIO_PINS_PC11,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD9,
+#endif
+        },
+        .rxPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_7,
+                               GPIO_ALTERNATE_4,
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_0,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .txPins              =
+        {
+                               UART_PINS_PA2,
+                               UART_PINS_PA14,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PB10_TX,
+                               UART_PINS_PB11_TX,
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC1,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PC4,
+                               UART_PINS_PC10,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PD8,
+#endif
+        },
+        .txPinsGpio          =
+        {
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA14,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PB10,
+                               GPIO_PINS_PB11,
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC1,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC4,
+                               GPIO_PINS_PC10,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD8,
+#endif
+        },
+        .txPinsMux           =
+        {
+                               GPIO_ALTERNATE_6,
+                               GPIO_ALTERNATE_6,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_4,
+                               GPIO_ALTERNATE_7,
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_6,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_0,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .rtsPins             =
+        {
+                               UART_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PB12,
+                               UART_PINS_PB14,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PD2,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PD12,
+#endif
+        },
+        .rtsPinsGpio         =
+        {
+                               GPIO_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PB12,
+                               GPIO_PINS_PB14,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD2,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD12,
+#endif
+        },
+        .rtsPinsMux          =
+        {
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_4,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .ctsPins             =
+        {
+                               UART_PINS_PA6_CTS,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PB13,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               UART_PINS_PD11,
+#endif
+        },
+        .ctsPinsGpio         =
+        {
+                               GPIO_PINS_PA6,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PB13,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD11,
+#endif
+        },
+        .ctsPinsMux          =
+        {
+                               GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_4,
+#endif
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_0,
+#endif
+        },
+
+        .isrNumber           = INTERRUPT_LPUART1,
+
+        .state               = UART_DEVICESTATE_RESET,
+};
+Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
 #elif defined (LIBOHIBOARD_STM32L0x3)
 
