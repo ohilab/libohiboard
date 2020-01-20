@@ -196,6 +196,7 @@ typedef struct _Rtc_Config
 #elif defined (LIBOHIBOARD_ST_STM32)
 
     Rtc_HourFormat hourFormat;
+
     Rtc_OutputMode outputMode;
     Rtc_OutputType outputType;
     Rtc_OutputRemap outputRemap;
@@ -261,7 +262,7 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time);
 Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev);
 
 /**
- * This function return the state of RTCe.
+ * This function return the state of RTC.
  *
  * @param[in] dev Rtc device handle
  * @return device state

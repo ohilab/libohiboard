@@ -44,6 +44,8 @@ extern "C" {
 
 extern Rtc_DeviceHandle OB_RTC0;
 
+void RTC_IRQHandler (void);
+
 #endif // LIBOHIBOARD_RTC & LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
