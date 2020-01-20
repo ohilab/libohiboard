@@ -2200,22 +2200,22 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
     }
 }
 
-_weak void LPUART1_IRQHandler(void)
+void LPUART1_IRQHandler(void)
 {
     Uart_callbackInterrupt(OB_LPUART1);
 }
 
-_weak void USART1_IRQHandler(void)
+void USART1_IRQHandler(void)
 {
     Uart_callbackInterrupt(OB_UART1);
 }
 
-_weak void USART2_IRQHandler(void)
+void USART2_IRQHandler(void)
 {
     Uart_callbackInterrupt(OB_UART2);
 }
 
-_weak void USART4_5_IRQHandler(void)
+void USART4_5_IRQHandler(void)
 {
     Uart_callbackInterrupt(OB_UART4);
     Uart_callbackInterrupt(OB_UART5);
