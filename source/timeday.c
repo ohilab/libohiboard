@@ -121,7 +121,7 @@ Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
     }
 
     /* Save seconds for past years */
-    unixEpoch += (((date->year-TIME_UNIX_YEAR)*365) + ((date->year-TIME_UNIX_YEAR_LEAP)/4)) * (uint32_t)TIME_SECOND_PER_DAY;
+    unixEpoch += (((date->year-TIME_UNIX_YEAR)*365) + (((date->year - 1) - TIME_UNIX_YEAR_LEAP)/4)) * (uint32_t)TIME_SECOND_PER_DAY;
     /* Save seconds for the days of the current month */
     unixEpoch += (date->day-1) * (uint32_t)TIME_SECOND_PER_DAY;
     /* Save seconds for the hours of the current day */

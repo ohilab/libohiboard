@@ -494,10 +494,16 @@ System_Errors Rtc_setTime (Rtc_DeviceHandle dev, Rtc_Time time)
         mydate.year -= 1900;
     }
 
-    tmpregDate = (((uint32_t)Utility_byteToBcd2(mydate.year)  << 16) | \
-                  ((uint32_t)Utility_byteToBcd2(mydate.month) << 8)  | \
+    uint32_t wday =  mydate.wday;
+    if (wday == TIME_DAYOFWEEK_SUNDAY)
+    {
+        wday = 0x07ul;
+    }
+
+    tmpregDate = (((uint32_t)Utility_byteToBcd2(mydate.year)   << 16)| \
+                  ((uint32_t)Utility_byteToBcd2(mydate.month+1) << 8)| \
                   ((uint32_t)Utility_byteToBcd2(mydate.day))         | \
-                  ((uint32_t)Utility_byteToBcd2(mydate.wday)  << 13));
+                  ((uint32_t)Utility_byteToBcd2(wday)         << 13));
 
     // The values are ready, now enter in initialization mode
     // Disable protection mode
@@ -586,11 +592,16 @@ Rtc_Time Rtc_getTime (Rtc_DeviceHandle dev)
     mydate.year  = (uint8_t)((tmpregDate & (RTC_DR_YT_Msk | RTC_DR_YU_Msk)) >> 16);
     mydate.month = (uint8_t)((tmpregDate & (RTC_DR_MT_Msk | RTC_DR_MU_Msk)) >> 8);
     mydate.day   = (uint8_t)(tmpregDate  & (RTC_DR_DT_Msk | RTC_DR_DU_Msk));
+    mydate.wday  = (uint8_t)((tmpregDate & (RTC_DR_WDU_Msk)) >> RTC_DR_WDU_Pos);
     // Convert BCD to binary
     uint16_t year = (uint16_t)Utility_bcd2ToByte((uint8_t)mydate.year);
     mydate.year  = (year >= 70) ? (year + 1900) : (year + 2000);
-    mydate.month = Utility_bcd2ToByte(mydate.month);
+    mydate.month = (Utility_bcd2ToByte(mydate.month) - 1);
     mydate.day   = Utility_bcd2ToByte(mydate.day);
+    if (mydate.wday == 0x07)
+    {
+        mydate.wday = TIME_DAYOFWEEK_SUNDAY;
+    }
 
     return (Rtc_Time)Time_getUnixTime(&mydate,&mytime);
 }
