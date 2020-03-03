@@ -397,6 +397,9 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin);
  */
 System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate);
 
+
+void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj);
+
 /**
  * @}
  */

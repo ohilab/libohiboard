@@ -754,6 +754,16 @@ bool Uart_isPresent (Uart_DeviceHandle dev)
     return (UTILITY_READ_REGISTER_BIT(dev->regmap->USTA,_U1STA_URXDA_MASK) == 0) ? FALSE : TRUE;
 }
 
+void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj)
+{
+    ohiassert(obj != NULL);
+
+    if (obj != NULL)
+    {
+        dev->callbackObj = obj;
+    }
+}
+
 static inline void Uart_isrTxHandler (Uart_DeviceHandle dev)
 {
     if (dev->callbackTx)

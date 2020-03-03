@@ -2158,6 +2158,16 @@ bool Uart_isPresent (Uart_DeviceHandle dev)
     return (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0) ? FALSE : TRUE;
 }
 
+void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj)
+{
+    ohiassert(obj != NULL);
+
+    if (obj != NULL)
+    {
+        dev->callbackObj = obj;
+    }
+}
+
 static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_DeviceHandle dev)
 {
     uint32_t isrreg = dev->regmap->ISR;
@@ -2178,6 +2188,8 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
             if (dev->callbackRx != NULL)
             {
                 dev->callbackRx(dev,dev->callbackObj);
+                // Clear flag, just to increase the safety
+                UTILITY_SET_REGISTER_BIT(dev->regmap->RQR,USART_RQR_RXFRQ);
             }
             return;
         }
@@ -2187,6 +2199,8 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         if (dev->callbackError != NULL)
         {
             dev->callbackError(dev,dev->callbackObj);
+            // Clear ORE flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
         }
     }
 

@@ -940,6 +940,16 @@ bool Uart_isPresent (Uart_DeviceHandle dev)
     return (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0) ? FALSE : TRUE;
 }
 
+void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj)
+{
+    ohiassert(obj != NULL);
+
+    if (obj != NULL)
+    {
+        dev->callbackObj = obj;
+    }
+}
+
 static void Uart_isrHandler (Uart_DeviceHandle dev)
 {
     uint32_t isrreg = dev->regmap->ISR;
