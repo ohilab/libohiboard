@@ -358,6 +358,13 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config);
 System_Errors Uart_deInit (Uart_DeviceHandle dev);
 
 /**
+ * This function return the state of uart peripheral
+ * 
+ * @param[in] dev Uart device handle
+ */
+bool Uart_isEnabled(Uart_DeviceHandle dev);
+
+/**
  * This function resume (enable bit in register) the previous suspended uart
  * 
  * @param[in] dev Uart device handle

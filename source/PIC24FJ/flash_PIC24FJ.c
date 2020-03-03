@@ -284,6 +284,42 @@ System_Errors Flash_writeData (uint32_t startAddress, uint8_t *data, uint16_t le
     return Flash_init();
 }
 
+bool Flash_test (void)
+{
+    const uint16_t testPages = 5;
+    uint32_t testAddress = 0x00453000;
+    uint8_t testData[50];
+    uint8_t verifyData[50];
+    memset(testData, 0xFF, sizeof(testData));
+    for(int i = 0; i< sizeof(testData); i++)
+    {
+        testData[i] = (i + 1);
+    }
+    memset(verifyData, 0x00, sizeof(verifyData));
+
+    uint16_t i = 0;
+    for(i = 0; i < testPages; i++)
+    {
+        Flash_erasePage(Flash_getPage(testAddress + (i * Flash_getPageSize())));
+    }
+
+    for(i = 0; i < testPages; i++)
+    {
+        Flash_writeData(testAddress + (i * Flash_getPageSize()), testData, sizeof(testData));
+    }
+
+    for(i = 0; i < testPages; i++)
+    {
+        Flash_readData(testAddress + (i * Flash_getPageSize()), verifyData, sizeof(verifyData));
+        if(memcmp(testData, verifyData, sizeof(testData)) != 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 #endif // LIBOHIBOARD_PIC24FJ
 
 #ifdef __cplusplus

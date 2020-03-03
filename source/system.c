@@ -82,7 +82,7 @@ System_Errors System_systickConfig (uint32_t ticks)
         .modulo = 0,
         .prescaler = 0,
         .timerFrequency = 1000, // The base time is 1ms!
-        .configurationBits = 0,
+        //.configurationBits = 0,
         .clockSource  = TIMER_CLOCKSOURCE_INTERNAL,
 
         .freeCounterCallback = SysTick_Handler,

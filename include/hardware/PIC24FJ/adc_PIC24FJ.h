@@ -133,7 +133,7 @@ typedef enum _Adc_ChannelsMux
     defined (LIBOHIBOARD_PIC24FJxGB606) || \
     defined (LIBOHIBOARD_PIC24FJxGB610)
 
-#define ADC_BANDGAP_VALUE                1.2f
+#define ADC_BANDGAP_VALUE                1.20f
 #define ADC_BANDGAP_VALUE_mV             1200
 
 extern Adc_DeviceHandle OB_ADC1;

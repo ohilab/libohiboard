@@ -43,20 +43,21 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_PIC24FJ)
 
-inline uint8_t Critical_getCpuIpl(void)
+inline uint16_t Critical_getCpuIpl(void)
 {
-    uint8_t value = (UTILITY_READ_REGISTER_BIT(CPU->SR, _SR_IPL_MASK) >> _SR_IPL_POSITION);
-    return value;
+    uint16_t value = (uint16_t)(UTILITY_READ_REGISTER_BIT(CPU->SR, _SR_IPL_MASK) >> _SR_IPL_POSITION);
+    return (value & ((uint16_t)(_SR_IPL_MASK >> _SR_IPL_POSITION)));
 }
 
-inline void Critical_setCpuIpl(uint8_t value)
+inline void Critical_setCpuIpl(uint16_t value)
 {
+    value &= ((uint16_t)(_SR_IPL_MASK >> _SR_IPL_POSITION));
     UTILITY_MODIFY_REGISTER(CPU->SR, _SR_IPL_MASK, (value << _SR_IPL_POSITION));
 }
 
 inline bool Critical_isActive(void)
 {
-    uint8_t value = Critical_getCpuIpl();
+    uint16_t value = Critical_getCpuIpl();
     return (value == CRITICAL_MAX_PRIORITY)?(true):(false);
 }
 

@@ -50,18 +50,19 @@
  * <tr><th>Peripheral     <th colspan="2">NXP MKL<th colspan="3">NXP MK <th colspan="2">NXP MKV      <th>STM32L4    <th>STM32L0   <th>PIC24FJ 
  * <tr><td>-              <td>MKL15 <td>MKL25    <td>MK10 <td>MK12 <td>MK64      <td>MKV31 <td>MKV46 <td>STM32L476  <td>STM32L073 <td>PIC24FJ1024
  * <tr><td>Clock          <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohidone <td> @ohidone
- * <tr><td>Power Mode     <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohiwip   <td> @ohiwip  <td> @ohiwip
+ * <tr><td>Power Mode     <td>-     <td> @ohiwip <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohiwip  <td> @ohidone
  * <tr><td>GPIO           <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohidone <td> @ohidone
  * <tr><td>RTC            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohitodo <td> @ohitodo
  * <tr><td>ADC            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohitodo <td> @ohitodo
  * <tr><td>DAC            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohitodo <td> @ohitodo
  * <tr><td>UART           <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohidone <td> @ohidone
  * <tr><td>I2C            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohitodo <td> @ohitodo
- * <tr><td>SPI            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohifix   <td> @ohidone <td> @ohidone
- * <tr><td>Timer          <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohiwip   <td> @ohiwip  <td> @ohiwip
+ * <tr><td>SPI            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohidone <td> @ohidone
+ * <tr><td>Timer          <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohiwip   <td> @ohiwip  <td> @ohidone
  * <tr><td>LowPower Timer <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohiwip   <td> @ohidone <td> @ohidone
  * <tr><td>Interrupt      <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohidone  <td> @ohidone <td> @ohidone
  * <tr><td>DMA            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohiwip   <td> @ohitodo <td> @ohitodo
+ * <tr><td>FLASH          <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohiwip   <td> @ohitodo <td> @ohidone
  * <tr><td>CAN            <td>-     <td>-        <td>-    <td>-    <td>-         <td>-     <td>-     <td> @ohitodo  <td> -        <td> -
  * <tr><td>Ethernet       <td>-     <td>-        <td>-    <td>-    <td> @ohitodo <td>-     <td>-     <td> -         <td> -        <td> -
  * </table>

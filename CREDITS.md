@@ -2,6 +2,7 @@ Credits
 =======
 
 * Edoardo Bezzeccheri
+* Luca Capodagli
 * Matteo Civale
 * Marco Contigiani
 * Simone Giacomucci

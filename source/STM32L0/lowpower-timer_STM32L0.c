@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/STM32L4/lowpower-timer_STM32L0.c
+ * @file libohiboard/source/STM32L0/lowpower-timer_STM32L0.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Low-Power Timer implementations for STM32L0 Series
  */

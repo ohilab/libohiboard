@@ -51,17 +51,22 @@ Clock_Device clockDevice =
     .rccError             = ERRORS_NO_ERROR,
 };
 
-Clock_Config clockConfig =
+static System_Errors Clock_deInit (void);
+
+static void Clock_setDcoFrequency (uint32_t frequency);
+static void Clock_setDcoTuneValue (uint16_t tune);
+
+static Clock_Config clockConfig =
 {
     .source = CLOCK_NO_SOURCE,
     .fext = 0,
     .foutSys = 0,
 };
 
-static System_Errors Clock_deInit (void);
-
-static void Clock_setDcoFrequency (uint32_t frequency);
-static void Clock_setDcoTuneValue (uint16_t tune);
+Clock_Config* Clock_getConfig(void)
+{
+    return &clockConfig;
+}
 
 System_Errors Clock_init (Clock_Config* config)
 {
@@ -84,7 +89,7 @@ System_Errors Clock_init (Clock_Config* config)
     uint8_t oscconh = 0, oscconl = 0;
 
     //Enable Secondary Oscillator
-    if(config->source & CLOCK_EXTERNAL_SOSC)
+    if(config->fext > 0)
     {
         oscconl |= _OSCCON_SOSCEN_MASK;
     }
@@ -96,7 +101,7 @@ System_Errors Clock_init (Clock_Config* config)
     }
     else if(config->source & CLOCK_INTERNAL_DCO)
     {
-        Clock_setDcoFrequency(clockDevice.systemCoreClock);
+        Clock_setDcoFrequency(config->foutSys);
         oscconh = OSCSCR_DCO;
     }
     else if(config->source & CLOCK_INTERNAL_LPRC)
@@ -129,8 +134,11 @@ System_Errors Clock_init (Clock_Config* config)
         // in case of PLL enable clock switching
         oscconl |= _OSCCON_OSWEN_MASK;
     }
+    //uint16_t osccon = (((uint16_t)oscconh << 8) | ((uint16_t)oscconl));
+    //UTILITY_WRITE_REGISTER(clockDevice.regmap->OSCCON, osccon);
     __builtin_write_OSCCONH(oscconh);
     __builtin_write_OSCCONL(oscconl);
+
     if(config->source & CLOCK_EXTERNAL_XTPLL || config->source & CLOCK_INTERNAL_FRCPLL)
     {
         // Wait for Clock switch to occur
@@ -151,9 +159,8 @@ System_Errors Clock_init (Clock_Config* config)
     // Initialize SysTick with correct clock value
     System_systickInit(0);
 
-    clockConfig = *config;
-    clockConfig.foutSys = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
-    config->foutSys = clockConfig.foutSys;
+    clockDevice.systemCoreClock = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
+    clockDevice.secondaryOscillator = config->fext;
     return error;
 }
 
@@ -196,6 +203,7 @@ static System_Errors Clock_deInit (void)
     // CF no clock failure; NOSC FRC; SOSCEN enabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
     __builtin_write_OSCCONH((uint8_t) (0x00));
     __builtin_write_OSCCONL((uint8_t) (0x02));
+    //UTILITY_WRITE_REGISTER(clockDevice.regmap->OSCCON, 0x0002);
 
     Nop();
     Nop();

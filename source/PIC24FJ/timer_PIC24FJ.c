@@ -297,7 +297,7 @@ static Timer_Device timPwm =
         .ppsOCRegisterValue = 
         {
                               GPIO_PPSOUTPUTFUNCTION_OC1,
-                              GPIO_PPSOUTPUTFUNCTION_OC1,
+                              GPIO_PPSOUTPUTFUNCTION_OC2,
                               GPIO_PPSOUTPUTFUNCTION_OC3,
                               GPIO_PPSOUTPUTFUNCTION_NULL,
                               GPIO_PPSOUTPUTFUNCTION_NULL,
@@ -696,6 +696,22 @@ uint32_t Timer_getCurrentCounter (Timer_DeviceHandle dev)
     else
     {
         return (uint32_t)(*dev->tmrRegisterPtr);
+    }
+}
+
+void Timer_resetCurrentCounter (Timer_DeviceHandle dev)
+{
+    // Check the TIMER instance type
+    ohiassert(TIMER_IS_DEVICE(dev));
+
+    if (dev->isDouble)
+    {
+        dev->regmap->TMRy = 0;
+        dev->regmap->TMRx = 0;
+    }
+    else
+    {
+        *dev->tmrRegisterPtr = 0;
     }
 }
 

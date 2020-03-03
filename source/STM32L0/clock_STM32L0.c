@@ -919,6 +919,13 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 }
 #endif
 
+static Clock_Config clockConfig;
+
+Clock_Config* Clock_getConfig(void)
+{
+    return &clockConfig;
+}
+
 System_Errors Clock_init (Clock_Config* config)
 {
     // Check and save external clock value
@@ -1018,6 +1025,10 @@ System_Errors Clock_init (Clock_Config* config)
 
     // Setup default value of internal clock
     Clock_updateOutputValue();
+
+    // Save current configuration
+    clockConfig = *config;
+
     // Initialize SysTick with new value of HCLK
     System_systickInit(0);
 

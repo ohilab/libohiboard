@@ -62,7 +62,7 @@ extern "C" {
  * 
  * @retval current value of IPL
  */
-uint8_t Critical_getCpuIpl(void);
+uint16_t Critical_getCpuIpl(void);
 
 /**
  * Set the CPU Interrupt Priority Level.
@@ -71,7 +71,7 @@ uint8_t Critical_getCpuIpl(void);
  * 
  * @param[IN] value, new value of IPL;
  */
-void Critical_setCpuIpl(uint8_t value);
+void Critical_setCpuIpl(uint16_t value);
 
 /*!
  * Return if critical section is active.

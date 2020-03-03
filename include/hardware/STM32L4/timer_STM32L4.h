@@ -57,7 +57,7 @@ typedef enum _Timer_Channels
 
 typedef enum
 {
-//#if defined (LIBOHIBOARD_STM32L476) o (LIBOHIBOARD_STM32WB55)
+//#if defined (LIBOHIBOARD_STM32L476) || (LIBOHIBOARD_STM32WB55)
 
 // WLCSP72 ballout
 // LQFP64

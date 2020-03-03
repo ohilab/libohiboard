@@ -575,7 +575,7 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     port->IOCF = tIocf;
 
     // Enable callback
-    IocCallback[portNum][pinNum].enabled = true;
+    IocCallback[portNumber][pinNumber].enabled = true;
 
     // Enable Interrupt-on-Change functionality
     UTILITY_SET_REGISTER_BIT(gpioDevice.regMapIo->PADCON, _PADCON_IOCON_MASK);
@@ -691,7 +691,8 @@ void __attribute__ (( interrupt, no_auto_psv )) _IOCInterrupt ( void )
                             }
 
                             // Clear Flag Pin
-                            UTILITY_CLEAR_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, pinField);
+                            UTILITY_CLEAR_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, (uint16_t)pinField);
+                            //ohiassert(UTILITY_READ_REGISTER_BIT(gpioDevice.regmap[portNum]->IOCF, (uint16_t)pinField) == 0);
                         }
                     }
                 }

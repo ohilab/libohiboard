@@ -53,6 +53,11 @@ extern "C" {
 /**
  * @brief Enable the UART peripheral
  */
+#define UART_DEVICE_IS_ENABLED(REGMAP)    (UTILITY_READ_REGISTER_BIT(REGMAP->UMODE,_U1MODE_UARTEN_MASK))
+
+/**
+ * @brief Enable the UART peripheral
+ */
 #define UART_DEVICE_ENABLE(REGMAP)        (UTILITY_SET_REGISTER_BIT(REGMAP->UMODE,_U1MODE_UARTEN_MASK))
 /**
  * @brief Disable the UART peripheral
@@ -535,6 +540,12 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
 
     return error;
 }
+
+bool Uart_isEnabled(Uart_DeviceHandle dev)
+{
+    return(UART_DEVICE_IS_ENABLED(dev->regmap) != 0)?(true):(false);
+}
+
 System_Errors Uart_resume(Uart_DeviceHandle dev)
 {
     System_Errors err = ERRORS_NO_ERROR;
@@ -733,6 +744,17 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
     else
     {
         dev->regmap->UTXREG = (*data & 0x00FFu);
+    }
+
+    timeoutEnd = System_currentTick() + timeout;
+
+    // Wait until the tx is done
+    while (UTILITY_READ_REGISTER_BIT(dev->regmap->USTA,_U1STA_TRMT_MASK)== 0)
+    {
+        if (System_currentTick() > timeoutEnd)
+        {
+            return ERRORS_UART_TIMEOUT_TX;
+        }
     }
 
     return error;

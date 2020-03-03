@@ -106,7 +106,7 @@ void Critical_sectionEnd (uint32_t* mask);
 /**
  * Begins critical section
  */
-#define CRITICAL_SECTION_BEGIN()                 {uint8_t ipl = Critical_getCpuIpl(); Critical_setCpuIpl(CRITICAL_MAX_PRIORITY);
+#define CRITICAL_SECTION_BEGIN()                 {uint16_t ipl = Critical_getCpuIpl(); Critical_setCpuIpl(CRITICAL_MAX_PRIORITY);
 
 /**
  * Ends critical section
