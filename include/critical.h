@@ -104,6 +104,14 @@ void Critical_sectionEnd (uint32_t* mask);
 #endif
 
 /**
+ * Define the value of priority field for all interrupt except
+ *    for the interrupt used for system base time (Timer or LP-Timer or CPU SysTick)
+ */
+#ifndef CRITICAL_DEFAULT_PRIO
+#define CRITICAL_DEFAULT_PRIO                    4
+#endif
+
+/**
  * Begins critical section
  */
 #define CRITICAL_SECTION_BEGIN()                 {uint16_t ipl = Critical_getCpuIpl(); Critical_setCpuIpl(CRITICAL_MAX_PRIORITY);
@@ -112,6 +120,16 @@ void Critical_sectionEnd (uint32_t* mask);
  * Ends critical section
  */
 #define CRITICAL_SECTION_END()                   Critical_setCpuIpl(ipl);}
+
+/**
+ * Begins critical section with specific priority for the CPU
+ */
+#define CRITICAL_SECTION_X_BEGIN( priority )     {uint16_t ipl = Critical_getCpuIpl(); Critical_setCpuIpl(priority);
+
+/**
+ * Ends critical section 
+ */
+#define CRITICAL_SECTION_X_END( )                Critical_setCpuIpl(ipl);}
 
 #elif defined (LIBOHIBOARD_STM32L4)
 
