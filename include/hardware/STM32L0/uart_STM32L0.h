@@ -148,7 +148,7 @@ typedef enum _Uart_RxPins
 
 #elif defined (LIBOHIBOARD_STM32L0x3)
 
-#if defined (LIBOHIBOARD_STM32L073
+#if defined (LIBOHIBOARD_STM32L073)
 
     UART_PINS_PA1,
     UART_PINS_PA3,
