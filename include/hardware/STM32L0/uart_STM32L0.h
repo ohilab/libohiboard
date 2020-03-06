@@ -57,14 +57,6 @@ extern "C" {
  * @{
  */
 
-#if defined (LIBOHIBOARD_STM32L0x3)
-#define RCC_CCIPR_USART1SEL_Pos            (0u)
-#define RCC_CCIPR_USART2SEL_Pos            (2u)
-#define RCC_CCIPR_LPUART1SEL_Pos           (10u)
-
-#define USART_CR2_STOP_Pos                 (12u)
-#endif
-
 /**
  * The maximum Baud Rate is derived from the maximum clock on L0 that is 32MHz
  * divided by the smallest oversampling used on the USART (8).
@@ -258,7 +250,7 @@ typedef enum _Uart_TxPins
 
 #elif defined (LIBOHIBOARD_STM32L0x3)
 
-#if defined (LIBOHIBOARD_STM32L073
+#if defined (LIBOHIBOARD_STM32L073)
 
     UART_PINS_PA0,
     UART_PINS_PA2,

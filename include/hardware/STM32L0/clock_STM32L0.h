@@ -98,13 +98,6 @@ extern "C" {
 #define CLOCK_VOLTAGERANGE2_MAX_FREQ_WO_WAIT  (8000000u)
 #define CLOCK_VOLTAGERANGE3_MAX_FREQ_WO_WAIT  (4200000u)
 
-// Useful register define
-#define RCC_ICSCR_MSIRANGE_Pos                    (13u)
-#define RCC_CFGR_HPRE_Pos                          (4u)
-#define RCC_CFGR_PPRE1_Pos                         (8u)
-#define RCC_CFGR_PPRE2_Pos                        (11u)
-#define RCC_CFGR_SWS_Pos                           (2u)
-
 // Useful timeout
 #define CLOCK_MSI_TIMEOUT_VALUE                    (2u)
 #define CLOCK_HSI_TIMEOUT_VALUE                    (2u)
