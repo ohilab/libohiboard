@@ -47,6 +47,7 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L0)
 
+#define UART_DEVICE_IS_ENABLED(REGMAP)    (REGMAP->CR1 & USART_CR1_UE)
 #define UART_DEVICE_ENABLE(REGMAP)        (REGMAP->CR1 |= USART_CR1_UE)
 #define UART_DEVICE_DISABLE(REGMAP)       (REGMAP->CR1 &= ~USART_CR1_UE)
 
@@ -2003,6 +2004,47 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
 
     // Set reset state
     dev->state = UART_DEVICESTATE_RESET;
+
+    return err;
+}
+
+bool Uart_isEnabled(Uart_DeviceHandle dev)
+{
+    return(UART_DEVICE_IS_ENABLED(dev->regmap) != 0)?(true):(false);
+}
+
+System_Errors Uart_resume(Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
+    if (dev == NULL)
+    {
+        return ERRORS_UART_NO_DEVICE;
+    }
+    // Check the UART instance
+    if (ohiassert(UART_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+    UART_DEVICE_ENABLE(dev->regmap);
+
+    return err;
+}
+
+System_Errors Uart_suspend(Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
+    if (dev == NULL)
+    {
+        return ERRORS_UART_NO_DEVICE;
+    }
+    // Check the UART instance
+    if (ohiassert(UART_IS_DEVICE(dev)) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+    UART_DEVICE_DISABLE(dev->regmap);
 
     return err;
 }
