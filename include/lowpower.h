@@ -89,17 +89,23 @@ typedef enum _LowPower_VoltageScaling
 	LOWPOWER_VOLTAGESCALING_SCALE2 = 2,
 } LowPower_VoltageScaling;
 
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/lowpower_STM32L0.h"
+
+#endif //LIBOHIBOARD_STM32L0
+
 #if defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/STM32L4/lowpower_STM32L4.h"
 
-#endif // LIBOHIBOARD_STM32L4
+#endif //LIBOHIBOARD_STM32L4
 
 #if defined (LIBOHIBOARD_PIC24FJ)
 
 #include "hardware/PIC24FJ/lowpower_PIC24FJ.h"
 
-#endif
+#endif //LIBOHIBOARD_PIC24FJ
 
 /**
  * Initialize the low power control:
