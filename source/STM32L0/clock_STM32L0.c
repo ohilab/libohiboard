@@ -549,6 +549,39 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
     }
 
+    if ((config->source & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)
+    {
+        // Check the LSI state value
+        ohiassert(CLOCK_IS_VALID_LSI_STATE(config->lsiState));
+
+        if (config->lsiState == CLOCK_OSCILLATORSTATE_OFF)
+        {
+            // Switch off the oscillator
+            UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CSR,RCC_CSR_LSION);
+
+            // Wait until LSI is disabled
+            tickstart = System_currentTick();
+            while ((clk.regmap->CSR & RCC_CSR_LSIRDY) > 0)
+            {
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+        else
+        {
+            // Switch on the oscillator
+            UTILITY_SET_REGISTER_BIT(clk.regmap->CSR,RCC_CSR_LSION);
+
+            // Wait until LSI is ready
+            tickstart = System_currentTick();
+            while ((clk.regmap->CSR & RCC_CSR_LSIRDY) == 0)
+            {
+                if ((System_currentTick() - tickstart) > 2u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+    }
+
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOSEL_Msk, (config->mcoSource << RCC_CFGR_MCOSEL_Pos));
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOPRE_Msk, (config->mcoPrescaler << RCC_CFGR_MCOPRE_Pos));
 
