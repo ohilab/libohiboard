@@ -1,8 +1,11 @@
-/******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *  Leonardo Morichelli
  *  
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +24,33 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/utility.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
+ * @author Leonardo Morichelli
  * @brief Useful functions and definitions.
  */
 
 #ifndef __UTILITY_H
 #define __UTILITY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <string.h>
+
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
 
-
-//convert 2's complement P bit number to 16 bit signed int
+/**
+ * Convert 2's complement P bit number to 16 bit signed int
+ */
 #define C2SI(X,P)     (-((X)&(1<<(P-1)))+((X)&(~(1<<(P-1)))))
 
-//#define SET_BIT(n)                  (1<<n)&0xFF
 #define SHIFT_LEFT(X,n)             X<<n
 #define SHIFT_RIGHT(X,n)            X>>n
 
@@ -48,6 +58,42 @@
 #define IS_XDIGIT(c)                (((c <= '9') && (c >= '0')) || ((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')))
 #define IS_LOWERLETTER(c)           ((c <= 'z') && (c >= 'a'))
 #define IS_UPPERLETTER(c)           ((c <= 'Z') && (c >= 'A'))
+
+#define UTILITY_SET_REGISTER_BIT(REGISTER,BIT)       ((REGISTER) |= (BIT))
+#define UTILITY_CLEAR_REGISTER_BIT(REGISTER,BIT)     ((REGISTER) &= ~(BIT))
+#define UTILITY_READ_REGISTER_BIT(REGISTER,BIT)      ((REGISTER) & (BIT))
+
+#define UTILITY_CLEAR_RGISTER(REGISTER)              ((REGISTER) = (0x0))
+#define UTILITY_WRITE_REGISTER(REGISTER,VALUE)       ((REGISTER) = (VALUE))
+#define UTILITY_MODIFY_REGISTER(REGISTER,MASK,VALUE) UTILITY_WRITE_REGISTER((REGISTER),\
+		                              (((REGISTER) & (~(MASK))) | ((VALUE) & (MASK))))
+
+typedef enum _Utility_State
+{
+    UTILITY_STATE_DISABLE = 0x00000000u,
+    UTILITY_STATE_ENABLE  = 0x00000001u,
+} Utility_State;
+
+#define UTILITY_VALID_STATE(STATE) (((STATE) == UTILITY_STATE_ENABLE) || \
+                                    ((STATE) == UTILITY_STATE_DISABLE))
+
+#define UTILITY_STRING(x)              #x
+#define UTILITY_STRING1(x)             UTILITY_STRING(x)
+#define UTILITY_STRING2(x,y)           x##y
+#define UTILITY_STRING3(x,y,z)         x##y##z
+
+/**
+ * This macro return the dimension of an array.
+ *
+ * @param ARRAYDIM The array
+ */
+#define UTILITY_DIMOF(ARRAYDIM) (sizeof(ARRAYDIM)/sizeof(ARRAYDIM[0]))
+
+#define UTILITY_SWAP_INT16(a,b) do { \
+    int16_t t = a;                   \
+    a = b;                           \
+    b = t;                           \
+    } while (0);
 
 extern const char hexDigits[];
 
@@ -82,9 +128,46 @@ uint8_t stringCompare (const char* string1, const char* string2);
 uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t size);
 int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
 
-/*******************************************************************************
- * String validation functions
- *******************************************************************************/
+/* *****************************************************************************
+ *   BCD value management
+ * *****************************************************************************/
+
+/**
+  * Convert a 2 digit decimal to BCD format.
+  *
+  * @param[in] value Byte to be converted (must be less than 99)
+  * @return Converted byte
+  */
+uint8_t Utility_byteToBcd2 (uint8_t value);
+
+/**
+ * Convert from 2 digit BCD to binary (2 digit decimal).
+ * @param[in] value BCD value to be converted
+ * @return Converted value
+ */
+uint8_t Utility_bcd2ToByte (uint8_t value);
+
+/* *****************************************************************************
+ *   String validation functions
+ * *****************************************************************************/
+
+/**
+ *
+ * @return TRUE if the byte is Ascii character, FALSE otherwise.
+ */
+bool Utility_isAsciiChar  (uint8_t data);
+
+/**
+ *
+ * @return TRUE if the byte is printable character, FALSE otherwise.
+ */
+bool Utility_isPrintableChar  (uint8_t data);
+
+/**
+ *
+ * @return TRUE if the byte is special character, FALSE otherwise.
+ */
+bool Utility_isSpecialChar  (uint8_t data);
 
 /**
  *
@@ -98,4 +181,8 @@ bool Utility_isValidIp4Address (char* str);
  */
 bool Utility_isValidMacAddress (char* str);
 
-#endif /* __UTILITY_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __UTILITY_H

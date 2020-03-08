@@ -1,8 +1,11 @@
-/******************************************************************************
- * Copyright (C) 2016 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2016-2018 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Matteo Civale <matteo.civale@gmail.com>
+ *  Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,31 +24,249 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/dma.h
  * @author Matteo Civale <matteo.civale@gmail.com>
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief DMA configuration and parameter.
+ */
+
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
  */
 
 #ifdef LIBOHIBOARD_DMA
 
+/**
+ * @defgroup DMA DMA
+ * @brief DMA HAL driver
+ * @{
+ */
+
 #ifndef __DMA_H
 #define __DMA_H
 
-#if defined (LIBOHIBOARD_K64F12)     || \
-    defined (LIBOHIBOARD_FRDMK64F)   || \
-    defined (LIBOHIBOARD_K12D5)      || \
-    defined (LIBOHIBOARD_KL25Z4)     || \
-    defined (LIBOHIBOARD_KV46F)      || \
-    defined (LIBOHIBOARD_TRWKV46F)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "platforms.h"
 #include "errors.h"
 #include "types.h"
+#include "utility.h"
 
+/**
+ * @defgroup DMA_Configuration_Params DMA configuration types
+ * @{
+ */
 
+/**
+ * The list of the possible peripheral HAL state.
+ */
+typedef enum _Dma_DeviceState
+{
+    DMA_DEVICESTATE_RESET,
+    DMA_DEVICESTATE_READY,
+    DMA_DEVICESTATE_BUSY,
+    DMA_DEVICESTATE_ERROR,
+
+} Dma_DeviceState;
+
+/**
+ * Device handle for DMA peripheral.
+ */
+typedef struct _Dma_Device* Dma_DeviceHandle;
+
+// Include the correct hardware definitions
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "hardware/STM32L4/dma_STM32L4.h"
+
+#endif
+
+/**
+ * The list of possible data direction into DMA channel.
+ */
+typedef enum _Dma_Direction
+{
+    DMA_DIRECTION_PERIPHERAL_TO_MEMORY = (0x00000000u),
+    DMA_DIRECTION_MEMORY_TO_PERIPHERAL = (DMA_CCR_DIR),
+    DMA_DIRECTION_MEMORY_TO_MEMORY     = (DMA_CCR_MEM2MEM),
+
+} Dma_Direction;
+
+typedef enum _Dma_Mode
+{
+#if defined (LIBOHIBOARD_ST_STM32)
+    DMA_MODE_NORMAL   = (0x00000000u),
+    DMA_MODE_CIRCULAR = (DMA_CCR_CIRC),
+#endif
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+
+#endif
+} Dma_Mode;
+
+/**
+ * List of possible channel priority.
+ */
+typedef enum _Dma_Priority
+{
+    DMA_PRIORITY_LOW       = (0x00000000u),
+    DMA_PRIORITY_MEDIUM    = (DMA_CCR_PL_0),
+    DMA_PRIORITY_HIGH      = (DMA_CCR_PL_1),
+    DMA_PRIORITY_VERY_HIGH = (DMA_CCR_PL),
+} Dma_Priority;
+
+/**
+ * List of possible peripheral data size.
+ */
+typedef enum _Dma_PeripheralDataSize
+{
+    DMA_PERIPHERALDATASIZE_BYTE     = (0x00000000u),
+    DMA_PERIPHERALDATASIZE_HALFWORD = (DMA_CCR_PSIZE_0),
+    DMA_PERIPHERALDATASIZE_WORD     = (DMA_CCR_PSIZE_1),
+} Dma_PeripheralDataSize;
+
+/**
+ * List of possible memory data size.
+ */
+typedef enum _Dma_MemoryDataSize
+{
+    DMA_MEMORYDATASIZE_BYTE     = (0x00000000u),
+    DMA_MEMORYDATASIZE_HALFWORD = (DMA_CCR_MSIZE_0),
+    DMA_MEMORYDATASIZE_WORD     = (DMA_CCR_MSIZE_1),
+} Dma_MemoryDataSize;
+
+typedef struct _Dma_Config
+{
+    /**
+     * Specifies the transfer mode.
+     */
+    Dma_Mode mode;
+
+    /**
+     * Specifies the direction that will be used to transfer data.
+     */
+    Dma_Direction direction;
+
+    /**
+     * Specify the software priority for the channel.
+     */
+    Dma_Priority priority;
+
+    /**
+     * Specifies the memory data width.
+     */
+    Dma_MemoryDataSize mSize;
+
+    /**
+     * Specifies the peripheral data size.
+     */
+    Dma_PeripheralDataSize pSize;
+
+    /**
+     * Specifies whether the memory address register should be incremented or not.
+     * Use @ref UTILITY_STATE_ENABLE to enable the automatic increment mode.
+     */
+    Utility_State mIncrement;
+
+    /**
+     * Specifies whether the peripheral address register should be incremented or not.
+     * Use @ref UTILITY_STATE_ENABLE to enable the automatic increment mode.
+     */
+    Utility_State pIncrement;
+
+    /**
+     * Specifies the request selected for the specified channel.
+     */
+    Dma_RequestChannels request;
+
+    /** Dma transfer complete callback */
+    void (* transferCompleteCallback)(struct _Dma_Device *dev, Dma_Channels channel);
+
+    /** Dma transfer abort callback */
+    void (* transferAbortCallback)(struct _Dma_Device *dev, Dma_Channels channel);
+
+    /** Dma transfer error callback */
+    void (* transferErrorCallback)(struct _Dma_Device *dev, Dma_Channels channel);
+} Dma_Config;
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup DMA_Configuration_Functions DMA configuration functions
+ * @brief Functions to initialize and de-initialize a DMA peripheral.
+ * @{
+ */
+
+/**
+ * This function initialize the selected Dma Channel.
+ *
+ * @param[in] dev Dma device handle
+ * @param[in] channel The Dma channel to initialize
+ * @param[in] config A pointer to configuration object
+ * @return ERRORS_NO_ERROR whether the function exit without error.
+ */
+System_Errors Dma_init (Dma_DeviceHandle dev,
+                        Dma_Channels channel,
+                        Dma_Config* config);
+
+/**
+ * This function de-initialize the selected Dma channel.
+ *
+ * @param[in] dev Dma device handle
+ * @param[in] channel The Dma channel to de-initialize
+ * @return ERRORS_NO_ERROR whether the function exit without error.
+ */
+System_Errors Dma_deInit (Dma_DeviceHandle dev,
+                          Dma_Channels channel);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup DMA_IO_Functions DMA transfer management functions
+ * @brief Functions to manage transfer operations into DMA channel.
+ * @{
+ */
+
+/**
+ * Start the Dma transfer.
+ *
+ * @param[in] dev Dma device handle
+ * @param[in] channel The Dma channel
+ * @param[in] sourceAddress The source memory buffer address
+ * @param[in] destinationAddress The destination memory buffer address
+ * @param[in] length The length of data to be transferred
+ * @return ERRORS_NO_ERROR whether the transfer starts without errors.
+ */
+System_Errors Dma_start (Dma_DeviceHandle dev,
+                         Dma_Channels channel,
+                         uint32_t sourceAddress,
+                         uint32_t destinationAddress,
+                         uint32_t length);
+
+/**
+ * Stop the Dma transfer.
+ *
+ * @param[in] dev Dma device handle
+ * @param[in] channel The Dma channel
+ * @return ERRORS_NO_ERROR whether the transfer abort without errors.
+ */
+System_Errors Dma_stop (Dma_DeviceHandle dev,
+                        Dma_Channels channel);
+
+/**
+ * @}
+ */
+
+#if 0 // FIXME
 typedef enum
 {
     DMA_REQ_SURCE_NOT_USED     = 0x00,
@@ -218,9 +439,20 @@ void Dma_disableChannel(Dma_DeviceHandle dev, Dma_Channel channel);
  */
 void Dma_startChannel(Dma_DeviceHandle dev, Dma_Config* config);
 
+#endif // FIXME
 
-#endif /* FIXME: Only for some microcontrollers... */
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* __DMA_H */
+#endif // __DMA_H
 
-#endif/* LIBOHIBOARD_DMA */
+/**
+ * @}
+ */
+
+#endif // LIBOHIBOARD_DMA
+
+/**
+ * @}
+ */

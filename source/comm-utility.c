@@ -2,6 +2,9 @@
 
 #ifdef LIBOHIBOARD_IIC
 
+// FIXME: update this function for new library version
+#if (LIBOHIBOARD_VERSION < 0x20000u)
+
 System_Errors CommUtility_iicBusScanner (Iic_DeviceHandle dev,
                                          uint8_t* result,
                                          uint8_t  resultSize,
@@ -62,5 +65,6 @@ System_Errors CommUtility_iicBusCheckDevices (Iic_DeviceHandle dev,
     return ERRORS_NO_ERROR;
 }
 
+#endif
 
 #endif

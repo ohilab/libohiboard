@@ -1,4 +1,4 @@
-/******************************************************************************
+/*
  * Copyright (C) 2017 A. C. Open Hardware Ideas Lab
  *
  * Authors:
@@ -23,7 +23,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/source/utility-valid.c
@@ -34,6 +34,31 @@
  */
 
 #include "utility.h"
+
+bool Utility_isAsciiChar (uint8_t data)
+{
+	return (data > 0x7F) ? (false) : (true);
+}
+
+bool Utility_isPrintableChar  (uint8_t data)
+{
+    return (data >= ' ' && data <= '~') ? (true) : (false);
+}
+
+bool Utility_isSpecialChar  (uint8_t data)
+{
+    char specialChars[] = {'\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\e'};
+
+    for (uint16_t i = 0; i < sizeof(specialChars); i++)
+    {
+        if (data == specialChars[i])
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 bool Utility_isValidIp4Address (char* str)
 {

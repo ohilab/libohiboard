@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,13 +23,17 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/source/utility.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief Useful functions and definitions.
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "utility.h"
 
@@ -375,7 +381,7 @@ uint8_t i16td (uint8_t *dString, int16_t number)
 System_Errors strtf (const uint8_t* fString, float* result)
 {
     uint8_t digit;
-    const char* dotPosition = fString+2;
+    const char* dotPosition = (const char*)fString+2;
 
     uint8_t isNegative = 0;
     uint8_t isDecimal = 0;
@@ -679,4 +685,35 @@ System_Errors dtu32 (const uint8_t* dString, uint32_t* result, uint8_t slength)
 
     return ERRORS_UTILITY_EMPTY_STRING;
 }
+
+uint8_t Utility_byteToBcd2 (uint8_t value)
+{
+    ohiassert(value <= 99);
+
+    uint8_t dozens = 0;
+
+    while (value >= 10)
+    {
+        dozens++;
+        value -= 10;
+    }
+
+    return  ((uint8_t)((dozens << 4) | value));
+}
+
+uint8_t Utility_bcd2ToByte (uint8_t value)
+{
+    // Check BCD format
+    ohiassert((value & 0xF0) <= 0x90);
+    ohiassert((value & 0x0F) <= 0x09);
+
+    uint8_t tmp = 0;
+    tmp = ((uint8_t)(value & 0xF0u) >> 4) * 10;
+    return (tmp + (value & 0x0Fu));
+}
+
+#ifdef __cplusplus
+}
+#endif
+
 

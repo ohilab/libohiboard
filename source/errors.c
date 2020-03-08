@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2013 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -22,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/errors.h
@@ -31,9 +33,29 @@
  * @brief Errors definition
  */
 
+#include "platforms.h"
 #include "errors.h"
 
-void Errors_assert (const char* file, const int line)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+System_Errors Errors_assert (const char* file, const int line)
 {
+    (void)file;
+    (void)line;
     /* Set breakpoint to control the execution! */
+#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
+    __builtin_software_breakpoint();
+    __builtin_nop();
+#endif
+#if defined LIBOHIBOARD_ST_STM32
+    asm("BKPT #1");
+    asm("NOP");
+#endif
+    return ERRORS_ASSERT;
 }
+
+#ifdef __cplusplus
+}
+#endif

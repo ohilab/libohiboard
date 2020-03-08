@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (C) 2012-2014 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/source/uart.c
@@ -33,11 +33,17 @@
 
 #ifdef LIBOHIBOARD_UART
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "uart.h"
 #include "interrupt.h"
 #include "clock.h"
 
 static const char Uart_hexDigits[] = "0123456789ABCDEF";
+static const uint8_t Uart_lf = 0x0A;
+static const uint8_t Uart_cr = 0x0D;
 
 void Uart_sendString (Uart_DeviceHandle dev, const char* text)
 {
@@ -45,7 +51,12 @@ void Uart_sendString (Uart_DeviceHandle dev, const char* text)
     {
         while (*text)
         {
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,(const uint8_t*)text++,300);
+#else
             Uart_putChar(dev, *text++);
+#endif
+
         }
     }
 }
@@ -56,10 +67,19 @@ void Uart_sendStringln (Uart_DeviceHandle dev, const char* text)
     {
         while (*text)
         {
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,(const uint8_t*)text++,300);
+#else
             Uart_putChar(dev, *text++);
+#endif
         }
-        Uart_putChar(dev, '\r');
-        Uart_putChar(dev, '\n');
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,&Uart_cr,300);
+            Uart_write(dev,&Uart_lf,300);
+#else
+            Uart_putChar(dev, Uart_cr);
+            Uart_putChar(dev, Uart_lf);
+#endif
     }
 }
 
@@ -69,7 +89,11 @@ void Uart_sendData (Uart_DeviceHandle dev, const char* data, uint8_t length)
     {
         while (length--)
         {
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,(const uint8_t*)data++,300);
+#else
             Uart_putChar(dev, *data++);
+#endif
         }
     }
 }
@@ -81,11 +105,20 @@ void Uart_sendHex (Uart_DeviceHandle dev, const char* data, uint8_t length)
         while (length--)
         {
             uint8_t value = *data++;
+#if (LIBOHIBOARD_VERSION >= 0x20000)
+            Uart_write(dev,(const uint8_t*)&Uart_hexDigits[(value >> 4) & 0x0F],300);
+            Uart_write(dev,(const uint8_t*)&Uart_hexDigits[(value >> 0) & 0x0F],300);
+#else
             Uart_putChar(dev, Uart_hexDigits[(value >> 4) & 0x0F]);
             Uart_putChar(dev, Uart_hexDigits[(value >> 0) & 0x0F]);
+#endif
         }
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

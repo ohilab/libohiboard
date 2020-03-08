@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,7 +23,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/platforms.h
@@ -34,142 +36,234 @@
 
 /* microcontroller selection: */
 
-/**
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL02Z4</code> and <code>LIBOHIBOARD_FRDMKL02Z</code>:
- * <ul>
- *   <li>MKL02Z32CAF4</li>
- *   <li>MKL02Z32VFG4</li>
- *   <li>MKL02Z16VFG4</li>
- *   <li>MKL02Z8VFG4</li>
- *   <li>MKL02Z32VFK4</li>
- *   <li>MKL02Z16VFK4</li>
- *   <li>MKL02Z32VFM4</li>
- *   <li>MKL02Z16VFM4</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL03Z4</code> and <code>LIBOHIBOARD_FRDMKL03Z</code>:
- * <ul>
- *   <li>MKL03Z32CAF4</li>
- *   <li>MKL03Z32VFG4</li>
- *   <li>MKL03Z16VFG4</li>
- *   <li>MKL03Z8VFG4</li>
- *   <li>MKL03Z32VFK4</li>
- *   <li>MKL03Z16VFK4</li>
- *   <li>MKL03Z8VFK4</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL15Z4</code>:
- * <ul>
- *   <li>MKL15Z128FM4</li>
- *   <li>MKL15Z128FT4</li>
- *   <li>MKL15Z128LH4</li>
- *   <li>MKL15Z128VLK4</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_KL25Z4</code> and <code>LIBOHIBOARD_FRDMKL25Z</code>:
- * <ul>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K10DZ10</code>:
- * <ul>
- *   <li>MK10DN512ZVLK10</li>
- *   <li>MK10DN512ZVLL10</li>
- *   <li>MK10DN512ZVLQ10</li>
- *   <li>MK10DX128ZVLQ10</li>
- *   <li>MK10DX256ZVLQ10</li>
- *   <li>MK10DN512ZVMB10</li>
- *   <li>MK10DN512ZVMC10</li>
- *   <li>MK10DN512ZVMD10</li>
- *   <li>MK10DX256ZVMD10</li>
- *   <li>MK10DX128ZVMD10</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K10D10</code>:
- * <ul>
- *   <li>MK10DN512VLK10</li>
- *   <li>MK10DN512VLL10</li>
- *   <li>MK10DN512VLQ10</li>
- *   <li>MK10DX128VLQ10</li>
- *   <li>MK10DX256VLQ10</li>
- *   <li>MK10DN512VMB10</li>
- *   <li>MK10DN512VMC10</li>
- *   <li>MK10DN512VMD10</li>
- *   <li>MK10DX256VMD10</li>
- *   <li>MK10DX128VMD10</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K60D10</code>:
- * <ul>
- *   <li>MK60DN512ZVLL10</li>
- *   <li>MK60DX256ZVLL10</li>
- *   <li>MK60DN256ZVLL10</li>
- *   <li>MK60DN512ZVLQ10</li>
- *   <li>MK60DN256ZVLQ10</li>
- *   <li>MK60DX256ZVLQ10</li>
- *   <li>MK60DN512ZVMC10</li>
- *   <li>MK60DN256ZVMC10</li>
- *   <li>MK60DX256ZVMC10</li>
- *   <li>MK60DN512ZVMD10</li>
- *   <li>MK60DX256ZVMD10</li>
- *   <li>MK60DN256ZVMD10</li>
- * </ul>
- *
- * Can use follows microcontroller with <code>LIBOHIBOARD_K64F12</code>:
- * <ul>
- *    <li>MK64FX512VLL12</li>
- *    <li>MK64FN1M0VLL12</li>
- *    <li>MK64FX512VDC12</li>
- *    <li>MK64FN1M0VDC12</li>
- *    <li>MK64FX512VLQ12</li>
- *    <li>MK64FX512VMD12</li>
- *    <li>MK64FN1M0VLQ12</li>
- *    <li>MK64FN1M0VMD12</li>
- * </ul>
- */
-
-
-#if defined(LIBOHIBOARD_K10DZ10)
+#if defined(LIBOHIBOARD_K10DZ10) // NXP/Freescale Microcontrollers
 #include "platforms/MK10DZ10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K10D10)
 #include "platforms/MK10D10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K10D7)
 #include "platforms/MK10D7.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K12D5)
 #include "platforms/MK12D5.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K60DZ10)
 #include "platforms/MK60DZ10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K60F15)
 #include "platforms/MK60F15.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL02Z4)
 #include "platforms/MKL02Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL03Z4)
 #include "platforms/MKL03Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL15Z4)
 #include "platforms/MKL15Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KL25Z4)
 #include "platforms/MKL25Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_K64F12)
 #include "platforms/MK64F12.h"
 #include "platforms/MK64F12_portability.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL02Z)
 #include "platforms/MKL02Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL03Z)
 #include "platforms/MKL03Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL05Z)
 #include "platforms/MKL05Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMKL25Z) || defined(LIBOHIBOARD_KL25Z4)
 #include "platforms/MKL25Z4.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMK20D50M)
 #include "platforms/MK20D5.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_FRDMK64F)
 #include "platforms/MK64F12.h"
+#include "platforms/MK64F12_portability.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_OHIBOARD_R1)
 #include "platforms/MK60DZ10.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KV31F12)
 #include "platforms/MKV31F51212.h"
+#define LIBOHIBOARD_NXP_KINETIS
 #elif defined(LIBOHIBOARD_KV46F) || defined(LIBOHIBOARD_TWRKV46F)
 #include "platforms/MKV46F16.h"
+#define LIBOHIBOARD_NXP_KINETIS
+
+#elif defined (LIBOHIBOARD_MKL15ZxFM) || \
+      defined (LIBOHIBOARD_MKL15ZxFT) || \
+      defined (LIBOHIBOARD_MKL15ZxLH) || \
+      defined (LIBOHIBOARD_MKL15ZxLK)
+
+#include "platforms/MKL15/MKL15Z4.h"
+
+#ifndef LIBOHIBOARD_MKL
+#define LIBOHIBOARD_MKL
+#endif
+
+#ifndef LIBOHIBOARD_MKL15
+#define LIBOHIBOARD_MKL15
+#endif
+
+#ifndef LIBOHIBOARD_NXP_KINETIS
+#define LIBOHIBOARD_NXP_KINETIS
+#endif
+
+#elif defined (LIBOHIBOARD_MKL25ZxFM) || \
+      defined (LIBOHIBOARD_MKL25ZxFT) || \
+      defined (LIBOHIBOARD_MKL25ZxLH) || \
+      defined (LIBOHIBOARD_MKL25ZxLK)
+
+#include "platforms/MKL25/MKL25Z4.h"
+#include "platforms/MKL25/MKL25Z4_features.h"
+
+#ifndef LIBOHIBOARD_MKL
+#define LIBOHIBOARD_MKL
+#endif
+
+#ifndef LIBOHIBOARD_MKL25
+#define LIBOHIBOARD_MKL25
+#endif
+
+#ifndef LIBOHIBOARD_NXP_KINETIS
+#define LIBOHIBOARD_NXP_KINETIS
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L073RxT) || \
+      defined (LIBOHIBOARD_STM32L073RxI) || \
+      defined (LIBOHIBOARD_STM32L073CxT) || \
+      defined (LIBOHIBOARD_STM32L073VxT) || \
+      defined (LIBOHIBOARD_STM32L073VxI)
+
+#include "platforms/STM32L073/stm32l073xx.h"
+#include "platforms/STM32L073/stm32l0xx.h"
+#include "platforms/STM32L073/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L0x3
+#define LIBOHIBOARD_STM32L0x3
+#endif
+
+#ifndef LIBOHIBOARD_STM32L073
+#define LIBOHIBOARD_STM32L073
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L072CxE) || \
+      defined (LIBOHIBOARD_STM32L072CxT) || \
+      defined (LIBOHIBOARD_STM32L072CxU) || \
+      defined (LIBOHIBOARD_STM32L072CxY) || \
+      defined (LIBOHIBOARD_STM32L072KxT) || \
+      defined (LIBOHIBOARD_STM32L072KxU) || \
+      defined (LIBOHIBOARD_STM32L072RxH) || \
+      defined (LIBOHIBOARD_STM32L072RxI) || \
+      defined (LIBOHIBOARD_STM32L072RxT) || \
+      defined (LIBOHIBOARD_STM32L072RxZ) || \
+      defined (LIBOHIBOARD_STM32L072VxI) || \
+      defined (LIBOHIBOARD_STM32L072VxT) || \
+      defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+
+#include "platforms/STM32L072/stm32l072xx.h"
+#include "platforms/STM32L072/stm32l0xx.h"
+#include "platforms/STM32L072/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L0x2
+#define LIBOHIBOARD_STM32L0x2
+#endif
+
+#ifndef LIBOHIBOARD_STM32L072
+#define LIBOHIBOARD_STM32L072
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#ifndef LIBOHIBOARD_MURATA_STM32
+#define LIBOHIBOARD_MURATA_STM32
+#endif
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L476Jx) || \
+      defined (LIBOHIBOARD_STM32L476Rx)
+
+#include "platforms/STM32L476/stm32l476xx.h"
+#include "platforms/STM32L476/stm32l4xx.h"
+#include "platforms/STM32L476/system_stm32l4xx.h"
+
+#ifndef LIBOHIBOARD_STM32L4
+#define LIBOHIBOARD_STM32L4
+#endif
+
+#ifndef LIBOHIBOARD_STM32L476
+#define LIBOHIBOARD_STM32L476
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
+#elif defined (LIBOHIBOARD_STM32WB55Rx)
+
+#include "platforms/STM32WB55/stm32wb55xx.h"
+#include "platforms/STM32WB55/stm32wbxx.h"
+#include "platforms/STM32WB55/system_stm32wbxx.h"
+
+#ifndef LIBOHIBOARD_STM32WB
+#define LIBOHIBOARD_STM32WB
+#endif
+
+#ifndef LIBOHIBOARD_STM32WB55
+#define LIBOHIBOARD_STM32WB55
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
+#elif defined (LIBOHIBOARD_PIC24FJxGA606) || \
+      defined (LIBOHIBOARD_PIC24FJxGA610) || \
+      defined (LIBOHIBOARD_PIC24FJxGB606) || \
+      defined (LIBOHIBOARD_PIC24FJxGB610)
+
+#include "platforms/PIC24FJ/PIC24FJxGy6z.h"
+#include <xc.h>
+
+#ifndef LIBOHIBOARD_PIC24FJ
+#define LIBOHIBOARD_PIC24FJ
+#endif
+
+#if defined (__PIC24FJ1024GA606__) || defined (__PIC24FJ1024GA610__) || \
+    defined (__PIC24FJ1024GB606__) || defined (__PIC24FJ1024GB610__)
+#ifndef LIBOHIBOARD_PIC24FJ1024
+#define LIBOHIBOARD_PIC24FJ1024
+#endif
+#endif
+
+#ifndef LIBOHIBOARD_MICROCHIP_PIC
+#define LIBOHIBOARD_MICROCHIP_PIC
+#endif
+
 #endif
 
 // Features files
@@ -178,4 +272,4 @@
 #include "platforms/MK64F12_features.h"
 #endif
 
-#endif /* __PLATFORMS_H */
+#endif // __PLATFORMS_H

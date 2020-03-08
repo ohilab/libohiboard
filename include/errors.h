@@ -1,5 +1,7 @@
-/******************************************************************************
- * Copyright (C) 2012-2016 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Edoardo Bezzeccheri <coolman3@gmail.com>
@@ -22,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
  * @file libohiboard/include/errors.h
@@ -31,31 +33,70 @@
  * @brief Errors definition
  */
 
+/**
+ * @addtogroup LIBOHIBOARD_Driver
+ * @{
+ */
+
+/**
+ * @defgroup Utility Utility
+ * @brief Utility HAL driver
+ * @{
+ */
+
+
 #ifndef __ERRORS_H
 #define __ERRORS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @defgroup Utility_Error Errors Management
+ * @{
+ */
+
+/**
+ *
+ */
 typedef enum _System_Errors
 {
-	ERRORS_NO_ERROR,                                  /**< There is no error. */
+	ERRORS_NO_ERROR = 0,                              /**< There is no error. */
 	ERRORS_PARAM_VALUE,                                   /**< Invalid value. */
 	ERRORS_EXT_OSC_NOT_SELECT,         /**< External oscillator not selected. */
-	
+
+	ERRORS_SYSTEM_TICK_INIT_FAILED,
+	ERRORS_SYSTEM_NO_CLOCK,
+
 	ERRORS_HW_NOT_ENABLED,   /**< Hardware pin of the device was not enabled. */
-	
+
 	ERRORS_IRQ_NUM_VECTOR_WRONG,
 	ERRORS_IRQ_PRIORITY_LEVEL_WRONG,
-	
+
 	ERRORS_GPIO_WRONG_PORT,
 	ERRORS_GPIO_WRONG_CONFIG,
-	
+    ERRORS_GPIO_WRONG_PIN,
+    ERRORS_GPIO_NULL_PIN,
+    ERRORS_GPIO_NULL_IOC_CALLBACK,
+
     ERRORS_UART_DEVICE_NOT_INIT,
     ERRORS_UART_DEVICE_JUST_INIT,
     ERRORS_UART_NO_PIN_FOUND,
     ERRORS_UART_LIRC_SOURCE_CONFLICT_MCG,
+    ERRORS_UART_NO_CLOCKSOURCE,
     ERRORS_UART_CLOCKSOURCE_FREQUENCY_TOO_LOW,
     ERRORS_UART_PARITY,                            /**< Parity error occured. */
-	
+    ERRORS_UART_NO_DEVICE,
+    ERRORS_UART_WRONG_DEVICE,
+    ERRORS_UART_WRONG_PARAM,
+    ERRORS_UART_WRONG_BAUDRATE,
+    ERRORS_UART_TIMEOUT_RX,
+    ERRORS_UART_TIMEOUT_TX,
+    ERRORS_UART_DEVICE_BUSY,
+
 	ERRORS_IIC_OK,
+	ERRORS_IIC_TIMEOUT,
 	ERRORS_IIC_TX_OK,
 	ERRORS_IIC_TX_ERROR,
 	ERRORS_IIC_TX_TIMEOUT,
@@ -63,46 +104,78 @@ typedef enum _System_Errors
 	ERRORS_IIC_TX_ACK_NOT_RECEIVED,
     ERRORS_IIC_RX_OK,
 	ERRORS_IIC_RX_TIMEOUT,
-	ERRORS_IIC_TIMEOUT,
+	ERRORS_IIC_RX_WRONG_EVENT,
 	ERRORS_IIC_SCLTIMEOUT_TOO_LARGE,
 	ERRORS_IIC_SCLTIMEOUT,
 	ERRORS_IIC_NO_SCLTIMEOUT,
     ERRORS_IIC_DEVICE_NOT_INIT,
     ERRORS_IIC_DEVICE_JUST_INIT,
     ERRORS_IIC_NO_PIN_FOUND,
+    ERRORS_IIC_NO_DEVICE,
+    ERRORS_IIC_WRONG_DEVICE,
     ERRORS_IIC_WRONG_BAUDRATE,
+    ERRORS_IIC_NO_CLOCKSOURCE,
+    ERRORS_IIC_CLOCKSOURCE_FREQUENCY_TOO_LOW,
+    ERRORS_IIC_WRONG_PARAM,
 
     ERRORS_SPI_BAUDRATE_NOT_FOUND,
     ERRORS_SPI_DEVICE_NOT_INIT,
     ERRORS_SPI_DEVICE_JUST_INIT,
+    ERRORS_SPI_DEVICE_BUSY,
     ERRORS_SPI_NO_PIN_FOUND,
-	
-	ERRORS_ADC_CHANNEL_WRONG,
-    ERRORS_ADC_CHANNEL_BUSY,
-	
+    ERRORS_SPI_NO_DEVICE,
+    ERRORS_SPI_WRONG_DEVICE,
+    ERRORS_SPI_WRONG_PARAM,
+    ERRORS_SPI_CLOCKSOURCE_FREQUENCY_TOO_LOW,
+    ERRORS_SPI_TIMEOUT_RX,
+    ERRORS_SPI_TIMEOUT_TX,
+
     ERRORS_DAC_DEVICE_NOT_INIT,
     ERRORS_DAC_DEVICE_JUST_INIT,
-    ERRORS_ADC_ERRATA_DIVIDERS,
+    ERRORS_DAC_NO_DEVICE,
+    ERRORS_DAC_WRONG_DEVICE,
     ERRORS_DAC_WRONG_PARAMETER,
-    ERRORS_ADC_PIN_WRONG,
+    ERRORS_DAC_TIMEOUT,
 
     ERRORS_ADC_DEVICE_JUST_INIT,
     ERRORS_ADC_DEVICE_NOT_INIT,                  /**< Device not initialized. */
+    ERRORS_ADC_INIT_FAIL,
     ERRORS_ADC_DIVIDER_NOT_FOUND,
-    ERRORS_ADC_NUMCH_WRONG,
     ERRORS_ADC_CALIBRATION,        /**< Error during ADC calibration process. */
-	
+    ERRORS_ADC_CHANNEL_WRONG,
+    ERRORS_ADC_CHANNEL_BUSY,
+    ERRORS_ADC_IS_BUSY,
+    ERRORS_ADC_NO_DEVICE,
+    ERRORS_ADC_WRONG_DEVICE,
+    ERRORS_ADC_WRONG_PARAM,
+    ERRORS_ADC_NO_PIN_FOUND,
+    ERRORS_ADC_TIMEOUT,
+    ERRORS_ADC_CONVERSION_DONE,
+    ERRORS_ADC_CONVERSION_ONGOING,
+
 	ERRORS_FTM_OK,
 	ERRORS_FTM_CHANNEL_NOT_FOUND,
 	ERRORS_FTM_DEVICE_NOT_INIT,
 	ERRORS_FTM_FAULT_PIN_WRONG,
-	
+
+    ERRORS_TIMER_NO_DEVICE,
+    ERRORS_TIMER_WRONG_DEVICE,
+    ERRORS_TIMER_DEVICE_JUST_USED,
+    ERRORS_TIMER_DEVICE_NOT_READY,
+    ERRORS_TIMER_WRONG_PARAM,
+    ERRORS_TIMER_NO_PWM_PIN_FOUND,
+    ERRORS_TIMER_NO_OC_PIN_FOUND,
+    ERRORS_TIMER_NO_IC_PIN_FOUND,
+    ERRORS_TIMER_WRONG_PWM_CHANNEL,
+    ERRORS_TIMER_WRONG_OC_CHANNEL,
+    ERRORS_TIMER_WRONG_IC_CHANNEL,
+
 	ERRORS_UTILITY_ILLEGAL_CHAR,
 	ERRORS_UTILITY_EMPTY_STRING,
 	ERRORS_UTILITY_LONG_STRING,
     ERRORS_UTILITY_CONVERSION_OK,
     ERRORS_UTILITY_FLOAT_WRONG_PRECISION,
-    
+
     ERRORS_MCG_OUT_OF_RANGE, //Frequency outside of the allowed range
     ERRORS_MCG_NO_FREQUENCY, //Impossible to obtain the request fout_SYS with this setup
     ERRORS_MCG_NO_STATE, //Not valid state
@@ -113,6 +186,20 @@ typedef enum _System_Errors
     ERRORS_MCG_ERRATA_DIVIDER,
     ERRORS_MCG_48M_REF, //Ther is a strange behavior when I use IRC48M like MCG source in MK64F
 
+    ERRORS_CLOCK_NO_CONFIG,
+    ERRORS_CLOCK_WRONG_CONFIGURATION,
+    ERRORS_CLOCK_NOT_READY,
+    ERRORS_CLOCK_WRONG_DIVIDER,
+    ERRORS_CLOCK_FREQ_OUT_OF_RANGE,
+    ERRORS_CLOCK_EXTERNAL_TOO_BIG,
+    ERRORS_CLOCK_PLL_NOT_READY,
+    ERRORS_CLOCK_HSE_NOT_READY,
+    ERRORS_CLOCK_HSI_NOT_READY,
+    ERRORS_CLOCK_MSI_NOT_READY,
+    ERRORS_CLOCK_TIMEOUT,
+
+	ERRORS_LOWPOWER_TIMEOUT,
+
     ERRORS_PIT_NOT_EXIST,                   /**< The requested PIT not exist. */
     ERRORS_PIT_WRONG_VALUE,                       /**< Wrong frequency value. */
     ERRORS_PIT_NOT_INITIALIZED,    /**< The selected PIT was not initialized. */
@@ -121,6 +208,9 @@ typedef enum _System_Errors
     ERRORS_PDB_DEVICE_NOT_INIT,
 
 	ERRORS_DMA_OK,                                 /**< DMA initialization ok */
+    ERRORS_DMA_NO_DEVICE,
+    ERRORS_DMA_WRONG_DEVICE,
+    ERRORS_DMA_BUSY,        /**< The DMA channel is busy and can not be used. */
 
     ERRORS_ETHERNET_OK,                     /**< No Ethernet errors occurred. */
     ERRORS_ETHERNET_TIMEOUT,         /**< Generic timeout of ethernet device. */
@@ -133,32 +223,76 @@ typedef enum _System_Errors
     ERRORS_ETHERNETIF_RX_SMALL_BUFFERDESCRIPTOR_NUMBER,
     ERRORS_ETHERNETIF_TX_BUFFERDESCRIPTOR_FULL,
 
+    ERRORS_RTC_NO_DEVICE,
+    ERRORS_RTC_WRONG_DEVICE,
+    ERRORS_RTC_WRONG_PARAM,
+    ERRORS_RTC_TIMEOUT,
+    ERRORS_RTC_INIT_FAILED,
+
     ERRORS_XBAR_JUST_INIT,
     ERRORS_XBAR_NOT_INIT,
     ERRORS_XBAR_IN_WRONG,
     ERRORS_XBAR_OUT_WRONG,
 
-	ERRORS_LLWU_WRONG_EXTPIN,
-	ERRORS_LLWU_WRONG_WAKEUPMODULE,
+    ERRORS_LLWU_WRONG_EXTPIN,
+    ERRORS_LLWU_WRONG_WAKEUPMODULE,
 
-	ERRORS_SMC_NO_ERROR,
-	ERRORS_SMC_STATUS_NOT_ALLOWED,
-	ERRORS_SMC_STATUS_NOT_ENABLED,
-	ERRORS_SMC_STATUS_ALREADY_SET,
-	ERRORS_SMC_ERROR,
+    ERRORS_SMC_NO_ERROR,
+    ERRORS_SMC_STATUS_NOT_ALLOWED,
+    ERRORS_SMC_STATUS_NOT_ENABLED,
+    ERRORS_SMC_STATUS_ALREADY_SET,
+    ERRORS_SMC_ERROR,
 
-	ERRORS_FLASH_READ_COLLISION,
+    ERRORS_FLASH_READ_COLLISION,
     ERRORS_FLASH_ACCESS,
     ERRORS_FLASH_PROTECTION_VIOLATION,
     ERRORS_FLASH_COMPLETION_STATUS,
     ERRORS_FLASH_JUST_INIT,
+	ERRORS_FLASH_TIMEOUT,
+	ERRORS_FLASH_ERROR,
 
     ERRORS_COMMUTILITY_MAX_DEVICE_ACHIEVE,
     ERRORS_COMMUTILITY_DEVICE_NOT_FOUND,
 
+    ERRORS_UTILITYBUFFER_UNDERFLOW,
+    ERRORS_UTILITYBUFFER_OVERFLOW,
+
+    ERRORS_UTILITYDEBOUNCING_NO_HOLD,
+    ERRORS_UTILITYDEBOUNCING_HOLD,
+    ERRORS_UTILITYDEBOUNCING_TIMEOUT,
+
+    ERRORS_ASSERT,
+
 } System_Errors;
 
-void Errors_assert (const char* file, const int line);
-#define assert(condition) ((condition) ? (void)0 : Errors_assert(__FILE__,__LINE__))
+System_Errors Errors_assert (const char* file, const int line);
 
-#endif /* __ERRORS_H */
+#include "system.h"
+
+#if (LIBOHIBOARD_VERSION >= 0x20000u)
+
+#define ohiassert(condition) ((condition) ? (ERRORS_NO_ERROR) : (Errors_assert(__FILE__,__LINE__)))
+
+#else
+
+#define assert(condition) ((condition) ? ((void)0) : (Errors_assert(__FILE__,__LINE__)))
+
+#endif
+
+/**
+ * @}
+ */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __ERRORS_H
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
