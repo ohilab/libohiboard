@@ -198,6 +198,12 @@
 #define LIBOHIBOARD_ST_STM32
 #endif
 
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#ifndef LIBOHIBOARD_MURATA_STM32
+#define LIBOHIBOARD_MURATA_STM32
+#endif
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L476Jx) || \
       defined (LIBOHIBOARD_STM32L476Rx)
 
