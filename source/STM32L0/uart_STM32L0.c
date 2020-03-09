@@ -2271,7 +2271,11 @@ void USART2_IRQHandler(void)
     Uart_callbackInterrupt(OB_UART2);
 }
 
+#if defined (LIBOHIBOARD_STM32L0x2)
 void USART4_5_IRQHandler(void)
+#elif defined (LIBOHIBOARD_STM32L0x3)
+void USART4_USART5_IRQHandler (void)
+#endif
 {
     Uart_callbackInterrupt(OB_UART4);
     Uart_callbackInterrupt(OB_UART5);
