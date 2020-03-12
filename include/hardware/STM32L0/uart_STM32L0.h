@@ -400,8 +400,7 @@ void LPUART1_IRQHandler(void);
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
-void UART4_IRQHandler(void);
-void UART5_IRQHandler(void);
+void USART4_USART5_IRQHandler(void);
 
 extern Uart_DeviceHandle OB_UART1;
 extern Uart_DeviceHandle OB_UART2;
