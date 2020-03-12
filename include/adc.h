@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2020 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -71,7 +71,11 @@ extern "C" {
  */
 typedef struct _Adc_Device* Adc_DeviceHandle;
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/adc_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/STM32L4/adc_STM32L4.h"
 
@@ -122,7 +126,8 @@ typedef enum _Adc_Resolution
 	ADC_RESOLUTION_10BIT,
 	ADC_RESOLUTION_8BIT,
 #endif
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+	defined (LIBOHIBOARD_STM32L4)
     ADC_RESOLUTION_12BIT = 0x00000000u,
     ADC_RESOLUTION_10BIT = ADC_CFGR_RES_0,
     ADC_RESOLUTION_8BIT  = ADC_CFGR_RES_1,
