@@ -109,7 +109,9 @@ typedef enum _Adc_DeviceState
 {
     ADC_DEVICESTATE_RESET,
     ADC_DEVICESTATE_READY,
+    ADC_DEVICESTATE_BUSY_INTERNAL,
     ADC_DEVICESTATE_BUSY,
+    ADC_DEVICESTATE_ERROR_INTERNAL,
     ADC_DEVICESTATE_ERROR,
 
 } Adc_DeviceState;
@@ -205,6 +207,7 @@ typedef enum _Adc_ClockSource
     ADC_CLOCKSOURCE_NONE        = 0x00000000U,
 
 #if defined (LIBOHIBOARD_STM32L4)
+
     ADC_CLOCKSOURCE_PLLADC1CLK  = RCC_CCIPR_ADCSEL_0,
 
 #if defined(LIBOHIBOARD_STM32L471) || \
@@ -217,6 +220,12 @@ typedef enum _Adc_ClockSource
     ADC_CLOCKSOURCE_PLLADC2CLK  = RCC_CCIPR_ADCSEL_1,
 #endif
     ADC_CLOCKSOURCE_SYSCLK      = RCC_CCIPR_ADCSEL,
+
+#endif
+
+#if defined (LIBOHIBOARD_STM32L0)
+
+    ADC_CLOCKSOURCE_SYSCLK      = 1,
 
 #endif
 
@@ -233,9 +242,9 @@ typedef enum _Adc_Prescaler
 #if defined (LIBOHIBOARD_ST_STM32)
 
 #if defined (LIBOHIBOARD_STM32L0)
-    ADC_PRESCALER_SYNC_DIV1    = (ADC_CCR_CKMODE_1 | ADC_CCR_CKMODE_0),
-    ADC_PRESCALER_SYNC_DIV2    = (ADC_CCR_CKMODE_0),
-    ADC_PRESCALER_SYNC_DIV4    = (ADC_CCR_CKMODE_1),
+    ADC_PRESCALER_SYNC_DIV1    = ((uint32_t)ADC_CFGR2_CKMODE),
+    ADC_PRESCALER_SYNC_DIV2    = ((uint32_t)ADC_CFGR2_CKMODE_0),
+    ADC_PRESCALER_SYNC_DIV4    = ((uint32_t)ADC_CFGR2_CKMODE_1),
 #elif defined (LIBOHIBOARD_STM32L4)
     ADC_PRESCALER_SYNC_DIV1    = (ADC_CCR_CKMODE_0),
     ADC_PRESCALER_SYNC_DIV2    = (ADC_CCR_CKMODE_1),
@@ -265,8 +274,12 @@ typedef enum _Adc_Prescaler
 
 typedef enum _Adc_DataAlign
 {
-    ADC_DATAALIGN_RIGHT = 0x00000000u,
-    ADC_DATAALIGN_LEFT  = ADC_CFGR_ALIGN,
+    ADC_DATAALIGN_RIGHT = ((uint32_t)0x00000000u),
+#if defined (LIBOHIBOARD_STM32L4)
+    ADC_DATAALIGN_LEFT  = ((uint32_t)ADC_CFGR_ALIGN),
+#elif defined (LIBOHIBOARD_STM32L0)
+    ADC_DATAALIGN_LEFT  = ((uint32_t)ADC_CFGR1_ALIGN),
+#endif
 
 } Adc_DataAlign;
 
@@ -506,8 +519,10 @@ typedef struct _Adc_ChannelConfig
      */
     Adc_Channels channel;
 
-#if !defined (LIBOHIBOARD_MICROCHIP_PIC)
+#if defined (LIBOHIBOARD_ST_STM32)
+#if defined (LIBOHIBOARD_STM32L4)
     Adc_SequencePosition position;
+#endif
 
     Adc_SamplingTime samplingTime;
 #endif
@@ -627,17 +642,18 @@ static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
         return 0x0FFF;
     case ADC_RESOLUTION_10BIT:
         return 0x03FF;
-	ADC_RESOLUTION_8BIT:
+    case ADC_RESOLUTION_8BIT:
         return 0x00FF;
 #endif
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 	case ADC_RESOLUTION_12BIT:
         return 0x0FFF;
     case ADC_RESOLUTION_10BIT:
         return 0x03FF;
-	ADC_RESOLUTION_8BIT:
+    case ADC_RESOLUTION_8BIT:
         return 0x00FF;
-    ADC_RESOLUTION_6BIT:
+    case ADC_RESOLUTION_6BIT:
         return 0x003F;
 #endif
 #if defined (LIBOHIBOARD_PIC24FJ)
@@ -650,6 +666,22 @@ static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
         return 0;
     }
 }
+
+/**
+ * TODO
+ *
+ * @param[in] dev Adc device handle
+ * @return 
+ */
+System_Errors Adc_calibration (Adc_DeviceHandle dev);
+
+/**
+ * TODO
+ *
+ * @param[in] dev Adc device handle
+ * @return 
+ */
+uint32_t Adc_calibrationGetValue (Adc_DeviceHandle dev);
 
 /**
  * @}
@@ -667,10 +699,6 @@ static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
 //
 //System_Errors Adc_enableDmaTrigger (Adc_DeviceHandle dev);
 //
-///**
-// * See AN4662 for info in calibration process.
-// */
-//System_Errors Adc_calibration (Adc_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
 	defined (LIBOHIBOARD_KL02Z4)    || \
