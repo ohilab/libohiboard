@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2020 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -71,7 +71,11 @@ extern "C" {
  */
 typedef struct _Adc_Device* Adc_DeviceHandle;
 
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/adc_STM32L0.h"
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #include "hardware/STM32L4/adc_STM32L4.h"
 
@@ -105,7 +109,9 @@ typedef enum _Adc_DeviceState
 {
     ADC_DEVICESTATE_RESET,
     ADC_DEVICESTATE_READY,
+    ADC_DEVICESTATE_BUSY_INTERNAL,
     ADC_DEVICESTATE_BUSY,
+    ADC_DEVICESTATE_ERROR_INTERNAL,
     ADC_DEVICESTATE_ERROR,
 
 } Adc_DeviceState;
@@ -122,6 +128,12 @@ typedef enum _Adc_Resolution
 	ADC_RESOLUTION_10BIT,
 	ADC_RESOLUTION_8BIT,
 #endif
+#if defined (LIBOHIBOARD_STM32L0)
+    ADC_RESOLUTION_12BIT = 0x00000000u,
+    ADC_RESOLUTION_10BIT = ADC_CFGR1_RES_0,
+    ADC_RESOLUTION_8BIT  = ADC_CFGR1_RES_1,
+    ADC_RESOLUTION_6BIT  = ADC_CFGR1_RES,
+#endif
 #if defined (LIBOHIBOARD_STM32L4)
     ADC_RESOLUTION_12BIT = 0x00000000u,
     ADC_RESOLUTION_10BIT = ADC_CFGR_RES_0,
@@ -137,7 +149,7 @@ typedef enum _Adc_Resolution
 typedef enum _Adc_InputType
 {
     ADC_INPUTTYPE_SINGLE_ENDED = 0x0000,
-#if !defined (LIBOHIBOARD_PIC24FJ)
+#if defined (LIBOHIBOARD_STM32L4)
     ADC_INPUTTYPE_DIFFERENTIAL = 1,
 #endif
 } Adc_InputType;
@@ -193,6 +205,9 @@ typedef enum _Adc_ClockSource
 #elif defined (LIBOHIBOARD_ST_STM32)
 
     ADC_CLOCKSOURCE_NONE        = 0x00000000U,
+
+#if defined (LIBOHIBOARD_STM32L4)
+
     ADC_CLOCKSOURCE_PLLADC1CLK  = RCC_CCIPR_ADCSEL_0,
 
 #if defined(LIBOHIBOARD_STM32L471) || \
@@ -205,6 +220,15 @@ typedef enum _Adc_ClockSource
     ADC_CLOCKSOURCE_PLLADC2CLK  = RCC_CCIPR_ADCSEL_1,
 #endif
     ADC_CLOCKSOURCE_SYSCLK      = RCC_CCIPR_ADCSEL,
+
+#endif
+
+#if defined (LIBOHIBOARD_STM32L0)
+
+    ADC_CLOCKSOURCE_SYSCLK      = 1,
+
+#endif
+
 #elif defined (LIBOHIBOARD_MICROCHIP_PIC)
 
     ADC_CLOCKSOURCE_DEDICATED = _AD1CON3_ADRC_MASK, //!< Dedicated ADC RC clock generator (4 MHz nominal)
@@ -217,9 +241,15 @@ typedef enum _Adc_Prescaler
 {
 #if defined (LIBOHIBOARD_ST_STM32)
 
+#if defined (LIBOHIBOARD_STM32L0)
+    ADC_PRESCALER_SYNC_DIV1    = ((uint32_t)ADC_CFGR2_CKMODE),
+    ADC_PRESCALER_SYNC_DIV2    = ((uint32_t)ADC_CFGR2_CKMODE_0),
+    ADC_PRESCALER_SYNC_DIV4    = ((uint32_t)ADC_CFGR2_CKMODE_1),
+#elif defined (LIBOHIBOARD_STM32L4)
     ADC_PRESCALER_SYNC_DIV1    = (ADC_CCR_CKMODE_0),
     ADC_PRESCALER_SYNC_DIV2    = (ADC_CCR_CKMODE_1),
     ADC_PRESCALER_SYNC_DIV4    = (ADC_CCR_CKMODE_1 | ADC_CCR_CKMODE_0),
+#endif
     ADC_PRESCALER_ASYNC_DIV1   = 0x00000000u,
     ADC_PRESCALER_ASYNC_DIV2   = (ADC_CCR_PRESC_0),
     ADC_PRESCALER_ASYNC_DIV4   = (ADC_CCR_PRESC_1),
@@ -244,8 +274,12 @@ typedef enum _Adc_Prescaler
 
 typedef enum _Adc_DataAlign
 {
-    ADC_DATAALIGN_RIGHT = 0x00000000u,
-    ADC_DATAALIGN_LEFT  = ADC_CFGR_ALIGN,
+    ADC_DATAALIGN_RIGHT = ((uint32_t)0x00000000u),
+#if defined (LIBOHIBOARD_STM32L4)
+    ADC_DATAALIGN_LEFT  = ((uint32_t)ADC_CFGR_ALIGN),
+#elif defined (LIBOHIBOARD_STM32L0)
+    ADC_DATAALIGN_LEFT  = ((uint32_t)ADC_CFGR1_ALIGN),
+#endif
 
 } Adc_DataAlign;
 
@@ -258,6 +292,18 @@ typedef enum _Adc_EndOfConversion
 
 typedef enum _Adc_Trigger
 {
+#if defined (LIBOHIBOARD_STM32L0)
+    ADC_TRIGGER_EXT0_TIM6_TRGO    = 0x00000000u,
+    ADC_TRIGGER_EXT1_TIM21_CH2    = (ADC_CFGR1_EXTSEL_0),
+    ADC_TRIGGER_EXT2_TIM2_TRGO    = (ADC_CFGR1_EXTSEL_1),
+    ADC_TRIGGER_EXT3_TIM2_CH4     = (ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0),
+    ADC_TRIGGER_EXT4_TIM22_TRGO   = (ADC_CFGR1_EXTSEL_2),
+    ADC_TRIGGER_EXT5_TIM2_CH3     = (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_0),
+    ADC_TRIGGER_EXT6_TIM3_TRGO    = (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_1),
+    ADC_TRIGGER_EXT7_EXTI_11      = (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0),
+#endif
+
+#if defined (LIBOHIBOARD_STM32L4)
     ADC_TRIGGER_EXT0_TIM1_CH1     = 0x00000000u,
     ADC_TRIGGER_EXT1_TIM1_CH2     = (ADC_CFGR_EXTSEL_0),
     ADC_TRIGGER_EXT2_TIM1_CH3     = (ADC_CFGR_EXTSEL_1),
@@ -274,15 +320,22 @@ typedef enum _Adc_Trigger
     ADC_TRIGGER_EXT13_TIM6_TRGO   = (ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0),
     ADC_TRIGGER_EXT14_TIM15_TRGO  = (ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1),
     ADC_TRIGGER_EXT15_TIM3_CH4    = (ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0),
-
+#endif
 } Adc_Trigger;
 
 typedef enum _Adc_TriggerPolarity
 {
     ADC_TRIGGERPOLARITY_DISABLE = 0x00000000u,
+#if defined (LIBOHIBOARD_STM32L0)
+    ADC_TRIGGERPOLARITY_RISING  = ADC_CFGR1_EXTEN_0,
+    ADC_TRIGGERPOLARITY_FALLING = ADC_CFGR1_EXTEN_1,
+    ADC_TRIGGERPOLARITY_BOTH    = ADC_CFGR1_EXTEN,
+#endif
+#if defined (LIBOHIBOARD_STM32L4)
     ADC_TRIGGERPOLARITY_RISING  = ADC_CFGR_EXTEN_0,
     ADC_TRIGGERPOLARITY_FALLING = ADC_CFGR_EXTEN_1,
     ADC_TRIGGERPOLARITY_BOTH    = ADC_CFGR_EXTEN,
+#endif
 
 } Adc_TriggerPolarity;
 
@@ -466,8 +519,10 @@ typedef struct _Adc_ChannelConfig
      */
     Adc_Channels channel;
 
-#if !defined (LIBOHIBOARD_MICROCHIP_PIC)
+#if defined (LIBOHIBOARD_ST_STM32)
+#if defined (LIBOHIBOARD_STM32L4)
     Adc_SequencePosition position;
+#endif
 
     Adc_SamplingTime samplingTime;
 #endif
@@ -587,17 +642,18 @@ static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
         return 0x0FFF;
     case ADC_RESOLUTION_10BIT:
         return 0x03FF;
-	ADC_RESOLUTION_8BIT:
+    case ADC_RESOLUTION_8BIT:
         return 0x00FF;
 #endif
-#if defined (LIBOHIBOARD_STM32L4)
+#if defined (LIBOHIBOARD_STM32L0) || \
+    defined (LIBOHIBOARD_STM32L4)
 	case ADC_RESOLUTION_12BIT:
         return 0x0FFF;
     case ADC_RESOLUTION_10BIT:
         return 0x03FF;
-	ADC_RESOLUTION_8BIT:
+    case ADC_RESOLUTION_8BIT:
         return 0x00FF;
-    ADC_RESOLUTION_6BIT:
+    case ADC_RESOLUTION_6BIT:
         return 0x003F;
 #endif
 #if defined (LIBOHIBOARD_PIC24FJ)
@@ -610,6 +666,22 @@ static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
         return 0;
     }
 }
+
+/**
+ * TODO
+ *
+ * @param[in] dev Adc device handle
+ * @return 
+ */
+System_Errors Adc_calibration (Adc_DeviceHandle dev);
+
+/**
+ * TODO
+ *
+ * @param[in] dev Adc device handle
+ * @return 
+ */
+uint32_t Adc_calibrationGetValue (Adc_DeviceHandle dev);
 
 /**
  * @}
@@ -627,10 +699,6 @@ static inline uint16_t Adc_getMaxValue (Adc_Resolution res)
 //
 //System_Errors Adc_enableDmaTrigger (Adc_DeviceHandle dev);
 //
-///**
-// * See AN4662 for info in calibration process.
-// */
-//System_Errors Adc_calibration (Adc_DeviceHandle dev);
 
 #if defined (LIBOHIBOARD_FRDMKL02Z) || \
 	defined (LIBOHIBOARD_KL02Z4)    || \
