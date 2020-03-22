@@ -45,13 +45,13 @@ extern "C" {
 
 inline void Critical_sectionBegin (uint32_t* mask)
 {
-    *mask = __get_BASEPRI();
-    __set_BASEPRI(CRITICAL_DEFAULT_TICK_PRIO + 1);
+    *mask = __get_PRIMASK( );
+    __disable_irq( );
 }
 
 inline void Critical_sectionEnd (uint32_t* mask)
 {
-    __set_BASEPRI( *mask );
+    __set_PRIMASK( *mask );
 }
 
 #endif // LIBOHIBOARD_STM32L0
