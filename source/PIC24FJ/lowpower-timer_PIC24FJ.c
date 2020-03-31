@@ -360,6 +360,9 @@ uint32_t LowPowerTimer_getCurrentCounter (LowPowerTimer_DeviceHandle dev)
 
 _weak void __attribute__ ( ( interrupt, no_auto_psv ) ) _T1Interrupt (  )
 {
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+    Interrupt_callbackCheck();
+#endif
     LowPowerTimer_callbackInterrupt(OB_LPTIM1);
 }
 

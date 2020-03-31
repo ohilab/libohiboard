@@ -855,11 +855,17 @@ System_Errors Timer_stopPwm (Timer_DeviceHandle dev, Timer_Channels channel)
 
 void __attribute__ (( interrupt, no_auto_psv )) _T2Interrupt ( void )
 {
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+    Interrupt_callbackCheck();
+#endif
     Timer_callbackInterrupt(OB_TIM2);
 }
 
 void __attribute__ (( interrupt, no_auto_psv )) _T3Interrupt ( void )
 {
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+    Interrupt_callbackCheck();
+#endif
     if (TMR23->TxCON & _T2CON_T32_MASK)
     {
         Timer_callbackInterrupt(OB_TIM23);
@@ -872,11 +878,17 @@ void __attribute__ (( interrupt, no_auto_psv )) _T3Interrupt ( void )
 
 void __attribute__ (( interrupt, no_auto_psv )) _T4Interrupt ( void )
 {
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+    Interrupt_callbackCheck();
+#endif
     Timer_callbackInterrupt(OB_TIM4);
 }
 
 void __attribute__ (( interrupt, no_auto_psv )) _T5Interrupt ( void )
 {
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+    Interrupt_callbackCheck();
+#endif
     if (TMR45->TxCON & _T2CON_T45_MASK)
     {
         Timer_callbackInterrupt(OB_TIM45);

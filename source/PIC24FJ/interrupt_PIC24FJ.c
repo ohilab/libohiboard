@@ -172,6 +172,13 @@ System_Errors Interrupt_clearFlag (Interrupt_Vector vectorNumber)
     return ERRORS_NO_ERROR;
 }
 
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+void Interrupt_callbackCheck (void)
+{
+    asm("NOP");
+}
+#endif
+
 #endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
