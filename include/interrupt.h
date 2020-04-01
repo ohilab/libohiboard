@@ -113,6 +113,11 @@ bool Interrupt_isFlag (Interrupt_Vector vectorNumber);
  * @param[in] vectorNumber: index of IRQ
  */
 System_Errors Interrupt_clearFlag (Interrupt_Vector vectorNumber);
+
+#if defined (LIBOHIBOARD_INTERRUPT_DEBUG)
+void Interrupt_callbackCheck (void);
+#endif
+
 #endif
 
 #ifdef __cplusplus

@@ -42,6 +42,15 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
 
+#if defined (LIBOHIBOARD_STM32L4)
+#define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                                            && \
+                                        (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)                         || \
+                                         ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)                           || \
+                                         ((OSC & CLOCK_INTERNAL_LSI) == CLOCK_INTERNAL_LSI)                 || \
+                                         ((OSC & CLOCK_INTERNAL_HSI) == CLOCK_INTERNAL_HSI)                 || \
+                                         ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)                 || \
+                                         ((OSC & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL))
+#elif defined (LIBOHIBOARD_STM32WB)
 #define CLOCK_IS_VALID_OSCILLATOR(OSC)  (OSC != CLOCK_NO_SOURCE)                                            && \
                                         (((OSC & CLOCK_EXTERNAL) == CLOCK_EXTERNAL)                         || \
                                          ((OSC & CLOCK_CRYSTAL) == CLOCK_CRYSTAL)                           || \
@@ -51,6 +60,7 @@ extern "C" {
                                          ((OSC & CLOCK_INTERNAL_HSI_48) == CLOCK_INTERNAL_HSI_48)           || \
                                          ((OSC & CLOCK_INTERNAL_MSI) == CLOCK_INTERNAL_MSI)                 || \
                                          ((OSC & CLOCK_EXTERNAL_LSE_CRYSTAL) == CLOCK_EXTERNAL_LSE_CRYSTAL))
+#endif
 
 #define CLOCK_IS_VALID_PLL_SOURCE(PLL_SOURCE) ((PLL_SOURCE == CLOCK_PLLSOURCE_HSI) || \
                                                (PLL_SOURCE == CLOCK_PLLSOURCE_HSE) || \

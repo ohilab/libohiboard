@@ -122,7 +122,7 @@ static void LowPower_enterIdleMode (void)
 static void LowPower_enterSleepMode (void)
 {
     ClrWdt();
-    UTILITY_MODIFY_REGISTER(lpd.regmapCPU->SR, _SR_IPL_MASK, (0u << _SR_IPL_POSITION));
+    //UTILITY_MODIFY_REGISTER(lpd.regmapCPU->SR, _SR_IPL_MASK, (0u << _SR_IPL_POSITION));
     __builtin_disi(0x0001);
 	Sleep();
 }

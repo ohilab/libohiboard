@@ -2277,8 +2277,14 @@ void USART4_5_IRQHandler(void)
 void USART4_USART5_IRQHandler (void)
 #endif
 {
-    Uart_callbackInterrupt(OB_UART4);
-    Uart_callbackInterrupt(OB_UART5);
+    if(Uart_isEnabled(OB_UART4))
+    {
+        Uart_callbackInterrupt(OB_UART4);
+    }
+    if(Uart_isEnabled(OB_UART5))
+    {
+        Uart_callbackInterrupt(OB_UART5);
+    }
 }
 
 #endif // LIBOHIBOARD_STM32L0

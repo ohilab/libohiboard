@@ -90,7 +90,7 @@ System_Errors System_systickConfig (uint32_t ticks)
         .outputCompareCallback = nullptr,
         .inputCaptureCallback = nullptr,
 
-        .isrPriority = 6,
+        .isrPriority = INTERRUPT_PRIORITY_7,
         .counterMode = TIMER_COUNTERMODE_UP,
     };
 
@@ -195,6 +195,8 @@ void System_suspendTick (void)
 {
 #if !defined (LIBOHIBOARD_MICROCHIP_PIC)
     SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
+#else
+    Timer_stop(OB_TIM23);
 #endif
 }
 
@@ -202,6 +204,8 @@ void System_resumeTick (void)
 {
 #if !defined (LIBOHIBOARD_MICROCHIP_PIC)
     SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
+#else
+    Timer_start(OB_TIM23);
 #endif
 }
 
