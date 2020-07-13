@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -47,6 +47,8 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L0)
 
+#define UART_MAX_CALLBACK_NUMBER          5
+
 #define UART_DEVICE_IS_ENABLED(REGMAP)    (REGMAP->CR1 & USART_CR1_UE)
 #define UART_DEVICE_ENABLE(REGMAP)        (REGMAP->CR1 |= USART_CR1_UE)
 #define UART_DEVICE_DISABLE(REGMAP)       (REGMAP->CR1 &= ~USART_CR1_UE)
@@ -66,7 +68,7 @@ extern "C" {
                                           } while (0)
 
 #define UART_CLOCK_DISABLE(REG,MASK)      do { \
-		                                    UTILITY_CLEAR_REGISTER_BIT(REG,MASK); \
+                                            UTILITY_CLEAR_REGISTER_BIT(REG,MASK); \
                                             asm("nop"); \
                                             (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
                                           } while (0)
@@ -155,14 +157,26 @@ typedef struct _Uart_Device
 
     uint16_t mask;              /**< Computed mask to use with received data. */
 
-    /** The function pointer for user Rx callback. */
-    void (*callbackRx)(struct _Uart_Device* dev, void* obj);
-    /** The function pointer for user Tx callback. */
-    void (*callbackTx)(struct _Uart_Device* dev, void* obj);
-    /** Callback Function to handle Error Interrupt. */
-    void (*callbackError)(struct _Uart_Device* dev, void* obj);
-    /** Useful object added to callback when interrupt triggered. */
-    void* callbackObj;
+//    /** The function pointer for user Rx callback. */
+//    void (*callbackRx)(struct _Uart_Device* dev, void* obj);
+//    /** The function pointer for user Tx callback. */
+//    void (*callbackTx)(struct _Uart_Device* dev, void* obj);
+//    /** Callback Function to handle Error Interrupt. */
+//    void (*callbackError)(struct _Uart_Device* dev, void* obj);
+//    /** Useful object added to callback when interrupt triggered. */
+//    void* callbackObj;
+    /** The array of function pointers for user Rx callback. */
+    void (*callbackRx[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
+    /** The array of function pointers for user Tx callback. */
+    void (*callbackTx[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
+    /** The array of function pointers to handle Error Interrupt. */
+    void (*callbackError[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
+    /** Useful array of object added to callback when interrupt triggered. */
+    void* callbackObj[UART_MAX_CALLBACK_NUMBER];
+
+    bool isRxInterruptEnabled;
+    bool isTxInterruptEnabled;
+    bool isErrorInterruptEnabled;
 
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
@@ -288,6 +302,10 @@ static Uart_Device uart1 =
         .isrNumber           = INTERRUPT_USART1,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
@@ -441,6 +459,10 @@ static Uart_Device uart2 =
         .isrNumber           = INTERRUPT_USART2,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
@@ -609,6 +631,10 @@ static Uart_Device uart4 =
         .isrNumber           = INTERRUPT_USART4_5,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART4 = &uart4;
 
@@ -780,6 +806,10 @@ static Uart_Device uart5 =
         .isrNumber           = INTERRUPT_USART4_5,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
 
@@ -1131,6 +1161,10 @@ static Uart_Device lpuart1 =
         .isrNumber           = INTERRUPT_LPUART1,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
@@ -1192,6 +1226,10 @@ static Uart_Device uart1 = {
         .isrNumber           = INTERRUPT_USART1,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
@@ -1264,6 +1302,10 @@ static Uart_Device uart2 = {
         .isrNumber           = INTERRUPT_USART2,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
@@ -1366,6 +1408,10 @@ static Uart_Device uart4 = {
         .isrNumber           = INTERRUPT_USART4_5,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART4 = &uart4;
 
@@ -1468,6 +1514,10 @@ static Uart_Device uart5 = {
         .isrNumber           = INTERRUPT_USART4_5,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
 
@@ -1599,6 +1649,10 @@ static Uart_Device lpuart1 = {
         .isrNumber           = INTERRUPT_LPUART1,
 
         .state               = UART_DEVICESTATE_RESET,
+
+        .isRxInterruptEnabled    = FALSE,
+        .isTxInterruptEnabled    = FALSE,
+        .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
@@ -1925,10 +1979,12 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
     // Configure interrupt
     if (config->callbackRx)
     {
-        dev->callbackRx = config->callbackRx;
+        dev->callbackRx[0] = config->callbackRx;
+        dev->isRxInterruptEnabled = TRUE;
         if (config->callbackError)
         {
-            dev->callbackError = config->callbackError;
+            dev->callbackError[0] = config->callbackError;
+            dev->isErrorInterruptEnabled = TRUE;
         }
         // Enable NVIC interrupt
         Interrupt_enable(dev->isrNumber);
@@ -1941,10 +1997,12 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
 
     if (config->callbackTx)
     {
-        dev->callbackTx = config->callbackTx;
+        dev->callbackTx[0] = config->callbackTx;
+        dev->isTxInterruptEnabled = TRUE;
         if (config->callbackError)
         {
-            dev->callbackError = config->callbackError;
+            dev->callbackError[0] = config->callbackError;
+            dev->isErrorInterruptEnabled = TRUE;
         }
         // Enable NVIC interrupt
         Interrupt_enable(dev->isrNumber);
@@ -1953,11 +2011,11 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
 
     if (dev->config.callbackObj != NULL)
     {
-        dev->callbackObj = dev->config.callbackObj;
+        dev->callbackObj[0] = dev->config.callbackObj;
     }
     else
     {
-        dev->callbackObj = NULL;
+        dev->callbackObj[0] = NULL;
     }
 
     dev->state = UART_DEVICESTATE_READY;
@@ -1996,8 +2054,13 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
     dev->regmap->CR3 = 0x0u;
 
     // Delete interrrupt callback
-    dev->callbackRx = NULL;
-    dev->callbackTx = NULL;
+    for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+    {
+        dev->callbackRx[i] = NULL;
+        dev->callbackTx[i] = NULL;
+        dev->callbackError[i] = NULL;
+        dev->callbackObj[i] = 0;
+    }
 
     // Disable peripheral clock
     UART_CLOCK_DISABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
@@ -2206,7 +2269,7 @@ void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj)
 
     if (obj != NULL)
     {
-        dev->callbackObj = obj;
+        dev->callbackObj[0] = obj;
     }
 }
 
@@ -2227,9 +2290,12 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         // Check if the interrupt is in reception
         if (((isrreg & USART_ISR_RXNE) != 0) && ((cr1reg & USART_CR1_RXNEIE) > 0))
         {
-            if (dev->callbackRx != NULL)
+            if (dev->callbackRx[0] != NULL)
             {
-                dev->callbackRx(dev,dev->callbackObj);
+                for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+                {
+                    dev->callbackRx[i](dev,dev->callbackObj[i]);
+                }
                 // Clear flag, just to increase the safety
                 UTILITY_SET_REGISTER_BIT(dev->regmap->RQR,USART_RQR_RXFRQ);
             }
@@ -2238,9 +2304,12 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
     }
     else
     {
-        if (dev->callbackError != NULL)
+        if (dev->callbackError[0] != NULL)
         {
-            dev->callbackError(dev,dev->callbackObj);
+            for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+            {
+                dev->callbackError[i](dev,dev->callbackObj[i]);
+            }
             // Clear ORE flag
             UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
         }
@@ -2249,9 +2318,12 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
     // Check if the interrupt is in transmission
     if (((isrreg & USART_ISR_TXE) != 0) && ((cr1reg & USART_CR1_TXEIE) > 0))
     {
-        if (dev->callbackTx != NULL)
+        if (dev->callbackTx[0] != NULL)
         {
-            dev->callbackTx(dev,dev->callbackObj);
+            for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+            {
+                dev->callbackTx[i](dev,dev->callbackObj[i]);
+            }
         }
     }
 }
