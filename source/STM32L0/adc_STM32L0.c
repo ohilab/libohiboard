@@ -115,8 +115,8 @@ extern "C" {
 #define ADC_VALID_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
                                      ((ALIGN) == ADC_DATAALIGN_LEFT))
 
-//#define ADC_VALID_EOC(EOC) (((EOC) == ADC_ENDOFCONVERSION_SINGLE)   || \
-//                            ((EOC) == ADC_ENDOFCONVERSION_SEQUENCE))
+#define ADC_VALID_EOC(EOC) (((EOC) == ADC_ENDOFCONVERSION_SINGLE)   || \
+                            ((EOC) == ADC_ENDOFCONVERSION_SEQUENCE))
 
 #define ADC_VALID_EXTERNAL_TRIGGER(TRIGGER) (((TRIGGER) == ADC_TRIGGER_EXT0_TIM6_TRGO)   || \
                                              ((TRIGGER) == ADC_TRIGGER_EXT1_TIM21_CH2)   || \
