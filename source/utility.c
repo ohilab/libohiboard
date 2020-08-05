@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 #include "utility.h"
+#include "timeday.h"
 
 const char hexDigits[] = "0123456789ABCDEF";
 
@@ -710,6 +711,32 @@ uint8_t Utility_bcd2ToByte (uint8_t value)
     uint8_t tmp = 0;
     tmp = ((uint8_t)(value & 0xF0u) >> 4) * 10;
     return (tmp + (value & 0x0Fu));
+}
+
+void Utility_getVersionString (const Utility_Version_t* version, char* toString)
+{
+	uint8_t tmp[5] = {0};
+	uint8_t tmp2[32] = {0};
+
+	// Major
+	u16td(tmp,version->f.major);
+	strcat(toString,tmp);
+	strcat(toString,".");
+
+	// Minor
+	memset(tmp,0,sizeof(tmp));
+	u16td(tmp,version->f.minor);
+	strcat(toString,tmp);
+	strcat(toString,".");
+
+	// Sub Minor
+	memset(tmp,0,sizeof(tmp));
+	u16td(tmp,version->f.subminor);
+	strcat(toString,tmp);
+	strcat(toString," of ");
+
+	Time_unixtimeToString(version->f.time,tmp2);
+	strcat(toString,tmp2);
 }
 
 #ifdef __cplusplus

@@ -97,6 +97,20 @@ typedef enum _Utility_State
 
 extern const char hexDigits[];
 
+typedef struct _Utility_VersionFields_t
+{
+    uint8_t  major;
+    uint8_t  minor;
+    uint16_t subminor;
+    uint32_t time;
+} __packed Utility_VersionFields_t;
+
+typedef union _Utility_Version_t
+{
+	Utility_VersionFields_t f;
+    uint8_t b[sizeof (Utility_VersionFields_t)];
+} __packed Utility_Version_t;
+
 System_Errors xdigit (uint8_t digit, uint8_t* result);
 
 System_Errors xtu8 (const uint8_t* xString, uint8_t* result, uint8_t slength);
@@ -180,6 +194,20 @@ bool Utility_isValidIp4Address (char* str);
  * @return TRUE if the string is valid, FALSE otherwise.
  */
 bool Utility_isValidMacAddress (char* str);
+
+/*!
+ * \defgroup Utility_other Other generic utility functions
+ * \{
+ */
+
+/*!
+ *
+ */
+void Utility_getVersionString (const Utility_Version_t* version, char* toString);
+
+/*!
+ * \}
+ */
 
 #ifdef __cplusplus
 }
