@@ -2273,6 +2273,51 @@ void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj)
     }
 }
 
+void Uart_addRxCallback (Uart_DeviceHandle dev, Uart_callback callback)
+{
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->callbackRx[0] = callback;
+        dev->isRxInterruptEnabled = TRUE;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+        // Enable UART Data Register Not Empty interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1, USART_CR1_RXNEIE);
+    }
+}
+
+void Uart_addTxCallback (Uart_DeviceHandle dev, Uart_callback callback)
+{
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->callbackTx[0] = callback;
+        dev->isTxInterruptEnabled = TRUE;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1,USART_CR1_TXEIE);
+    }
+}
+
+void Uart_addErrorCallback (Uart_DeviceHandle dev, Uart_callback callback)
+{
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->callbackError[0] = callback;
+        dev->isErrorInterruptEnabled = TRUE;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+        // Enable the UART Error Interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR3, USART_CR3_EIE);
+    }
+}
+
+
 static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_DeviceHandle dev)
 {
     uint32_t isrreg = dev->regmap->ISR;
@@ -2294,7 +2339,11 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
             {
                 for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
                 {
-                    dev->callbackRx[i](dev,dev->callbackObj[i]);
+
+                    if (dev->callbackRx[i] != NULL)
+                    {
+                    	dev->callbackRx[i](dev,dev->callbackObj[i]);
+                    }
                 }
                 // Clear flag, just to increase the safety
                 UTILITY_SET_REGISTER_BIT(dev->regmap->RQR,USART_RQR_RXFRQ);
@@ -2308,7 +2357,10 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         {
             for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
             {
-                dev->callbackError[i](dev,dev->callbackObj[i]);
+                if (dev->callbackError[i] != NULL)
+                {
+                	dev->callbackError[i](dev,dev->callbackObj[i]);
+                }
             }
             // Clear ORE flag
             UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
@@ -2322,7 +2374,10 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         {
             for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
             {
-                dev->callbackTx[i](dev,dev->callbackObj[i]);
+                if (dev->callbackTx[i] != NULL)
+                {
+                	dev->callbackTx[i](dev,dev->callbackObj[i]);
+                }
             }
         }
     }

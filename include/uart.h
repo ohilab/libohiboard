@@ -220,6 +220,9 @@ typedef enum _Uart_WakeUpSleepMode
 
 #if (LIBOHIBOARD_VERSION >= 0x20000u)
 typedef struct _Uart_Device* Uart_DeviceHandle;
+
+typedef void (*Uart_callback)(Uart_DeviceHandle dev, void* obj);
+
 #else
 typedef struct Uart_Device* Uart_DeviceHandle;
 #endif
@@ -516,6 +519,12 @@ bool Uart_isPresent (Uart_DeviceHandle dev);
 /**
  * @}
  */
+
+void Uart_addRxCallback (Uart_DeviceHandle dev, Uart_callback callback);
+
+void Uart_addTxCallback (Uart_DeviceHandle dev, Uart_callback callback);
+
+void Uart_addErrorCallback (Uart_DeviceHandle dev, Uart_callback callback);
 
 /**
  * @defgroup UART_String_Functions UART common string management functions
