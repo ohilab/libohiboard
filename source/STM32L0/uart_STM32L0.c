@@ -165,6 +165,7 @@ typedef struct _Uart_Device
 //    void (*callbackError)(struct _Uart_Device* dev, void* obj);
 //    /** Useful object added to callback when interrupt triggered. */
 //    void* callbackObj;
+
     /** The array of function pointers for user Rx callback. */
     void (*callbackRx[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
     /** The array of function pointers for user Tx callback. */
