@@ -161,11 +161,7 @@ typedef struct _Uart_Device
 
     Uart_Config config;
 
-    Uart_ClockSource clockSource;
     bool oversampling8;
-
-    Uart_DataBits databits;
-    Uart_ParityMode parity;
 
     uint16_t mask;              /**< Computed mask to use with received data. */
 
@@ -530,24 +526,24 @@ Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
 static inline __attribute__((always_inline)) void Uart_computeRxMask (Uart_DeviceHandle dev)
 {
-    switch (dev->databits)
+    switch (dev->config.dataBits)
     {
     case UART_DATABITS_SEVEN:
-        if (dev->parity == UART_PARITY_NONE)
+        if (dev->config.parity == UART_PARITY_NONE)
             dev->mask = 0x007Fu;
         else
             dev->mask = 0x003Fu;
         break;
 
     case UART_DATABITS_EIGHT:
-        if (dev->parity == UART_PARITY_NONE)
+        if (dev->config.parity == UART_PARITY_NONE)
             dev->mask = 0x00FFu;
         else
             dev->mask = 0x007Fu;
         break;
 
     case UART_DATABITS_NINE:
-        if (dev->parity == UART_PARITY_NONE)
+        if (dev->config.parity == UART_PARITY_NONE)
             dev->mask = 0x01FFu;
         else
             dev->mask = 0x00FFu;
@@ -586,8 +582,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
     // Config peripheral
     // Configure data bits with the M bits
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_M_Msk));
-    dev->databits = config->dataBits;
-    switch (config->dataBits)
+    switch (dev->config.dataBits)
     {
     case UART_DATABITS_SEVEN:
         dev->regmap->CR1 |= USART_CR1_M1_Msk;
@@ -602,8 +597,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure parity type with PCE and PS bit
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_PCE_Msk | USART_CR1_PS_Msk));
-    dev->parity = config->parity;
-    switch (config->parity)
+    switch (dev->config.parity)
     {
     case UART_PARITY_NONE:
         dev->regmap->CR1 |= 0x00U;
@@ -618,7 +612,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure peripheral mode with TE and RE bits into CR1
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_TE_Msk | USART_CR1_RE_Msk));
-    switch (config->mode)
+    switch (dev->config.mode)
     {
     case UART_MODE_TRANSMIT:
         dev->regmap->CR1 |= USART_CR1_TE_Msk;
@@ -633,7 +627,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Set oversampling: if value differs from 8, use default value.
     dev->regmap->CR1 = dev->regmap->CR1 & (~(USART_CR1_OVER8_Msk));
-    if (config->oversampling == 8)
+    if (dev->config.oversampling == 8)
     {
         dev->regmap->CR1 |= USART_CR1_OVER8_Msk;
         dev->oversampling8 = TRUE;
@@ -645,7 +639,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure stop bits with STOP[13:12] bits into CR2
     dev->regmap->CR2 = dev->regmap->CR2 & (~(USART_CR2_STOP_Msk));
-    switch (config->stop)
+    switch (dev->config.stop)
     {
     case UART_STOPBITS_HALF:
         dev->regmap->CR2 |= (USART_CR2_STOP_Msk & (0x01UL << USART_CR2_STOP_Pos));
@@ -663,7 +657,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
 
     // Configure hardware flow control with CTS and RTS bits into CR3
     dev->regmap->CR3 = dev->regmap->CR3 & (~(USART_CR3_CTSE_Msk | USART_CR3_RTSE_Msk));
-    switch (config->flowControl)
+    switch (dev->config.flowControl)
     {
     case UART_FLOWCONTROL_NONE:
         dev->regmap->CR3 |= 0x0U;
@@ -685,7 +679,7 @@ static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
     // TODO: ONEBIT One sample bit method enable
 
     // Configure Baudrate
-    err = Uart_setBaudrate(dev,config->baudrate);
+    err = Uart_setBaudrate(dev,dev->config.baudrate);
     if (err != ERRORS_NO_ERROR)
         return ERRORS_UART_WRONG_PARAM;
 
@@ -700,7 +694,7 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     uint32_t frequency = 0;
 
     // Get current parent clock
-    switch (dev->clockSource)
+    switch (dev->config.clockSource)
     {
     case UART_CLOCKSOURCE_HSI:
         frequency = (uint32_t)CLOCK_FREQ_HSI;
@@ -810,7 +804,6 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
     {
         return ERRORS_UART_WRONG_PARAM;
     }
-    dev->clockSource = config->clockSource;
 
     // Enable peripheral clock if needed
     if (dev->state == UART_DEVICESTATE_RESET)
@@ -975,9 +968,6 @@ System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
 {
     uint8_t devPinIndex;
 
-//    if (dev->devInitialized == 0)
-//        return ERRORS_UART_DEVICE_NOT_INIT;
-
     for (devPinIndex = 0; devPinIndex < UART_MAX_PINS; ++devPinIndex)
     {
         if (dev->rxPins[devPinIndex] == rxPin)
@@ -994,9 +984,6 @@ System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
 System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
 {
     uint8_t devPinIndex;
-
-//    if (dev->devInitialized == 0)
-//        return ERRORS_UART_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < UART_MAX_PINS; ++devPinIndex)
     {
@@ -1043,25 +1030,34 @@ System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 
     uint32_t timeoutEnd = System_currentTick() + timeout;
 
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0)
+    if (dev->state == UART_DEVICESTATE_READY)
     {
-        if (System_currentTick() > timeoutEnd)
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_RXNE) == 0)
         {
-            return ERRORS_UART_TIMEOUT_RX;
+            if (System_currentTick() > timeoutEnd)
+            {
+                return ERRORS_UART_TIMEOUT_RX;
+            }
         }
-    }
 
-    // In case of 9B and parity NONE, the message is split into two byte
-    if ((dev->databits == UART_DATABITS_NINE) && (dev->parity == UART_PARITY_NONE))
-    {
-        // Cast the pointer
-        temp = (uint16_t *) data;
-        *temp = (uint16_t) (dev->regmap->RDR & dev->mask);
+        // In case of 9B and parity NONE, the message is split into two byte
+        if ((dev->config.dataBits == UART_DATABITS_NINE) &&
+            (dev->config.parity == UART_PARITY_NONE))
+        {
+            // Cast the pointer
+            temp = (uint16_t *) data;
+            *temp = (uint16_t) (dev->regmap->RDR & dev->mask);
+        }
+        else
+        {
+            *data = (uint8_t)(dev->regmap->RDR & (uint8_t)dev->mask);
+        }
     }
     else
     {
-        *data = (uint8_t)(dev->regmap->RDR & (uint8_t)dev->mask);
+        return ERRORS_UART_DEVICE_BUSY;
     }
+    dev->state = UART_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
@@ -1072,36 +1068,45 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
 
     uint32_t timeoutEnd = System_currentTick() + timeout;
 
-    // Wait until the buffer is empty
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_TXE) == 0)
+    if (dev->state == UART_DEVICESTATE_READY)
     {
-        if (System_currentTick() > timeoutEnd)
+        // Wait until the buffer is empty
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_TXE) == 0)
         {
-            return ERRORS_UART_TIMEOUT_TX;
+            if (System_currentTick() > timeoutEnd)
+            {
+                return ERRORS_UART_TIMEOUT_TX;
+            }
         }
-    }
 
-    // In case of 9B and parity NONE, the message is split into two byte
-    if ((dev->databits == UART_DATABITS_NINE) && (dev->parity == UART_PARITY_NONE))
-    {
-        // Cast the pointer
-        temp = (uint16_t *) data;
-        dev->regmap->TDR = (*temp & 0x01FFu);
+        // In case of 9B and parity NONE, the message is split into two byte
+        if ((dev->config.dataBits == UART_DATABITS_NINE) &&
+            (dev->config.parity == UART_PARITY_NONE))
+        {
+            // Cast the pointer
+            temp = (uint16_t *) data;
+            dev->regmap->TDR = (*temp & 0x01FFu);
+        }
+        else
+        {
+            dev->regmap->TDR = (*data & 0x00FFu);
+        }
+        // Start-up new timeout
+        timeoutEnd = System_currentTick() + timeout;
+        // Wait until the transmission is complete
+        while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_TC) == 0)
+        {
+            if (System_currentTick() > timeoutEnd)
+            {
+                return ERRORS_UART_TIMEOUT_TX;
+            }
+        }
     }
     else
     {
-        dev->regmap->TDR = (*data & 0x00FFu);
+        return ERRORS_UART_DEVICE_BUSY;
     }
-    // Start-up new timeout
-    timeoutEnd = System_currentTick() + timeout;
-    // Wait until the transmission is complete
-    while (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,USART_ISR_TC) == 0)
-    {
-        if (System_currentTick() > timeoutEnd)
-        {
-            return ERRORS_UART_TIMEOUT_TX;
-        }
-    }
+    dev->state = UART_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
