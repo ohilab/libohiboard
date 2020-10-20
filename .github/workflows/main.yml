@@ -13,7 +13,13 @@ on:
     paths-ignore:
       - '*.json'
       - '**.md'
-
+  # User name
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Person to greet'
+        required: true
+        default: 'OHILAB'
 jobs:
 
   greet:
