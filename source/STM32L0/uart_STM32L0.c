@@ -2343,7 +2343,7 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
 
                     if (dev->callbackRx[i] != NULL)
                     {
-                    	dev->callbackRx[i](dev,dev->callbackObj[i]);
+                        dev->callbackRx[i](dev,dev->callbackObj[i]);
                     }
                 }
                 // Clear flag, just to increase the safety
