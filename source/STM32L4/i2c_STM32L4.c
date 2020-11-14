@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -106,17 +106,6 @@ extern "C" {
 #define IIC_VALID_MODE(MODE) (((MODE) == IIC_MASTER_MODE) || \
                               ((MODE) == IIC_SLAVE_MODE))
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
-
-#define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
-                               ((DEVICE) == OB_IIC2)  || \
-                               ((DEVICE) == OB_IIC3))
-
-#endif
-
 typedef struct _Iic_Device
 {
     I2C_TypeDef* regmap;                           /**< Device memory pointer */
@@ -136,16 +125,16 @@ typedef struct _Iic_Device
     Gpio_Alternate sclPinsMux[IIC_MAX_PINS];
     Gpio_Alternate sdaPinsMux[IIC_MAX_PINS];
 
-    Iic_ClockSource clockSource;
-    Iic_AddressMode addressMode;
-    Iic_DeviceType deviceType;
-
-    // Slave mode
-    uint32_t address1;
-    uint32_t address2;
-    Iic_DualAddress dualAddressMode;
-    Iic_DualAddressMask dualAddressMask;
-    Iic_NoStrech noStretch;
+//    Iic_ClockSource clockSource;
+//    Iic_AddressMode addressMode;
+//    Iic_DeviceType deviceType;
+//
+//    // Slave mode
+//    uint32_t address1;
+//    uint32_t address2;
+//    Iic_DualAddress dualAddressMode;
+//    Iic_DualAddressMask dualAddressMask;
+//    Iic_NoStrech noStretch;
 
     // Write/Read useful buffer and counter
     uint8_t* rdata;                      /**< Pointer to I2C reception buffer */
@@ -153,30 +142,39 @@ typedef struct _Iic_Device
     uint16_t bufferSize;                        /**< I2C buffer transfer size */
     volatile uint16_t bufferCount;           /**< I2C buffer transfer counter */
 
-//    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+    Iic_Config config;
+
+    Iic_DeviceState state;                     /**< Current peripheral state. */
+
 } Iic_Device;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
+
+#define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
+                               ((DEVICE) == OB_IIC2)  || \
+                               ((DEVICE) == OB_IIC3))
 
 static Iic_Device iic1 =
 {
-        .regmap              = I2C1,
+        .regmap               = I2C1,
 
-        .rccRegisterPtr      = &RCC->APB1ENR1,
-        .rccRegisterEnable   = RCC_APB1ENR1_I2C1EN,
+        .rccRegisterPtr       = &RCC->APB1ENR1,
+        .rccRegisterEnable    = RCC_APB1ENR1_I2C1EN,
 
-        .rccTypeRegisterPtr  = &RCC->CCIPR,
-        .rccTypeRegisterMask = RCC_CCIPR_I2C1SEL,
-        .rccTypeRegisterPos  = RCC_CCIPR_I2C1SEL_Pos,
+        .rccTypeRegisterPtr   = &RCC->CCIPR,
+        .rccTypeRegisterMask  = RCC_CCIPR_I2C1SEL,
+        .rccTypeRegisterPos   = RCC_CCIPR_I2C1SEL_Pos,
 
         .sclPins              =
         {
                                IIC_PINS_PB6,
                                IIC_PINS_PB8,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                IIC_PINS_PG14,
 #endif
         },
@@ -184,7 +182,11 @@ static Iic_Device iic1 =
         {
                                GPIO_PINS_PB6,
                                GPIO_PINS_PB8,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_PINS_PG14,
 #endif
         },
@@ -192,7 +194,11 @@ static Iic_Device iic1 =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_ALTERNATE_4,
 #endif
         },
@@ -201,7 +207,11 @@ static Iic_Device iic1 =
         {
                                IIC_PINS_PB7,
                                IIC_PINS_PB9,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                IIC_PINS_PG13,
 #endif
         },
@@ -209,7 +219,11 @@ static Iic_Device iic1 =
         {
                                GPIO_PINS_PB7,
                                GPIO_PINS_PB9,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_PINS_PG13,
 #endif
         },
@@ -217,110 +231,177 @@ static Iic_Device iic1 =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_ALTERNATE_4,
 #endif
         },
+
+        .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC1 = &iic1;
 
 static Iic_Device iic2 =
 {
-        .regmap              = I2C2,
+        .regmap               = I2C2,
 
-        .rccRegisterPtr      = &RCC->APB1ENR1,
-        .rccRegisterEnable   = RCC_APB1ENR1_I2C2EN,
+        .rccRegisterPtr       = &RCC->APB1ENR1,
+        .rccRegisterEnable    = RCC_APB1ENR1_I2C2EN,
 
-        .rccTypeRegisterPtr  = &RCC->CCIPR,
-        .rccTypeRegisterMask = RCC_CCIPR_I2C2SEL,
-        .rccTypeRegisterPos  = RCC_CCIPR_I2C2SEL_Pos,
+        .rccTypeRegisterPtr   = &RCC->CCIPR,
+        .rccTypeRegisterMask  = RCC_CCIPR_I2C2SEL,
+        .rccTypeRegisterPos   = RCC_CCIPR_I2C2SEL_Pos,
 
         .sclPins              =
         {
                                IIC_PINS_PB10,
                                IIC_PINS_PB13,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               IIC_PINS_PF1,
+#endif
         },
         .sclPinsGpio          =
         {
                                GPIO_PINS_PB10,
                                GPIO_PINS_PB13,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PF1,
+#endif
         },
         .sclPinsMux           =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_4,
+#endif
         },
 
         .sdaPins              =
         {
                                IIC_PINS_PB11,
                                IIC_PINS_PB14,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               IIC_PINS_PF0,
+#endif
         },
         .sdaPinsGpio          =
         {
                                GPIO_PINS_PB11,
                                GPIO_PINS_PB14,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PF0,
+#endif
         },
         .sdaPinsMux           =
         {
                                GPIO_ALTERNATE_4,
                                GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_4,
+#endif
         },
+
+        .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC2 = &iic2;
 
 static Iic_Device iic3 =
 {
-        .regmap              = I2C3,
+        .regmap               = I2C3,
 
-        .rccRegisterPtr      = &RCC->APB1ENR1,
-        .rccRegisterEnable   = RCC_APB1ENR1_I2C3EN,
+        .rccRegisterPtr       = &RCC->APB1ENR1,
+        .rccRegisterEnable    = RCC_APB1ENR1_I2C3EN,
 
-        .rccTypeRegisterPtr  = &RCC->CCIPR,
-        .rccTypeRegisterMask = RCC_CCIPR_I2C3SEL,
-        .rccTypeRegisterPos  = RCC_CCIPR_I2C3SEL_Pos,
+        .rccTypeRegisterPtr   = &RCC->CCIPR,
+        .rccTypeRegisterMask  = RCC_CCIPR_I2C3SEL,
+        .rccTypeRegisterPos   = RCC_CCIPR_I2C3SEL_Pos,
 
         .sclPins              =
         {
                                IIC_PINS_PC0,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               IIC_PINS_PG7,
+#endif
         },
         .sclPinsGpio          =
         {
                                GPIO_PINS_PC0,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PG7,
+#endif
         },
         .sclPinsMux           =
         {
                                GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_4,
+#endif
         },
 
         .sdaPins              =
         {
                                IIC_PINS_PC1,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               IIC_PINS_PG8,
+#endif
         },
         .sdaPinsGpio          =
         {
                                GPIO_PINS_PC1,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PG8,
+#endif
         },
         .sdaPinsMux           =
         {
                                GPIO_ALTERNATE_4,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_4,
+#endif
         },
+
+        .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC3 = &iic3;
 
 #endif
 
 #define IIC_PIN_CONFIGURATION             (GPIO_PINS_PULL                    | \
-		                                   GPIO_PINS_ENABLE_PULLUP           | \
-		                                   GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
+                                           GPIO_PINS_ENABLE_PULLUP           | \
+                                           GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN)
 
 static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
     uint16_t configuration = (pullupEnable == TRUE) ? IIC_PIN_CONFIGURATION : GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN;
-
-//    if (dev->devInitialized == 0)
-//        return ERRORS_SPI_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
@@ -340,9 +421,6 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, boo
     uint8_t devPinIndex;
     uint16_t configuration = (pullupEnable == TRUE) ? IIC_PIN_CONFIGURATION : GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN;
 
-//    if (dev->devInitialized == 0)
-//        return ERRORS_SPI_DEVICE_NOT_INIT;
-
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
         if (dev->sclPins[devPinIndex] == sclPin)
@@ -356,15 +434,18 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, boo
     return ERRORS_IIC_NO_PIN_FOUND;
 }
 
-
-
 static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
 {
     uint32_t frequency = 0;
     uint32_t scaled = 0;
 
+    if (baudrate > IIC_MAX_BAUDRATE)
+    {
+        return ERRORS_IIC_WRONG_BAUDRATE;
+    }
+
     // Get current parent clock
-    switch (dev->clockSource)
+    switch (dev->config.clockSource)
     {
     case IIC_CLOCKSOURCE_HSI:
         frequency = (uint32_t)CLOCK_FREQ_HSI;
@@ -438,19 +519,20 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
     if (err != ERRORS_NO_ERROR)
         return ERRORS_IIC_WRONG_PARAM;
 
+    // Save current configuration
+    dev->config = *config;
+
     // Disable the device
     IIC_DEVICE_DISABLE(dev->regmap);
 
     // Configure Baudrate
-    err = Iic_setBaudrate(dev,config->baudrate);
+    err = Iic_setBaudrate(dev,dev->config.baudrate);
     if (err != ERRORS_NO_ERROR)
         return ERRORS_IIC_WRONG_PARAM;
 
-
     // Save address mode (7-bit or 10-bit)
-    dev->addressMode = config->addressMode;
     dev->regmap->CR2 = dev->regmap->CR2 & (~(I2C_CR2_ADD10_Msk));
-    if (config->addressMode == IIC_TEN_BIT)
+    if (dev->config.addressMode == IIC_TEN_BIT)
     {
         dev->regmap->CR2 |= I2C_CR2_ADD10_Msk;
     }
@@ -460,31 +542,26 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
 
     // Disable own address1 before set new one
     dev->regmap->OAR1 = dev->regmap->OAR1 & (~(I2C_OAR1_OA1EN_Msk));
-    dev->address1 = config->address1;
     // Configure own address 1
-    if (config->addressMode == IIC_SEVEN_BIT)
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
-        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | ((config->address1 << 1) & 0x000000FEu);
+        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | ((dev->config.address1 << 1) & 0x000000FEu);
     }
     else
     {
-        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | I2C_OAR1_OA1MODE_Msk | config->address1;
+        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | I2C_OAR1_OA1MODE_Msk | dev->config.address1;
     }
 
     // Disable own address 2 and check the user config
     dev->regmap->OAR2 = dev->regmap->OAR2 & (~(I2C_OAR2_OA2EN_Msk));
-    dev->address2 = config->address2;
-    dev->dualAddressMode = config->dualAddressMode;
-    dev->dualAddressMask = config->dualAddressMask;
-    if (config->dualAddressMode == IIC_DUALADDRESS_ENABLE)
+    if (dev->config.dualAddressMode == IIC_DUALADDRESS_ENABLE)
     {
-        dev->regmap->OAR2 = I2C_OAR2_OA2EN_Msk | (((uint8_t)config->dualAddressMask) << I2C_OAR2_OA2MSK_Pos) | config->address2;
+        dev->regmap->OAR2 = I2C_OAR2_OA2EN_Msk | (((uint8_t)dev->config.dualAddressMask) << I2C_OAR2_OA2MSK_Pos) | dev->config.address2;
     }
 
     // Configure no-stretch mode
     dev->regmap->CR1 = dev->regmap->CR1 & (~(I2C_CR1_NOSTRETCH_Msk));
-    dev->noStretch = config->noStretch;
-    if (config->noStretch == IIC_NOSTRETCH_ENABLE)
+    if (dev->config.noStretch == IIC_NOSTRETCH_ENABLE)
     {
         dev->regmap->CR1 |= I2C_CR1_NOSTRETCH_Msk;
     }
@@ -514,25 +591,29 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     {
         return ERRORS_IIC_WRONG_PARAM;
     }
-    dev->clockSource = config->clockSource;
 
-    // Select clock source
-    UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,(config->clockSource << dev->rccTypeRegisterPos));
-    // Enable peripheral clock
-    IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
+    // Enable peripheral clock if needed
+    if (dev->state == IIC_DEVICESTATE_RESET)
+    {
+        // Select clock source
+        UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,(config->clockSource << dev->rccTypeRegisterPos));
+        // Enable peripheral clock
+        IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
-    // Enable pins
-    if (config->sclPin != IIC_PINS_SCLNONE)
-        Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
+        // Enable pins
+        if (config->sclPin != IIC_PINS_SCLNONE)
+            Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
 
-    if (config->sdaPin != IIC_PINS_SDANONE)
-        Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
+        if (config->sdaPin != IIC_PINS_SDANONE)
+            Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
+    }
+    dev->state = IIC_DEVICESTATE_BUSY;
 
     // Configure the peripheral
     err = Iic_config(dev,config);
     if (err != ERRORS_NO_ERROR)
     {
-        // FIXME: Call deInit?
+        Iic_deInit(dev);
         return err;
     }
 
@@ -541,6 +622,8 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
 
     // Clear STOPF flag
     dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
+
+    dev->state = IIC_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
@@ -559,10 +642,12 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev)
     {
         return ERRORS_IIC_WRONG_DEVICE;
     }
+    dev->state = IIC_DEVICESTATE_BUSY;
 
     // Disable the device
     IIC_DEVICE_DISABLE(dev->regmap);
 
+    dev->state = IIC_DEVICESTATE_RESET;
     return err;
 }
 
@@ -928,7 +1013,7 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     }
 
     // Shift 7-bit address
-    if (dev->addressMode == IIC_SEVEN_BIT)
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
         devAddress = ((devAddress << 1u) & 0x00FFu);
     }
@@ -1093,7 +1178,7 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
     }
 
     // Shift 7-bit address
-    if (dev->addressMode == IIC_SEVEN_BIT)
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
         devAddress = ((devAddress << 1u) & 0x00FFu);
     }
