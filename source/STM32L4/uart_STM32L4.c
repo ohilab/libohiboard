@@ -843,8 +843,9 @@ System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
         Interrupt_enable(dev->isrNumber);
         // Enable the UART Error Interrupt
         UTILITY_SET_REGISTER_BIT(dev->regmap->CR3, USART_CR3_EIE);
-        //FIXME: Enable UART Parity Error interrupt and Data Register Not Empty interrupt
-//        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+        // Enable UART Data Register Not Empty interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CR1, USART_CR1_RXNEIE);
+        // FIXME: Enable UART Parity Error, only when parity was request!
     }
 
     if (config->callbackTx)
@@ -1214,9 +1215,12 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
                 	dev->callbackError[i](dev,dev->callbackObj[i]);
                 }
             }
-            // Clear ORE flag
-            UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
         }
+        // Clear all flags
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_PECF);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_FECF);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_NECF);
     }
 
     // Check if the interrupt is in transmission
