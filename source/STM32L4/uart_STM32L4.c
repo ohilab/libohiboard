@@ -26,7 +26,7 @@
  */
 
 /**
- * @file libohiboard/source/STM32L4/uart_STM32L476.c
+ * @file libohiboard/source/STM32L4/uart_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief UART implementations for STM32L4 Series.
  */
@@ -116,20 +116,6 @@ extern "C" {
                                ((MODE) == UART_MODE_RECEIVE)  || \
                                ((MODE) == UART_MODE_BOTH))
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
-
-#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
-                                ((DEVICE) == OB_UART2)  || \
-                                ((DEVICE) == OB_UART3)  || \
-                                ((DEVICE) == OB_UART4)  || \
-                                ((DEVICE) == OB_UART5))
-#endif
-
-#define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
-
 #define UART_IS_VALID_CLOCK_SOURCE(CLOCKSOURCE) (((CLOCKSOURCE) == UART_CLOCKSOURCE_PCLK)  || \
                                                  ((CLOCKSOURCE) == UART_CLOCKSOURCE_LSE)   || \
                                                  ((CLOCKSOURCE) == UART_CLOCKSOURCE_HSI)   || \
@@ -193,12 +179,19 @@ typedef struct _Uart_Device
 
 } Uart_Device;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-static Uart_Device uart1 = {
+#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                ((DEVICE) == OB_UART2)  || \
+                                ((DEVICE) == OB_UART3)  || \
+                                ((DEVICE) == OB_UART4)  || \
+                                ((DEVICE) == OB_UART5))
+
+#define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
+
+static Uart_Device uart1 =
+{
         .regmap              = USART1,
 
         .rccRegisterPtr      = &RCC->APB2ENR,
@@ -212,7 +205,11 @@ static Uart_Device uart1 = {
         {
                                UART_PINS_PA10,
                                UART_PINS_PB7,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                UART_PINS_PG10,
 #endif
         },
@@ -220,7 +217,11 @@ static Uart_Device uart1 = {
         {
                                GPIO_PINS_PA10,
                                GPIO_PINS_PB7,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_PINS_PG10,
 #endif
         },
@@ -228,7 +229,11 @@ static Uart_Device uart1 = {
         {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_ALTERNATE_7,
 #endif
         },
@@ -237,7 +242,11 @@ static Uart_Device uart1 = {
         {
                                UART_PINS_PA9,
                                UART_PINS_PB6,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                UART_PINS_PG9,
 #endif
         },
@@ -245,7 +254,11 @@ static Uart_Device uart1 = {
         {
                                GPIO_PINS_PA9,
                                GPIO_PINS_PB6,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_PINS_PG9,
 #endif
         },
@@ -253,7 +266,11 @@ static Uart_Device uart1 = {
         {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_ALTERNATE_7,
 #endif
         },
@@ -268,11 +285,12 @@ static Uart_Device uart1 = {
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
-static Uart_Device uart2 = {
-        .regmap            = USART2,
+static Uart_Device uart2 =
+{
+        .regmap              = USART2,
 
-        .rccRegisterPtr    = &RCC->APB1ENR1,
-        .rccRegisterEnable = RCC_APB1ENR1_USART2EN,
+        .rccRegisterPtr      = &RCC->APB1ENR1,
+        .rccRegisterEnable   = RCC_APB1ENR1_USART2EN,
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_USART2SEL,
@@ -281,27 +299,69 @@ static Uart_Device uart2 = {
         .rxPins              =
         {
                                UART_PINS_PA3,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               UART_PINS_PD6,
+#endif
         },
         .rxPinsGpio          =
         {
                                GPIO_PINS_PA3,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PD6,
+#endif
         },
         .rxPinsMux           =
         {
                                GPIO_ALTERNATE_7,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_7,
+#endif
         },
 
         .txPins              =
         {
                                UART_PINS_PA2,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               UART_PINS_PD5,
+#endif
         },
         .txPinsGpio          =
         {
                                GPIO_PINS_PA2,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PD5,
+#endif
         },
         .txPinsMux           =
         {
                                GPIO_ALTERNATE_7,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_7,
+#endif
         },
 
         .isrNumber           = INTERRUPT_UART2,
@@ -314,11 +374,12 @@ static Uart_Device uart2 = {
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
-static Uart_Device uart3 = {
-        .regmap            = USART3,
+static Uart_Device uart3 =
+{
+        .regmap              = USART3,
 
-        .rccRegisterPtr    = &RCC->APB1ENR1,
-        .rccRegisterEnable = RCC_APB1ENR1_USART3EN,
+        .rccRegisterPtr      = &RCC->APB1ENR1,
+        .rccRegisterEnable   = RCC_APB1ENR1_USART3EN,
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_USART3SEL,
@@ -329,18 +390,39 @@ static Uart_Device uart3 = {
                                UART_PINS_PB11_RX,
                                UART_PINS_PC5,
                                UART_PINS_PC11,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               UART_PINS_PD9,
+#endif
         },
         .rxPinsGpio          =
         {
                                GPIO_PINS_PB11,
                                GPIO_PINS_PC5,
                                GPIO_PINS_PC11,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PD9,
+#endif
         },
         .rxPinsMux           =
         {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_7,
+#endif
         },
 
         .txPins              =
@@ -348,18 +430,39 @@ static Uart_Device uart3 = {
                                UART_PINS_PB10_TX,
                                UART_PINS_PC4,
                                UART_PINS_PC10,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               UART_PINS_PD8,
+#endif
         },
         .txPinsGpio          =
         {
                                GPIO_PINS_PB10,
                                GPIO_PINS_PC4,
                                GPIO_PINS_PC10,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PD8,
+#endif
         },
         .txPinsMux           =
         {
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
                                GPIO_ALTERNATE_7,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_7,
+#endif
         },
 
         .isrNumber           = INTERRUPT_UART3,
@@ -372,11 +475,12 @@ static Uart_Device uart3 = {
 };
 Uart_DeviceHandle OB_UART3 = &uart3;
 
-static Uart_Device uart4 = {
+static Uart_Device uart4 =
+{
         .regmap            = UART4,
 
-        .rccRegisterPtr    = &RCC->APB1ENR1,
-        .rccRegisterEnable = RCC_APB1ENR1_UART4EN,
+        .rccRegisterPtr      = &RCC->APB1ENR1,
+        .rccRegisterEnable   = RCC_APB1ENR1_UART4EN,
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_UART4SEL,
@@ -424,11 +528,12 @@ static Uart_Device uart4 = {
 };
 Uart_DeviceHandle OB_UART4 = &uart4;
 
-static Uart_Device uart5 = {
-        .regmap            = UART5,
+static Uart_Device uart5 =
+{
+        .regmap              = UART5,
 
-        .rccRegisterPtr    = &RCC->APB1ENR1,
-        .rccRegisterEnable = RCC_APB1ENR1_UART5EN,
+        .rccRegisterPtr      = &RCC->APB1ENR1,
+        .rccRegisterEnable   = RCC_APB1ENR1_UART5EN,
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_UART5SEL,
@@ -470,11 +575,12 @@ static Uart_Device uart5 = {
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
 
-static Uart_Device lpuart1 = {
-        .regmap            = LPUART1,
+static Uart_Device lpuart1 =
+{
+        .regmap              = LPUART1,
 
-        .rccRegisterPtr    = &RCC->APB1ENR2,
-        .rccRegisterEnable = RCC_APB1ENR2_LPUART1EN,
+        .rccRegisterPtr      = &RCC->APB1ENR2,
+        .rccRegisterEnable   = RCC_APB1ENR2_LPUART1EN,
 
         .rccTypeRegisterPtr  = &RCC->CCIPR,
         .rccTypeRegisterMask = RCC_CCIPR_LPUART1SEL,
@@ -484,32 +590,62 @@ static Uart_Device lpuart1 = {
         {
                                UART_PINS_PB10_RX,
                                UART_PINS_PC0,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               UART_PINS_PG8,
+#endif
         },
         .rxPinsGpio          =
         {
                                GPIO_PINS_PB10,
                                GPIO_PINS_PC0,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PG8,
+#endif
         },
         .rxPinsMux           =
         {
                                GPIO_ALTERNATE_8,
                                GPIO_ALTERNATE_8,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_8,
+#endif
         },
 
         .txPins              =
         {
                                UART_PINS_PB11_TX,
                                UART_PINS_PC1,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               UART_PINS_PG7,
+#endif
         },
         .txPinsGpio          =
         {
                                GPIO_PINS_PB11,
                                GPIO_PINS_PC1,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PG7,
+#endif
         },
         .txPinsMux           =
         {
                                GPIO_ALTERNATE_8,
                                GPIO_ALTERNATE_8,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_8,
+#endif
         },
 
         .isrNumber           = INTERRUPT_LPUART1,
@@ -522,6 +658,8 @@ static Uart_Device lpuart1 = {
 };
 Uart_DeviceHandle OB_LPUART1 = &lpuart1;
 
+#else
+#warning "NO UART DEVICE DEFINED FOR THIS MCU!"
 #endif
 
 static inline __attribute__((always_inline)) void Uart_computeRxMask (Uart_DeviceHandle dev)
@@ -1239,6 +1377,9 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
     }
 }
 
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
+
 void LPUART1_IRQHandler(void)
 {
     Uart_callbackInterrupt(OB_LPUART1);
@@ -1268,6 +1409,7 @@ void UART5_IRQHandler(void)
 {
     Uart_callbackInterrupt(OB_UART5);
 }
+#endif // LIBOHIBOARD_STM32L4x6 || LIBOHIBOARD_STM32WB55
 
 #endif // LIBOHIBOARD_STM32L4
 

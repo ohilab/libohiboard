@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -44,12 +44,11 @@ extern "C" {
 
 typedef enum _Uart_RxPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     UART_PINS_PA1,
     UART_PINS_PA3,
@@ -64,14 +63,31 @@ typedef enum _Uart_RxPins
     UART_PINS_PC11,
 
     UART_PINS_PD2,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    UART_PINS_PD6,
+    UART_PINS_PD9,
+#endif
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    UART_PINS_PG8,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     UART_PINS_PG10,
 #endif
 
-#endif
-
 #endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_STM32L4x6
 
     UART_PINS_RXNONE,
 
@@ -79,12 +95,11 @@ typedef enum _Uart_RxPins
 
 typedef enum _Uart_TxPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     UART_PINS_PA0,
     UART_PINS_PA2,
@@ -99,23 +114,39 @@ typedef enum _Uart_TxPins
     UART_PINS_PC10,
     UART_PINS_PC12,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    UART_PINS_PD5,
+    UART_PINS_PD8,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    UART_PINS_PG7,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     UART_PINS_PG9,
 #endif
 
-#endif
-
 #endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_STM32L4x6
 
     UART_PINS_TXNONE,
 
 } Uart_TxPins;
 
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
 void LPUART1_IRQHandler(void);
 void USART1_IRQHandler(void);
@@ -131,7 +162,7 @@ extern Uart_DeviceHandle OB_UART4;
 extern Uart_DeviceHandle OB_UART5;
 extern Uart_DeviceHandle OB_LPUART1;
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+#endif
 
 #endif // LIBOHIBOARD_UART & LIBOHIBOARD_STM32L4
 
