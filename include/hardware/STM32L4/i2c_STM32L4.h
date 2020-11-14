@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -44,12 +44,11 @@ extern "C" {
 
 typedef enum _Iic_SclPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
 
     IIC_PINS_PB6,
@@ -59,13 +58,28 @@ typedef enum _Iic_SclPins
 
     IIC_PINS_PC0,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    IIC_PINS_PF1,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    IIC_PINS_PG7,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     IIC_PINS_PG14,
 #endif
 
-#endif
-
 #endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_STM32L4x6
 
     IIC_PINS_SCLNONE,
 
@@ -73,12 +87,11 @@ typedef enum _Iic_SclPins
 
 typedef enum _Iic_SdaPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     IIC_PINS_PB7,
     IIC_PINS_PB9,
@@ -87,28 +100,41 @@ typedef enum _Iic_SdaPins
 
     IIC_PINS_PC1,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    IIC_PINS_PF0,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    IIC_PINS_PG8,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     IIC_PINS_PG13,
 #endif
 
-#endif
-
 #endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_STM32L4x6
 
     IIC_PINS_SDANONE,
 
 } Iic_SdaPins;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
 extern Iic_DeviceHandle OB_IIC1;
 extern Iic_DeviceHandle OB_IIC2;
 extern Iic_DeviceHandle OB_IIC3;
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+#endif
 
 #endif // LIBOHIBOARD_IIC & LIBOHIBOARD_STM32L4
 
