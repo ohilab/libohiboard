@@ -140,7 +140,7 @@ typedef struct _Dac_Device
 
 } Dac_Device;
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6)
 
 #define DAC_IS_DEVICE(DEVICE) ((DEVICE) == OB_DAC1)
 
@@ -209,6 +209,8 @@ static inline void __attribute__((always_inline)) Dac_setDataAligned (Dac_Device
 
 System_Errors Dac_init (Dac_DeviceHandle dev, Dac_Config* config)
 {
+    (void) config;
+
     // Check the DAC device
     if (dev == NULL)
     {

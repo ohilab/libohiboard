@@ -62,7 +62,7 @@ extern "C" {
  */
 typedef enum _Dac_Pins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6)
 
     DAC_PINS_PA4,
     DAC_PINS_PA5,
@@ -87,17 +87,14 @@ typedef enum _Dac_Channels
 
 } Dac_Channels;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
 
+#if defined (LIBOHIBOARD_STM32L4x6)
 /**
  * DAC Device Handle Number 1.
  */
 extern Dac_DeviceHandle OB_DAC1;
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+#endif
 
 /**
  * @}
