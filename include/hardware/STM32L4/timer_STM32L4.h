@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -57,21 +57,16 @@ typedef enum _Timer_Channels
 
 typedef enum
 {
-//#if defined (LIBOHIBOARD_STM32L476) || (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-// VFQFPN68
-
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx) || \
-    defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     TIMER_PINS_PA0,
     TIMER_PINS_PA1,
     TIMER_PINS_PA2,
     TIMER_PINS_PA3,
-
     TIMER_PINS_PA5,
     TIMER_PINS_PA6,
     TIMER_PINS_PA7,
@@ -79,17 +74,14 @@ typedef enum
     TIMER_PINS_PA9,
     TIMER_PINS_PA10,
     TIMER_PINS_PA11,
-
     TIMER_PINS_PA15,
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55)
     TIMER_PINS_PB0,
     TIMER_PINS_PB1,
 #endif
     TIMER_PINS_PB3,
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55)
     TIMER_PINS_PB4,
     TIMER_PINS_PB5,
 #endif
@@ -99,20 +91,78 @@ typedef enum
     TIMER_PINS_PB9,
     TIMER_PINS_PB10,
     TIMER_PINS_PB11,
-
     TIMER_PINS_PB13,
     TIMER_PINS_PB14,
     TIMER_PINS_PB15,
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55)
     TIMER_PINS_PC6,
     TIMER_PINS_PC7,
     TIMER_PINS_PC8,
     TIMER_PINS_PC9,
 #endif
 
-#if defined (LIBOHIBOARD_STM32L476Jx) //Da controllare!!
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    TIMER_PINS_PD12,
+    TIMER_PINS_PD13,
+    TIMER_PINS_PD14,
+    TIMER_PINS_PD15,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    TIMER_PINS_PE2,
+    TIMER_PINS_PE3,
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ) || \
+    defined (LIBOHIBOARD_STM32WB55Rx)
+    TIMER_PINS_PE4,
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    TIMER_PINS_PE5,
+    TIMER_PINS_PE6,
+#endif
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    TIMER_PINS_PE8,
+#endif
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    TIMER_PINS_PE9,
+    TIMER_PINS_PE10,
+    TIMER_PINS_PE11,
+    TIMER_PINS_PE12,
+    TIMER_PINS_PE13,
+    TIMER_PINS_PE14,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    TIMER_PINS_PF6,
+    TIMER_PINS_PF7,
+    TIMER_PINS_PF8,
+    TIMER_PINS_PF9,
+    TIMER_PINS_PF10,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     TIMER_PINS_PG9,
     TIMER_PINS_PG10,
     TIMER_PINS_PG11,
@@ -120,25 +170,20 @@ typedef enum
 
 #endif
 
-//#endif
+#endif
 
     TIMER_PINS_NONE,
 
 } Timer_Pins;
 
-// WLCSP72 ballout
-// LQFP64
-//VFQFPN68
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx) || \
-    defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
 extern Timer_DeviceHandle OB_TIM1;
 extern Timer_DeviceHandle OB_TIM2;
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55)
 extern Timer_DeviceHandle OB_TIM3;
 extern Timer_DeviceHandle OB_TIM4;
 extern Timer_DeviceHandle OB_TIM5;
@@ -151,9 +196,9 @@ extern Timer_DeviceHandle OB_TIM15;
 extern Timer_DeviceHandle OB_TIM16;
 extern Timer_DeviceHandle OB_TIM17;
 
-#if defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6)
 void TIM1_BRK_TIM15_IRQHandler (void);
-#elif defined (LIBOHIBOARD_STM32WB55Rx)
+#elif defined (LIBOHIBOARD_STM32WB55)
 void TIM1_BRK_IRQHandler (void);
 #endif
 
@@ -162,8 +207,7 @@ void TIM1_TRG_COM_TIM17_IRQHandler (void);
 void TIM1_CC_IRQHandler (void);
 void TIM2_IRQHandler (void);
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55)
 void TIM3_IRQHandler (void);
 void TIM4_IRQHandler (void);
 void TIM5_IRQHandler (void);
