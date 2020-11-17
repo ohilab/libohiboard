@@ -618,6 +618,23 @@ static Timer_Device tim3 =
                                TIMER_PINS_PC7,
                                TIMER_PINS_PC8,
                                TIMER_PINS_PC9,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PE3,
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ) || \
+    defined (LIBOHIBOARD_STM32WB55Rx)
+                               TIMER_PINS_PE4,
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PE5,
+                               TIMER_PINS_PE6,
+#endif
         },
         .pinsChannel      =
         {
@@ -631,6 +648,14 @@ static Timer_Device tim3 =
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PE3,
+                               TIMER_PINS_PE4,
+                               TIMER_PINS_PE5,
+                               TIMER_PINS_PE6,
+#endif
         },
         .pinsGpio         =
         {
@@ -644,6 +669,14 @@ static Timer_Device tim3 =
                                GPIO_PINS_PC7,
                                GPIO_PINS_PC8,
                                GPIO_PINS_PC9,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PE3,
+                               GPIO_PINS_PE4,
+                               GPIO_PINS_PE5,
+                               GPIO_PINS_PE6,
+#endif
         },
         .pinsMux          =
         {
@@ -657,6 +690,14 @@ static Timer_Device tim3 =
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .isrNumber           = INTERRUPT_TIM3,
@@ -676,6 +717,15 @@ static Timer_Device tim4 =
                                TIMER_PINS_PB7,
                                TIMER_PINS_PB8,
                                TIMER_PINS_PB9,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PD12,
+                               TIMER_PINS_PD13,
+                               TIMER_PINS_PD14,
+                               TIMER_PINS_PD15,
+#endif
         },
         .pinsChannel      =
         {
@@ -683,6 +733,16 @@ static Timer_Device tim4 =
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               {
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+#endif
         },
         .pinsGpio         =
         {
@@ -690,6 +750,15 @@ static Timer_Device tim4 =
                                GPIO_PINS_PB7,
                                GPIO_PINS_PB8,
                                GPIO_PINS_PB9,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PD12,
+                               GPIO_PINS_PD13,
+                               GPIO_PINS_PD14,
+                               GPIO_PINS_PD15,
+#endif
         },
         .pinsMux          =
         {
@@ -697,6 +766,15 @@ static Timer_Device tim4 =
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+#endif
         },
 
         .isrNumber           = INTERRUPT_TIM4,
@@ -716,6 +794,13 @@ static Timer_Device tim5 =
                                TIMER_PINS_PA1,
                                TIMER_PINS_PA2,
                                TIMER_PINS_PA3,
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PF6,
+                               TIMER_PINS_PF7,
+                               TIMER_PINS_PF8,
+                               TIMER_PINS_PF9,
+#endif
         },
         .pinsChannel      =
         {
@@ -723,6 +808,13 @@ static Timer_Device tim5 =
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+#endif
         },
         .pinsGpio         =
         {
@@ -730,6 +822,13 @@ static Timer_Device tim5 =
                                GPIO_PINS_PA1,
                                GPIO_PINS_PA2,
                                GPIO_PINS_PA3,
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PF6,
+                               GPIO_PINS_PF7,
+                               GPIO_PINS_PF8,
+                               GPIO_PINS_PF9,
+#endif
         },
         .pinsMux          =
         {
@@ -737,8 +836,14 @@ static Timer_Device tim5 =
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+                               GPIO_ALTERNATE_2,
+#endif
         },
-
 
         .isrNumber           = INTERRUPT_TIM5,
 };
@@ -819,7 +924,16 @@ static Timer_Device tim15 =
                                TIMER_PINS_PA3,
                                TIMER_PINS_PB14,
                                TIMER_PINS_PB15,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PF9,
+                               TIMER_PINS_PF10,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                TIMER_PINS_PG10,
                                TIMER_PINS_PG11,
 #endif
@@ -830,7 +944,16 @@ static Timer_Device tim15 =
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
 #endif
@@ -841,7 +964,16 @@ static Timer_Device tim15 =
                                GPIO_PINS_PA3,
                                GPIO_PINS_PB14,
                                GPIO_PINS_PB15,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PF9,
+                               GPIO_PINS_PF10,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_PINS_PG10,
                                GPIO_PINS_PG11,
 #endif
@@ -852,7 +984,16 @@ static Timer_Device tim15 =
                                GPIO_ALTERNATE_14,
                                GPIO_ALTERNATE_14,
                                GPIO_ALTERNATE_14,
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_14,
+                               GPIO_ALTERNATE_14,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
                                GPIO_ALTERNATE_14,
                                GPIO_ALTERNATE_14,
 #endif
