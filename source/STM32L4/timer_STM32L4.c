@@ -190,7 +190,7 @@ typedef struct _Timer_Device
 
 } Timer_Device;
 
-#if defined (LIBOHIBOARD_STM32L476) || defined (LIBOHIBOARD_STM32WB55)
+#if defined (LIBOHIBOARD_STM32L4x6) || defined (LIBOHIBOARD_STM32WB55)
 
 #if defined (LIBOHIBOARD_STM32L476)
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM1)   || \
@@ -314,7 +314,7 @@ typedef struct _Timer_Device
                                                   ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
                                                   ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
                                                   ((CHANNEL) == TIMER_CHANNELS_CH4)))  || \
-												 (((DEVICE) == OB_TIM8) &&                \
+                                                 (((DEVICE) == OB_TIM8) &&                \
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1) ||    \
                                                   ((CHANNEL) == TIMER_CHANNELS_CH2) ||    \
                                                   ((CHANNEL) == TIMER_CHANNELS_CH3) ||    \
@@ -420,7 +420,7 @@ typedef struct _Timer_Device
                                                  (((CHANNEL) == TIMER_CHANNELS_CH1))))
 #endif
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6)
 static Timer_Device tim1 =
 {
         .regmap              = TIM1,
@@ -434,6 +434,15 @@ static Timer_Device tim1 =
                                TIMER_PINS_PA9,
                                TIMER_PINS_PA10,
                                TIMER_PINS_PA11,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_PINS_PE9,
+                               TIMER_PINS_PE11,
+                               TIMER_PINS_PE13,
+                               TIMER_PINS_PE14,
+#endif
         },
         .pinsChannel      =
         {
@@ -441,6 +450,15 @@ static Timer_Device tim1 =
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               TIMER_CHANNELS_CH1,
+                               TIMER_CHANNELS_CH2,
+                               TIMER_CHANNELS_CH3,
+                               TIMER_CHANNELS_CH4,
+#endif
         },
         .pinsGpio         =
         {
@@ -448,6 +466,15 @@ static Timer_Device tim1 =
                                GPIO_PINS_PA9,
                                GPIO_PINS_PA10,
                                GPIO_PINS_PA11,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PE9,
+                               GPIO_PINS_PE11,
+                               GPIO_PINS_PE13,
+                               GPIO_PINS_PE14,
+#endif
         },
         .pinsMux          =
         {
@@ -455,6 +482,15 @@ static Timer_Device tim1 =
                                GPIO_ALTERNATE_1,
                                GPIO_ALTERNATE_1,
                                GPIO_ALTERNATE_1,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+                               GPIO_ALTERNATE_1,
+#endif
         },
 
         .isrNumber           = INTERRUPT_TIM1UP_TIM16,
@@ -562,7 +598,7 @@ static Timer_Device tim2 =
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
 
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6)
 static Timer_Device tim3 =
 {
         .regmap              = TIM3,
