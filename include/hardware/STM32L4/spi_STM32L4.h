@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -62,12 +62,11 @@ extern "C" {
  */
 typedef enum _Spi_PcsPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     SPI_PINS_PA4,
     SPI_PINS_PA15,
@@ -75,13 +74,37 @@ typedef enum _Spi_PcsPins
     SPI_PINS_PB9,
     SPI_PINS_PB12,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32WB55Rx)  || \
+    defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PD0,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PE12,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PG5,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     SPI_PINS_PG12,
 #endif
 
 #endif
 
-#endif // LIBOHIBOARD_STM32L476
+#endif // LIBOHIBOARD_STM32L4x6
 
     SPI_PINS_PCSNONE,
 
@@ -92,12 +115,11 @@ typedef enum _Spi_PcsPins
  */
 typedef enum _Spi_SoutPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     SPI_PINS_PA7,
 
@@ -107,7 +129,31 @@ typedef enum _Spi_SoutPins
     SPI_PINS_PC3,
     SPI_PINS_PC12,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PD4,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PE15,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PG4,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     SPI_PINS_PG11,
 #endif
 
@@ -124,12 +170,11 @@ typedef enum _Spi_SoutPins
  */
 typedef enum _Spi_SinPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     SPI_PINS_PA6,
 
@@ -139,7 +184,30 @@ typedef enum _Spi_SinPins
     SPI_PINS_PC2,
     SPI_PINS_PC11,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PD3,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PE14,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PG3,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     SPI_PINS_PG10,
 #endif
 
@@ -156,12 +224,11 @@ typedef enum _Spi_SinPins
  */
 typedef enum _Spi_SckPins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     SPI_PINS_PA5,
 
@@ -171,7 +238,31 @@ typedef enum _Spi_SckPins
 
     SPI_PINS_PC10,
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32WB55Rx)  || \
+    defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PD1,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PE13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    SPI_PINS_PG2,
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     SPI_PINS_PG9,
 #endif
 
@@ -183,16 +274,14 @@ typedef enum _Spi_SckPins
 
 } Spi_SckPins;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
 extern Spi_DeviceHandle OB_SPI1;
 extern Spi_DeviceHandle OB_SPI2;
 extern Spi_DeviceHandle OB_SPI3;
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+#endif // LIBOHIBOARD_STM32L4x6
 
 /**
  * @}
