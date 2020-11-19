@@ -664,7 +664,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
             }
             else
             {
-            	// Switch on the oscillator
+                // Switch on the oscillator
                 UTILITY_SET_REGISTER_BIT(clk0.regmap->CR,RCC_CRRCR_HSI48ON);
 
                 // Wait until the HSERDY bit is set
@@ -1267,204 +1267,204 @@ void Clock_setMsiRangeSwitching (Clock_MSIRange msi)
 
 static bool Clock_isFrequencyInMsiRange (uint32_t frequency, Clock_MSIRange* pMsirange)
 {
-	uint16_t i = 0;
-	for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
-	{
-		if (Clock_msiRange[i] == frequency)
-		{
-			*pMsirange = (Clock_MSIRange)(i << RCC_CR_MSIRANGE_Pos);
-			return TRUE;
-		}
-	}
-	return FALSE;
+    uint16_t i = 0;
+    for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
+    {
+        if (Clock_msiRange[i] == frequency)
+        {
+            *pMsirange = (Clock_MSIRange)(i << RCC_CR_MSIRANGE_Pos);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 static bool Clock_isFrequencyInPllRange (uint32_t frequency, Clock_PllSource *pllSource, Clock_PLLPrescaler* pllPrescaler, Clock_PLLConfig *pllConfig)
 {
-	uint32_t pllSourceClk = 0, sysClk = 0;
-	int mIdx = 0, nIdx = 0, rIdx = 0;
-	uint16_t mSet[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-	uint16_t nSet[78] = {0};
-	uint16_t rSet[4] = {2, 4, 6, 8};
+    uint32_t pllSourceClk = 0, sysClk = 0;
+    int mIdx = 0, nIdx = 0, rIdx = 0;
+    uint16_t mSet[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    uint16_t nSet[78] = {0};
+    uint16_t rSet[4] = {2, 4, 6, 8};
 
-	for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
-	{
-		nSet[nIdx] = nIdx + 8;
-	}
+    for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+    {
+        nSet[nIdx] = nIdx + 8;
+    }
 
-	// HSE
-	if (clk0.externalClock != 0)
-	{
-		pllSourceClk = clk0.externalClock;
-		for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
-		{
-			for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
-			{
-				for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
-				{
-					sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
-					if (sysClk == frequency)
-					{
-						*pllSource = CLOCK_PLLSOURCE_HSE;
-						*pllPrescaler = (Clock_PLLPrescaler)mIdx;
-						pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
-						pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
-						return TRUE;
-					}
-				}
-			}
-		}
-	}
+    // HSE
+    if (clk0.externalClock != 0)
+    {
+        pllSourceClk = clk0.externalClock;
+        for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
+        {
+            for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+            {
+                for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
+                {
+                    sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
+                    if (sysClk == frequency)
+                    {
+                        *pllSource = CLOCK_PLLSOURCE_HSE;
+                        *pllPrescaler = (Clock_PLLPrescaler)mIdx;
+                        pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
+                        pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
+                        return TRUE;
+                    }
+                }
+            }
+        }
+    }
 
-	// HSI
-	pllSourceClk = CLOCK_FREQ_HSI;
-	for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
-	{
-		for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
-		{
-			for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
-			{
-				sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
-				if (sysClk == frequency)
-				{
-					*pllSource = CLOCK_PLLSOURCE_HSI;
-					*pllPrescaler = (Clock_PLLPrescaler)mIdx;
-					pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
-					pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
-					return TRUE;
-				}
-			}
-		}
-	}
+    // HSI
+    pllSourceClk = CLOCK_FREQ_HSI;
+    for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
+    {
+        for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+        {
+            for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
+            {
+                sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
+                if (sysClk == frequency)
+                {
+                    *pllSource = CLOCK_PLLSOURCE_HSI;
+                    *pllPrescaler = (Clock_PLLPrescaler)mIdx;
+                    pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
+                    pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
+                    return TRUE;
+                }
+            }
+        }
+    }
 
-	// MSI
-	uint16_t i = 0;
-	for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
-	{
-		pllSourceClk = Clock_msiRange[i];
-		for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
-		{
-			for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
-			{
-				for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
-				{
-					sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
-					if (sysClk == frequency)
-					{
-						*pllSource = CLOCK_PLLSOURCE_MSI;
-						*pllPrescaler = (Clock_PLLPrescaler)mIdx;
-						pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
-						pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
-						return TRUE;
-					}
-				}
-			}
-		}
-	}
+    // MSI
+    uint16_t i = 0;
+    for (i = 0; i < UTILITY_DIMOF(Clock_msiRange); i++)
+    {
+        pllSourceClk = Clock_msiRange[i];
+        for (mIdx = 0; mIdx < sizeof(mSet); mIdx++)
+        {
+            for (nIdx = 0; nIdx < sizeof(nSet); nIdx++)
+            {
+                for (rIdx = 0; rIdx < sizeof(rSet); rIdx++)
+                {
+                    sysClk = pllSourceClk / mSet[mIdx] * nSet[nIdx] / rSet[rIdx];
+                    if (sysClk == frequency)
+                    {
+                        *pllSource = CLOCK_PLLSOURCE_MSI;
+                        *pllPrescaler = (Clock_PLLPrescaler)mIdx;
+                        pllConfig->multiplier = (Clock_PLLMultiplier)nSet[nIdx];
+                        pllConfig->dividerR = (Clock_PLLDividerR)rIdx;
+                        return TRUE;
+                    }
+                }
+            }
+        }
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 System_Errors Clock_setFrequency (uint32_t frequency)
 {
-	System_Errors err = ERRORS_NO_ERROR;
+    System_Errors err = ERRORS_NO_ERROR;
 
-	Clock_Config clkConfig;
-	memset(&clkConfig, 0, sizeof(clkConfig));
-	clkConfig.source = CLOCK_INTERNAL_MSI;
-	clkConfig.output = CLOCK_OUTPUT_SYSCLK | CLOCK_OUTPUT_HCLK | CLOCK_OUTPUT_PCLK1 | CLOCK_OUTPUT_PCLK2 | CLOCK_OUTPUT_PLLR;
-	clkConfig.ahbDivider = CLOCK_AHBDIVIDER_1;
-	clkConfig.apb1Divider = CLOCK_APBDIVIDER_1;
-	clkConfig.apb2Divider = CLOCK_APBDIVIDER_1;
-	clkConfig.msiRange = CLOCK_MSIRANGE_4MHz;
+    Clock_Config clkConfig;
+    memset(&clkConfig, 0, sizeof(clkConfig));
+    clkConfig.source = CLOCK_INTERNAL_MSI;
+    clkConfig.output = CLOCK_OUTPUT_SYSCLK | CLOCK_OUTPUT_HCLK | CLOCK_OUTPUT_PCLK1 | CLOCK_OUTPUT_PCLK2 | CLOCK_OUTPUT_PLLR;
+    clkConfig.ahbDivider = CLOCK_AHBDIVIDER_1;
+    clkConfig.apb1Divider = CLOCK_APBDIVIDER_1;
+    clkConfig.apb2Divider = CLOCK_APBDIVIDER_1;
+    clkConfig.msiRange = CLOCK_MSIRANGE_4MHz;
 
-	clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
-	clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
-	clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
-	clkConfig.pll.dividerQ = CLOCK_PLLDIVIDER_Q_DISABLED;
-	clkConfig.pll.dividerP = CLOCK_PLLDIVIDER_P_DISABLED;
+    clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
+    clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
+    clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
+    clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
+    clkConfig.pll.dividerQ = CLOCK_PLLDIVIDER_Q_DISABLED;
+    clkConfig.pll.dividerP = CLOCK_PLLDIVIDER_P_DISABLED;
 
-	clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.pllSai1.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.pllSai2.multiplier = CLOCK_PLLMULTIPLIER_10;
-	clkConfig.mcoPrescaler = CLOCK_PLLPRESCALER_1;
-	clkConfig.mcoSource = CLOCK_MCOSOURCE_DISABLED;
+    clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
+    clkConfig.pllSai1.multiplier = CLOCK_PLLMULTIPLIER_10;
+    clkConfig.pllSai2.multiplier = CLOCK_PLLMULTIPLIER_10;
+    clkConfig.mcoPrescaler = CLOCK_PLLPRESCALER_1;
+    clkConfig.mcoSource = CLOCK_MCOSOURCE_DISABLED;
 
-	// Check value of frequency, if it is out of range
-	// normalize the value
-	ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(frequency));
-	if (frequency < CLOCK_MIN_FREQ_MSI)
-	{
-		frequency = CLOCK_MIN_FREQ_MSI;
-	}
+    // Check value of frequency, if it is out of range
+    // normalize the value
+    ohiassert(CLOCK_IS_VALID_PLL_FREQUENCY(frequency));
+    if (frequency < CLOCK_MIN_FREQ_MSI)
+    {
+        frequency = CLOCK_MIN_FREQ_MSI;
+    }
 
-	if (frequency > CLOCK_MAX_FREQ_PLL)
-	{
-		frequency = CLOCK_MAX_FREQ_PLL;
-	}
+    if (frequency > CLOCK_MAX_FREQ_PLL)
+    {
+        frequency = CLOCK_MAX_FREQ_PLL;
+    }
 
-	if (frequency > 2000000)
-	{
-		Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_24MHz);
-	}
-	else
-	{
-		Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_4MHz);
-	}
+    if (frequency > 2000000)
+    {
+        Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_24MHz);
+    }
+    else
+    {
+        Clock_setMsiRangeSwitching(CLOCK_MSIRANGE_4MHz);
+    }
 
-	if (clk0.externalClock != 0 && frequency == clk0.externalClock)
-	{
-		clkConfig.source |= CLOCK_EXTERNAL;
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSE;
-		clkConfig.hseState = CLOCK_OSCILLATORSTATE_ON;
+    if (clk0.externalClock != 0 && frequency == clk0.externalClock)
+    {
+        clkConfig.source |= CLOCK_EXTERNAL;
+        clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSE;
+        clkConfig.hseState = CLOCK_OSCILLATORSTATE_ON;
 
-		err = Clock_init(&clkConfig);
-	}
-	else if (frequency == CLOCK_FREQ_HSI)
-	{
-		clkConfig.source |= CLOCK_INTERNAL_HSI;
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSI;
-		clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
+        err = Clock_init(&clkConfig);
+    }
+    else if (frequency == CLOCK_FREQ_HSI)
+    {
+        clkConfig.source |= CLOCK_INTERNAL_HSI;
+        clkConfig.sysSource = CLOCK_SYSTEMSOURCE_HSI;
+        clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
 
-		err = Clock_init(&clkConfig);
-	}
-	else if (frequency == CLOCK_MAX_FREQ_PLL)
-	{
-		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
-		clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
+        err = Clock_init(&clkConfig);
+    }
+    else if (frequency == CLOCK_MAX_FREQ_PLL)
+    {
+        clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
+        clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
+        clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
 
-		clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
-		clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
-		clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
-		clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
-		clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
+        clkConfig.hsiState = CLOCK_OSCILLATORSTATE_ON;
+        clkConfig.pllSource = CLOCK_PLLSOURCE_HSI;
+        clkConfig.pllPrescaler = CLOCK_PLLPRESCALER_1;
+        clkConfig.pll.multiplier = CLOCK_PLLMULTIPLIER_10;
+        clkConfig.pll.dividerR = CLOCK_PLLDIVIDER_R_2;
 
-		err = Clock_init(&clkConfig);
-	}
-	else if (Clock_isFrequencyInMsiRange(frequency, &clkConfig.msiRange))
-	{
-		clkConfig.source |= CLOCK_INTERNAL_MSI;
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_MSI;
-		clkConfig.msiState = CLOCK_OSCILLATORSTATE_ON;
+        err = Clock_init(&clkConfig);
+    }
+    else if (Clock_isFrequencyInMsiRange(frequency, &clkConfig.msiRange))
+    {
+        clkConfig.source |= CLOCK_INTERNAL_MSI;
+        clkConfig.sysSource = CLOCK_SYSTEMSOURCE_MSI;
+        clkConfig.msiState = CLOCK_OSCILLATORSTATE_ON;
 
-		err = Clock_init(&clkConfig);
-	}
-	else if (Clock_isFrequencyInPllRange(frequency, &clkConfig.pllSource, &clkConfig.pllPrescaler, &clkConfig.pll))
-	{
-		clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
-		clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
-		clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
+        err = Clock_init(&clkConfig);
+    }
+    else if (Clock_isFrequencyInPllRange(frequency, &clkConfig.pllSource, &clkConfig.pllPrescaler, &clkConfig.pll))
+    {
+        clkConfig.source |= (CLOCK_INTERNAL_PLL|CLOCK_INTERNAL_HSI);
+        clkConfig.sysSource = CLOCK_SYSTEMSOURCE_PLL;
+        clkConfig.pllState = CLOCK_OSCILLATORSTATE_ON;
 
-		err = Clock_init(&clkConfig);
-	}
-	else
-	{
-		err = ERRORS_CLOCK_FREQ_OUT_OF_RANGE;
-	}
+        err = Clock_init(&clkConfig);
+    }
+    else
+    {
+        err = ERRORS_CLOCK_FREQ_OUT_OF_RANGE;
+    }
 
-	return err;
+    return err;
 }
 
 static System_Errors Clock_deInit (void)
