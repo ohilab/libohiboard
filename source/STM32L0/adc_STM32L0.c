@@ -375,7 +375,7 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev)
 {
     System_Errors error = ERRORS_NO_ERROR;
     uint32_t tickstart = 0U;
-    uint32_t backup_setting_adc_dma_transfer = 0U;
+    uint32_t backup = 0U;
 
     // Check the ADC device
     if (dev == NULL)
@@ -400,7 +400,7 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev)
         /*       To not insert ADC calibration factor among ADC conversion data   */
         /*       in array variable, DMA transfer must be disabled during          */
         /*       calibration.                                                     */
-        backup_setting_adc_dma_transfer = UTILITY_READ_REGISTER_BIT(dev->regmap->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
+        backup = UTILITY_READ_REGISTER_BIT(dev->regmap->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
         UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
 
         /* Start ADC calibration */
@@ -421,7 +421,7 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev)
         }
 
         /* Restore ADC DMA transfer request after calibration */
-        UTILITY_SET_REGISTER_BIT(dev->regmap->CFGR1, backup_setting_adc_dma_transfer);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->CFGR1, backup);
 
         /* Set ADC state */
         dev->state = ADC_DEVICESTATE_READY;

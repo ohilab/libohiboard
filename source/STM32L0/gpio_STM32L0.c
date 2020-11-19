@@ -979,37 +979,37 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         {
             case 0:
             case 1:
-	        {
-	        	bool disable = true;
-	        	for(int i = 0; i < 2; i++)
-	        	{
-	        		if(Gpio_isrPortRequestVector[i].enabled == true)
-	        		{
-	        			disable = false;
-	        		}
-	        	}
-	        	if(disable == true)
-	        	{
-	        		Interrupt_disable(INTERRUPT_EXTI1_0);
-	        	}
-	        }                
+            {
+                bool disable = true;
+                for (uint8_t i = 0; i < 2; i++)
+                {
+                    if (Gpio_isrPortRequestVector[i].enabled == true)
+                    {
+                        disable = false;
+                    }
+                }
+                if (disable == true)
+                {
+                    Interrupt_disable(INTERRUPT_EXTI1_0);
+                }
+            }
                 break;
             case 2:
             case 3:
-	        {
-	        	bool disable = true;
-	        	for(int i = 2; i < 4; i++)
-	        	{
-	        		if(Gpio_isrPortRequestVector[i].enabled == true)
-	        		{
-	        			disable = false;
-	        		}
-	        	}
-	        	if(disable == true)
-	        	{
-	        		Interrupt_disable(INTERRUPT_EXTI3_2);
-	        	}
-	        }                
+            {
+                bool disable = true;
+                for (uint8_t i = 2; i < 4; i++)
+                {
+                    if (Gpio_isrPortRequestVector[i].enabled == true)
+                    {
+                        disable = false;
+                    }
+                }
+                if (disable == true)
+                {
+                    Interrupt_disable(INTERRUPT_EXTI3_2);
+                }
+            }
                 break;
             case 4:
             case 5:
@@ -1023,20 +1023,20 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
             case 13:
             case 14:
             case 15:
-	        {
-	        	bool disable = true;
-	        	for(int i = 4; i < 16; i++)
-	        	{
-	        		if(Gpio_isrPortRequestVector[i].enabled == true)
-	        		{
-	        			disable = false;
-	        		}
-	        	}
-	        	if(disable == true)
-	        	{
-	        		Interrupt_disable(INTERRUPT_EXTI15_4);
-	        	}
-	        }                
+            {
+                bool disable = true;
+                for (uint8_t i = 4; i < 16; i++)
+                {
+                    if (Gpio_isrPortRequestVector[i].enabled == true)
+                    {
+                        disable = false;
+                    }
+                }
+                if (disable == true)
+                {
+                    Interrupt_disable(INTERRUPT_EXTI15_4);
+                }
+            }
                 break;
         }
     }

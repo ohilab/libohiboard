@@ -1001,6 +1001,31 @@ spierror:
     return err;
 }
 
+System_Errors Spi_deInit (Spi_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the SPI device
+    if (dev == NULL)
+    {
+        return ERRORS_SPI_NO_DEVICE;
+    }
+    // Check the SPI instance
+    err = ohiassert(SPI_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_SPI_WRONG_DEVICE;
+    }
+    dev->state = SPI_DEVICESTATE_BUSY;
+
+    // Disable the device
+    SPI_DEVICE_DISABLE(dev->regmap);
+
+    // TODO: Clear all register and flag interrupts!
+
+    dev->state = SPI_DEVICESTATE_RESET;
+    return err;
+}
+
 #endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus

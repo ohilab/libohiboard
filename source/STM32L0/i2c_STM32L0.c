@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -134,16 +134,16 @@ typedef struct _Iic_Device
     Gpio_Alternate sclPinsMux[IIC_MAX_PINS];
     Gpio_Alternate sdaPinsMux[IIC_MAX_PINS];
 
-    Iic_ClockSource clockSource;
-    Iic_AddressMode addressMode;
-    Iic_DeviceType deviceType;
-
-    // Slave mode
-    uint32_t address1;
-    uint32_t address2;
-    Iic_DualAddress dualAddressMode;
-    Iic_DualAddressMask dualAddressMask;
-    Iic_NoStrech noStretch;
+//    Iic_ClockSource clockSource;
+//    Iic_AddressMode addressMode;
+//    Iic_DeviceType deviceType;
+//
+//    // Slave mode
+//    uint32_t address1;
+//    uint32_t address2;
+//    Iic_DualAddress dualAddressMode;
+//    Iic_DualAddressMask dualAddressMask;
+//    Iic_NoStrech noStretch;
 
     // Write/Read useful buffer and counter
     uint8_t* rdata;                      /**< Pointer to I2C reception buffer */
@@ -151,9 +151,10 @@ typedef struct _Iic_Device
     uint16_t bufferSize;                        /**< I2C buffer transfer size */
     volatile uint16_t bufferCount;           /**< I2C buffer transfer counter */
 
+    Iic_Config config;
+
     Iic_DeviceState state;                     /**< Current peripheral state. */
 
-//    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
 } Iic_Device;
 
 #if defined (LIBOHIBOARD_STM32L073)
@@ -350,9 +351,6 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, boo
     uint8_t devPinIndex;
     uint16_t configuration = (pullupEnable == TRUE) ? IIC_PIN_CONFIGURATION : GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN;
 
-//    if (dev->devInitialized == 0)
-//        return ERRORS_SPI_DEVICE_NOT_INIT;
-
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
         if (dev->sdaPins[devPinIndex] == sdaPin)
@@ -370,9 +368,6 @@ static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, boo
 {
     uint8_t devPinIndex;
     uint16_t configuration = (pullupEnable == TRUE) ? IIC_PIN_CONFIGURATION : GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN;
-
-//    if (dev->devInitialized == 0)
-//        return ERRORS_SPI_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
@@ -405,7 +400,7 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
     }
     else
     {
-        switch (dev->clockSource)
+        switch (dev->config.clockSource)
         {
         case IIC_CLOCKSOURCE_HSI:
             frequency = (uint32_t)CLOCK_FREQ_HSI;
@@ -484,19 +479,20 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
     if (err != ERRORS_NO_ERROR)
         return ERRORS_IIC_WRONG_PARAM;
 
+    // Save current configuration
+    dev->config = *config;
+
     // Disable the device
     IIC_DEVICE_DISABLE(dev->regmap);
 
     // Configure Baudrate
-    err = Iic_setBaudrate(dev,config->baudrate);
+    err = Iic_setBaudrate(dev,dev->config.baudrate);
     if (err != ERRORS_NO_ERROR)
         return ERRORS_IIC_WRONG_PARAM;
 
-
     // Save address mode (7-bit or 10-bit)
-    dev->addressMode = config->addressMode;
     dev->regmap->CR2 = dev->regmap->CR2 & (~(I2C_CR2_ADD10_Msk));
-    if (config->addressMode == IIC_TEN_BIT)
+    if (dev->config.addressMode == IIC_TEN_BIT)
     {
         dev->regmap->CR2 |= I2C_CR2_ADD10_Msk;
     }
@@ -506,31 +502,26 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
 
     // Disable own address1 before set new one
     dev->regmap->OAR1 = dev->regmap->OAR1 & (~(I2C_OAR1_OA1EN_Msk));
-    dev->address1 = config->address1;
     // Configure own address 1
-    if (config->addressMode == IIC_SEVEN_BIT)
+    if (dev->config.addressMode == IIC_SEVENIIC_SEVEN_BIT_BIT)
     {
-        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | ((config->address1 << 1) & 0x000000FEu);
+        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | ((dev->config.address1 << 1) & 0x000000FEu);
     }
     else
     {
-        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | I2C_OAR1_OA1MODE_Msk | config->address1;
+        dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | I2C_OAR1_OA1MODE_Msk | dev->config.address1;
     }
 
     // Disable own address 2 and check the user config
     dev->regmap->OAR2 = dev->regmap->OAR2 & (~(I2C_OAR2_OA2EN_Msk));
-    dev->address2 = config->address2;
-    dev->dualAddressMode = config->dualAddressMode;
-    dev->dualAddressMask = config->dualAddressMask;
-    if (config->dualAddressMode == IIC_DUALADDRESS_ENABLE)
+    if (dev->config.dualAddressMode == IIC_DUALADDRESS_ENABLE)
     {
-        dev->regmap->OAR2 = I2C_OAR2_OA2EN_Msk | (((uint8_t)config->dualAddressMask) << I2C_OAR2_OA2MSK_Pos) | config->address2;
+        dev->regmap->OAR2 = I2C_OAR2_OA2EN_Msk | (((uint8_t)dev->config.dualAddressMask) << I2C_OAR2_OA2MSK_Pos) | dev->config.address2;
     }
 
     // Configure no-stretch mode
     dev->regmap->CR1 = dev->regmap->CR1 & (~(I2C_CR1_NOSTRETCH_Msk));
-    dev->noStretch = config->noStretch;
-    if (config->noStretch == IIC_NOSTRETCH_ENABLE)
+    if (dev->config.noStretch == IIC_NOSTRETCH_ENABLE)
     {
         dev->regmap->CR1 |= I2C_CR1_NOSTRETCH_Msk;
     }
@@ -560,7 +551,6 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     {
         return ERRORS_IIC_WRONG_PARAM;
     }
-    dev->clockSource = config->clockSource;
 
     // Enable peripheral clock if needed
     if (dev->state == IIC_DEVICESTATE_RESET)
@@ -992,7 +982,7 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     }
 
     // Shift 7-bit address
-    if (dev->addressMode == IIC_SEVEN_BIT)
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
         devAddress = ((devAddress << 1u) & 0x00FFu);
     }
@@ -1157,7 +1147,7 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
     }
 
     // Shift 7-bit address
-    if (dev->addressMode == IIC_SEVEN_BIT)
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
         devAddress = ((devAddress << 1u) & 0x00FFu);
     }

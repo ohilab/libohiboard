@@ -88,10 +88,6 @@ typedef enum _Dma_RequestChannels
 
 } Dma_RequestChannels;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
 
 /**
  * DMA Device Handle Number 1.
@@ -118,7 +114,6 @@ void DMA2_Channel5_IRQHandler (void);
 void DMA2_Channel6_IRQHandler (void);
 void DMA2_Channel7_IRQHandler (void);
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
 
 /**
  * @}

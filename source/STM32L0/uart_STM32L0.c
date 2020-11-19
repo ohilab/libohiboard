@@ -2363,9 +2363,12 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
                 	dev->callbackError[i](dev,dev->callbackObj[i]);
                 }
             }
-            // Clear ORE flag
-            UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
         }
+        // Clear all flags
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_ORECF);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_PECF);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_FECF);
+        UTILITY_SET_REGISTER_BIT(dev->regmap->ICR,USART_ICR_NCF);
     }
 
     // Check if the interrupt is in transmission

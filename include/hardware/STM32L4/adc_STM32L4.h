@@ -58,7 +58,7 @@ extern "C" {
 
 typedef enum _Adc_Pins
 {
-#if defined (LIBOHIBOARD_STM32L476)
+#if defined (LIBOHIBOARD_STM32L4x6)
 
     ADC_PINS_PA0,
     ADC_PINS_PA1,
@@ -79,7 +79,24 @@ typedef enum _Adc_Pins
     ADC_PINS_PC4,
     ADC_PINS_PC5,
 
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    ADC_PINS_PF3,
+    ADC_PINS_PF4,
+    ADC_PINS_PF5,
 #endif
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    ADC_PINS_PF6,
+    ADC_PINS_PF7,
+    ADC_PINS_PF8,
+    ADC_PINS_PF9,
+    ADC_PINS_PF10,
+#endif
+
+#endif
+
     ADC_PINS_INTERNAL,
 
 } Adc_Pins;

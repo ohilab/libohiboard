@@ -154,9 +154,9 @@ typedef void (*Gpio_ExtCallback_t)(Gpio_Pins pin);
 
 typedef struct _Gpio_ExtIsrCallback
 {
-	bool enabled;
-	Gpio_Pins pin;
-	Gpio_ExtCallback_t callback;
+    bool enabled;
+    Gpio_Pins pin;
+    Gpio_ExtCallback_t callback;
 } Gpio_ExtIsrCallback_t;
 
 static Gpio_ExtIsrCallback_t Gpio_isrPortRequestVector[GPIO_MAX_PINS_NUMBER_FOR_PORT] = {0};
@@ -174,9 +174,11 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
 {
     {0xFF,0xFF,0},
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx) || \
-    defined (LIBOHIBOARD_STM32WB55Rx)
+#if defined (LIBOHIBOARD_STM32L4x6) ||\
+    defined (LIBOHIBOARD_STM32WB55)
+
+#if defined (LIBOHIBOARD_STM32L476) ||\
+    defined (LIBOHIBOARD_STM32WB55)
 
     {GPIO_PORTS_A,0,0},
     {GPIO_PORTS_A,1,0},
@@ -219,9 +221,7 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_C,4,2},
     {GPIO_PORTS_C,5,2},
     {GPIO_PORTS_C,6,2},
-
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     {GPIO_PORTS_C,7,2},
     {GPIO_PORTS_C,8,2},
     {GPIO_PORTS_C,9,2},
@@ -233,21 +233,139 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_C,14,2},
     {GPIO_PORTS_C,15,2},
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32WB55Rx)  || \
+    defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_D,0,3},
+    {GPIO_PORTS_D,1,3},
+#endif
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     {GPIO_PORTS_D,2,3},
 #endif
-
-#if defined (LIBOHIBOARD_STM32WB55Rx)
-	{GPIO_PORTS_D,0,3},
-	{GPIO_PORTS_D,1,3},
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_D,3,3},
+#endif
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_D,4,3},
+    {GPIO_PORTS_D,5,3},
+    {GPIO_PORTS_D,6,3},
+    {GPIO_PORTS_D,7,3},
+    {GPIO_PORTS_D,8,3},
+    {GPIO_PORTS_D,9,3},
+#endif
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_D,10,3},
+    {GPIO_PORTS_D,11,3},
+    {GPIO_PORTS_D,12,3},
+    {GPIO_PORTS_D,13,3},
+    {GPIO_PORTS_D,14,3},
+    {GPIO_PORTS_D,15,3},
 #endif
 
-#if defined (LIBOHIBOARD_STM32WB55Rx)
-	{GPIO_PORTS_E,4,4},
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_E,0,4},
+    {GPIO_PORTS_E,1,4},
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_E,2,4},
+    {GPIO_PORTS_E,3,4},
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ) || \
+    defined (LIBOHIBOARD_STM32WB55Rx)
+    {GPIO_PORTS_E,4,4},
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_E,5,4},
+    {GPIO_PORTS_E,6,4},
+#endif
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_E,7,4},
+    {GPIO_PORTS_E,8,4},
+#endif
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_E,9,4},
+    {GPIO_PORTS_E,10,4},
+    {GPIO_PORTS_E,11,4},
+    {GPIO_PORTS_E,12,4},
+    {GPIO_PORTS_E,13,4},
+    {GPIO_PORTS_E,14,4},
+    {GPIO_PORTS_E,15,4},
 #endif
 
-#if defined (LIBOHIBOARD_STM32L476Jx)
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_F,0,5},
+    {GPIO_PORTS_F,1,5},
+    {GPIO_PORTS_F,2,5},
+    {GPIO_PORTS_F,3,5},
+    {GPIO_PORTS_F,4,5},
+    {GPIO_PORTS_F,5,5},
+#endif
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_F,6,5},
+    {GPIO_PORTS_F,7,5},
+    {GPIO_PORTS_F,8,5},
+    {GPIO_PORTS_F,9,5},
+    {GPIO_PORTS_F,10,5},
+#endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_F,11,5},
+    {GPIO_PORTS_F,12,5},
+    {GPIO_PORTS_F,13,5},
+    {GPIO_PORTS_F,14,5},
+    {GPIO_PORTS_F,15,5},
+#endif
+
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_G,0,6},
+    {GPIO_PORTS_G,1,6},
+    {GPIO_PORTS_G,2,6},
+    {GPIO_PORTS_G,3,6},
+    {GPIO_PORTS_G,4,6},
+    {GPIO_PORTS_G,5,6},
+    {GPIO_PORTS_G,6,6},
+    {GPIO_PORTS_G,7,6},
+    {GPIO_PORTS_G,8,6},
+#endif
+#if defined (LIBOHIBOARD_STM32L476JxY) || \
+    defined (LIBOHIBOARD_STM32L476MxY) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
     {GPIO_PORTS_G,9,6},
     {GPIO_PORTS_G,10,6},
     {GPIO_PORTS_G,11,6},
@@ -255,15 +373,21 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_G,13,6},
     {GPIO_PORTS_G,14,6},
 #endif
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    {GPIO_PORTS_G,15,6},
+#endif
 
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if !defined (LIBOHIBOARD_STM32WB55Rx)
     {GPIO_PORTS_H,0,7},
     {GPIO_PORTS_H,1,7},
 #endif
 
 #if defined (LIBOHIBOARD_STM32WB55Rx)
-	{GPIO_PORTS_H,3,7},
+    {GPIO_PORTS_H,3,7},
+#endif
+
 #endif
 
 #endif
@@ -622,7 +746,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
 
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, void* callback)
 {
-	(void)priority; //FIXMENOW: manage interrupt priority
+    (void)priority; //FIXMENOW: manage interrupt priority
 
     if (pin == GPIO_PINS_NONE)
     {
@@ -635,12 +759,12 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, 
         return ERRORS_GPIO_WRONG_PIN;
 
     //Check callback is empty
-	if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
-	{
-		asm("NOP");
-	}
+    if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
+    {
+        asm("NOP");
+    }
 
-	Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
+    Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
     Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
     Gpio_isrRegister |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
 
@@ -819,18 +943,18 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         case 8:
         case 9:
         {
-        	bool disable = true;
-        	for(int i = 5; i < 10; i++)
-        	{
-        		if(Gpio_isrPortRequestVector[i].enabled == true)
-        		{
-        			disable = false;
-        		}
-        	}
-        	if(disable == true)
-        	{
-        		Interrupt_disable(INTERRUPT_EXTI9_5);
-        	}
+            bool disable = true;
+            for (uint8_t i = 5; i < 10; i++)
+            {
+                if (Gpio_isrPortRequestVector[i].enabled == true)
+                {
+                    disable = false;
+                }
+            }
+            if (disable == true)
+            {
+                Interrupt_disable(INTERRUPT_EXTI9_5);
+            }
         }
             break;
         case 10:
@@ -840,18 +964,18 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
         case 14:
         case 15:
         {
-        	bool disable = true;
-        	for(int i = 10; i < 16; i++)
-        	{
-        		if(Gpio_isrPortRequestVector[i].enabled == true)
-        		{
-        			disable = false;
-        		}
-        	}
-        	if(disable == true)
-        	{
-        		Interrupt_disable(INTERRUPT_EXTI15_10);
-        	}
+            bool disable = true;
+            for (uint8_t i = 10; i < 16; i++)
+            {
+                if (Gpio_isrPortRequestVector[i].enabled == true)
+                {
+                    disable = false;
+                }
+            }
+            if (disable == true)
+            {
+                Interrupt_disable(INTERRUPT_EXTI15_10);
+            }
         }
             break;
         }
@@ -871,8 +995,8 @@ void EXTI0_IRQHandler (void)
 
 void EXTI1_IRQHandler (void)
 {
-	if ((Gpio_isrPortRequestVector[1].callback != nullptr) &&
-	    (Gpio_isrPortRequestVector[1].enabled == true))
+    if ((Gpio_isrPortRequestVector[1].callback != nullptr) &&
+        (Gpio_isrPortRequestVector[1].enabled == true))
     {
         Gpio_isrPortRequestVector[1].callback(Gpio_isrPortRequestVector[1].pin);
     }
@@ -881,8 +1005,8 @@ void EXTI1_IRQHandler (void)
 
 void EXTI2_IRQHandler (void)
 {
-	if ((Gpio_isrPortRequestVector[2].callback != nullptr) &&
-	    (Gpio_isrPortRequestVector[2].enabled == true))
+    if ((Gpio_isrPortRequestVector[2].callback != nullptr) &&
+        (Gpio_isrPortRequestVector[2].enabled == true))
     {
         Gpio_isrPortRequestVector[2].callback(Gpio_isrPortRequestVector[2].pin);
     }
@@ -891,8 +1015,8 @@ void EXTI2_IRQHandler (void)
 
 void EXTI3_IRQHandler (void)
 {
-	if ((Gpio_isrPortRequestVector[3].callback != nullptr) &&
-	    (Gpio_isrPortRequestVector[3].enabled == true))
+    if ((Gpio_isrPortRequestVector[3].callback != nullptr) &&
+        (Gpio_isrPortRequestVector[3].enabled == true))
     {
         Gpio_isrPortRequestVector[3].callback(Gpio_isrPortRequestVector[3].pin);
     }
@@ -901,8 +1025,8 @@ void EXTI3_IRQHandler (void)
 
 void EXTI4_IRQHandler (void)
 {
-	if ((Gpio_isrPortRequestVector[4].callback != nullptr) &&
-	    (Gpio_isrPortRequestVector[4].enabled == true))
+    if ((Gpio_isrPortRequestVector[4].callback != nullptr) &&
+        (Gpio_isrPortRequestVector[4].enabled == true))
     {
         Gpio_isrPortRequestVector[4].callback(Gpio_isrPortRequestVector[4].pin);
     }
@@ -911,12 +1035,13 @@ void EXTI4_IRQHandler (void)
 
 void EXTI9_5_IRQHandler (void)
 {
-    for (int i = 5; i < 10; i++)
+    for (uint8_t i = 5; i < 10; i++)
     {
         if (Gpio_isrRegister & (1 << i))
         {
-            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i].callback != nullptr) &&
-            	                          (Gpio_isrPortRequestVector[i].enabled == true))
+            if ((EXTI->PR1 & (1 << i)) &&
+                (Gpio_isrPortRequestVector[i].callback != nullptr) &&
+                (Gpio_isrPortRequestVector[i].enabled == true))
             {
                 Gpio_isrPortRequestVector[i].callback(Gpio_isrPortRequestVector[i].pin);
                 // Clear flag interrupt
@@ -928,12 +1053,13 @@ void EXTI9_5_IRQHandler (void)
 
 void EXTI15_10_IRQHandler (void)
 {
-    for (int i = 10; i < 16; i++)
+    for (uint8_t i = 10; i < 16; i++)
     {
         if (Gpio_isrRegister & (1 << i))
         {
-            if ((EXTI->PR1 & (1 << i)) && (Gpio_isrPortRequestVector[i].callback != nullptr) &&
-                                          (Gpio_isrPortRequestVector[i].enabled == true))
+            if ((EXTI->PR1 & (1 << i)) &&
+                (Gpio_isrPortRequestVector[i].callback != nullptr) &&
+                (Gpio_isrPortRequestVector[i].enabled == true))
             {
                 Gpio_isrPortRequestVector[i].callback(Gpio_isrPortRequestVector[i].pin);
                 // Clear flag interrupt

@@ -204,8 +204,13 @@
 #endif
 #endif
 
-#elif defined (LIBOHIBOARD_STM32L476Jx) || \
-      defined (LIBOHIBOARD_STM32L476Rx)
+#elif defined (LIBOHIBOARD_STM32L476RxT) || \
+      defined (LIBOHIBOARD_STM32L476VxT) || \
+      defined (LIBOHIBOARD_STM32L476ZxT) || \
+      defined (LIBOHIBOARD_STM32L476QxI) || \
+      defined (LIBOHIBOARD_STM32L476ZxJ) || \
+      defined (LIBOHIBOARD_STM32L476JxY) || \
+      defined (LIBOHIBOARD_STM32L476MxY)
 
 #include "platforms/STM32L476/stm32l476xx.h"
 #include "platforms/STM32L476/stm32l4xx.h"
@@ -213,6 +218,10 @@
 
 #ifndef LIBOHIBOARD_STM32L4
 #define LIBOHIBOARD_STM32L4
+#endif
+
+#ifndef LIBOHIBOARD_STM32L4x6
+#define LIBOHIBOARD_STM32L4x6
 #endif
 
 #ifndef LIBOHIBOARD_STM32L476
