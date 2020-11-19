@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2018-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -88,6 +88,34 @@ extern "C" {
 #define ADC_DEVICE_DISABLE(DEVICE)     \
     UTILITY_MODIFY_REGISTER(dev->regmap->CR,ADC_DEVICE_ENABLE_MASK,ADC_CR_ADDIS)
 
+typedef struct _Adc_Device
+{
+    ADC_TypeDef* regmap;                           /**< Device memory pointer */
+    ADC_Common_TypeDef* rcommon;            /**< Common device memory pointer */
+
+
+    volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
+    uint32_t rccRegisterEnable;         /**< Register mask for current device */
+
+    volatile uint32_t* rccTypeRegisterPtr;   /**< Register for clock enabling */
+    uint32_t rccTypeRegisterMask;       /**< Register mask for user selection */
+    uint32_t rccTypeRegisterPos;        /**< Mask position for user selection */
+
+    Adc_Pins pins[ADC_MAX_PINS];      /**< List of the pin for the peripheral */
+    Adc_Channels pinsChannel[ADC_MAX_PINS];
+    Gpio_Pins pinsGpio[ADC_MAX_PINS];
+
+    void (* eocCallback)(struct _Adc_Device *dev);
+    void (* eosCallback)(struct _Adc_Device *dev);
+    void (* overrunCallback)(struct _Adc_Device *dev);
+
+    Interrupt_Vector isrNumber;                        /**< ISR vector number */
+
+    Adc_DeviceState state;                      /**< Current peripheral state */
+
+    Adc_Config config;                                /**< User configuration */
+
+} Adc_Device;
 
 #if defined(LIBOHIBOARD_STM32L471) || \
     defined(LIBOHIBOARD_STM32L475) || \
@@ -186,35 +214,6 @@ extern "C" {
 
 #define ADC_VALID_CONVERSION_TYPE(TYPE) (((TYPE) == ADC_INPUTTYPE_SINGLE_ENDED) || \
                                          ((TYPE) == ADC_INPUTTYPE_DIFFERENTIAL))
-
-typedef struct _Adc_Device
-{
-    ADC_TypeDef* regmap;                           /**< Device memory pointer */
-    ADC_Common_TypeDef* rcommon;            /**< Common device memory pointer */
-
-
-    volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
-    uint32_t rccRegisterEnable;         /**< Register mask for current device */
-
-    volatile uint32_t* rccTypeRegisterPtr;   /**< Register for clock enabling */
-    uint32_t rccTypeRegisterMask;       /**< Register mask for user selection */
-    uint32_t rccTypeRegisterPos;        /**< Mask position for user selection */
-
-    Adc_Pins pins[ADC_MAX_PINS];      /**< List of the pin for the peripheral */
-    Adc_Channels pinsChannel[ADC_MAX_PINS];
-    Gpio_Pins pinsGpio[ADC_MAX_PINS];
-
-    void (* eocCallback)(struct _Adc_Device *dev);
-    void (* eosCallback)(struct _Adc_Device *dev);
-    void (* overrunCallback)(struct _Adc_Device *dev);
-
-    Interrupt_Vector isrNumber;                        /**< ISR vector number */
-
-    Adc_DeviceState state;                      /**< Current peripheral state */
-
-    Adc_Config config;                                /**< User configuration */
-
-} Adc_Device;
 
 #if defined (LIBOHIBOARD_STM32L476)
 
@@ -408,6 +407,21 @@ static Adc_Device adc3 =
                                ADC_PINS_PC1,
                                ADC_PINS_PC2,
                                ADC_PINS_PC3,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               ADC_PINS_PF3,
+                               ADC_PINS_PF4,
+                               ADC_PINS_PF5,
+#endif
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               ADC_PINS_PF6,
+                               ADC_PINS_PF7,
+                               ADC_PINS_PF8,
+                               ADC_PINS_PF9,
+                               ADC_PINS_PF10,
+#endif
         },
         .pinsChannel         =
         {
@@ -415,6 +429,21 @@ static Adc_Device adc3 =
                                ADC_CHANNELS_CH2,
                                ADC_CHANNELS_CH3,
                                ADC_CHANNELS_CH4,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               ADC_CHANNELS_CH6,
+                               ADC_CHANNELS_CH7,
+                               ADC_CHANNELS_CH8,
+#endif
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               ADC_CHANNELS_CH9,
+                               ADC_CHANNELS_CH10,
+                               ADC_CHANNELS_CH11,
+                               ADC_CHANNELS_CH12,
+                               ADC_CHANNELS_CH13,
+#endif
         },
         .pinsGpio            =
         {
@@ -422,6 +451,21 @@ static Adc_Device adc3 =
                                GPIO_PINS_PC1,
                                GPIO_PINS_PC2,
                                GPIO_PINS_PC3,
+#if defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PF3,
+                               GPIO_PINS_PF4,
+                               GPIO_PINS_PF5,
+#endif
+#if defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                               GPIO_PINS_PF6,
+                               GPIO_PINS_PF7,
+                               GPIO_PINS_PF8,
+                               GPIO_PINS_PF9,
+                               GPIO_PINS_PF10,
+#endif
         },
 
         .isrNumber           = INTERRUPT_ADC3,
@@ -1263,13 +1307,13 @@ uint16_t Adc_getBandGap (Adc_DeviceHandle dev)
     return 0;
 }
 
-_weak void ADC1_2_IRQHandler (void)
+void ADC1_2_IRQHandler (void)
 {
     Adc_callbackInterrupt(OB_ADC1);
     Adc_callbackInterrupt(OB_ADC2);
 }
 
-_weak void ADC3_IRQHandler (void)
+void ADC3_IRQHandler (void)
 {
     Adc_callbackInterrupt(OB_ADC3);
 }
