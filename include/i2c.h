@@ -186,6 +186,10 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 #include "hardware/PIC24FJ/i2c_PIC24FJ.h"
 
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/NXPMKL/i2c_MKL.h"
+
 #else
 
 typedef enum
