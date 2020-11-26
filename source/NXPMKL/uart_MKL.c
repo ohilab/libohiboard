@@ -1,5 +1,5 @@
-/******************************************************************************
- * Copyright (C) 2012-2017 A. C. Open Hardware Ideas Lab
+/*
+ * Copyright (C) 2012-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -21,437 +21,694 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
- * @file libohiboard/source/uart_KL15Z4.c
+ * @file libohiboard/source/uart_MKL.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief UART implementations for KL15Z4.
+ * @brief UART implementations for MKL series.
  */
 
 #ifdef LIBOHIBOARD_UART
 
-#if defined (LIBOHIBOARD_KL15Z4)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "uart.h"
 
 #include "interrupt.h"
 #include "clock.h"
+#include "utility.h"
+#include "gpio.h"
+#include "system.h"
+
+#if defined (LIBOHIBOARD_MKL)
+
+#define UART_DEVICE_ENABLE(REGMAP)        (REGMAP.C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK))
+#define UART_DEVICE_ENABLE0(REGMAP)       (REGMAP.C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK))
+
+#define UART_DEVICE_DISABLE(REGMAP)       (REGMAP.C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK))
+#define UART_DEVICE_DISABLE0(REGMAP)      (REGMAP.C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK))
+
+#define UART_DEVICE_IS_ENABLED(REGMAP)    ((REGMAP.C1 & UART_C2_TE_MASK) || (REGMAP.C1 & UART_C2_RE_MASK))
+#define UART_DEVICE_IS_ENABLED0(REGMAP)   ((REGMAP.C1 & UART0_C2_TE_MASK) || (REGMAP.C1 & UART0_C2_RE_MASK))
 
 #define UART_MAX_PINS                     10
 
-typedef struct Uart_Device
+#if !defined(UART_MAX_CALLBACK_NUMBER)
+#define UART_MAX_CALLBACK_NUMBER          5
+#endif
+
+typedef struct _Uart_Device
 {
-    UART_MemMapPtr regMap;                         /**< Device memory pointer */
-    UART0_MemMapPtr regMap0;             /**< Device memory pointer for UART0 */
+    UART_Type regMap;                              /**< Device memory pointer */
+    UART0_Type regMap0;                  /**< Device memory pointer for UART0 */
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
     Uart_RxPins rxPins[UART_MAX_PINS];
     Uart_TxPins txPins[UART_MAX_PINS];
+    Uart_CtsPins ctsPins[UART_MAX_PINS];
+    Uart_RtsPins rtsPins[UART_MAX_PINS];
 
     volatile uint32_t* rxPinsPtr[UART_MAX_PINS];
     volatile uint32_t* txPinsPtr[UART_MAX_PINS];
+    volatile uint32_t* ctsPinsPtr[UART_MAX_PINS];
+    volatile uint32_t* rtsPinsPtr[UART_MAX_PINS];
     uint8_t rxPinsMux[UART_MAX_PINS];
     uint8_t txPinsMux[UART_MAX_PINS];
+    uint8_t ctsPinsMux[UART_MAX_PINS];
+    uint8_t rtsPinsMux[UART_MAX_PINS];
 
-    Uart_ClockSource clockSource;
+    Uart_Config config;
 
-    void (*isr)(void);                     /**< The function pointer for ISR. */
-    void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
-    void (*callbackTx)(void); /**< The function pointer for user Tx callback. */
+    //void (*isr)(void);                     /**< The function pointer for ISR. */
+    //void (*callbackRx)(void); /**< The function pointer for user Rx callback. */
+    //void (*callbackTx)(void); /**< The function pointer for user Tx callback. */
+
+    /** The array of function pointers for user Rx callback. */
+    void (*callbackRx[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
+    /** The array of function pointers for user Tx callback. */
+    void (*callbackTx[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
+    /** The array of function pointers to handle Error Interrupt. */
+    void (*callbackError[UART_MAX_CALLBACK_NUMBER])(struct _Uart_Device* dev, void* obj);
+    /** Useful array of object added to callback when interrupt triggered. */
+    void* callbackObj[UART_MAX_CALLBACK_NUMBER];
+
+    bool isRxInterruptEnabled;
+    bool isTxInterruptEnabled;
+    bool isErrorInterruptEnabled;
+
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
-    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+    Uart_DeviceState state;
+
 } Uart_Device;
 
-static Uart_Device uart0 = {
-        .regMap0          = UART0_BASE_PTR,
+#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                ((DEVICE) == OB_UART2))
+
+#define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_UART0)
+
+#define UART_IS_VALID_CLOCK_SOURCE(CLOCKSOURCE) (((CLOCKSOURCE) == UART_CLOCKSOURCE_BUS)    || \
+                                                 ((CLOCKSOURCE) == UART_CLOCKSOURCE_SYSTEM))
+
+/**
+  * @brief Check that number of stop bits is valid for UART.
+  * @param STOPBITS Number of stop bits.
+  * @retval TRUE if is valid, FALSE otherwise
+  *
+  * @hideinitializer
+  */
+#define UART_VALID_STOPBITS(STOPBITS) (((STOPBITS) == UART_STOPBITS_ONE))
+
+/**
+  * @brief Check that UART parity is valid.
+  * @param PARITY UART parity type.
+  * @retval TRUE if is valid, FALSE otherwise
+  */
+#define UART_VALID_PARITY(PARITY) (((PARITY) == UART_PARITY_NONE) || \
+                                   ((PARITY) == UART_PARITY_EVEN) || \
+                                   ((PARITY) == UART_PARITY_ODD))
+
+#define UART_VALID_DATABITS(DATABITS) (((DATABITS) == UART_DATABITS_TEN) || \
+                                       ((DATABITS) == UART_DATABITS_EIGHT) || \
+                                       ((DATABITS) == UART_DATABITS_NINE))
+
+// FIXME: Implement flow control!
+#if 0
+#define UART_VALID_FLOWCONTROL(FLOWCONTROL) (((FLOWCONTROL) == UART_FLOWCONTROL_NONE) || \
+                                             ((FLOWCONTROL) == UART_FLOWCONTROL_CTS)  || \
+                                             ((FLOWCONTROL) == UART_FLOWCONTROL_RTS)  || \
+                                             ((FLOWCONTROL) == UART_FLOWCONTROL_CTS_RTS))
+#endif
+#define UART_VALID_FLOWCONTROL(FLOWCONTROL) (((FLOWCONTROL) == UART_FLOWCONTROL_NONE))
+
+static Uart_Device uart0 =
+{
+        .regMap0          = UART0,
         .regMap           = 0,
 
-        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcPtr       = &SIM->SCGC4,
         .simScgcBitEnable = SIM_SCGC4_UART0_MASK,
 
-        .rxPins           = {UART_PINS_PTA1,
+        .rxPins           =
+        {
+                             UART_PINS_PTA1,
+#if defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTA15,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTB16,
+#endif
                              UART_PINS_PTD6,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTE21,
+#endif
         },
-        .rxPinsPtr        = {&PORTA_PCR1,
-                             &PORTA_PCR15,
-                             &PORTB_PCR16,
-                             &PORTD_PCR6,
-                             &PORTE_PCR21,
+        .rxPinsPtr        =
+        {
+                             &PORTA->PCR[1],
+#if defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTA->PCR[15],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTB->PCR[16],
+#endif
+                             &PORTD->PCR[6],
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[21],
+#endif
         },
-        .rxPinsMux        = {2,
+        .rxPinsMux        =
+        {
+                             2,
+#if defined (LIBOHIBOARD_MKL15ZxLK)
                              3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              3,
+#endif
                              3,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              4,
+#endif
         },
 
-        .txPins           = {UART_PINS_PTA2,
+        .txPins           =
+        {
+                             UART_PINS_PTA2,
+#if defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTA14,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTB17,
+#endif
                              UART_PINS_PTD7,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTE20,
+#endif
         },
-        .txPinsPtr        = {&PORTA_PCR2,
-                             &PORTA_PCR14,
-                             &PORTB_PCR17,
-                             &PORTD_PCR7,
-                             &PORTE_PCR20,
+        .txPinsPtr        =
+        {
+                             &PORTA->PCR[2],
+#if defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTA->PCR[14],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTB->PCR[17],
+#endif
+                             &PORTD->PCR[7],
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[20],
+#endif
         },
-        .txPinsMux        = {2,
+        .txPinsMux        =
+        {
+                             2,
+#if defined (LIBOHIBOARD_MKL15ZxLK)
                              3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              3,
+#endif
                              3,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              4,
+#endif
         },
 
-        .isr              = UART0_IRQHandler,
         .isrNumber        = INTERRUPT_UART0,
         .callbackRx       = 0,
         .callbackTx       = 0,
 
-        .devInitialized = 0,
+        .state            = UART_DEVICESTATE_RESET,
 };
 Uart_DeviceHandle OB_UART0 = &uart0;
 
-static Uart_Device uart1 = {
+static Uart_Device uart1 =
+{
         .regMap0          = 0,
-        .regMap           = UART1_BASE_PTR,
+        .regMap           = UART1,
 
-        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcPtr       = &SIM->SCGC4,
         .simScgcBitEnable = SIM_SCGC4_UART1_MASK,
 
-        .rxPins           = {UART_PINS_PTA18,
+        .rxPins           =
+        {
+                             UART_PINS_PTA18,
                              UART_PINS_PTC3,
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTE1,
+#endif
         },
-        .rxPinsPtr        = {&PORTA_PCR18,
-                             &PORTC_PCR3,
-                             &PORTE_PCR1,
+        .rxPinsPtr        =
+        {
+                             &PORTA->PCR[18],
+                             &PORTC->PCR[3],
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[1],
+#endif
         },
-        .rxPinsMux        = {3,
+        .rxPinsMux        =
+        {
                              3,
                              3,
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             3,
+#endif
         },
 
-        .txPins           = {UART_PINS_PTA19,
+        .txPins           =
+        {
+                             UART_PINS_PTA19,
                              UART_PINS_PTC4,
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTE0,
+#endif
         },
-        .txPinsPtr        = {&PORTA_PCR19,
-                             &PORTC_PCR4,
-                             &PORTE_PCR0,
+        .txPinsPtr        =
+        {
+                             &PORTA->PCR[19],
+                             &PORTC->PCR[4],
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[0],
+#endif
         },
-        .txPinsMux        = {3,
+        .txPinsMux        =
+        {
                              3,
                              3,
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             3,
+#endif
         },
 
-        .isr              = UART1_IRQHandler,
         .isrNumber        = INTERRUPT_UART1,
         .callbackRx       = 0,
         .callbackTx       = 0,
 
-        .devInitialized = 0,
+        .state            = UART_DEVICESTATE_RESET,
 };
 Uart_DeviceHandle OB_UART1 = &uart1;
 
-static Uart_Device uart2 = {
+static Uart_Device uart2 =
+{
         .regMap0          = 0,
-        .regMap           = UART2_BASE_PTR,
+        .regMap           = UART2,
 
-        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcPtr       = &SIM->SCGC4,
         .simScgcBitEnable = SIM_SCGC4_UART2_MASK,
 
-        .rxPins           = {UART_PINS_PTD2,
+        .rxPins           =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             UART_PINS_PTD2,
+#endif
                              UART_PINS_PTD4,
                              UART_PINS_PTE17,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTE23,
+#endif
         },
-        .rxPinsPtr        = {&PORTD_PCR2,
-                             &PORTD_PCR4,
-                             &PORTE_PCR17,
-                             &PORTE_PCR23,
+        .rxPinsPtr        =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTD->PCR[2],
+#endif
+                             &PORTD->PCR[4],
+                             &PORTE->PCR[17],
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[23],
+#endif
         },
-        .rxPinsMux        = {3,
+        .rxPinsMux        =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             3,
+#endif
                              3,
                              3,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              4,
+#endif
         },
 
-        .txPins           = {UART_PINS_PTD3,
+        .txPins           =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             UART_PINS_PTD3,
+#endif
                              UART_PINS_PTD5,
                              UART_PINS_PTE16,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              UART_PINS_PTE22,
+#endif
         },
-        .txPinsPtr        = {&PORTD_PCR3,
-                             &PORTD_PCR5,
-                             &PORTE_PCR16,
-                             &PORTE_PCR22,
+        .txPinsPtr        =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTD->PCR[3],
+#endif
+                             &PORTD->PCR[5],
+                             &PORTE->PCR[16],
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[22],
+#endif
         },
-        .txPinsMux        = {3,
+        .txPinsMux        =
+        {
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             3,
+#endif
                              3,
                              3,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              4,
+#endif
         },
 
-        .isr              = UART2_IRQHandler,
         .isrNumber        = INTERRUPT_UART2,
         .callbackRx       = 0,
         .callbackTx       = 0,
 
-        .devInitialized = 0,
+        .state            = UART_DEVICESTATE_RESET,
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
-void UART0_IRQHandler (void)
-{
-    if (UART0_S1_REG(OB_UART0->regMap) & UART0_S1_RDRF_MASK)
-    {
-        OB_UART0->callbackRx();
-        (void)UART0_S1_REG(OB_UART0->regMap);
-        (void)UART0_D_REG(OB_UART0->regMap);
-    }
-    else if (UART0_S1_REG(OB_UART0->regMap) & UART0_S1_TDRE_MASK)
-    {
-        OB_UART0->callbackTx();
-        (void)UART0_S1_REG(OB_UART0->regMap);
-        (void)UART0_D_REG(OB_UART0->regMap);
-    }
-}
-
-void UART1_IRQHandler (void)
-{
-    if (UART_S1_REG(OB_UART1->regMap) & UART_S1_RDRF_MASK)
-    {
-        OB_UART1->callbackRx();
-        (void)UART_S1_REG(OB_UART1->regMap);
-        (void)UART_D_REG(OB_UART1->regMap);
-    }
-    else if (UART_S1_REG(OB_UART1->regMap) & UART_S1_TDRE_MASK)
-    {
-        OB_UART1->callbackTx();
-        (void)UART_S1_REG(OB_UART1->regMap);
-        (void)UART_D_REG(OB_UART1->regMap);
-    }
-}
-
-void UART2_IRQHandler (void)
-{
-    if (UART_S1_REG(OB_UART2->regMap) & UART_S1_RDRF_MASK)
-    {
-        OB_UART2->callbackRx();
-        (void)UART_S1_REG(OB_UART2->regMap);
-        (void)UART_D_REG(OB_UART2->regMap);
-    }
-    else if (UART_S1_REG(OB_UART2->regMap) & UART_S1_TDRE_MASK)
-    {
-        OB_UART2->callbackTx();
-        (void)UART_S1_REG(OB_UART2->regMap);
-        (void)UART_D_REG(OB_UART2->regMap);
-    }
-}
-
-void Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate, uint8_t oversampling)
+System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
 {
     register uint16_t sbr;
     uint32_t temp;
     uint32_t clockHz;
     uint8_t osr;
 
-    if (oversampling < 4)
-        oversampling = 4;
+    uint8_t myoversampling = dev->config.oversampling;
 
-    osr = oversampling - 1;
+    if (myoversampling < 4)
+        myoversampling = 4;
 
-//    switch (dev->clockSource)
-//    {
-//    case UART_CLOCKSOURCE_BUS:
-//        clockHz = Clock_getFrequency(CLOCK_BUS);
-//        break;
-//    case UART_CLOCKSOURCE_SYSTEM:
-//        clockHz = Clock_getFrequency(CLOCK_SYSTEM);
-//        break;
-//    }
+    osr = myoversampling - 1;
 
-    /* Save off the current value of the UARTx_BDH except for the SBR field */
+
+    // Save off the current value of the UARTx_BDH except for the SBR field
     if (dev == OB_UART0)
     {
-        SIM_SOPT2 &= ~(SIM_SOPT2_UART0SRC_MASK);
-        SIM_SOPT2 |= SIM_SOPT2_UART0SRC(1);
+        SIM->SOPT2 &= ~(SIM_SOPT2_UART0SRC_MASK);
+        SIM->SOPT2 |= SIM_SOPT2_UART0SRC(1);
 
         switch(Clock_getCurrentState())
         {
-        case CLOCK_FBE:
-        case CLOCK_FBI:
-        case CLOCK_FEI:
-        case CLOCK_FEE:
-            clockHz = Clock_getFrequency(CLOCK_SYSTEM);
+        case CLOCK_STATE_FBE:
+        case CLOCK_STATE_FBI:
+        case CLOCK_STATE_FEI:
+        case CLOCK_STATE_FEE:
+            clockHz = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
             break;
 
-        case CLOCK_PBE:
-        case CLOCK_PEE:
-            clockHz = Clock_getFrequency(CLOCK_SYSTEM)/2;
+        case CLOCK_STATE_PBE:
+        case CLOCK_STATE_PEE:
+            clockHz = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK)/2;
             break;
+        default:
+            ohiassert(0);
         }
 
         /* Calculate baud settings */
-        sbr = (uint16_t)((clockHz)/(baudrate * oversampling));
+        sbr = (uint16_t)((clockHz)/(baudrate * myoversampling));
 
-        temp = UART0_C4_REG(dev->regMap0) & ~(UART0_C4_OSR_MASK);
-        UART0_C4_REG(dev->regMap0) = temp | UART0_C4_OSR(osr);
+        temp = dev->regMap0.C4 & ~(UART0_C4_OSR_MASK);
+        dev->regMap0.C4 = temp | UART0_C4_OSR(osr);
 
-        temp = UART0_BDH_REG(dev->regMap0) & ~(UART0_BDH_SBR(0x1F));
+        temp = dev->regMap0.BDH & ~(UART0_BDH_SBR(0x1F));
 
-        UART0_BDH_REG(dev->regMap0) = temp |  UART0_BDH_SBR(((sbr & 0x1F00) >> 8));
-        UART0_BDL_REG(dev->regMap0) = (uint8_t)(sbr & UART0_BDL_SBR_MASK);
+        dev->regMap0.BDH = temp |  UART0_BDH_SBR(((sbr & 0x1F00) >> 8));
+        dev->regMap0.BDL = (uint8_t)(sbr & UART0_BDL_SBR_MASK);
     }
     else
     {
-        clockHz = Clock_getFrequency(CLOCK_BUS);
+        // FIXME: Clock bus???
+        //clockHz = Clock_getFrequency(CLOCK_BUS);
+        clockHz = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
 
         /* Calculate baud settings */
         sbr = (uint16_t)((clockHz)/(baudrate * 16));
 
 
-        temp = UART_BDH_REG(dev->regMap) & ~(UART_BDH_SBR(0x1F));
+        temp = dev->regMap0.BDH & ~(UART_BDH_SBR(0x1F));
 
-        UART_BDH_REG(dev->regMap) = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
-        UART_BDL_REG(dev->regMap) = (uint8_t)(sbr & UART_BDL_SBR_MASK);
+        dev->regMap0.BDH = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
+        dev->regMap0.BDL = (uint8_t)(sbr & UART_BDL_SBR_MASK);
     }
-}
 
-/**
- * @brief Wait for a character to be received on the specified uart
- * @param dev Serial port device to receive byte from
- * @param *out Buffer where to store the received character
- * @return Error signal
- */
-System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
-{
-    if (dev == OB_UART0)
-    {
-        /* Wait until character has been received */
-        while (!(UART0_S1_REG(dev->regMap0) & UART0_S1_RDRF_MASK));
-
-        /* Save the 8-bit data from the receiver to the output param */
-        *out = UART0_D_REG(dev->regMap0);
-    }
-    else
-    {
-        /* Wait until character has been received */
-        while (!(UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK));
-
-        /* Save the 8-bit data from the receiver to the output param */
-        *out = UART_D_REG(dev->regMap);
-    }
     return ERRORS_NO_ERROR;
 }
 
-/**
- * @brief Wait for space in the UART Tx FIFO and then send a character
- * @param dev uart Device to send to
- * @param c Character to send
- */
-void Uart_putChar (Uart_DeviceHandle dev, char c)
+System_Errors Uart_getChar (Uart_DeviceHandle dev, char *out)
 {
-    if (dev == OB_UART0)
-    {
-        /* Wait until space is available in the FIFO */
-        while(!(UART0_S1_REG(dev->regMap0) & UART0_S1_TDRE_MASK));
-
-        /* Send the character */
-        UART0_D_REG(dev->regMap0) = (uint8_t)c;
-    }
-    else
-    {
-        /* Wait until space is available in the FIFO */
-        while(!(UART_S1_REG(dev->regMap) & UART_S1_TDRE_MASK));
-
-        /* Send the character */
-        UART_D_REG(dev->regMap) = (uint8_t)c;
-    }
+    // deprecated
+    return ohiassert(0);
 }
 
-/**
- * @brief Check to see if a character has been received
- * @param dev uart Device to check for a character
- * @return uint8_t
- *  0 No character received
- *  1 Character has been received
- */
-uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
+System_Errors Uart_read (Uart_DeviceHandle dev, uint8_t* data, uint32_t timeout)
 {
-    if (dev == OB_UART0)
+    uint32_t timeoutEnd = System_currentTick() + timeout;
+
+    if (dev->state == UART_DEVICESTATE_READY)
     {
-        if (UART0_S1_REG(dev->regMap0) & UART0_S1_OR_MASK)
-            UART0_S1_REG(dev->regMap0) |= UART0_S1_OR_MASK;
-        return (UART0_S1_REG(dev->regMap0) & UART0_S1_RDRF_MASK);
+        dev->state = UART_DEVICESTATE_BUSY;
+
+        if (dev == OB_UART0)
+        {
+            // Wait until character has been received
+            while (UTILITY_READ_REGISTER_BIT(dev->regMap0.S1,UART0_S1_TDRE_MASK) == 0)
+            {
+                if (System_currentTick() > timeoutEnd)
+                {
+                    return ERRORS_UART_TIMEOUT_RX;
+                }
+            }
+
+            *data = (uint8_t)(dev->regMap0.D);
+        }
+        else
+        {
+            // Wait until character has been received
+            while (UTILITY_READ_REGISTER_BIT(dev->regMap.S1,UART_S1_TDRE_MASK) == 0)
+            {
+                if (System_currentTick() > timeoutEnd)
+                {
+                    return ERRORS_UART_TIMEOUT_RX;
+                }
+            }
+
+            *data = (uint8_t)(dev->regMap.D);
+        }
     }
     else
     {
-        return (UART_S1_REG(dev->regMap) & UART_S1_RDRF_MASK);
+        return ERRORS_UART_DEVICE_BUSY;
     }
+    dev->state = UART_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+void Uart_putChar (Uart_DeviceHandle dev, char c)
+{
+    // deprecated
+    ohiassert(0);
+}
+
+System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t timeout)
+{
+    uint32_t timeoutEnd = System_currentTick() + timeout;
+
+    if (dev->state == UART_DEVICESTATE_READY)
+    {
+        dev->state = UART_DEVICESTATE_BUSY;
+
+        if (dev == OB_UART0)
+        {
+            // Wait until space is available in the FIFO
+            while (UTILITY_READ_REGISTER_BIT(dev->regMap0.S1,UART0_S1_TDRE_MASK) == 0)
+            {
+                if (System_currentTick() > timeoutEnd)
+                {
+                    return ERRORS_UART_TIMEOUT_TX;
+                }
+            }
+            // Send the character
+            dev->regMap.D = *data;
+        }
+        else
+        {
+            // Wait until space is available in the FIFO
+            while (UTILITY_READ_REGISTER_BIT(dev->regMap.S1,UART_S1_TDRE_MASK) == 0)
+            {
+                if (System_currentTick() > timeoutEnd)
+                {
+                    return ERRORS_UART_TIMEOUT_TX;
+                }
+            }
+            // Send the character
+            dev->regMap.D = *data;
+        }
+    }
+    else
+    {
+        return ERRORS_UART_DEVICE_BUSY;
+    }
+    dev->state = UART_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
+}
+
+uint8_t Uart_isCharPresent (Uart_DeviceHandle dev)
+{
+    // deprecated
+    ohiassert(0);
+    return 0;
+}
+
+uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
+{
+    // deprecated
+    ohiassert(0);
+    return 0;
 }
 
 System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
 {
-    if (dev->devInitialized) return ERRORS_UART_DEVICE_JUST_INIT;
+    return ohiassert(0);
+}
 
-    /* Enable the clock to the selected UART */
-    *dev->simScgcPtr |= dev->simScgcBitEnable;
+static System_Errors Uart_config (Uart_DeviceHandle dev, Uart_Config * config)
+{
+    System_Errors err = ERRORS_NO_ERROR;
 
-    /* Make sure that the transmitter and receiver are disabled while we change settings. */
+    // Check all parameters with asserts
+    // The OR is to detect an error: it is not important where is, the important is that there is!
+    err = ohiassert(UART_VALID_DATABITS(config->dataBits));
+    //err |= ohiassert(UART_VALID_BAUDRATE(config->baudrate));
+    //err |= ohiassert(UART_VALID_OVERSAMPLING(config->oversampling));
+    err |= ohiassert(UART_VALID_STOPBITS(config->stop));
+    err |= ohiassert(UART_VALID_PARITY(config->parity));
+    err |= ohiassert(UART_VALID_FLOWCONTROL(config->flowControl));
+    //err |= ohiassert(UART_VALID_MODE(config->mode));
+
+    if (err != ERRORS_NO_ERROR)
+        return ERRORS_UART_WRONG_PARAM;
+
+    // Save configurations
+    dev->config = *config;
+
+    // Make sure that the transmitter and receiver are disabled while we change settings.
     if (dev == OB_UART0)
-        UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+    {
+        UART_DEVICE_DISABLE0(dev->regMap0);
+    }
     else
-        UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+    {
+        UART_DEVICE_DISABLE(dev->regMap);
+    }
 
-    /* FIXME: Configure the UART just for 8-bit mode */
+
+    // Set data bits
     if (dev == OB_UART0)
+    {
+        switch (dev->config.dataBits)
+        {
+        case UART_DATABITS_EIGHT:
+            dev->regMap0.C1 &= ~(UART_C1_M_MASK);
+            break;
+        case UART_DATABITS_NINE:
+            break;
+        case UART_DATABITS_TEN:
+            break;
+        }
+    }
+    else
     {
         switch (config->dataBits)
         {
         case UART_DATABITS_EIGHT:
-            UART_C1_REG(dev->regMap0) &= ~(UART_C1_M_MASK);
+            dev->regMap.C1 &= ~(UART_C1_M_MASK);
             break;
         case UART_DATABITS_NINE:
-            /* FIXME: UART_C1_REG(dev->regMap0) |= UART_C1_M_MASK; */
             break;
-        }
-    }
-    else
-    {
-        switch (config->dataBits)
-        {
-        case UART_DATABITS_EIGHT:
-            UART_C1_REG(dev->regMap) &= ~(UART_C1_M_MASK);
-            break;
-        case UART_DATABITS_NINE:
-            /* FIXME: UART_C1_REG(dev->regMap) |= UART_C1_M_MASK; */
+        case UART_DATABITS_TEN:
             break;
         }
     }
 
-    /* Set parity type */
+    // Set parity type
     if (dev == OB_UART0)
     {
-        switch (config->parity)
+        switch (dev->config.parity)
         {
         case UART_PARITY_NONE:
-            UART0_C1_REG(dev->regMap0) &= ~(UART0_C1_PE_MASK | UART0_C1_PT_MASK);
+            dev->regMap0.C1 &= ~(UART0_C1_PE_MASK | UART0_C1_PT_MASK);
             break;
         case UART_PARITY_ODD:
-            UART0_C1_REG(dev->regMap0) |= UART0_C1_PE_MASK | UART0_C1_PT_MASK | 0;
+            dev->regMap0.C1 |= UART0_C1_PE_MASK | UART0_C1_PT_MASK | 0;
             break;
         case UART_PARITY_EVEN:
-            UART0_C1_REG(dev->regMap0) |= UART0_C1_PE_MASK | 0;
+            dev->regMap0.C1 |= UART0_C1_PE_MASK | 0;
             break;
         }
     }
@@ -460,95 +717,219 @@ System_Errors Uart_open (Uart_DeviceHandle dev, Uart_Config *config)
         switch (config->parity)
         {
         case UART_PARITY_NONE:
-            UART_C1_REG(dev->regMap) &= ~(UART_C1_PE_MASK | UART_C1_PT_MASK);
+            dev->regMap.C1 &= ~(UART_C1_PE_MASK | UART_C1_PT_MASK);
             break;
         case UART_PARITY_ODD:
-            UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | UART_C1_PT_MASK | 0;
+            dev->regMap.C1 |= UART_C1_PE_MASK | UART_C1_PT_MASK | 0;
             break;
         case UART_PARITY_EVEN:
-            UART_C1_REG(dev->regMap) |= UART_C1_PE_MASK | 0;
+            dev->regMap.C1 |= UART_C1_PE_MASK | 0;
             break;
         }
     }
 
-    dev->clockSource = config->clockSource;
-    Uart_setBaudrate(dev,config->baudrate,config->oversampling);
+    // FIXME: add flow control!
+    // FIXME: Configure the UART just for 8-bit mode, fix with 9 and 10
 
-    /* Enable receiver and transmitter */
+    Uart_setBaudrate(dev,config->baudrate);
+
+    // Enable receiver and transmitter
     if (dev == OB_UART0)
-        UART0_C2_REG(dev->regMap0) |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+    {
+        UART_DEVICE_ENABLE0(dev->regMap0);
+    }
     else
-        UART_C2_REG(dev->regMap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+    {
+        UART_DEVICE_ENABLE(dev->regMap);
+    }
 
-    dev->devInitialized = 1;
+    return err;
+}
 
-    /* Config the port controller */
-    if (config->rxPin != UART_PINS_RXNONE)
-        Uart_setRxPin(dev, config->rxPin);
+System_Errors Uart_init (Uart_DeviceHandle dev, Uart_Config *config)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
+    if (dev == NULL)
+    {
+        return ERRORS_UART_NO_DEVICE;
+    }
+    // Check the UART instance
+    err = ohiassert((UART_IS_DEVICE(dev)) || (UART_IS_LOWPOWER_DEVICE(dev)));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+    // Check clock source selections
+    err = ohiassert(UART_IS_VALID_CLOCK_SOURCE(config->clockSource));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_PARAM;
+    }
 
-    if (config->txPin != UART_PINS_TXNONE)
-        Uart_setTxPin(dev, config->txPin);
+    // Enable peripheral clock if needed
+    if (dev->state == UART_DEVICESTATE_RESET)
+    {
+        // Enable peripheral clock
+        *dev->simScgcPtr |= dev->simScgcBitEnable;
 
-    /* If call back exist save it */
+        // Enable pins
+        if (config->rxPin != UART_PINS_RXNONE)
+            Uart_setRxPin(dev, config->rxPin);
+
+        if (config->txPin != UART_PINS_TXNONE)
+            Uart_setTxPin(dev, config->txPin);
+    }
+    dev->state = UART_DEVICESTATE_BUSY;
+
+    // Configure the peripheral
+    err = Uart_config(dev,config);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return err;
+    }
+
+    // Configure interrupt
     if (config->callbackRx)
     {
-        dev->callbackRx = config->callbackRx;
-        /* Enable interrupt */
+        dev->callbackRx[0] = config->callbackRx;
+        dev->isRxInterruptEnabled = TRUE;
+        if (config->callbackError)
+        {
+            dev->callbackError[0] = config->callbackError;
+            dev->isErrorInterruptEnabled = TRUE;
+        }
+        // Enable NVIC interrupt
         Interrupt_enable(dev->isrNumber);
-        /* FIXME: Enable just RX interrupt */
         if (dev == OB_UART0)
         {
-            UART0_C2_REG(dev->regMap0) |= UART0_C2_RIE_MASK;
+            dev->regMap0.C2 |= UART0_C2_RIE_MASK;
         }
         else
         {
-            UART_C2_REG(dev->regMap) |= UART_C2_RIE_MASK;
+            dev->regMap.C2 |= UART_C2_RIE_MASK;
         }
     }
 
     if (config->callbackTx)
     {
-        dev->callbackTx = config->callbackTx;
-        /* Enable interrupt */
+        dev->callbackTx[0] = config->callbackTx;
+        dev->isTxInterruptEnabled = TRUE;
+        if (config->callbackError)
+        {
+            dev->callbackError[0] = config->callbackError;
+            dev->isErrorInterruptEnabled = TRUE;
+        }
+        // Enable NVIC interrupt
         Interrupt_enable(dev->isrNumber);
-        /* FIXME: Enable just TX interrupt */
         if (dev == OB_UART0)
         {
-            UART0_C2_REG(dev->regMap0) |= UART0_C2_TIE_MASK;
+            dev->regMap0.C2 |= UART0_C2_TIE_MASK;
         }
         else
         {
-            UART_C2_REG(dev->regMap) |= UART_C2_TIE_MASK;
+            dev->regMap.C2 |= UART_C2_TIE_MASK;
         }
     }
+
+    if (dev->config.callbackObj != NULL)
+    {
+        dev->callbackObj[0] = dev->config.callbackObj;
+    }
+    else
+    {
+        dev->callbackObj[0] = NULL;
+    }
+
+    dev->state = UART_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
 
 System_Errors Uart_close (Uart_DeviceHandle dev)
 {
-    if (!dev->devInitialized) return ERRORS_UART_DEVICE_NOT_INIT;
+    return ohiassert(0);
+}
 
-    /* Disable transmitter and receiver. */
+System_Errors Uart_deInit (Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the UART device
+    if (dev == NULL)
+    {
+        return ERRORS_UART_NO_DEVICE;
+    }
+    // Check the UART instance
+    err = ohiassert((UART_IS_DEVICE(dev)) || (UART_IS_LOWPOWER_DEVICE(dev)));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_UART_WRONG_DEVICE;
+    }
+
+    // The device is busy...
+    dev->state = UART_DEVICESTATE_BUSY;
+
+    // Disable the peripheral
     if (dev == OB_UART0)
-        UART0_C2_REG(dev->regMap0) &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK );
+    {
+        UART_DEVICE_DISABLE0(dev->regMap0);
+    }
     else
-        UART_C2_REG(dev->regMap) &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+    {
+        UART_DEVICE_DISABLE(dev->regMap);
+    }
 
+    // Delete interrupt callback
+    for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+    {
+        dev->callbackRx[i] = NULL;
+        dev->callbackTx[i] = NULL;
+        dev->callbackError[i] = NULL;
+        dev->callbackObj[i] = 0;
+    }
 
-    /* Disable the clock to the selected UART */
+    // Disable peripheral clock
     *dev->simScgcPtr &= ~dev->simScgcBitEnable;
 
-    dev->devInitialized = 0;
-    return ERRORS_NO_ERROR;
+    // Set reset state
+    dev->state = UART_DEVICESTATE_RESET;
+
+    return err;
+}
+
+bool Uart_isEnabled (Uart_DeviceHandle dev)
+{
+    if (dev == OB_UART0)
+    {
+        return (UART_DEVICE_IS_ENABLED0(dev->regMap0) != 0) ? (true) : (false);
+    }
+    else
+    {
+        return (UART_DEVICE_IS_ENABLED(dev->regMap) != 0) ? (true) : (false);
+    }
+}
+
+System_Errors Uart_resume(Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // TODO
+
+    return err;
+}
+
+System_Errors Uart_suspend(Uart_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+
+    // TODO
+
+    return err;
 }
 
 System_Errors Uart_setRxPin (Uart_DeviceHandle dev, Uart_RxPins rxPin)
 {
     uint8_t devPinIndex;
-
-    if (dev->devInitialized == 0)
-        return ERRORS_UART_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < UART_MAX_PINS; ++devPinIndex)
     {
@@ -566,9 +947,6 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
 {
     uint8_t devPinIndex;
 
-    if (dev->devInitialized == 0)
-        return ERRORS_UART_DEVICE_NOT_INIT;
-
     for (devPinIndex = 0; devPinIndex < UART_MAX_PINS; ++devPinIndex)
     {
         if (dev->txPins[devPinIndex] == txPin)
@@ -581,14 +959,74 @@ System_Errors Uart_setTxPin (Uart_DeviceHandle dev, Uart_TxPins txPin)
     return ERRORS_UART_NO_PIN_FOUND;
 }
 
-uint8_t Uart_isTransmissionComplete (Uart_DeviceHandle dev)
+static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_DeviceHandle dev)
 {
+    uint8_t s1reg = 0;
     if (dev == OB_UART0)
-        return (UART0_S1_REG(dev->regMap0) & UART0_S1_TC_MASK);
+    {
+        s1reg = OB_UART0->regMap0.S1;
+    }
     else
-        return (UART_S1_REG(dev->regMap) & UART_S1_TC_MASK);
+    {
+        s1reg = OB_UART0->regMap.S1;
+    }
+
+    // Check if the interrupt is in reception
+    if ((s1reg & UART_S1_RDRF_MASK) != 0)
+    {
+        if (dev->callbackRx[0] != NULL)
+        {
+            for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+            {
+
+                if (dev->callbackRx[i] != NULL)
+                {
+                    dev->callbackRx[i](dev,dev->callbackObj[i]);
+                }
+            }
+            // FIXME: flag read again?
+        }
+        return;
+    }
+
+    // Check if the interrupt is in transmission
+    if ((s1reg & UART_S1_TDRE_MASK) != 0)
+    {
+        if (dev->callbackTx[0] != NULL)
+        {
+            for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
+            {
+
+                if (dev->callbackTx[i] != NULL)
+                {
+                    dev->callbackTx[i](dev,dev->callbackObj[i]);
+                }
+            }
+            // FIXME: flag read again?
+        }
+        return;
+    }
 }
 
-#endif /* LIBOHIBOARD_KL15Z4 */
+void UART0_IRQHandler (void)
+{
+    Uart_callbackInterrupt(OB_UART0);
+}
 
-#endif /* LIBOHIBOARD_UART */
+void UART1_IRQHandler (void)
+{
+    Uart_callbackInterrupt(OB_UART1);
+}
+
+void UART2_IRQHandler (void)
+{
+    Uart_callbackInterrupt(OB_UART2);
+}
+
+#endif // LIBOHIBOARD_MKL
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // LIBOHIBOARD_UART

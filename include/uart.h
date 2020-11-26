@@ -150,10 +150,8 @@ typedef enum _Uart_ClockSource
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
 
-#if defined (LIBOHIBOARD_KL15Z4)     || \
-    defined (LIBOHIBOARD_KL25Z4)     || \
-    defined (LIBOHIBOARD_FRDMKL25Z)  || \
-    defined (LIBOHIBOARD_FRDMKL25Z)  || \
+#if defined (LIBOHIBOARD_MKL15)      || \
+	defined (LIBOHIBOARD_MKL25)      || \
     defined (LIBOHIBOARD_KV31F12)    || \
     defined (LIBOHIBOARD_K10DZ10)    || \
     defined (LIBOHIBOARD_K10D10)     || \
@@ -238,6 +236,10 @@ typedef struct Uart_Device* Uart_DeviceHandle;
 #elif defined (LIBOHIBOARD_PIC24FJ)
 
 #include "hardware/PIC24FJ/uart_PIC24FJ.h"
+
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/NXPMKL/uart_MKL.h"
 
 #else
 
