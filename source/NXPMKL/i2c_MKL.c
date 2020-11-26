@@ -1,4 +1,7 @@
-/* Copyright (C) 2012-2015 A. C. Open Hardware Ideas Lab
+/*
+ * This file is part of the libohiboard project.
+ *
+ * Copyright (C) 2012-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -20,22 +23,27 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- ******************************************************************************/
+ */
 
 /**
- * @file libohiboard/source/i2c_KL15Z4.c
+ * @file libohiboard/source/NXPMKL/i2c_MKL.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief I2C implementations for KL15Z4.
+ * @brief I2C implementations for NXP MKL series.
  */
 
 #ifdef LIBOHIBOARD_IIC
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "platforms.h"
+
+#if defined (LIBOHIBOARD_MKL)
+
 #include "utility.h"
 #include "i2c.h"
 #include "clock.h"
-
-#if defined (LIBOHIBOARD_KL15Z4)
 
 #define IIC_MAX_PINS           5
 
@@ -44,8 +52,9 @@
 
 static uint8_t Iic_firstRead = 0;
 
-typedef struct Iic_Device {
-    I2C_MemMapPtr         regMap;
+typedef struct _Iic_Device
+{
+    I2C_Type regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
@@ -58,54 +67,136 @@ typedef struct Iic_Device {
     uint8_t sclPinsMux[IIC_MAX_PINS];
     uint8_t sdaPinsMux[IIC_MAX_PINS];
 
-    uint8_t devInitialized;   /**< Indicate that device was been initialized. */
+    Iic_Config config;
+
+    Iic_DeviceState state;                     /**< Current peripheral state. */
+
 } Iic_Device;
 
-static Iic_Device iic0 = {
-        .regMap           = I2C0_BASE_PTR,
+static Iic_Device iic0 =
+{
+        .regMap           = I2C0,
 
         .simScgcPtr       = &SIM_SCGC4,
         .simScgcBitEnable = SIM_SCGC4_I2C0_MASK,
 
-        .sclPins          = {IIC_PINS_PTB0,
+        .sclPins          =
+        {
+                             IIC_PINS_PTB0,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTB2,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTC8,
+#endif
                              IIC_PINS_PTE19,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTE24,
+#endif
         },
-        .sclPinsPtr       = {&PORTB_PCR0,
-                             &PORTB_PCR2,
-                             &PORTC_PCR8,
-                             &PORTE_PCR19,
-                             &PORTE_PCR24,
+        .sclPinsPtr       =
+        {
+                             &PORTB->PCR[0],
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTB->PCR[2],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTC->PCR[8],
+#endif
+                             &PORTE->PCR[19],
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[24],
+#endif
         },
-        .sclPinsMux       = {2,
+        .sclPinsMux       =
+        {
                              2,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              2,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             2,
+#endif
                              4,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              5,
+#endif
         },
 
-        .sdaPins          = {IIC_PINS_PTB1,
+        .sdaPins          =
+        {
+                             IIC_PINS_PTB1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTB3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTC9,
+#endif
                              IIC_PINS_PTE18,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTE25,
+#endif
         },
-        .sdaPinsPtr       = {&PORTB_PCR1,
-                             &PORTB_PCR3,
-                             &PORTC_PCR9,
-                             &PORTE_PCR18,
-                             &PORTE_PCR25,
+        .sdaPinsPtr       =
+        {
+                             &PORTB->PCR[1],
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTB->PCR[3],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTC->PCR[9],
+#endif
+                             &PORTE->PCR[18],
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[25],
+#endif
         },
-        .sdaPinsMux       = {2,
+        .sdaPinsMux       =
+        {
                              2,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              2,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             2,
+#endif
                              4,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              5,
+#endif
         },
 
-        .devInitialized = 0,
+        .state             = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC0 = &iic0;
 
