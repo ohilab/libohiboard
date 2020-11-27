@@ -71,11 +71,11 @@ typedef enum _Uart_RxPins
 #if defined (LIBOHIBOARD_MKL15) || \
     defined (LIBOHIBOARD_MKL25)
 
-    UART_PINS_PTA1,//x
+    UART_PINS_PTA1,
 #if defined (LIBOHIBOARD_MKL15ZxLK)
     UART_PINS_PTA15,
 #endif
-    UART_PINS_PTA18,//x
+    UART_PINS_PTA18,
 
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -83,10 +83,10 @@ typedef enum _Uart_RxPins
     defined (LIBOHIBOARD_MKL25ZxFT) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTB16,//x
+    UART_PINS_PTB16,
 #endif
 
-    UART_PINS_PTC3,//x
+    UART_PINS_PTC3,
 
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -94,23 +94,23 @@ typedef enum _Uart_RxPins
     defined (LIBOHIBOARD_MKL25ZxFT) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTD2,//x
+    UART_PINS_PTD2,
 #endif
-    UART_PINS_PTD4,//x
-    UART_PINS_PTD6,//x
+    UART_PINS_PTD4,
+    UART_PINS_PTD6,
 
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTE1,//x
+    UART_PINS_PTE1,
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
-    UART_PINS_PTE17,//x
+    UART_PINS_PTE17,
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -118,13 +118,13 @@ typedef enum _Uart_RxPins
     defined (LIBOHIBOARD_MKL25ZxFT) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTE21,//x
+    UART_PINS_PTE21,
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTE23,//x
+    UART_PINS_PTE23,
 #endif
 
 #endif
@@ -141,11 +141,11 @@ typedef enum _Uart_TxPins
 #if defined (LIBOHIBOARD_MKL15) || \
     defined (LIBOHIBOARD_MKL15)
 
-    UART_PINS_PTA2,//x
+    UART_PINS_PTA2,
 #if defined (LIBOHIBOARD_MKL15ZxLK)
     UART_PINS_PTA14,
 #endif
-    UART_PINS_PTA19,//x
+    UART_PINS_PTA19,
 
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -153,10 +153,10 @@ typedef enum _Uart_TxPins
     defined (LIBOHIBOARD_MKL25ZxFT) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTB17,//x
+    UART_PINS_PTB17,
 #endif
 
-    UART_PINS_PTC4,//x
+    UART_PINS_PTC4,
 
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -164,10 +164,10 @@ typedef enum _Uart_TxPins
     defined (LIBOHIBOARD_MKL25ZxFT) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTD3,//x
+    UART_PINS_PTD3,
 #endif
-    UART_PINS_PTD5,//x
-    UART_PINS_PTD7,//x
+    UART_PINS_PTD5,
+    UART_PINS_PTD7,
 
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
@@ -175,7 +175,7 @@ typedef enum _Uart_TxPins
 	defined (LIBOHIBOARD_MKL25ZxFM) || \
 	defined (LIBOHIBOARD_MKL25ZxLH) || \
 	defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTE0,//x
+    UART_PINS_PTE0,
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxFT) || \
@@ -189,13 +189,13 @@ typedef enum _Uart_TxPins
     defined (LIBOHIBOARD_MKL25ZxFT) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTE20,//x
+    UART_PINS_PTE20,
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK) || \
     defined (LIBOHIBOARD_MKL25ZxLH) || \
     defined (LIBOHIBOARD_MKL25ZxLK)
-    UART_PINS_PTE22,//x
+    UART_PINS_PTE22,
 #endif
 
 #endif
