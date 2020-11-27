@@ -1008,6 +1008,66 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
     }
 }
 
+void Uart_setCallbackObject (Uart_DeviceHandle dev, void* obj)
+{
+    ohiassert(obj != NULL);
+
+    if (obj != NULL)
+    {
+        dev->callbackObj[0] = obj;
+    }
+}
+
+void Uart_addRxCallback (Uart_DeviceHandle dev, Uart_callback callback)
+{
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->callbackRx[0] = callback;
+        dev->isRxInterruptEnabled = TRUE;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+
+        if (dev == OB_UART0)
+        {
+            dev->regMap0.C2 |= UART0_C2_RIE_MASK;
+        }
+        else
+        {
+            dev->regMap.C2 |= UART_C2_RIE_MASK;
+        }
+    }
+}
+
+void Uart_addTxCallback (Uart_DeviceHandle dev, Uart_callback callback)
+{
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->callbackTx[0] = callback;
+        dev->isTxInterruptEnabled = TRUE;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+
+        if (dev == OB_UART0)
+        {
+            dev->regMap0.C2 |= UART0_C2_TIE_MASK;
+        }
+        else
+        {
+            dev->regMap.C2 |= UART_C2_TIE_MASK;
+        }
+    }
+}
+
+void Uart_addErrorCallback (Uart_DeviceHandle dev, Uart_callback callback)
+{
+    // Not used in this microcontroller
+    ohiassert(0);
+}
+
 void UART0_IRQHandler (void)
 {
     Uart_callbackInterrupt(OB_UART0);
