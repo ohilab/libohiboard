@@ -162,13 +162,19 @@ static Uart_Device uart0 =
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTB16,
 #endif
                              UART_PINS_PTD6,
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTE21,
 #endif
         },
@@ -180,13 +186,19 @@ static Uart_Device uart0 =
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTB->PCR[16],
 #endif
                              &PORTD->PCR[6],
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTE->PCR[21],
 #endif
         },
@@ -198,13 +210,19 @@ static Uart_Device uart0 =
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              3,
 #endif
                              3,
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              4,
 #endif
         },
@@ -217,13 +235,19 @@ static Uart_Device uart0 =
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTB17,
 #endif
                              UART_PINS_PTD7,
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTE20,
 #endif
         },
@@ -235,13 +259,19 @@ static Uart_Device uart0 =
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTB->PCR[17],
 #endif
                              &PORTD->PCR[7],
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTE->PCR[20],
 #endif
         },
@@ -253,13 +283,19 @@ static Uart_Device uart0 =
 #endif
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              3,
 #endif
                              3,
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              4,
 #endif
         },
@@ -286,7 +322,9 @@ static Uart_Device uart1 =
                              UART_PINS_PTC3,
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTE1,
 #endif
         },
@@ -296,7 +334,9 @@ static Uart_Device uart1 =
                              &PORTC->PCR[3],
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTE->PCR[1],
 #endif
         },
@@ -306,7 +346,9 @@ static Uart_Device uart1 =
                              3,
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              3,
 #endif
         },
@@ -317,7 +359,10 @@ static Uart_Device uart1 =
                              UART_PINS_PTC4,
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+	defined (LIBOHIBOARD_MKL25ZxFM) || \
+	defined (LIBOHIBOARD_MKL25ZxLH) || \
+	defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTE0,
 #endif
         },
@@ -327,7 +372,10 @@ static Uart_Device uart1 =
                              &PORTC->PCR[4],
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+	defined (LIBOHIBOARD_MKL25ZxFM) || \
+	defined (LIBOHIBOARD_MKL25ZxLH) || \
+	defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTE->PCR[0],
 #endif
         },
@@ -337,7 +385,10 @@ static Uart_Device uart1 =
                              3,
 #if defined (LIBOHIBOARD_MKL15ZxFM) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+	defined (LIBOHIBOARD_MKL25ZxFM) || \
+	defined (LIBOHIBOARD_MKL25ZxLH) || \
+	defined (LIBOHIBOARD_MKL25ZxLK)
                              3,
 #endif
         },
@@ -362,13 +413,23 @@ static Uart_Device uart2 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTD2,
 #endif
                              UART_PINS_PTD4,
-                             UART_PINS_PTE17,
-#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+                             UART_PINS_PTE17,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTE23,
 #endif
         },
@@ -376,13 +437,23 @@ static Uart_Device uart2 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTD->PCR[2],
 #endif
                              &PORTD->PCR[4],
-                             &PORTE->PCR[17],
-#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[17],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTE->PCR[23],
 #endif
         },
@@ -390,13 +461,23 @@ static Uart_Device uart2 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              3,
 #endif
                              3,
-                             3,
-#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+                             3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              4,
 #endif
         },
@@ -405,13 +486,23 @@ static Uart_Device uart2 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTD3,
 #endif
                              UART_PINS_PTD5,
-                             UART_PINS_PTE16,
-#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+                             UART_PINS_PTE16,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              UART_PINS_PTE22,
 #endif
         },
@@ -419,13 +510,23 @@ static Uart_Device uart2 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTD->PCR[3],
 #endif
                              &PORTD->PCR[5],
-                             &PORTE->PCR[16],
-#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[16],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              &PORTE->PCR[22],
 #endif
         },
@@ -433,13 +534,23 @@ static Uart_Device uart2 =
         {
 #if defined (LIBOHIBOARD_MKL15ZxFT) || \
     defined (LIBOHIBOARD_MKL15ZxLH) || \
-    defined (LIBOHIBOARD_MKL15ZxLK)
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxFT) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              3,
 #endif
                              3,
-                             3,
-#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
+                             3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK) || \
+    defined (LIBOHIBOARD_MKL25ZxLH) || \
+    defined (LIBOHIBOARD_MKL25ZxLK)
                              4,
 #endif
         },

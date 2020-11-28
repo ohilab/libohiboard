@@ -139,7 +139,7 @@ typedef enum _Uart_RxPins
 typedef enum _Uart_TxPins
 {
 #if defined (LIBOHIBOARD_MKL15) || \
-    defined (LIBOHIBOARD_MKL15)
+    defined (LIBOHIBOARD_MKL25)
 
     UART_PINS_PTA2,
 #if defined (LIBOHIBOARD_MKL15ZxLK)
