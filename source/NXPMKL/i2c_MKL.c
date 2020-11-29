@@ -44,23 +44,27 @@ extern "C" {
 #include "utility.h"
 #include "i2c.h"
 #include "clock.h"
+#include "gpio.h"
 
 #define IIC_MAX_PINS           5
 
 #define IIC_PIN_ENABLED        1
 #define IIC_PIN_DISABLED       0
 
-static uint8_t Iic_firstRead = 0;
+//static uint8_t Iic_firstRead = 0;
 
 typedef struct _Iic_Device
 {
-    I2C_Type regMap;
+    I2C_Type* regMap;
 
     volatile uint32_t* simScgcPtr;    /**< SIM_SCGCx register for the device. */
     uint32_t simScgcBitEnable;       /**< SIM_SCGC enable bit for the device. */
 
     Iic_SclPins sclPins[IIC_MAX_PINS];
     Iic_SdaPins sdaPins[IIC_MAX_PINS];
+
+    Gpio_Pins sclPinsGpio[IIC_MAX_PINS];
+    Gpio_Pins sdaPinsGpio[IIC_MAX_PINS];
 
     volatile uint32_t* sclPinsPtr[IIC_MAX_PINS];
     volatile uint32_t* sdaPinsPtr[IIC_MAX_PINS];
@@ -73,11 +77,39 @@ typedef struct _Iic_Device
 
 } Iic_Device;
 
+#define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC0)  || \
+                               ((DEVICE) == OB_IIC1))
+
+#define IIC_VALID_MODE(MODE) (((MODE) == IIC_MASTER_MODE) || \
+                              ((MODE) == IIC_SLAVE_MODE))
+
+#define IIC_VALID_ADDRESSMODE(ADDRESSMODE) (((ADDRESSMODE) == IIC_SEVEN_BIT)  || \
+                                            ((ADDRESSMODE) == IIC_TEN_BIT))
+
+#define IIC_VALID_REGISTERADDRESSSIZE(SIZE) (((SIZE) == IIC_REGISTERADDRESSSIZE_8BIT)  || \
+                                             ((SIZE) == IIC_REGISTERADDRESSSIZE_16BIT))
+
+
+//#define IIC_CLOCK_ENABLE(REG,MASK) do { \
+//                                     UTILITY_SET_REGISTER_BIT(REG,MASK); \
+//                                     asm("nop"); \
+//                                     (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
+//                                   } while (0)
+
+/**
+ * @brief Enable the I2C peripheral
+ */
+#define IIC_DEVICE_ENABLE(REGMAP)        (REGMAP->C1 |= I2C_C1_IICEN_MASK)
+/**
+ * @brief Disable the I2C peripheral
+ */
+#define IIC_DEVICE_DISABLE(REGMAP)       (REGMAP->C1 &= ~I2C_C1_IICEN_MASK)
+
 static Iic_Device iic0 =
 {
         .regMap           = I2C0,
 
-        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcPtr       = &SIM->SCGC4,
         .simScgcBitEnable = SIM_SCGC4_I2C0_MASK,
 
         .sclPins          =
@@ -97,6 +129,25 @@ static Iic_Device iic0 =
     defined (LIBOHIBOARD_MKL15ZxLH) || \
     defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTE24,
+#endif
+        },
+        .sclPinsGpio      =
+        {
+                             GPIO_PINS_PTB0,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTB2,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTC8,
+#endif
+                             GPIO_PINS_PTE19,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTE24,
 #endif
         },
         .sclPinsPtr       =
@@ -157,6 +208,25 @@ static Iic_Device iic0 =
                              IIC_PINS_PTE25,
 #endif
         },
+        .sdaPinsGpio      =
+        {
+                             GPIO_PINS_PTB1,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTB3,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTC9,
+#endif
+                             GPIO_PINS_PTE18,
+#if defined (LIBOHIBOARD_MKL15ZxFT) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTE25,
+#endif
+        },
         .sdaPinsPtr       =
         {
                              &PORTB->PCR[1],
@@ -200,50 +270,135 @@ static Iic_Device iic0 =
 };
 Iic_DeviceHandle OB_IIC0 = &iic0;
 
-static Iic_Device iic1 = {
-        .regMap           = I2C1_BASE_PTR,
+static Iic_Device iic1 =
+{
+        .regMap           = I2C1,
 
-        .simScgcPtr       = &SIM_SCGC4,
+        .simScgcPtr       = &SIM->SCGC4,
         .simScgcBitEnable = SIM_SCGC4_I2C1_MASK,
 
-        .sclPins          = {IIC_PINS_PTA3,
+        .sclPins          =
+        {
+                             IIC_PINS_PTA3,
                              IIC_PINS_PTC1,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTC10,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTE1,
+#endif
         },
-        .sclPinsPtr       = {&PORTA_PCR3,
-                             &PORTC_PCR1,
-                             &PORTC_PCR10,
-                             &PORTE_PCR1,
+        .sclPinsGpio      =
+        {
+                             GPIO_PINS_PTA3,
+                             GPIO_PINS_PTC1,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTC10,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTE1,
+#endif
         },
-        .sclPinsMux       = {2,
+        .sclPinsPtr       =
+        {
+                             &PORTA->PCR[3],
+                             &PORTC->PCR[1],
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTC->PCR[10],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[1],
+#endif
+        },
+        .sclPinsMux       =
+        {
                              2,
                              2,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             2,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              6,
+#endif
         },
 
-        .sdaPins          = {IIC_PINS_PTA4,
+        .sdaPins          =
+        {
+                             IIC_PINS_PTA4,
                              IIC_PINS_PTC2,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTC11,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              IIC_PINS_PTE0,
+#endif
         },
-        .sdaPinsPtr       = {&PORTA_PCR4,
-                             &PORTC_PCR2,
-                             &PORTC_PCR11,
-                             &PORTE_PCR0,
+        .sdaPinsGpio      =
+        {
+                             GPIO_PINS_PTA4,
+                             GPIO_PINS_PTC2,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTC11,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             GPIO_PINS_PTE0,
+#endif
         },
-        .sdaPinsMux       = {2,
+        .sdaPinsPtr       =
+        {
+                             &PORTA->PCR[4],
+                             &PORTC->PCR[2],
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTC->PCR[11],
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             &PORTE->PCR[0],
+#endif
+        },
+        .sdaPinsMux       =
+        {
                              2,
                              2,
+#if defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
+                             2,
+#endif
+#if defined (LIBOHIBOARD_MKL15ZxFM) || \
+    defined (LIBOHIBOARD_MKL15ZxLH) || \
+    defined (LIBOHIBOARD_MKL15ZxLK)
                              6,
+#endif
         },
 
-        .devInitialized = 0,
+
+        .state             = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC1 = &iic1;
 
 /* See Table 50-41 I2C Divider and Hold Values */
-static uint16_t Iic_sclDivTab[] = {
+static uint16_t Iic_sclDivTab[] =
+{
     /* 00 */   20, /* 01 */   22, /* 02 */   24, /* 03 */   26,
     /* 04 */   28, /* 05 */   30, /* 06 */   34, /* 07 */   40,
     /* 08 */   28, /* 09 */   32, /* 0A */   36, /* 0B */   40,
@@ -265,38 +420,42 @@ static uint16_t Iic_sclDivTab[] = {
     /* 3C */ 2304, /* 3D */ 2560, /* 3E */ 3072, /* 3F */ 3840,
 };
 
-static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin)
+/**
+ *
+ * FIXME: implement pull-up enable
+ */
+static System_Errors Iic_setSclPin(Iic_DeviceHandle dev, Iic_SclPins sclPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
-
-    if (dev->devInitialized == 0)
-        return ERRORS_IIC_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
         if (dev->sclPins[devPinIndex] == sclPin)
         {
-            *(dev->sclPinsPtr[devPinIndex]) =
-                PORT_PCR_MUX(dev->sclPinsMux[devPinIndex]);
+            Gpio_configAlternate(dev->sclPinsGpio[devPinIndex],
+                                 dev->sclPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
     return ERRORS_IIC_NO_PIN_FOUND;
 }
 
-static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin)
+/**
+ *
+ * FIXME: implement pull-up enable
+ */
+static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin, bool pullupEnable)
 {
     uint8_t devPinIndex;
-
-    if (dev->devInitialized == 0)
-        return ERRORS_IIC_DEVICE_NOT_INIT;
 
     for (devPinIndex = 0; devPinIndex < IIC_MAX_PINS; ++devPinIndex)
     {
         if (dev->sdaPins[devPinIndex] == sdaPin)
         {
-            *(dev->sdaPinsPtr[devPinIndex]) =
-                PORT_PCR_MUX(dev->sdaPinsMux[devPinIndex]);
+            Gpio_configAlternate(dev->sdaPinsGpio[devPinIndex],
+                                 dev->sdaPinsMux[devPinIndex],
+                                 0);
             return ERRORS_NO_ERROR;
         }
     }
@@ -308,11 +467,8 @@ static System_Errors Iic_setSdaPin(Iic_DeviceHandle dev, Iic_SdaPins sdaPin)
  *
  * Thank for this function at https://github.com/laswick/kinetis/blob/master/phase2_embedded_c/i2c.c
  */
-static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
+static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t speed)
 {
-    I2C_MemMapPtr regmap = dev->regMap;
-    uint32_t tempReg = 0;
-
     uint32_t busClk;
     uint32_t i2cClk;
     uint32_t error;
@@ -322,6 +478,7 @@ static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
     uint8_t mul;
     uint16_t slt;
 
+    // FIXME
     busClk = Clock_getFrequency(CLOCK_BUS);
 
     for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++)
@@ -369,81 +526,130 @@ static System_Errors Iic_setBaudrate(Iic_DeviceHandle dev, uint32_t speed)
         mul = 0;
     }
 
-    I2C_F_REG(regmap) = I2C_F_MULT(mul) | I2C_F_ICR(icr);
+    dev->regMap->F = I2C_F_MULT(mul) | I2C_F_ICR(icr);
 
 //    slt = Iic_sclDivTab[icr] / 2 + 1;
     return ERRORS_NO_ERROR;
 }
 
-/**
- *
- * @param dev
- */
-System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
+static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
 {
-    if (dev->devInitialized) return ERRORS_IIC_DEVICE_JUST_INIT;
+    System_Errors err = ERRORS_NO_ERROR;
 
-    I2C_MemMapPtr regmap = dev->regMap;
-    Iic_DeviceType devType = config->devType;
-    uint32_t baudrate = config->baudrate;
-
-    System_Errors errors;
-
-    /* Turn on clock */
-    *dev->simScgcPtr |= dev->simScgcBitEnable;
-
-    /* Select device type */
-    if (devType == IIC_MASTER_MODE)
+    err |= ohiassert(IIC_VALID_MODE(config->devType));
+    err |= ohiassert(IIC_VALID_ADDRESSMODE(config->addressMode));
+    //err |= ohiassert(IIC_VALID_BAUDRATE(config->baudrate));
+    if (err != ERRORS_NO_ERROR)
     {
-        errors = Iic_setBaudrate(dev, config->baudrate);
-
-        if (errors != ERRORS_NO_ERROR)
-            return errors;
-
-        /* enable IIC */
-        I2C_C1_REG(regmap) = I2C_C1_IICEN_MASK;
-    }
-    else
-    {
-        /* TODO: implement slave setup */
+        return ERRORS_IIC_WRONG_PARAM;
     }
 
-    /* Setup for manage dummy read. */
-    Iic_firstRead = 1;
+    // Save current configuration
+    dev->config = *config;
 
-    dev->devInitialized = 1;
+    IIC_DEVICE_DISABLE(dev->regMap);
 
-    /* Config the port controller */
-    if (config->sclPin != IIC_PINS_SCLNONE)
-        Iic_setSclPin(dev, config->sclPin);
+    // Configure Baudrate
+    err = Iic_setBaudrate(dev,dev->config.baudrate);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_PARAM;
+    }
 
-    if (config->sdaPin != IIC_PINS_SDANONE)
-        Iic_setSdaPin(dev, config->sdaPin);
+    // TODO: Configure 7bit/10bit
+
+
+    IIC_DEVICE_DISABLE(dev->regMap);
 
     return ERRORS_NO_ERROR;
 }
 
+System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the I2C device
+    if (dev == NULL)
+    {
+        return ERRORS_IIC_NO_DEVICE;
+    }
+    // Check the I2C instance
+    err = ohiassert(IIC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_DEVICE;
+    }
+
+    // Enable peripheral clock if needed
+    if (dev->state == IIC_DEVICESTATE_RESET)
+    {
+        // Turn on clock
+        *dev->simScgcPtr |= dev->simScgcBitEnable;
+
+        // Enable pins
+        if (config->sclPin != IIC_PINS_SCLNONE)
+            Iic_setSclPin(dev, config->sclPin, config->pullupEnable);
+
+        if (config->sdaPin != IIC_PINS_SDANONE)
+            Iic_setSdaPin(dev, config->sdaPin, config->pullupEnable);
+    }
+    dev->state = IIC_DEVICESTATE_BUSY;
+
+    // Configure the peripheral
+    err = Iic_config(dev,config);
+    if (err != ERRORS_NO_ERROR)
+    {
+        //Iic_deInit(dev);
+        return err;
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+System_Errors Iic_deInit (Iic_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the I2C device
+    if (dev == NULL)
+    {
+        return ERRORS_IIC_NO_DEVICE;
+    }
+    // Check the I2C instance
+    err = ohiassert(IIC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_DEVICE;
+    }
+    dev->state = IIC_DEVICESTATE_BUSY;
+
+    // Disable the device
+    IIC_DEVICE_DISABLE(dev->regMap);
+
+    dev->state = IIC_DEVICESTATE_RESET;
+    return err;
+}
+
 void Iic_start (Iic_DeviceHandle dev)
 {
-    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
-    I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
+    dev->regMap->C1 |= I2C_C1_TX_MASK;
+    dev->regMap->C1 |= I2C_C1_MST_MASK;
 }
 
 void Iic_repeatedStart (Iic_DeviceHandle dev)
 {
-    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
+    dev->regMap->C1 |= I2C_C1_RSTA_MASK;
 }
 
 void Iic_stop (Iic_DeviceHandle dev)
 {
     uint8_t i;
 
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_MST_MASK;
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
+    dev->regMap->C1 &= ~I2C_C1_MST_MASK;
+    dev->regMap->C1 &= ~I2C_C1_TX_MASK;
 
     for (i = 0; i < 100; ++i ) __asm ("nop");
 }
 
+#if 0
 void Iic_sendNack (Iic_DeviceHandle dev)
 {
     I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
@@ -504,12 +710,45 @@ System_Errors Iic_getAck (Iic_DeviceHandle dev)
         return ERRORS_IIC_TX_ACK_NOT_RECEIVED;
 
 }
+#endif
 
-void Iic_writeRegister (Iic_DeviceHandle dev,
-                        uint8_t writeAddress,
-                        uint8_t registerAddress,
-                        uint8_t data)
+System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
+                                 uint16_t devAddress,
+                                 uint16_t regAddress,
+                                 Iic_RegisterAddressSize addressSize,
+                                 const uint8_t* data,
+                                 uint16_t length,
+                                 uint32_t timeout)
 {
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the I2C device
+    if (dev == NULL)
+    {
+        return ERRORS_IIC_NO_DEVICE;
+    }
+    // Check the I2C instance
+    err = ohiassert(IIC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_DEVICE;
+    }
+    err = ohiassert(IIC_VALID_REGISTERADDRESSSIZE(addressSize));
+    // Check the data buffer
+    err = ohiassert(data != NULL);
+    // Check the number of byte requested
+    err = ohiassert(length != 0);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_PARAM;
+    }
+
+    // Shift 7-bit address
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
+    {
+        devAddress = ((devAddress << 1u) & 0x00FFu);
+    }
+
+#if 0
     Iic_start(dev);
 
     Iic_writeByte(dev,writeAddress);
@@ -531,14 +770,51 @@ void Iic_writeRegister (Iic_DeviceHandle dev,
     {
         __asm("nop");
     }
+#endif
+
+    return ERRORS_NO_ERROR;
 }
 
-void Iic_readRegister (Iic_DeviceHandle dev,
-                       uint8_t writeAddress,
-                       uint8_t readAddress,
-                       uint8_t registerAddress,
-                       uint8_t *data)
+System_Errors Iic_readRegister (Iic_DeviceHandle dev,
+                                uint16_t devAddress,
+                                uint16_t regAddress,
+                                Iic_RegisterAddressSize addressSize,
+                                uint8_t* data,
+                                uint16_t length,
+                                uint32_t timeout)
 {
+
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the I2C device
+    if (dev == NULL)
+    {
+        return ERRORS_IIC_NO_DEVICE;
+    }
+    // Check the I2C instance
+    err = ohiassert(IIC_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_DEVICE;
+    }
+    err = ohiassert(IIC_VALID_REGISTERADDRESSSIZE(addressSize));
+    // Check the data buffer
+    err = ohiassert(data != NULL);
+    // Check the number of byte requested
+    err = ohiassert(length != 0);
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_IIC_WRONG_PARAM;
+    }
+
+    // Shift 7-bit address
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
+    {
+        devAddress = ((devAddress << 1u) & 0x00FFu);
+    }
+
+    return ERRORS_NO_ERROR;
+
+#if 0
     uint8_t read;
 
     Iic_start(dev);
@@ -574,49 +850,7 @@ void Iic_readRegister (Iic_DeviceHandle dev,
     }
 
     *data = read;
-}
-
-void Iic_readMultipleRegisters (Iic_DeviceHandle dev,
-                       uint8_t writeAddress,
-                       uint8_t readAddress,
-                       uint8_t firstRegisterAddress,
-                       uint8_t *data,
-                       uint8_t length)
-{
-
-}
-
-void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
-                        uint8_t writeAddress,
-                        uint8_t firstRegisterAddress,
-                        uint8_t* data,
-                        uint8_t length)
-
-{
-    Iic_start(dev);
-
-    Iic_writeByte(dev,writeAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_writeByte(dev,firstRegisterAddress | 0b10000000);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    for(int i=0;i<length;i++)
-    {
-        Iic_writeByte(dev,data[i]);
-        Iic_waitTransfer(dev);
-        Iic_getAck(dev);
-    }
-
-    Iic_stop(dev);
-
-    /* Small delay */
-    for(uint8_t i=0; i<100; i++)
-    {
-        __asm("nop");
-    }
+#endif
 }
 
 #if 0
@@ -1016,9 +1250,9 @@ void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
 		__asm("nop");
 	}
 }
-#endif
+
 /* Must to be test */
-#if 0
+
 System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay)
 {
     uint32_t ticks = usDelay/Iic_usSclTimeout;
