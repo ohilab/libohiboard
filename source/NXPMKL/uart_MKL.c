@@ -738,18 +738,16 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     }
     else
     {
-        // FIXME: Clock bus???
-        //clockHz = Clock_getFrequency(CLOCK_BUS);
-        clockHz = Clock_getOutputValue(CLOCK_OUTPUT_SYSCLK);
+        clockHz = Clock_getOutputValue(CLOCK_OUTPUT_BUS);
 
         /* Calculate baud settings */
         sbr = (uint16_t)((clockHz)/(baudrate * 16));
 
 
-        temp = dev->regMap0->BDH & ~(UART_BDH_SBR(0x1F));
+        temp = dev->regMap->BDH & ~(UART_BDH_SBR(0x1F));
 
-        dev->regMap0->BDH = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
-        dev->regMap0->BDL = (uint8_t)(sbr & UART_BDL_SBR_MASK);
+        dev->regMap->BDH = temp |  UART_BDH_SBR(((sbr & 0x1F00) >> 8));
+        dev->regMap->BDL = (uint8_t)(sbr & UART_BDL_SBR_MASK);
     }
 
     return ERRORS_NO_ERROR;
@@ -1201,11 +1199,11 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
     uint8_t s1reg = 0;
     if (dev == OB_UART0)
     {
-        s1reg = OB_UART0->regMap0->S1;
+        s1reg = dev->regMap0->S1;
     }
     else
     {
-        s1reg = OB_UART0->regMap->S1;
+        s1reg = dev->regMap->S1;
     }
 
     // Check if the interrupt is in reception
