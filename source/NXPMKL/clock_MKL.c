@@ -78,6 +78,7 @@ typedef struct _Clock_Device
     Clock_State  state;                                /**< Current MCG state */
 
     uint32_t systemCoreClock; /**< Value that store current system core clock */
+    uint32_t busClock;
     uint32_t mcgXllClock;  /**< Value that store current MCG FLL or PLL clock */
     uint32_t mcgIrcClock;         /**< Value that store current MCG IRC clock */
 
@@ -137,6 +138,7 @@ static Clock_Device clk =
 
     // Start-up: FEI mode, with LIRC active, DIV1 = 1
     .systemCoreClock = 20480000u,
+    .busClock        = 20480000u / 2,
     .mcgIrcClock     = CLOCK_FREQ_INTERNAL_LIRC,
     .mcgXllClock     = 20480000u,
     .state           = CLOCK_STATE_FEI,
@@ -989,6 +991,9 @@ uint32_t Clock_getOutputValue (Clock_Output output)
     {
     case CLOCK_OUTPUT_SYSCLK:
         return clk.systemCoreClock;
+
+    case CLOCK_OUTPUT_BUS:
+        return clk.busClock;
 
     case CLOCK_OUTPUT_MCG:
         return clk.mcgXllClock;

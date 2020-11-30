@@ -177,6 +177,7 @@ typedef enum _Clock_Output
 #if defined (LIBOHIBOARD_MKL)
     CLOCK_OUTPUT_MCG      = 0x0002,
     CLOCK_OUTPUT_INTERNAL = 0x0004,
+    CLOCK_OUTPUT_BUS      = 0x0008,
 #endif
 
 #endif
