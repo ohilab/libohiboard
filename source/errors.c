@@ -49,7 +49,8 @@ System_Errors Errors_assert (const char* file, const int line)
     __builtin_software_breakpoint();
     __builtin_nop();
 #endif
-#if defined LIBOHIBOARD_ST_STM32
+#if defined LIBOHIBOARD_ST_STM32 || \
+    defined LIBOHIBOARD_NXP_KINETIS
     asm("BKPT #1");
     asm("NOP");
 #endif

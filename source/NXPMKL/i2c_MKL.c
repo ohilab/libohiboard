@@ -484,8 +484,7 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t speed)
     uint8_t mul;
     uint16_t slt;
 
-    // FIXME
-    busClk = Clock_getFrequency(CLOCK_BUS);
+    busClk = Clock_getOutputValue(CLOCK_OUTPUT_BUS);
 
     for (icr = 0; icr < sizeof(Iic_sclDivTab) / sizeof(Iic_sclDivTab[0]); icr++)
     {
@@ -565,12 +564,12 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
     // TODO: Configure 7bit/10bit
 
 
-    IIC_DEVICE_DISABLE(dev->regMap);
+    IIC_DEVICE_ENABLE(dev->regMap);
 
     return ERRORS_NO_ERROR;
 }
 
-System_Errors Iic_init(Iic_DeviceHandle dev, Iic_Config *config)
+System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config *config)
 {
     System_Errors err = ERRORS_NO_ERROR;
     // Check the I2C device
@@ -636,8 +635,15 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev)
 
 void Iic_start (Iic_DeviceHandle dev)
 {
-    dev->regMap->C1 |= I2C_C1_TX_MASK;
-    dev->regMap->C1 |= I2C_C1_MST_MASK;
+//    if (dev->regMap->S & I2C_S_BUSY_MASK)
+//    {
+//        dev->regMap->C1 |= I2C_C1_RSTA_MASK;
+//    }
+//    else
+//    {
+        dev->regMap->C1 |= I2C_C1_TX_MASK;
+        dev->regMap->C1 |= I2C_C1_MST_MASK;
+//    }
 }
 
 void Iic_repeatedStart (Iic_DeviceHandle dev)
@@ -655,59 +661,30 @@ void Iic_stop (Iic_DeviceHandle dev)
     for (i = 0; i < 100; ++i ) __asm ("nop");
 }
 
-#if 0
-void Iic_sendNack (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
-}
-
-void Iic_sendAck (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
-}
-
-void Iic_setReceiveMode (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
-}
-
-void Iic_writeByte (Iic_DeviceHandle dev, uint8_t data)
-{
-    /* Set TX mode */
-    I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
-
-    /* Write the data in the register */
-    I2C_D_REG(dev->regMap) = data;
-}
-
-void Iic_readByte (Iic_DeviceHandle dev, uint8_t *data)
-{
-    /* Read the data in the register */
-    *data = I2C_D_REG(dev->regMap);
-}
-
-
-System_Errors Iic_getAck (Iic_DeviceHandle dev)
-{
-    if((I2C_S_REG(dev->regMap) & I2C_S_RXAK_MASK) == 0)
-        return ERRORS_IIC_TX_ACK_RECEIVED;
-    else
-        return ERRORS_IIC_TX_ACK_NOT_RECEIVED;
-
-}
-#endif
-
 static inline System_Errors __attribute__((always_inline)) Iic_waitUntilTransfer (Iic_DeviceHandle dev,
-                                                                                   uint32_t timeout)
+                                                                                  uint32_t timeout)
 {
-    while (((dev->regMap->S) & I2C_S_IICIF_MASK) != I2C_S_IICIF_MASK)
+    while (((dev->regMap->S) & I2C_S_TCF_MASK) != I2C_S_TCF_MASK)
     {
         if (System_currentTick() > timeout)
         {
             return ERRORS_IIC_TIMEOUT;
         }
     }
-    dev->regMap->S |= I2C_S_IICIF_MASK;
+//    dev->regMap->S |= I2C_S_IICIF_MASK;
+    return ERRORS_NO_ERROR;
+}
+
+static inline System_Errors __attribute__((always_inline)) Iic_isBusy (Iic_DeviceHandle dev,
+                                                                       uint32_t timeout)
+{
+    while (((dev->regMap->S) & I2C_S_BUSY_MASK) == I2C_S_BUSY_MASK)
+    {
+        if (System_currentTick() > timeout)
+        {
+            return ERRORS_IIC_TIMEOUT;
+        }
+    }
     return ERRORS_NO_ERROR;
 }
 
@@ -720,16 +697,37 @@ static inline void __attribute__((always_inline)) Iic_writeByte (Iic_DeviceHandl
     dev->regMap->D = data;
 }
 
-static inline System_Errors __attribute__((always_inline)) Iic_getAck (Iic_DeviceHandle dev)
+static inline void __attribute__((always_inline)) Iic_readByte (Iic_DeviceHandle dev, uint8_t *data)
 {
-    if ((dev->regMap->S & I2C_S_RXAK_MASK) == 0)
-    {
-        return ERRORS_IIC_TX_ACK_RECEIVED;
-    }
-    else
+    // Read the data in the register
+    *data = dev->regMap->D;
+}
+
+static /*inline */System_Errors /*__attribute__((always_inline))*/ Iic_getAck (Iic_DeviceHandle dev)
+{
+    if ((dev->regMap->S & I2C_S_RXAK_MASK) == I2C_S_RXAK_MASK)
     {
         return ERRORS_IIC_TX_ACK_NOT_RECEIVED;
     }
+    else
+    {
+        return ERRORS_IIC_TX_ACK_RECEIVED;
+    }
+}
+
+static inline void __attribute__((always_inline)) Iic_sendNack (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 |= I2C_C1_TXAK_MASK;
+}
+
+static inline void __attribute__((always_inline)) Iic_sendAck (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 &= ~I2C_C1_TXAK_MASK;
+}
+
+static inline void __attribute__((always_inline)) Iic_setReceiveMode (Iic_DeviceHandle dev)
+{
+    dev->regMap->C1 &= ~I2C_C1_TX_MASK;
 }
 
 System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
@@ -765,13 +763,13 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     // Shift 7-bit address
     if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
-        devAddress = ((devAddress << 1u) & 0x00FFu);
+        devAddress = ((devAddress << 1u) & 0x00FEu);
     }
 
     // Check if the device is busy
     // Wait 25ms before enter into timeout!
-//    err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
-//    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    err = Iic_isBusy(dev,(System_currentTick() + 25u));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
 
     // Init timeout
     uint32_t tickStart = System_currentTick();
@@ -780,8 +778,26 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     dev->tdata = data;
     dev->bufferCount = length;
 
+    Iic_start(dev);
+
+    // Write data
+    Iic_writeByte(dev,devAddress);
+    // Wait until transmission buffer is empty
+    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    // check ACK
+    err = Iic_getAck(dev);
+    if (err != ERRORS_IIC_TX_ACK_RECEIVED) goto i2cerror;
 
 
+    // Write data
+    Iic_writeByte(dev,regAddress);
+    // Wait until transmission buffer is empty
+    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    // check ACK
+    err = Iic_getAck(dev);
+    if (err != ERRORS_IIC_TX_ACK_RECEIVED) goto i2cerror;
 
     // Start writing bytes
     do
@@ -796,36 +812,12 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
 
         // check ACK
         err = Iic_getAck(dev);
-        if (err != ERRORS_NO_ERROR) goto i2cerror;
+        if (err != ERRORS_IIC_TX_ACK_RECEIVED) goto i2cerror;
     }
     while (dev->bufferCount > 0u);
 
     // send stop bit
     Iic_stop(dev);
-
-#if 0
-    Iic_start(dev);
-
-    Iic_writeByte(dev,writeAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_writeByte(dev,registerAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_writeByte(dev,data);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_stop(dev);
-
-    /* Small delay */
-    for(uint8_t i=0; i<100; i++)
-    {
-        __asm("nop");
-    }
-#endif
 
 i2cerror:
     return ERRORS_NO_ERROR;
@@ -863,164 +855,87 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
     }
 
     // Shift 7-bit address
+    uint8_t writeAddress = 0;
+    uint8_t readAddress  = 0;
     if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
-        devAddress = ((devAddress << 1u) & 0x00FFu);
+        writeAddress = (uint8_t)((devAddress << 1u) & 0x00FEu);
+        readAddress  = writeAddress | 0x01;
     }
 
-    return ERRORS_NO_ERROR;
+    // Check if the device is busy
+    // Wait 25ms before enter into timeout!
+    err = Iic_isBusy(dev,(System_currentTick() + 25u));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
 
-#if 0
-    uint8_t read;
+    // Init timeout
+    uint32_t tickStart = System_currentTick();
+
+    // Save transfer parameter
+    dev->rdata = data;
+    dev->bufferCount = length;
 
     Iic_start(dev);
 
+    // Write data
     Iic_writeByte(dev,writeAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
+    // Wait until transmission buffer is empty
+    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    // check ACK
+    err = Iic_getAck(dev);
+    if (err != ERRORS_IIC_TX_ACK_RECEIVED) goto i2cerror;
 
-    Iic_writeByte(dev,registerAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
+    // Write data
+    Iic_writeByte(dev,regAddress);
+    // Wait until transmission buffer is empty
+    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    // check ACK
+    err = Iic_getAck(dev);
+    if (err != ERRORS_IIC_TX_ACK_RECEIVED) goto i2cerror;
 
     Iic_repeatedStart(dev);
 
-    Iic_writeByte(dev, readAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
+    // Write data
+    Iic_writeByte(dev,readAddress);
+    // Wait until transmission buffer is empty
+    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    if (err != ERRORS_NO_ERROR) goto i2cerror;
+    // check ACK
+    err = Iic_getAck(dev);
+    if (err != ERRORS_IIC_TX_ACK_RECEIVED) goto i2cerror;
 
     Iic_setReceiveMode(dev);
-    Iic_sendNack(dev);
 
-    /* dummy read */
-    Iic_readByte(dev, &read);
-    Iic_waitTransfer(dev);
+    // Dummy read to start transfer
+    Iic_readByte(dev,dev->rdata);
+
+    // Start reading bytes
+    do
+    {
+        // Write data
+        Iic_readByte(dev,dev->rdata);
+        dev->bufferCount--;
+        dev->rdata++;
+
+        // Wait until transmission buffer is empty
+        err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+        if (err != ERRORS_NO_ERROR) goto i2cerror;
+
+        // send NACK
+        Iic_sendNack(dev);
+    }
+    while (dev->bufferCount > 0u);
+
     Iic_stop(dev);
 
-    Iic_readByte(dev, &read);
-
-    /* small delay */
-    for(uint8_t i=0; i<40; i++)
-    {
-        __asm("nop");
-    }
-
-    *data = read;
-#endif
+i2cerror:
+    dev->regMap->C1 &= ~(I2C_C1_MST_MASK | I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
+    return ERRORS_NO_ERROR;
 }
 
 #if 0
-void Iic_start (Iic_DeviceHandle dev)
-{
-    /* If we are in communication set repeat star flag */
-    if (I2C_S_REG(dev->regMap) & I2C_S_BUSY_MASK)
-    {
-        I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
-    }
-    else
-    {
-        I2C_C1_REG(dev->regMap) |= I2C_C1_TX_MASK;
-        I2C_C1_REG(dev->regMap) |= I2C_C1_MST_MASK;
-    }
-    /* Setup for manage dummy read. */
-    Iic_firstRead = 1;
-}
-
-void Iic_repeatedStart (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) |= I2C_C1_RSTA_MASK;
-}
-
-void Iic_stop (Iic_DeviceHandle dev)
-{
-    uint8_t i;
-
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_MST_MASK;
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
-
-    for (i = 0; i < 100; ++i ) __asm ("nop");
-
-    /* Setup for manage dummy read. */
-    Iic_firstRead = 1;
-}
-
-static System_Errors Iic_waitTxTransfer (Iic_DeviceHandle dev)
-{
-    uint16_t i, timeoutResult = 0;
-
-    /* Wait for interrupt flag */
-    for (i = 0; i < 1000; ++i)
-    {
-        if (I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)
-        {
-            timeoutResult = 1;
-            break;
-        }
-    }
-
-    if (timeoutResult == 0)
-        return ERRORS_IIC_TX_TIMEOUT;
-
-    /* Reset value */
-    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
-    timeoutResult = 0;
-
-    /* Wait for transfer complete */
-    for (i = 0; i < 1000; ++i)
-    {
-        if (I2C_S_REG(dev->regMap) & I2C_S_TCF_MASK)
-        {
-            timeoutResult = 1;
-            break;
-        }
-    }
-
-    if (timeoutResult == 0)
-        return ERRORS_IIC_TX_TIMEOUT;
-
-    /* Check ACK! */
-    return (I2C_S_REG(dev->regMap) & I2C_S_RXAK_MASK) ?
-            ERRORS_IIC_TX_ACK_NOT_RECEIVED : ERRORS_IIC_TX_ACK_RECEIVED;
-
-}
-
-static System_Errors Iic_waitRxTransfer (Iic_DeviceHandle dev)
-{
-    uint16_t i, timeoutResult = 0;
-
-    /* Wait for interrupt flag */
-    for (i = 0; i < 1000; ++i)
-    {
-        if (I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)
-        {
-            timeoutResult = 1;
-            break;
-        }
-    }
-
-    if (timeoutResult == 0)
-        return ERRORS_IIC_RX_TIMEOUT;
-
-    /* Reset value */
-    I2C_S_REG(dev->regMap) |= I2C_S_IICIF_MASK;
-
-    return ERRORS_IIC_RX_OK;
-}
-
-void Iic_sendNack (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) |= I2C_C1_TXAK_MASK;
-}
-
-void Iic_sendAck (Iic_DeviceHandle dev)
-{
-    I2C_C1_REG(dev->regMap) &= ~I2C_C1_TXAK_MASK;
-}
-
-void Iic_setReceiveMode (Iic_DeviceHandle dev)
-{
-	I2C_C1_REG(dev->regMap) &= ~I2C_C1_TX_MASK;
-}
 
 System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
         const uint8_t *data, uint8_t length, Iic_StopMode stopRequest)
@@ -1056,14 +971,8 @@ System_Errors Iic_writeBytes (Iic_DeviceHandle dev, uint8_t address,
     return ERRORS_IIC_TX_OK;
 }
 
-System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data)
-{
-    /* Read the data in the register */
-    *data = I2C_D_REG(dev->regMap);
-}
-
 /* FIXME: Ci sono due implementazioni diverse */
-#if 0
+
 System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data,
         Iic_LastByteMode lastByte)
 {
@@ -1095,7 +1004,6 @@ System_Errors Iic_readByte (Iic_DeviceHandle dev, uint8_t *data,
 
     return Iic_waitRxTransfer(dev);
 }
-#endif
 
 System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
         uint8_t *data, uint8_t length, Iic_StopMode stopRequest)
@@ -1168,95 +1076,6 @@ System_Errors Iic_waitTransfer (Iic_DeviceHandle dev)
     return ERRORS_IIC_OK;
 //	while((I2C_S_REG(dev->regMap) & I2C_S_IICIF_MASK)==0) {}
 }
-
-
-void Iic_readRegister (Iic_DeviceHandle dev,
-                       uint8_t writeAddress,
-                       uint8_t readAddress,
-                       uint8_t registerAddress,
-                       uint8_t *data)
-{
-    uint8_t read;
-
-    Iic_start(dev);
-
-    Iic_writeByte(dev,writeAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_writeByte(dev,registerAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_repeatedStart(dev);
-
-    Iic_writeByte(dev, readAddress);
-    Iic_waitTransfer(dev);
-    Iic_getAck(dev);
-
-    Iic_setReceiveMode(dev);
-    Iic_sendNack(dev);
-
-    /* dummy read */
-    Iic_readByte(dev, &read);
-    Iic_waitTransfer(dev);
-    Iic_stop(dev);
-
-    Iic_readByte(dev, &read);
-
-    /* small delay */
-    for(uint8_t i=0; i<40; i++)
-    {
-        __asm("nop");
-    }
-
-    *data = read;
-}
-
-void Iic_readMultipleRegisters (Iic_DeviceHandle dev,
-                       uint8_t writeAddress,
-                       uint8_t readAddress,
-                       uint8_t firstRegisterAddress,
-                       uint8_t *data,
-					   uint8_t length)
-{
-
-}
-
-void Iic_writeMultipleRegisters (Iic_DeviceHandle dev,
-                        uint8_t writeAddress,
-                        uint8_t firstRegisterAddress,
-                        uint8_t* data,
-						uint8_t length)
-
-{
-	Iic_start(dev);
-
-	Iic_writeByte(dev,writeAddress);
-	Iic_waitTransfer(dev);
-	Iic_getAck(dev);
-
-	Iic_writeByte(dev,firstRegisterAddress | 0b10000000);
-	Iic_waitTransfer(dev);
-	Iic_getAck(dev);
-
-	for(int i=0;i<length;i++)
-	{
-		Iic_writeByte(dev,data[i]);
-		Iic_waitTransfer(dev);
-		Iic_getAck(dev);
-	}
-
-	Iic_stop(dev);
-
-	/* Small delay */
-	for(uint8_t i=0; i<100; i++)
-	{
-		__asm("nop");
-	}
-}
-
-/* Must to be test */
 
 System_Errors Iic_setSclTimeout (Iic_DeviceHandle dev, uint32_t usDelay)
 {
