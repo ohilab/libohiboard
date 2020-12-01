@@ -789,7 +789,7 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     // Write data
     Iic_writeByte(dev,devAddress);
     // Wait until transmission buffer is empty
-//    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    // ??err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
     err = Iic_waitUntilInterrupt(dev,(tickStart+timeout));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
     // check ACK
@@ -800,8 +800,8 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     // Write data
     Iic_writeByte(dev,regAddress);
     // Wait until transmission buffer is empty
-    //    err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
-        err = Iic_waitUntilInterrupt(dev,(tickStart+timeout));
+    // ??err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+    err = Iic_waitUntilInterrupt(dev,(tickStart+timeout));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
     // check ACK
     err = Iic_getAck(dev);
@@ -815,7 +815,8 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
         dev->bufferCount--;
 
         // Wait until transmission buffer is empty
-        err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+        // ??err = Iic_waitUntilTransfer(dev,(tickStart+timeout));
+        err = Iic_waitUntilInterrupt(dev,(tickStart+timeout));
         if (err != ERRORS_NO_ERROR) goto i2cerror;
 
         // check ACK
