@@ -46,6 +46,26 @@ extern "C" {
 #include "errors.h"
 #include "types.h"
 
+/// Compose an 32 bit integer type starting from four 8 bit integer type numbers
+#define BUILD_UINT32(Byte0, Byte1, Byte2, Byte3) ((uint32_t)((uint32_t)((Byte0) & 0x00FF) + ((uint32_t)((Byte1) & 0x00FF) << 8) + ((uint32_t)((Byte2) & 0x00FF) << 16) + ((uint32_t)((Byte3) & 0x00FF) << 24)))
+
+#define HI_UINT32(a) (((a) >> 24) & 0xFF)  /// Retrieve the most significant byte of a 32 bit integer type
+#define MH_UINT32(a) (((a) >> 16) & 0xFF)  /// Retrieve the 2nd most significant byte of a 32 bit integer type
+#define ML_UINT32(a) (((a) >> 8) & 0xFF)   /// Retrieve the 3rd most significant byte of a 32 bit integer type
+#define LO_UINT32(a) ((a) & 0xFF)          /// Retrieve the least significant byte of a 32 bit integer type
+
+/// Compose an 16 bit integer type starting from two 8 bit integer type numbers
+#define BUILD_UINT16(loByte, hiByte) ((uint16_t)((((uint16_t)loByte) & 0x00FF) + ((((uint16_t)hiByte) & 0x00FF) << 8)))
+
+#define HI_UINT16(a) (((a) >> 8) & 0xFF) /// Retrieve the most significant byte of a 16 bit integer type
+#define LO_UINT16(a) ((a) & 0xFF)        /// Retrieve the least significant byte of a 16 bit integer type
+
+/// Compose an 8 bit integer type starting from two nibbles
+#define BUILD_UINT8(hiByte, loByte) ((uint8_t)(((loByte) & 0x0F) + (((hiByte) & 0x0F) << 4)))
+
+#define HI_UINT8(a) (((a) >> 4) & 0x0F)   /// Retrieve the most significant nibble of a byte
+#define LO_UINT8(a) ((a) & 0x0F)          /// Retrieve the least significant nibble of a byte
+
 /**
  * Convert 2's complement P bit number to 16 bit signed int
  */
