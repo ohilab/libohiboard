@@ -827,7 +827,7 @@ System_Errors Uart_write (Uart_DeviceHandle dev, const uint8_t* data, uint32_t t
                 }
             }
             // Send the character
-            dev->regMap->D = *data;
+            dev->regMap0->D = *data;
         }
         else
         {
@@ -1097,6 +1097,12 @@ System_Errors Uart_deInit (Uart_DeviceHandle dev)
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_UART_WRONG_DEVICE;
+    }
+
+    // Whether is not initialized, return!
+    if (dev->state == UART_DEVICESTATE_RESET)
+    {
+        return ERRORS_NO_ERROR;
     }
 
     // The device is busy...
