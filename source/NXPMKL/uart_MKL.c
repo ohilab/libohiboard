@@ -697,7 +697,7 @@ System_Errors Uart_setBaudrate (Uart_DeviceHandle dev, uint32_t baudrate)
     uint8_t myoversampling = dev->config.oversampling;
 
     if (myoversampling < 4)
-        myoversampling = 4;
+        myoversampling = 16;
 
     osr = myoversampling - 1;
 
