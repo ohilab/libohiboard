@@ -1212,6 +1212,22 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         s1reg = dev->regMap->S1;
     }
 
+    if ((s1reg & (UART_S1_OR_MASK | UART_S1_PF_MASK | UART_S1_FE_MASK)) != 0)
+    {
+        if (dev == OB_UART0)
+        {
+            // Clear all flags
+            dev->regMap0->S1 |= (UART_S1_OR_MASK | UART_S1_PF_MASK | UART_S1_FE_MASK);
+        }
+        else
+        {
+            // Clear all flags by reading the data
+            (void)dev->regMap->D;
+        }
+        // TODO: Call callback error?
+        return;
+    }
+
     // Check if the interrupt is in reception
     if ((s1reg & UART_S1_RDRF_MASK) != 0)
     {
