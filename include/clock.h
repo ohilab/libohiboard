@@ -688,6 +688,13 @@ uint32_t Clock_getOscillatorValue (void);
  */
 uint32_t Clock_getConfigOscillatorValue (Clock_Config *config);
 
+#if defined (LIBOHIBOARD_MKL)
+/**
+ * Enable the internal reference clock for use as MCGIRCLK.
+ */
+void Clock_enableInternalReferenceClock (void);
+#endif
+
 #if defined (LIBOHIBOARD_K10D10)       || \
     defined (LIBOHIBOARD_K10D7)        || \
     defined (LIBOHIBOARD_K12D5)        || \

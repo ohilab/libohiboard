@@ -1011,6 +1011,10 @@ uint32_t Clock_getOscillatorValue (void)
     return clk.externalClock;
 }
 
+void Clock_enableInternalReferenceClock (void)
+{
+    clk.regmap->C1 = MCG_C1_IRCLKEN_MASK;
+}
 
 #endif // LIBOHIBOARD_MKL
 
