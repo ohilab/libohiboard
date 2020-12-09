@@ -1218,10 +1218,15 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         {
             // Clear all flags
             dev->regMap0->S1 |= (UART_S1_OR_MASK | UART_S1_PF_MASK | UART_S1_FE_MASK);
+
+            // Clear all flags by reading the data
+            (void)dev->regMap0->S1;
+            (void)dev->regMap0->D;
         }
         else
         {
             // Clear all flags by reading the data
+            (void)dev->regMap->S1;
             (void)dev->regMap->D;
         }
         // TODO: Call callback error?
@@ -1235,14 +1240,26 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
         {
             for (uint8_t i = 0; i < UART_MAX_CALLBACK_NUMBER; ++i)
             {
-
                 if (dev->callbackRx[i] != NULL)
                 {
                     dev->callbackRx[i](dev,dev->callbackObj[i]);
                 }
             }
-            // FIXME: flag read again?
         }
+
+        if (dev == OB_UART0)
+        {
+            // Clear all flags by reading the data
+            (void)dev->regMap0->S1;
+            (void)dev->regMap0->D;
+        }
+        else
+        {
+            // Clear all flags by reading the data
+            (void)dev->regMap->S1;
+            (void)dev->regMap->D;
+        }
+
         return;
     }
 
@@ -1259,8 +1276,21 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
                     dev->callbackTx[i](dev,dev->callbackObj[i]);
                 }
             }
-            // FIXME: flag read again?
         }
+
+        if (dev == OB_UART0)
+        {
+            // Clear all flags by reading the data
+            (void)dev->regMap0->S1;
+            (void)dev->regMap0->D;
+        }
+        else
+        {
+            // Clear all flags by reading the data
+            (void)dev->regMap->S1;
+            (void)dev->regMap->D;
+        }
+
         return;
     }
 }
