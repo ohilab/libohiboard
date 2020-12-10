@@ -144,6 +144,7 @@ void u32tx (uint8_t *xString, uint32_t number, uint8_t slength);
 System_Errors ddigit (uint8_t digit, uint8_t* result);
 
 System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength);
+System_Errors u8td (uint8_t *dString, uint8_t number);
 System_Errors dtu16 (const uint8_t* dString, uint16_t* result, uint8_t slength);
 System_Errors dtu32 (const uint8_t* dString, uint32_t* result, uint8_t slength);
 
