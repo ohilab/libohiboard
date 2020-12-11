@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2020 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
@@ -28,6 +28,7 @@
 /**
  * @file libohiboard/include/flash.h
  * @author Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ * @author Marco Giammarini <m.giammarini@warcomeb.it>
  * @brief FLASH definitions and prototypes.
  */
 
@@ -57,9 +58,17 @@ extern "C" {
 #include "system.h"
 
 #if defined (LIBOHIBOARD_PIC24FJ)
+
 #include "hardware/PIC24FJ/flash_PIC24FJ.h"
+
 #elif defined (LIBOHIBOARD_STM32L4)
+
 //#include "hardware/STM32L4/flash_STM32L4.h"
+
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/NXPMKL/flash_MKL.h"
+
 #endif
 
 /**
@@ -67,21 +76,21 @@ extern "C" {
  * 
  * @retval error
  */
-System_Errors Flash_init(void);
+System_Errors Flash_init (void);
 
 /**
  * Unlock the FLASH control register access.
  * 
  * @retval error
  */
-System_Errors Flash_unlock(void);
+System_Errors Flash_unlock (void);
 
 /**
  * Lock the FLASH control register access.
  * 
  * @retval error
  */
-System_Errors Flash_lock(void);
+System_Errors Flash_lock (void);
 
 /**
  * Gets the bank of a given address
@@ -89,7 +98,7 @@ System_Errors Flash_lock(void);
  * @param[IN] address: Address of the FLASH Memory
  * @retval The bank of a given address
  */
-uint32_t Flash_getBank(uint32_t address);
+uint32_t Flash_getBank (uint32_t address);
 
 /**
  * Gets the page of a given address
@@ -97,7 +106,7 @@ uint32_t Flash_getBank(uint32_t address);
  * @param[IN] address: Address of the FLASH Memory
  * @retval The page of a given address
  */
-uint32_t Flash_getPage(uint32_t address);
+uint32_t Flash_getPage (uint32_t address);
 
 /**
  * Returns the size in word of a Page
@@ -110,7 +119,7 @@ uint32_t Flash_getPageSize (void);
  * @param[IN] address: Address of the FLASH Memory
  * @retval The row of a given address
  */
-uint32_t Flash_getRow(uint32_t address);
+uint32_t Flash_getRow (uint32_t address);
 
 /**
  * Returns the size in word of a Row
@@ -123,7 +132,7 @@ uint32_t Flash_getRowSize (void);
  * @param[IN] address: Address of the FLASH Memory
  * @retval The word of a given address
  */
-uint32_t Flash_readWord(uint32_t address);
+uint32_t Flash_readWord (uint32_t address);
 
 /**
  * Read a row of code from a given address
@@ -132,7 +141,7 @@ uint32_t Flash_readWord(uint32_t address);
  * @param[OUT] words: The row of a given address
  * @retval error
  */
-System_Errors Flash_readRow(uint32_t address, uint32_t *words);
+System_Errors Flash_readRow (uint32_t address, uint32_t *words);
 
 /**
  * Erase a bank
@@ -140,7 +149,7 @@ System_Errors Flash_readRow(uint32_t address, uint32_t *words);
  * @param[IN] bank: progression number of bank
  * @retval error
  */
-System_Errors Flash_eraseBank(uint32_t bank);
+System_Errors Flash_eraseBank (uint32_t bank);
 
 /**
  * Erase a page
@@ -148,7 +157,7 @@ System_Errors Flash_eraseBank(uint32_t bank);
  * @param[IN] page: progression number of page
  * @retval error
  */
-System_Errors Flash_erasePage(uint32_t page);
+System_Errors Flash_erasePage (uint32_t page);
 
 /**
  * Erase a sector
@@ -157,7 +166,7 @@ System_Errors Flash_erasePage(uint32_t page);
  * @param[IN] numPages: number of pages to erase
  * @retval error
  */
-System_Errors Flash_eraseSector(uint32_t pageStart, uint32_t numPages);
+System_Errors Flash_eraseSector (uint32_t pageStart, uint32_t numPages);
 
 /**
  * Erase data from specified address 
@@ -166,7 +175,7 @@ System_Errors Flash_eraseSector(uint32_t pageStart, uint32_t numPages);
  * @param[IN] length: Length of data [Byte]
  * @retval error
  */
-System_Errors Flash_erase(uint32_t address, uint32_t length);
+System_Errors Flash_erase (uint32_t address, uint32_t length);
 
 /**
  * Write double word at given address
@@ -176,7 +185,7 @@ System_Errors Flash_erase(uint32_t address, uint32_t length);
  * @param[IN] word2: least significant word
  * @retval error
  */
-System_Errors Flash_writeDoubleWord(uint32_t address, uint32_t word1, uint32_t word2);
+System_Errors Flash_writeDoubleWord (uint32_t address, uint32_t word1, uint32_t word2);
 
 /**
  * Write a row from given address
@@ -185,7 +194,7 @@ System_Errors Flash_writeDoubleWord(uint32_t address, uint32_t word1, uint32_t w
  * @param[IN] word: array of words
  * @retval error
  */
-System_Errors Flash_writeRow(uint32_t address, uint32_t *words);
+System_Errors Flash_writeRow (uint32_t address, uint32_t *words);
 
 /**
  * Read data from given address
@@ -198,7 +207,7 @@ System_Errors Flash_writeRow(uint32_t address, uint32_t *words);
  * @param[IN] length: Length of data [Byte]
  * @retval error
  */
-System_Errors Flash_readData(uint32_t address, uint8_t *data, uint16_t length);
+System_Errors Flash_readData (uint32_t address, uint8_t *data, uint16_t length);
 
 /**
  * Write data from given address
@@ -211,7 +220,7 @@ System_Errors Flash_readData(uint32_t address, uint8_t *data, uint16_t length);
  * @param[IN] length: Length of data [Byte]
  * @retval error
  */
-System_Errors Flash_writeData(uint32_t address, uint8_t *data, uint16_t length);
+System_Errors Flash_writeData (uint32_t address, uint8_t *data, uint16_t length);
 
 /**
  * Test if page of given address is empty
@@ -219,7 +228,7 @@ System_Errors Flash_writeData(uint32_t address, uint8_t *data, uint16_t length);
  * @param[IN] address: Address of the FLASH Memory
  * @retval true: page is empty; false: otherwise.
  */
-bool Flash_isPageEmpty(uint32_t address);
+bool Flash_isPageEmpty (uint32_t address);
 
 /**
  * Test if two page of given addresses are equal
@@ -228,7 +237,7 @@ bool Flash_isPageEmpty(uint32_t address);
  * @param[IN] address2: Second address of the FLASH Memory
  * @retval true: pages are equal, false: otherwise.
  */
-bool Flash_pagecmp(uint32_t address1, uint32_t address2);
+bool Flash_pagecmp (uint32_t address1, uint32_t address2);
 
 /**
  * Copy the content from source to destination for the specified length
@@ -238,7 +247,7 @@ bool Flash_pagecmp(uint32_t address1, uint32_t address2);
  * @param[IN] length: Length of data [Byte]
  * @retval true: copy operation worked well, false: otherwise.
  */
-bool Flash_memcpy(uint32_t destAddress, uint32_t sourceAddress, uint32_t length);
+bool Flash_memcpy (uint32_t destAddress, uint32_t sourceAddress, uint32_t length);
 
 /**
  * Test the Flash functions.
