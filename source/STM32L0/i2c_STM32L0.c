@@ -503,7 +503,7 @@ static System_Errors Iic_config (Iic_DeviceHandle dev, Iic_Config* config)
     // Disable own address1 before set new one
     dev->regmap->OAR1 = dev->regmap->OAR1 & (~(I2C_OAR1_OA1EN_Msk));
     // Configure own address 1
-    if (dev->config.addressMode == IIC_SEVENIIC_SEVEN_BIT_BIT)
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
     {
         dev->regmap->OAR1 = I2C_OAR1_OA1EN_Msk | ((dev->config.address1 << 1) & 0x000000FEu);
     }

@@ -59,37 +59,37 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L073)
 
-#define RCC_CCIPR_I2C1SEL_Pos        (12u)
-#define RCC_CCIPR_I2C3SEL_Pos        (16u)
+//#define RCC_CCIPR_I2C1SEL_Pos        (12u)
+//#define RCC_CCIPR_I2C3SEL_Pos        (16u)
+//
+//#define I2C_CR1_NOSTRETCH_Msk        (I2C_CR1_NOSTRETCH)
+//
+//#define I2C_CR2_NBYTES_Pos           (16u)
+//#define I2C_CR2_NBYTES_Msk           (I2C_CR2_NBYTES)
+//#define I2C_CR2_SADD_Pos             (0u)
+//#define I2C_CR2_SADD_Msk             (I2C_CR2_SADD)
+//#define I2C_CR2_RELOAD_Msk           (I2C_CR2_RELOAD)
+//#define I2C_CR2_AUTOEND_Msk          (I2C_CR2_AUTOEND)
+//#define I2C_CR2_START_Msk            (I2C_CR2_START)
+//#define I2C_CR2_STOP_Msk             (I2C_CR2_STOP)
+//#define I2C_CR2_RD_WRN_Msk           (I2C_CR2_RD_WRN)
+//#define I2C_CR2_ADD10_Msk            (I2C_CR2_ADD10)
+//#define I2C_CR2_NACK_Msk             (I2C_CR2_NACK)
+//
+//#define I2C_TIMINGR_PRESC_Pos        (28u)
+//#define I2C_TIMINGR_SCLH_Pos         (8u)
+//#define I2C_TIMINGR_SCLL_Pos         (0u)
+//
+//#define I2C_OAR1_OA1EN_Msk           (I2C_OAR1_OA1EN)
+//#define I2C_OAR1_OA1MODE_Msk         (I2C_OAR1_OA1MODE)
+//
+//#define I2C_OAR2_OA2EN_Msk           (I2C_OAR2_OA2EN)
+//#define I2C_OAR2_OA2MSK_Pos          (8u)
+//
+//#define I2C_ICR_NACKCF_Msk           (I2C_ICR_NACKCF)
+//#define I2C_ICR_STOPCF_Msk           (I2C_ICR_STOPCF)
 
-#define I2C_CR1_NOSTRETCH_Msk        (I2C_CR1_NOSTRETCH)
-
-#define I2C_CR2_NBYTES_Pos           (16u)
-#define I2C_CR2_NBYTES_Msk           (I2C_CR2_NBYTES)
-#define I2C_CR2_SADD_Pos             (0u)
-#define I2C_CR2_SADD_Msk             (I2C_CR2_SADD)
-#define I2C_CR2_RELOAD_Msk           (I2C_CR2_RELOAD)
-#define I2C_CR2_AUTOEND_Msk          (I2C_CR2_AUTOEND)
-#define I2C_CR2_START_Msk            (I2C_CR2_START)
-#define I2C_CR2_STOP_Msk             (I2C_CR2_STOP)
-#define I2C_CR2_RD_WRN_Msk           (I2C_CR2_RD_WRN)
-#define I2C_CR2_ADD10_Msk            (I2C_CR2_ADD10)
-#define I2C_CR2_NACK_Msk             (I2C_CR2_NACK)
-
-#define I2C_TIMINGR_PRESC_Pos        (28u)
-#define I2C_TIMINGR_SCLH_Pos         (8u)
-#define I2C_TIMINGR_SCLL_Pos         (0u)
-
-#define I2C_OAR1_OA1EN_Msk           (I2C_OAR1_OA1EN)
-#define I2C_OAR1_OA1MODE_Msk         (I2C_OAR1_OA1MODE)
-
-#define I2C_OAR2_OA2EN_Msk           (I2C_OAR2_OA2EN)
-#define I2C_OAR2_OA2MSK_Pos          (8u)
-
-#define I2C_ICR_NACKCF_Msk           (I2C_ICR_NACKCF)
-#define I2C_ICR_STOPCF_Msk           (I2C_ICR_STOPCF)
-
-#define I2C_ISR_TXE_Msk              (I2C_ISR_TXE)
+//#define I2C_ISR_TXE_Msk              (I2C_ISR_TXE)
 
 #endif
 
