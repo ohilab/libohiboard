@@ -45,7 +45,7 @@ extern "C" {
 #define FLASH_WORD_SIZE                   (4)
 #define FLASH_ROW_SIZE                    (8)
 #define FLASH_PAGE_SIZE                   FSL_FEATURE_FLASH_PFLASH_BLOCK_SECTOR_SIZE
-//#define FLASH_BANK_SIZE                   (524288)  // = 0x00080000 [256 pages:  524288 byte]
+//#define FLASH_BANK_SIZE
 #define FLASH_SIZE                        FSL_FEATURE_FLASH_PFLASH_BLOCK_SIZE
 
 #define FLASH_MAX_PAGE_NUMBER             (FLASH_SIZE/FLASH_PAGE_SIZE)
@@ -66,6 +66,8 @@ typedef enum _Flash_Command
     FLASH_COMMAND_ERASE_ALL_BLOCKS   = 0x44,
     FLASH_COMMAND_VERIFY_BACKDOOR    = 0x45,
 } Flash_Command;
+
+extern Flash_DeviceHandle OB_FLASH0;
 
 #endif // LIBOHIBOARD_MKL
 

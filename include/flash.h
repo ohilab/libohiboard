@@ -57,6 +57,8 @@ extern "C" {
 #include "types.h"
 #include "system.h"
 
+typedef struct _Flash_Device* Flash_DeviceHandle;
+
 #if defined (LIBOHIBOARD_PIC24FJ)
 
 #include "hardware/PIC24FJ/flash_PIC24FJ.h"
@@ -76,8 +78,40 @@ extern "C" {
  * 
  * @retval error
  */
-System_Errors Flash_init (void);
+System_Errors Flash_init (Flash_DeviceHandle dev);
 
+/**
+ * Erase a page.
+ *
+ * @param[in]        dev: The peripheral handle
+ * @param[in] pageNumber: progression number of page
+ * @retval error
+ */
+System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint8_t pageNumber);
+
+/**
+ * Write data to the given page.
+ *
+ * @param[in]        dev: The peripheral handle
+ * @param[in] pageNumber: The page number of the page to write
+ * @param[out]    buffer: Array of data
+ * @param[in]     length: Length of data
+ * @retval error
+ */
+System_Errors Flash_writePage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8_t* buffer, uint32_t length);
+
+/**
+ * Read data from given page.
+ *
+ * @param[in]        dev: The peripheral handle
+ * @param[in] pageNumber: The page number of the page to read
+ * @param[in]     buffer: Array of data to save data
+ * @param[in]     length: Length of data
+ * @retval error
+ */
+System_Errors Flash_readPage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8_t* buffer, uint32_t length);
+
+#if 0
 /**
  * Unlock the FLASH control register access.
  * 
@@ -255,6 +289,7 @@ bool Flash_memcpy (uint32_t destAddress, uint32_t sourceAddress, uint32_t length
  * @retval result of test: true: operation worked well, false: otherwise.
  */
 bool Flash_test (void);
+#endif
 
 #ifdef __cplusplus
 }

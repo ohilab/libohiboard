@@ -192,6 +192,10 @@ typedef void (*pFuncArrayParam)(void *data, size_t length);
 #define __persistent        __attribute__((persistent))
 #endif // __persistent
 
+#ifndef __ramcode
+#define __ramcode           __attribute__ ((long_call, section(".ramcode")))
+#endif
+
 #ifndef null
 #define null NULL
 #endif // null
