@@ -393,7 +393,7 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
     }
 
     // Get current parent clock
-#if defined (STM32L073xx)
+#if defined (LIBOHIBOARD_STM32L0x3)
     if (dev == OB_IIC2)
     {
         frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
