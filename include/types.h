@@ -53,6 +53,7 @@ typedef void (*pFunc)(void);
 typedef void (*pFuncPtrParam)(void *);
 
 typedef void (*pFuncU8Param) (uint8_t param);
+typedef void (*pFuncU8PParam) (uint8_t* param);
 
 typedef void (*pFuncCharParam) (char param);
 
