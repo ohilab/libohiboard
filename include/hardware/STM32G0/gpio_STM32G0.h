@@ -134,7 +134,6 @@ typedef enum
     defined (LIBOHIBOARD_STM32G031CxU)
     GPIO_PINS_PC7,
 #endif
-#endif
 #if defined (LIBOHIBOARD_STM32G031CxT) || \
     defined (LIBOHIBOARD_STM32G031CxU)
     GPIO_PINS_PC13,

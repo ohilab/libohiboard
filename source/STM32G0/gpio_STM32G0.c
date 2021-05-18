@@ -217,7 +217,7 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
 #endif
 
 #if defined (LIBOHIBOARD_STM32G031CxT) || \
-    defined (LIBOHIBOARD_STM32G031CxU))
+    defined (LIBOHIBOARD_STM32G031CxU)
     {GPIO_PORTS_F,0,5},
     {GPIO_PORTS_F,1,5},
 #endif
@@ -308,7 +308,7 @@ void Gpio_disablePortClock (Gpio_Ports port)
         break;
 
     case GPIO_PORTS_F:
-        GPIO_DISABLE_CLOCK_PORTE();
+        GPIO_DISABLE_CLOCK_PORTF();
         break;
 
     default:
@@ -365,7 +365,7 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
             // Configure IO output type
             // One value must be selected, anyway use PUSH-PULL as default value
             temp = port->OTYPER;
-            temp &= ~(GPIO_OTYPER_OT_0 << number) ;
+            temp &= ~(GPIO_OTYPER_OT0 << number) ;
             temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
             port->OTYPER = temp;
 
@@ -398,7 +398,7 @@ void Gpio_configAlternate (Gpio_Pins pin, Gpio_Alternate alternate, uint16_t opt
                 speed = 0x03;
             }
             temp = port->OSPEEDR;
-            temp &= ~(GPIO_OSPEEDER_OSPEED0 << (number * 2));
+            temp &= ~(GPIO_OSPEEDR_OSPEED0 << (number * 2));
             temp |= (speed << (number * 2));
             port->OSPEEDR = temp;
         }
@@ -454,7 +454,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
         // Configure IO output type
         // One value must be selected, anyway use PUSH-PULL as default value
         temp = port->OTYPER;
-        temp &= ~(GPIO_OTYPER_OT_0 << number) ;
+        temp &= ~(GPIO_OTYPER_OT0 << number) ;
         temp |= (((options & GPIO_PINS_ENABLE_OUTPUT_OPENDRAIN) ? 0x01 : 0x00) << number);
         port->OTYPER = temp;
 
@@ -474,7 +474,7 @@ System_Errors Gpio_config (Gpio_Pins pin, uint16_t options)
             speed = 0x03;
         }
         temp = port->OSPEEDR;
-        temp &= ~(GPIO_OSPEEDER_OSPEED0 << (number * 2));
+        temp &= ~(GPIO_OSPEEDR_OSPEED0 << (number * 2));
         temp |= (speed << (number * 2));
         port->OSPEEDR = temp;
     }
@@ -527,7 +527,12 @@ void Gpio_toggle (Gpio_Pins pin)
         ohiassert(pin < GPIO_AVAILABLE_PINS_COUNT);
 
         GPIO_TypeDef* port = Gpio_getPort(GPIO_AVAILABLE_PINS[pin].port);
-        port->ODR ^= GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        //port->ODR ^= GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber);
+        // From RM0444 (pg 243): or atomic bit set/reset, the OD bits can be individually
+        // set and/or reset by writing to the GPIOx_BSRR register
+        uint32_t odr = port->ODR;
+        port->BSRR = ((odr  & GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber)) << 16) |
+                      (~odr & GPIO_PIN(GPIO_AVAILABLE_PINS[pin].pinNumber));
     }
 }
 
@@ -560,10 +565,10 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, 
         return ERRORS_GPIO_WRONG_PIN;
 
     //Check callback is empty
-	if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
-	{
-		asm("NOP");
-	}
+    if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
+    {
+        asm("NOP");
+    }
 
 	Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
     Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
@@ -600,49 +605,46 @@ System_Errors Gpio_enableInterrupt (Gpio_Pins pin, Gpio_EventType event)
     ohiassert(((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING) ||
               ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING));
 
-    // Enable clock to SYSCFG module
-    CLOCK_ENABLE_SYSCFG();
-
     // Set the current pin as interrupt source for the corresponding channel
-    temp = SYSCFG->EXTICR[pinNumber >> 2];
-    temp &= ~(((uint32_t)0x0F) << (4 * (pinNumber & 0x03)));
-    temp |= portIndex << (4 * (pinNumber & 0x03));
-    SYSCFG->EXTICR[pinNumber >> 2] = temp;
+    temp = EXTI->EXTICR[pinNumber >> 2];
+    temp &= ~(((uint32_t)0x0F) << (8u * (pinNumber & 0x03)));
+    temp |= portIndex << (8u * (pinNumber & 0x03));
+    EXTI->EXTICR[pinNumber >> 2] = temp;
 
     // Enable interrupt if request
-    temp = EXTI->IMR;
+    temp = EXTI->IMR1;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_USE_INTERRUPT) == GPIO_EVENT_USE_INTERRUPT)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->IMR = temp;
+    EXTI->IMR1 = temp;
 
     // Enable event if request
-    temp = EXTI->EMR;
+    temp = EXTI->EMR1;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_USE_EVENT) == GPIO_EVENT_USE_EVENT)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->EMR = temp;
+    EXTI->EMR1 = temp;
 
     // Set-up falling and rising edge
-    temp = EXTI->RTSR;
+    temp = EXTI->RTSR1;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_ON_RISING) == GPIO_EVENT_ON_RISING)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->RTSR = temp;
+    EXTI->RTSR1 = temp;
 
-    temp = EXTI->FTSR;
+    temp = EXTI->FTSR1;
     temp &= ~((uint32_t)GPIO_PIN(pinNumber));
     if ((event & GPIO_EVENT_ON_FALLING) == GPIO_EVENT_ON_FALLING)
     {
       temp |= (uint32_t)GPIO_PIN(pinNumber);
     }
-    EXTI->FTSR = temp;
+    EXTI->FTSR1 = temp;
 
     // Enable callback
     Gpio_isrPortRequestVector[pinNumber].enabled = true;
@@ -693,21 +695,21 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
     if (pin >= GPIO_AVAILABLE_PINS_COUNT)
         return ERRORS_GPIO_WRONG_PIN;
 
-    temp = SYSCFG->EXTICR[pinNumber >> 2];
-    temp &= (((uint32_t)0x0F) << (4 * (pinNumber & 0x03)));
+    temp = EXTI->EXTICR[pinNumber >> 2];
+    temp &= (((uint32_t)0x0F) << (8u * (pinNumber & 0x03)));
     // Disable interrupt only if this pin is enable
-    if (temp == (portIndex << (4 * (pinNumber & 0x03))))
+    if (temp == (portIndex << (8u * (pinNumber & 0x03))))
     {
-        temp = ((uint32_t)0x0F) << (4 * (pinNumber & 0x03));
-        SYSCFG->EXTICR[pinNumber >> 2] &= ~temp;
+        temp = ((uint32_t)0x0F) << (8u * (pinNumber & 0x03));
+        EXTI->EXTICR[pinNumber >> 2] &= ~temp;
 
         // Clear EXTI line configuration
-        EXTI->IMR &= ~((uint32_t)GPIO_PIN(pinNumber));
-        EXTI->EMR &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->IMR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->EMR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
 
         // Clear Rising-Falling edge configuration
-        EXTI->RTSR &= ~((uint32_t)GPIO_PIN(pinNumber));
-        EXTI->FTSR &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->RTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
+        EXTI->FTSR1 &= ~((uint32_t)GPIO_PIN(pinNumber));
 
         // Disable callback
         Gpio_isrPortRequestVector[pinNumber].enabled = false;
@@ -781,13 +783,20 @@ System_Errors Gpio_disableInterrupt (Gpio_Pins pin)
     return ERRORS_NO_ERROR;
 }
 
+#define GPIO_CLEAR_PENDING_RISING(__PIN_NUMBER__)  (EXTI->RPR1 = (__PIN_NUMBER__))
+#define GPIO_CLEAR_PENDING_FALLING(__PIN_NUMBER__) (EXTI->FPR1 = (__PIN_NUMBER__))
+
+#define GPIO_IS_PENDING_RISING(__PIN_NUMBER__)     (EXTI->RPR1 & __PIN_NUMBER__)
+#define GPIO_IS_PENDING_FALLING(__PIN_NUMBER__)    (EXTI->FPR1 & __PIN_NUMBER__)
+
 void EXTI0_1_IRQHandler (void)
 {
-    uint32_t pending = EXTI->PR;
-    if (pending & GPIO_PIN(0))
+    if ((GPIO_IS_PENDING_RISING(GPIO_PIN(0))) ||
+        (GPIO_IS_PENDING_FALLING(GPIO_PIN(0))))
     {
         // Clear pending flag
-        EXTI->PR = GPIO_PIN(0);
+        GPIO_CLEAR_PENDING_RISING(GPIO_PIN(0));
+        GPIO_CLEAR_PENDING_FALLING(GPIO_PIN(0));
 
         if ((Gpio_isrPortRequestVector[0].callback != nullptr) &&
             (Gpio_isrPortRequestVector[0].enabled == true))
@@ -796,10 +805,12 @@ void EXTI0_1_IRQHandler (void)
         }
     }
 
-    if (pending & GPIO_PIN(1))
+    if ((GPIO_IS_PENDING_RISING(GPIO_PIN(1))) ||
+        (GPIO_IS_PENDING_FALLING(GPIO_PIN(1))))
     {
         // Clear pending flag
-        EXTI->PR = GPIO_PIN(1);
+        GPIO_CLEAR_PENDING_RISING(GPIO_PIN(1));
+        GPIO_CLEAR_PENDING_FALLING(GPIO_PIN(1));
 
         if ((Gpio_isrPortRequestVector[1].callback != nullptr) &&
             (Gpio_isrPortRequestVector[1].enabled == true))
@@ -811,11 +822,12 @@ void EXTI0_1_IRQHandler (void)
 
 void EXTI2_3_IRQHandler (void)
 {
-    uint32_t pending = EXTI->PR;
-    if (pending & GPIO_PIN(2))
+    if ((GPIO_IS_PENDING_RISING(GPIO_PIN(2))) ||
+        (GPIO_IS_PENDING_FALLING(GPIO_PIN(2))))
     {
         // Clear pending flag
-        EXTI->PR = GPIO_PIN(2);
+        GPIO_CLEAR_PENDING_RISING(GPIO_PIN(2));
+        GPIO_CLEAR_PENDING_FALLING(GPIO_PIN(2));
 
         if ((Gpio_isrPortRequestVector[2].callback != nullptr) &&
             (Gpio_isrPortRequestVector[2].enabled == true))
@@ -824,10 +836,12 @@ void EXTI2_3_IRQHandler (void)
         }
     }
 
-    if (pending & GPIO_PIN(3))
+    if ((GPIO_IS_PENDING_RISING(GPIO_PIN(3))) ||
+        (GPIO_IS_PENDING_FALLING(GPIO_PIN(3))))
     {
         // Clear pending flag
-        EXTI->PR = GPIO_PIN(3);
+        GPIO_CLEAR_PENDING_RISING(GPIO_PIN(3));
+        GPIO_CLEAR_PENDING_FALLING(GPIO_PIN(3));
 
         if ((Gpio_isrPortRequestVector[3].callback != nullptr) &&
             (Gpio_isrPortRequestVector[3].enabled == true))
@@ -839,14 +853,15 @@ void EXTI2_3_IRQHandler (void)
 
 void EXTI4_15_IRQHandler (void)
 {
-    uint32_t pending = EXTI->PR;
-
     for (int i = 4; i < 16; i++)
     {
-        if (pending & GPIO_PIN(i))
+        if ((GPIO_IS_PENDING_RISING(GPIO_PIN(i))) ||
+            (GPIO_IS_PENDING_FALLING(GPIO_PIN(i))))
         {
             // Clear flag interrupt
-            EXTI->PR = GPIO_PIN(i);
+            GPIO_CLEAR_PENDING_RISING(GPIO_PIN(i));
+            GPIO_CLEAR_PENDING_FALLING(GPIO_PIN(i));
+
             if ((Gpio_isrPortRequestVector[i].callback != nullptr) &&
                 (Gpio_isrPortRequestVector[i].enabled == true))
             {
