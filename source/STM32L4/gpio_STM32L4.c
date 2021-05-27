@@ -280,20 +280,18 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L476ZxJ)
     {GPIO_PORTS_E,0,4},
     {GPIO_PORTS_E,1,4},
-#endif
-#if defined (LIBOHIBOARD_STM32L476QxI) || \
-    defined (LIBOHIBOARD_STM32L476ZxT) || \
-    defined (LIBOHIBOARD_STM32L476ZxJ)
     {GPIO_PORTS_E,2,4},
     {GPIO_PORTS_E,3,4},
 #endif
-#if defined (LIBOHIBOARD_STM32L476QxI) || \
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
     defined (LIBOHIBOARD_STM32L476ZxT) || \
     defined (LIBOHIBOARD_STM32L476ZxJ) || \
     defined (LIBOHIBOARD_STM32WB55Rx)
     {GPIO_PORTS_E,4,4},
 #endif
-#if defined (LIBOHIBOARD_STM32L476QxI) || \
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
     defined (LIBOHIBOARD_STM32L476ZxT) || \
     defined (LIBOHIBOARD_STM32L476ZxJ)
     {GPIO_PORTS_E,5,4},

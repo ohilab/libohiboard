@@ -172,20 +172,18 @@ typedef enum
     defined (LIBOHIBOARD_STM32L476ZxJ)
     GPIO_PINS_PE0,
     GPIO_PINS_PE1,
-#endif
-#if defined (LIBOHIBOARD_STM32L476QxI) || \
-    defined (LIBOHIBOARD_STM32L476ZxT) || \
-    defined (LIBOHIBOARD_STM32L476ZxJ)
     GPIO_PINS_PE2,
     GPIO_PINS_PE3,
 #endif
-#if defined (LIBOHIBOARD_STM32L476QxI) || \
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
     defined (LIBOHIBOARD_STM32L476ZxT) || \
     defined (LIBOHIBOARD_STM32L476ZxJ) || \
     defined (LIBOHIBOARD_STM32WB55Rx)
     GPIO_PINS_PE4,
 #endif
-#if defined (LIBOHIBOARD_STM32L476QxI) || \
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
     defined (LIBOHIBOARD_STM32L476ZxT) || \
     defined (LIBOHIBOARD_STM32L476ZxJ)
     GPIO_PINS_PE5,
