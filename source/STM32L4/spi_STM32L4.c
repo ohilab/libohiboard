@@ -1007,6 +1007,8 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
         return err;
     }
 
+    dev->state = SPI_DEVICESTATE_READY;
+
     return ERRORS_NO_ERROR;
 }
 

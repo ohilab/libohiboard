@@ -70,8 +70,8 @@ extern "C" {
  * @{
  */
 
-#define SPI_EMPTY_BYTE				((uint8_t)0x00)
-#define SPI_EMPTY_WORD				((uint16_t)0x0000)
+#define SPI_EMPTY_BYTE                           ((uint8_t)0x00)
+#define SPI_EMPTY_WORD                           ((uint16_t)0x0000)
 
 /**
  * The list of the possible peripheral HAL state.
