@@ -1309,6 +1309,16 @@ void Uart_addErrorCallback (Uart_DeviceHandle dev, Uart_callback callback)
     }
 }
 
+uint32_t Uart_getStatusFlag (Uart_DeviceHandle dev)
+{
+    uint32_t value = 0, ret = 0;
+    value = dev->regmap->ISR;
+
+    if (value & USART_ISR_IDLE) ret |= UART_FLAGSTATUS_IDLE;
+
+    return ret;
+}
+
 static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_DeviceHandle dev)
 {
     uint32_t isrreg = dev->regmap->ISR;

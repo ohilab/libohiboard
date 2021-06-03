@@ -195,6 +195,11 @@ typedef enum _Uart_ClockSource
 
 } Uart_ClockSource;
 
+typedef enum _Uart_FlagStatus
+{
+    UART_FLAGSTATUS_IDLE      = 0x000001u,
+} Uart_FlagStatus;
+
 #if defined(LIBOHIBOARD_MICROCHIP_PIC)
 
 /**
@@ -525,6 +530,11 @@ void Uart_addRxCallback (Uart_DeviceHandle dev, Uart_callback callback);
 void Uart_addTxCallback (Uart_DeviceHandle dev, Uart_callback callback);
 
 void Uart_addErrorCallback (Uart_DeviceHandle dev, Uart_callback callback);
+
+/**
+ *
+ */
+uint32_t Uart_getStatusFlag (Uart_DeviceHandle dev);
 
 /**
  * @defgroup UART_String_Functions UART common string management functions
