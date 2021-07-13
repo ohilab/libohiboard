@@ -62,7 +62,10 @@ typedef enum  _Interrupt_Vector
     INTERRUPT_DMA1_CH6         = 16,
     INTERRUPT_DMA1_CH7         = 17,
     INTERRUPT_ADC1_2           = 18,
-
+    INTERRUPT_CAN1_TX          = 19,
+    INTERRUPT_CAN1_RX0         = 20,
+    INTERRUPT_CAN1_RX1         = 21,
+    INTERRUPT_CAN1_SCE         = 22,
     INTERRUPT_EXTI9_5          = 23,
 #if defined(LIBOHIBOARD_STM32L4)
     INTERRUPT_TIM1BRK_TIM15    = 24,
