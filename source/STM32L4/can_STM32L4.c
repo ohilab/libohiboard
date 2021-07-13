@@ -111,9 +111,38 @@ System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
     {
         return ERRORS_CAN_WRONG_DEVICE;
     }
+
+    // TODO: config check!
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_CAN_WRONG_PARAM;
+    }
+    // Save configuration
+    dev->config = *config;
+
+    // Enable peripheral clock if needed
+    if (dev->state == CAN_DEVICESTATE_RESET)
+    {
+
+    }
+
+    // TODO: config!
+
+    dev->state = CAN_DEVICESTATE_READY;
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Can_deInit (Can_DeviceHandle dev)
+{
+
+}
+
+System_Errors Can_start (Can_DeviceHandle dev)
+{
+
+}
+
+System_Errors Can_stop (Adc_DeviceHandle dev)
 {
 
 }

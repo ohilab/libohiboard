@@ -116,6 +116,22 @@ System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config);
 System_Errors Can_deInit (Can_DeviceHandle dev);
 
 /**
+ * Enable and start CAN peripheral.
+ *
+ * @param[in] dev CAN device handle
+ * @return
+ */
+System_Errors Can_start (Can_DeviceHandle dev);
+
+/**
+ * Stop CAN peripheral.
+ *
+ * @param[in] dev CAN device handle
+ * @return
+ */
+System_Errors Can_stop (Can_DeviceHandle dev);
+
+/**
  * @}
  */
 
