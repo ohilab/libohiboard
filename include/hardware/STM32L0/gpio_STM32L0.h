@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -64,7 +64,74 @@ typedef enum
 {
     GPIO_PINS_NONE = 0,
 
-#if defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1)
+
+#if defined (LIBOHIBOARD_STM32L081)
+
+    GPIO_PINS_PA0,
+    GPIO_PINS_PA1,
+    GPIO_PINS_PA2,
+    GPIO_PINS_PA3,
+    GPIO_PINS_PA4,
+    GPIO_PINS_PA5,
+    GPIO_PINS_PA6,
+    GPIO_PINS_PA7,
+    GPIO_PINS_PA8,
+    GPIO_PINS_PA9,
+    GPIO_PINS_PA10,
+    GPIO_PINS_PA11,
+    GPIO_PINS_PA12,
+    GPIO_PINS_PA13,
+    GPIO_PINS_PA14,
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PINS_PA15,
+#endif
+
+    GPIO_PINS_PB0,
+    GPIO_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PINS_PB2,
+#endif
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PINS_PB3,
+#endif
+    GPIO_PINS_PB4,
+    GPIO_PINS_PB5,
+    GPIO_PINS_PB6,
+    GPIO_PINS_PB7,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PINS_PB8,
+    GPIO_PINS_PB9,
+    GPIO_PINS_PB10,
+    GPIO_PINS_PB11,
+    GPIO_PINS_PB12,
+    GPIO_PINS_PB13,
+    GPIO_PINS_PB14,
+    GPIO_PINS_PB15,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PINS_PC13,
+#endif
+    GPIO_PINS_PC14,
+    GPIO_PINS_PC15,
+
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PINS_PH0,
+    GPIO_PINS_PH1,
+#endif
+
+#endif // LIBOHIBOARD_STM32L081
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
 
@@ -381,7 +448,16 @@ typedef enum
  */
 typedef enum _Gpio_Ports
 {
-#if defined (LIBOHIBOARD_STM32L0x2) || \
+#if defined (LIBOHIBOARD_STM32L0x1)
+    GPIO_PORTS_A,
+    GPIO_PORTS_B,
+    GPIO_PORTS_C,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    GPIO_PORTS_H,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
     defined (LIBOHIBOARD_STM32L0x3)
     GPIO_PORTS_A,
     GPIO_PORTS_B,

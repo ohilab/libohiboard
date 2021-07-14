@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -168,7 +168,74 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
 {
     {0xFF,0xFF,0},
 
-#if defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1)
+
+#if defined (LIBOHIBOARD_STM32L081)
+
+    {GPIO_PORTS_A,0,0},
+    {GPIO_PORTS_A,1,0},
+    {GPIO_PORTS_A,2,0},
+    {GPIO_PORTS_A,3,0},
+    {GPIO_PORTS_A,4,0},
+    {GPIO_PORTS_A,5,0},
+    {GPIO_PORTS_A,6,0},
+    {GPIO_PORTS_A,7,0},
+    {GPIO_PORTS_A,8,0},
+    {GPIO_PORTS_A,9,0},
+    {GPIO_PORTS_A,10,0},
+    {GPIO_PORTS_A,11,0},
+    {GPIO_PORTS_A,12,0},
+    {GPIO_PORTS_A,13,0},
+    {GPIO_PORTS_A,14,0},
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_A,15,0},
+#endif
+
+    {GPIO_PORTS_B,0,1},
+    {GPIO_PORTS_B,1,1},
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_B,2,1},
+#endif
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_B,3,1},
+#endif
+    {GPIO_PORTS_B,4,1},
+    {GPIO_PORTS_B,5,1},
+    {GPIO_PORTS_B,6,1},
+    {GPIO_PORTS_B,7,1},
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_B,8,1},
+    {GPIO_PORTS_B,9,1},
+    {GPIO_PORTS_B,10,1},
+    {GPIO_PORTS_B,11,1},
+    {GPIO_PORTS_B,12,1},
+    {GPIO_PORTS_B,13,1},
+    {GPIO_PORTS_B,14,1},
+    {GPIO_PORTS_B,15,1},
+#endif
+
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_C,13,2},
+#endif
+    {GPIO_PORTS_C,14,2},
+    {GPIO_PORTS_C,15,2},
+
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_H,0,7},
+    {GPIO_PORTS_H,1,7},
+#endif
+
+#endif // LIBOHIBOARD_STM32L081
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
 
