@@ -157,7 +157,6 @@ typedef struct _Iic_Device
 
 } Iic_Device;
 
-#if defined (LIBOHIBOARD_STM32L073)
 
 static Iic_Device iic1 =
 {
@@ -174,44 +173,64 @@ static Iic_Device iic1 =
         {
                                IIC_PINS_PA9,
                                IIC_PINS_PB6,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                IIC_PINS_PB8,
+#endif
         },
         .sclPinsGpio          =
         {
                                GPIO_PINS_PA9,
                                GPIO_PINS_PB6,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PB8,
+#endif
         },
         .sclPinsMux           =
         {
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_1,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_4,
+#endif
         },
 
         .sdaPins              =
         {
                                IIC_PINS_PA10,
                                IIC_PINS_PB7,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                IIC_PINS_PB9,
+#endif
         },
         .sdaPinsGpio          =
         {
                                GPIO_PINS_PA10,
                                GPIO_PINS_PB7,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PB9,
+#endif
         },
         .sdaPinsMux           =
         {
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_1,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_4,
+#endif
         },
 
         .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC1 = &iic1;
 
+#if !defined (LIBOHIBOARD_STM32L081KxT) && \
+    !defined (LIBOHIBOARD_STM32L081KxU)
 static Iic_Device iic2 =
 {
         .regmap               = I2C2,
@@ -259,6 +278,7 @@ static Iic_Device iic2 =
         .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC2 = &iic2;
+#endif
 
 static Iic_Device iic3 =
 {
@@ -340,7 +360,6 @@ static Iic_Device iic3 =
 };
 Iic_DeviceHandle OB_IIC3 = &iic3;
 
-#endif
 
 #define IIC_PIN_CONFIGURATION             (GPIO_PINS_PULL                    | \
                                            GPIO_PINS_ENABLE_PULLUP           | \
@@ -393,12 +412,14 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
     }
 
     // Get current parent clock
-#if defined (LIBOHIBOARD_STM32L0x3)
+#if !defined (LIBOHIBOARD_STM32L081KxT) && \
+    !defined (LIBOHIBOARD_STM32L081KxU)
     if (dev == OB_IIC2)
     {
         frequency = Clock_getOutputValue(CLOCK_OUTPUT_PCLK2);
     }
     else
+#endif
     {
         switch (dev->config.clockSource)
         {
@@ -416,10 +437,6 @@ static System_Errors Iic_setBaudrate (Iic_DeviceHandle dev, uint32_t baudrate)
             return ERRORS_IIC_NO_CLOCKSOURCE;
         }
     }
-#else
-    ohiassert(0);
-    return ERRORS_IIC_NO_CLOCKSOURCE;
-#endif
 
     // Current clock is different from 0
     if (frequency != 0u)
@@ -555,7 +572,8 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     // Enable peripheral clock if needed
     if (dev->state == IIC_DEVICESTATE_RESET)
     {
-#if defined (STM32L073xx)
+#if !defined (LIBOHIBOARD_STM32L081KxT) && \
+    !defined (LIBOHIBOARD_STM32L081KxU)
         if (dev == OB_IIC2)
         {
             // Select clock source
@@ -563,9 +581,6 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
         }
         // Enable peripheral clock
         IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
-#else
-        ohiassert(0);
-        return ERRORS_IIC_WRONG_PARAM;
 #endif
 
         // Enable pins
