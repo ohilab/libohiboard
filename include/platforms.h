@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2021 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -203,6 +203,31 @@
 #ifndef LIBOHIBOARD_MURATA_STM32
 #define LIBOHIBOARD_MURATA_STM32
 #endif
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L081CxT) || \
+      defined (LIBOHIBOARD_STM32L081CxU) || \
+      defined (LIBOHIBOARD_STM32L081KxT) || \
+      defined (LIBOHIBOARD_STM32L081KxU)
+
+#include "platforms/STM32L081/stm32l081xx.h"
+#include "platforms/STM32L081/stm32l0xx.h"
+#include "platforms/STM32L081/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L0x1
+#define LIBOHIBOARD_STM32L0x1
+#endif
+
+#ifndef LIBOHIBOARD_STM32L081
+#define LIBOHIBOARD_STM32L081
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
 #endif
 
 #elif defined (LIBOHIBOARD_STM32L476RxT) || \
