@@ -186,6 +186,10 @@ typedef struct Iic_Device* Iic_DeviceHandle;
 
 #include "hardware/PIC24FJ/i2c_PIC24FJ.h"
 
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/NXPMKL/i2c_MKL.h"
+
 #else
 
 typedef enum
@@ -424,17 +428,6 @@ System_Errors Iic_readBytes (Iic_DeviceHandle dev, uint8_t address,
 
 #if defined (LIBOHIBOARD_KL03Z4)     || \
     defined (LIBOHIBOARD_FRDMKL03Z)
-
-#elif defined (LIBOHIBOARD_KL15Z4)
-
-extern Iic_DeviceHandle OB_IIC0;
-extern Iic_DeviceHandle OB_IIC1;
-
-#elif defined (LIBOHIBOARD_KL25Z4) || \
-	  defined (LIBOHIBOARD_FRDMKL25Z)
-
-extern Iic_DeviceHandle OB_IIC0;
-extern Iic_DeviceHandle OB_IIC1;
 
 #elif defined (LIBOHIBOARD_K10D7)   || \
       defined (LIBOHIBOARD_K10D10)  || \

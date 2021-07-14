@@ -105,6 +105,7 @@
       defined (LIBOHIBOARD_MKL15ZxLK)
 
 #include "platforms/MKL15/MKL15Z4.h"
+#include "platforms/MKL15/MKL15Z4_features.h"
 
 #ifndef LIBOHIBOARD_MKL
 #define LIBOHIBOARD_MKL

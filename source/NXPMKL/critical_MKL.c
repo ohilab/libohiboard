@@ -1,12 +1,11 @@
 /*
  * This file is part of the libohiboard project.
- *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
  * 
+ * Copyright (C) 2020 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,36 +26,38 @@
  */
 
 /**
- * @file libohiboard/include/errors.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/source/NXPMKL/critical_MKL.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Errors definition
+ * @brief Function for implementing Critical Section on NXP MKL series.
  */
 
-#include "platforms.h"
-#include "errors.h"
+#if defined(LIBOHIBOARD_CRITICAL)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-System_Errors Errors_assert (const char* file, const int line)
+#include "platforms.h"
+#include "critical.h"
+#include "utility.h"
+
+#if defined (LIBOHIBOARD_MKL)
+
+inline void Critical_sectionBegin (uint32_t* mask)
 {
-    (void)file;
-    (void)line;
-    /* Set breakpoint to control the execution! */
-#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
-    __builtin_software_breakpoint();
-    __builtin_nop();
-#endif
-#if defined LIBOHIBOARD_ST_STM32 || \
-    defined LIBOHIBOARD_NXP_KINETIS
-    asm("BKPT #1");
-    asm("NOP");
-#endif
-    return ERRORS_ASSERT;
+    *mask = __get_PRIMASK( );
+    __disable_irq( );
 }
+
+inline void Critical_sectionEnd (uint32_t* mask)
+{
+    __set_PRIMASK( *mask );
+}
+
+#endif // LIBOHIBOARD_MKL
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // LIBOHIBOARD_CRITICAL

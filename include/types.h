@@ -52,6 +52,11 @@ typedef void (*pFunc)(void);
 
 typedef void (*pFuncPtrParam)(void *);
 
+typedef void (*pFuncU8Param) (uint8_t param);
+typedef void (*pFuncU8PParam) (uint8_t* param);
+
+typedef void (*pFuncCharParam) (char param);
+
 typedef void (*pFuncU32Param) (uint32_t param);
 typedef void (*pFuncU32Param2)(uint32_t param1, uint32_t param2);
 typedef void (*pFuncU32Param3)(uint32_t param1, uint32_t param2, uint32_t param3);
@@ -187,6 +192,10 @@ typedef void (*pFuncArrayParam)(void *data, size_t length);
 #ifndef __persistent
 #define __persistent        __attribute__((persistent))
 #endif // __persistent
+
+#ifndef __ramcode
+#define __ramcode           __attribute__ ((long_call, section(".ramcode")))
+#endif
 
 #ifndef null
 #define null NULL

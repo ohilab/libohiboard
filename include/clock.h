@@ -177,6 +177,7 @@ typedef enum _Clock_Output
 #if defined (LIBOHIBOARD_MKL)
     CLOCK_OUTPUT_MCG      = 0x0002,
     CLOCK_OUTPUT_INTERNAL = 0x0004,
+    CLOCK_OUTPUT_BUS      = 0x0008,
 #endif
 
 #endif
@@ -686,6 +687,13 @@ uint32_t Clock_getOscillatorValue (void);
  * @return value of SYSCLK clock.
  */
 uint32_t Clock_getConfigOscillatorValue (Clock_Config *config);
+
+#if defined (LIBOHIBOARD_MKL)
+/**
+ * Enable the internal reference clock for use as MCGIRCLK.
+ */
+void Clock_enableInternalReferenceClock (void);
+#endif
 
 #if defined (LIBOHIBOARD_K10D10)       || \
     defined (LIBOHIBOARD_K10D7)        || \
