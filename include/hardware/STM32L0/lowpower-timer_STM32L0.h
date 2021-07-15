@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -42,14 +42,15 @@ extern "C" {
 
 #if defined (LIBOHIBOARD_STM32L0) && defined (LIBOHIBOARD_LOWPOWER_TIMER)
 
-#if defined (LIBOHIBOARD_STM32L0x3) || \
-    defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1) || \
+    defined (LIBOHIBOARD_STM32L0x2) || \
+    defined (LIBOHIBOARD_STM32L0x3)
 
 extern LowPowerTimer_DeviceHandle OB_LPTIM1;
 
 void LPTIM1_IRQHandler (void);
 
-#endif // defined(LIBOHIBOARD_STM32L0x3) || (LIBOHIBOARD_STM32L0x2)
+#endif // LIBOHIBOARD_STM32L0x1 || LIBOHIBOARD_STM32L0x2 || LIBOHIBOARD_STM32L0x3
 
 #endif // LIBOHIBOARD_STM32L0 && LIBOHIBOARD_LOWPOWER_TIMER
 
