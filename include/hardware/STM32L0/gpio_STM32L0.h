@@ -83,7 +83,7 @@ typedef enum
     GPIO_PINS_PA12,
     GPIO_PINS_PA13, // JTMS-SWDIO
     GPIO_PINS_PA14, // JTCK-SWCLK
-#if !defined (LIBOHIBOARD_STM32L071KxU) || \
+#if !defined (LIBOHIBOARD_STM32L071KxU)
     GPIO_PINS_PA15,
 #endif
 
