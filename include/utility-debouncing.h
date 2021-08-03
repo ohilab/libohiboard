@@ -62,6 +62,8 @@ typedef struct _UtilityDeboucing_Config
  */
 System_Errors UtilityDebouncing_debounce (Gpio_Pins pin, UtilityDeboucing_Config* config);
 
+System_Errors UtilityDebouncing_countinuousDebounce (Gpio_Pins pin, UtilityDeboucing_Config* config);
+
 #ifdef __cplusplus
 }
 #endif
