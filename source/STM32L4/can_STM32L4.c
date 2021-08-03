@@ -42,7 +42,7 @@ extern "C" {
 #if defined (LIBOHIBOARD_STM32L4)
 
 #include "can.h"
-
+#include "interrupt.h"
 
 typedef struct _Can_Device
 {
@@ -142,7 +142,7 @@ System_Errors Can_start (Can_DeviceHandle dev)
 
 }
 
-System_Errors Can_stop (Adc_DeviceHandle dev)
+System_Errors Can_stop (Can_DeviceHandle dev)
 {
 
 }
