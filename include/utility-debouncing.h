@@ -43,7 +43,11 @@ typedef struct _UtilityDeboucing_Config
     uint32_t holdTime;
     uint32_t debounceTime;
 
+    uint32_t holdLongTime;
+    bool     holdLongEnable;
+
     uint32_t count;
+    uint32_t countLong;
     uint32_t countTimeout;
 
     Gpio_Level holdLevel;
