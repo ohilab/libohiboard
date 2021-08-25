@@ -143,6 +143,22 @@ uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t s
 int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
 
 /* *****************************************************************************
+ *   Useful types
+ * *****************************************************************************/
+
+typedef union _Utility_4Byte
+{
+    uint8_t  b[4];
+    uint32_t d;
+} __packed Utility_4Byte;
+
+typedef union _Utility_2Byte
+{
+    uint8_t  b[2];
+    uint16_t d;
+} __packed Utility_2Byte;
+
+/* *****************************************************************************
  *   BCD value management
  * *****************************************************************************/
 
