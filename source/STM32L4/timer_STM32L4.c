@@ -737,7 +737,6 @@ static Timer_Device tim4 =
     defined (LIBOHIBOARD_STM32L476QxI) || \
     defined (LIBOHIBOARD_STM32L476ZxT) || \
     defined (LIBOHIBOARD_STM32L476ZxJ)
-                               {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
