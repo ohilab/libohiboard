@@ -143,6 +143,26 @@ uint8_t stringCompareBySize (const char* string1, const char* string2, uint8_t s
 int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
 
 /* *****************************************************************************
+ *   Useful types management
+ * *****************************************************************************/
+
+/**
+ * Compose an 16 bit integer type starting from two 8 bit integer type numbers.
+ */
+#define UTILITY_BUILD_UINT16(loByte, hiByte) ((uint16_t)((((uint16_t)loByte) & 0x00FF) + ((((uint16_t)hiByte) & 0x00FF) << 8)))
+
+/**
+ * Retrieve the most significant byte of a 16 bit integer type
+ */
+#define UTILITY_HI_UINT16(a) (((a) >> 8) & 0xFF)
+/**
+ * Retrieve the least significant byte of a 16 bit integer type
+ */
+#define UTILITY_LO_UINT16(a) ((a) & 0xFF)
+
+#define UTILITY_SWAP_UINT16(x) (((x) >> 8) | ((x) << 8))
+
+/* *****************************************************************************
  *   Useful types
  * *****************************************************************************/
 
