@@ -303,8 +303,10 @@ typedef enum
     GPIO_PINS_PA3,
     GPIO_PINS_PA4,
     GPIO_PINS_PA5,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PA6,
     GPIO_PINS_PA7,
+#endif
     GPIO_PINS_PA8,
     GPIO_PINS_PA9,
     GPIO_PINS_PA10,
@@ -323,15 +325,18 @@ typedef enum
     GPIO_PINS_PA15,
 #endif
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB0,
     GPIO_PINS_PB1,
+#endif
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
     defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB2,
 #endif
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
@@ -344,7 +349,9 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PB3,
 #endif
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB4,
+#endif
     GPIO_PINS_PB5,
     GPIO_PINS_PB6,
     GPIO_PINS_PB7,
@@ -354,11 +361,14 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB8,
     GPIO_PINS_PB9,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB10,
     GPIO_PINS_PB11,
+#endif
     GPIO_PINS_PB12,
     GPIO_PINS_PB13,
     GPIO_PINS_PB14,
@@ -370,8 +380,11 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PC0,
+#endif
     GPIO_PINS_PC1,
     GPIO_PINS_PC2,
 #endif
@@ -404,8 +417,10 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PC13,
 #endif
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PC14,
     GPIO_PINS_PC15,
+#endif
 
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
@@ -462,7 +477,8 @@ typedef enum
 	defined (LIBOHIBOARD_STM32L072RxI) || \
 	defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PH0,
     GPIO_PINS_PH1,
 #endif
