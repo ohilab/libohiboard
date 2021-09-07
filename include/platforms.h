@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2021 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -139,26 +139,31 @@
 #define LIBOHIBOARD_NXP_KINETIS
 #endif
 
-#elif defined (LIBOHIBOARD_STM32L073RxT) || \
-      defined (LIBOHIBOARD_STM32L073RxI) || \
-      defined (LIBOHIBOARD_STM32L073CxT) || \
-      defined (LIBOHIBOARD_STM32L073VxT) || \
-      defined (LIBOHIBOARD_STM32L073VxI)
+#elif defined (LIBOHIBOARD_STM32L071CxT) || \
+      defined (LIBOHIBOARD_STM32L071CxU) || \
+      defined (LIBOHIBOARD_STM32L071KxT) || \
+      defined (LIBOHIBOARD_STM32L071KxU) || \
+      defined (LIBOHIBOARD_STM32L071CxY) || \
+      defined (LIBOHIBOARD_STM32L071RxT) || \
+      defined (LIBOHIBOARD_STM32L071RxH) || \
+      defined (LIBOHIBOARD_STM32L071VxT) || \
+      defined (LIBOHIBOARD_STM32L071VxI)
 
-#include "platforms/STM32L073/stm32l073xx.h"
-#include "platforms/STM32L073/stm32l0xx.h"
-#include "platforms/STM32L073/system_stm32l0xx.h"
+
+#include "platforms/STM32L071/stm32l071xx.h"
+#include "platforms/STM32L071/stm32l0xx.h"
+#include "platforms/STM32L071/system_stm32l0xx.h"
 
 #ifndef LIBOHIBOARD_STM32L0
 #define LIBOHIBOARD_STM32L0
 #endif
 
-#ifndef LIBOHIBOARD_STM32L0x3
-#define LIBOHIBOARD_STM32L0x3
+#ifndef LIBOHIBOARD_STM32L0x1
+#define LIBOHIBOARD_STM32L0x1
 #endif
 
-#ifndef LIBOHIBOARD_STM32L073
-#define LIBOHIBOARD_STM32L073
+#ifndef LIBOHIBOARD_STM32L071
+#define LIBOHIBOARD_STM32L071
 #endif
 
 #ifndef LIBOHIBOARD_ST_STM32
@@ -203,6 +208,57 @@
 #ifndef LIBOHIBOARD_MURATA_STM32
 #define LIBOHIBOARD_MURATA_STM32
 #endif
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L073RxT) || \
+      defined (LIBOHIBOARD_STM32L073RxI) || \
+      defined (LIBOHIBOARD_STM32L073CxT) || \
+      defined (LIBOHIBOARD_STM32L073VxT) || \
+      defined (LIBOHIBOARD_STM32L073VxI)
+
+#include "platforms/STM32L073/stm32l073xx.h"
+#include "platforms/STM32L073/stm32l0xx.h"
+#include "platforms/STM32L073/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L0x3
+#define LIBOHIBOARD_STM32L0x3
+#endif
+
+#ifndef LIBOHIBOARD_STM32L073
+#define LIBOHIBOARD_STM32L073
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L081CxT) || \
+      defined (LIBOHIBOARD_STM32L081CxU) || \
+      defined (LIBOHIBOARD_STM32L081KxT) || \
+      defined (LIBOHIBOARD_STM32L081KxU)
+
+#include "platforms/STM32L081/stm32l081xx.h"
+#include "platforms/STM32L081/stm32l0xx.h"
+#include "platforms/STM32L081/system_stm32l0xx.h"
+
+#ifndef LIBOHIBOARD_STM32L0
+#define LIBOHIBOARD_STM32L0
+#endif
+
+#ifndef LIBOHIBOARD_STM32L0x1
+#define LIBOHIBOARD_STM32L0x1
+#endif
+
+#ifndef LIBOHIBOARD_STM32L081
+#define LIBOHIBOARD_STM32L081
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
 #endif
 
 #elif defined (LIBOHIBOARD_STM32L476RxT) || \

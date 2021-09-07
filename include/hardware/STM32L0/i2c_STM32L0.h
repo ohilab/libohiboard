@@ -98,6 +98,19 @@ extern "C" {
  */
 typedef enum _Iic_SclPins
 {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    IIC_PINS_PA8,
+    IIC_PINS_PA9,
+
+    IIC_PINS_PB6,
+    IIC_PINS_PB8,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    IIC_PINS_PB10,
+    IIC_PINS_PB13,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
     IIC_PINS_PA8,
@@ -116,6 +129,7 @@ typedef enum _Iic_SclPins
 #endif
 
 #endif // LIBOHIBOARD_STM32L073
+#endif // LIBOHIBOARD_STM32L0x3
 
     IIC_PINS_SCLNONE,
 
@@ -126,6 +140,20 @@ typedef enum _Iic_SclPins
  */
 typedef enum _Iic_SdaPins
 {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    IIC_PINS_PA10,
+
+    IIC_PINS_PB4,
+    IIC_PINS_PB7,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    IIC_PINS_PB9,
+    IIC_PINS_PB11,
+    IIC_PINS_PB14,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
+
 #if defined (LIBOHIBOARD_STM32L073)
 
     IIC_PINS_PA10,
@@ -145,19 +173,19 @@ typedef enum _Iic_SdaPins
 #endif
 
 #endif // LIBOHIBOARD_STM32L073
+#endif // LIBOHIBOARD_STM32L0x3
 
     IIC_PINS_SDANONE,
 
 } Iic_SdaPins;
 
 
-#if defined (LIBOHIBOARD_STM32L073)
-
 extern Iic_DeviceHandle OB_IIC1;
+#if !defined (LIBOHIBOARD_STM32L081KxT) && \
+    !defined (LIBOHIBOARD_STM32L081KxU)
 extern Iic_DeviceHandle OB_IIC2;
-extern Iic_DeviceHandle OB_IIC3;
-
 #endif
+extern Iic_DeviceHandle OB_IIC3;
 
 /**
  * @}

@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -115,8 +115,9 @@ typedef struct _LowPowerTimer_Device
 
 } LowPowerTimer_Device;
 
-#if defined (LIBOHIBOARD_STM32L0x3) || \
-    defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1) || \
+    defined (LIBOHIBOARD_STM32L0x2) || \
+    defined (LIBOHIBOARD_STM32L0x3)
 
 #define LOWPOWERTIMER_IS_DEVICE(DEVICE) ((DEVICE) == OB_LPTIM1)
 
@@ -137,7 +138,7 @@ static LowPowerTimer_Device lptim1 =
 };
 LowPowerTimer_DeviceHandle OB_LPTIM1 = &lptim1;
 
-#endif // LIBOHIBOARD_STM32L073
+#endif
 
 const LowPowerTimer_ClockPrescaler LOWPOWERTIMER_PRESCALER_REGISTER_TABLE[8] =
 {
