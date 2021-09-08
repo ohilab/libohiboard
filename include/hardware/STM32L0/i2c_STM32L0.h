@@ -110,6 +110,11 @@ typedef enum _Iic_SclPins
     IIC_PINS_PB13,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    IIC_PINS_PB8,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -150,6 +155,11 @@ typedef enum _Iic_SdaPins
     IIC_PINS_PB9,
     IIC_PINS_PB11,
     IIC_PINS_PB14,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+	IIC_PINS_PB9,
 #endif
 
 #elif defined (LIBOHIBOARD_STM32L0x3)

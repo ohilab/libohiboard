@@ -96,8 +96,9 @@ typedef enum _Uart_RxPins
 #elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
-
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     UART_PINS_PA1_RX,
+#endif
     UART_PINS_PA3,
     UART_PINS_PA10,
     UART_PINS_PA13,
@@ -112,8 +113,10 @@ typedef enum _Uart_RxPins
     UART_PINS_PA15_RX,
 #endif
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     UART_PINS_PB4_RX,
     UART_PINS_PB7_RX,
+#endif
 
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -239,7 +242,9 @@ typedef enum _Uart_TxPins
 
 #if defined (LIBOHIBOARD_STM32L072)
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     UART_PINS_PA0_TX,
+#endif
     UART_PINS_PA2,
     UART_PINS_PA9,
     UART_PINS_PA14,
@@ -254,7 +259,10 @@ typedef enum _Uart_TxPins
     defined (LIBOHIBOARD_STM32L072VxI)
     UART_PINS_PB3_TX,
 #endif
+
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     UART_PINS_PB6,
+#endif
 
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -363,6 +371,7 @@ typedef enum _Uart_CtsPins
 #elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 
     UART_PINS_PA0_CTS,
     UART_PINS_PA6_CTS,
@@ -384,6 +393,8 @@ typedef enum _Uart_CtsPins
     UART_PINS_PD3,
     UART_PINS_PD11,
 #endif
+
+#endif // LIBOHIBOARD_CMWX1ZZABZ_091
 
 #endif
 
@@ -428,9 +439,11 @@ typedef enum _Uart_RtsPins
 #elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 
     UART_PINS_PA1_RTS,
     UART_PINS_PA12,
+
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
     defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -478,6 +491,8 @@ typedef enum _Uart_RtsPins
     UART_PINS_PD12,
     UART_PINS_PE7,
 #endif
+
+#endif // LIBOHIBOARD_CMWX1ZZABZ_091
 
 #endif
 

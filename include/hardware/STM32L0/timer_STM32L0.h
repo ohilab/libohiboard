@@ -102,8 +102,11 @@ typedef enum
     TIMER_PINS_PA2,
     TIMER_PINS_PA3,
     TIMER_PINS_PA5,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     TIMER_PINS_PA6,
     TIMER_PINS_PA7,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
     defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -115,8 +118,11 @@ typedef enum
     TIMER_PINS_PA15,
 #endif
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     TIMER_PINS_PB0,
     TIMER_PINS_PB1,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
     defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -127,7 +133,9 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072VxI)
     TIMER_PINS_PB3,
 #endif
-    TIMER_PINS_PB4,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+	TIMER_PINS_PB4,
+#endif
     TIMER_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \

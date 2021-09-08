@@ -429,11 +429,13 @@ static Timer_Device tim3 =
 
         .pins             =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_PINS_PA6,
                                TIMER_PINS_PA7,
                                TIMER_PINS_PB0,
                                TIMER_PINS_PB1,
                                TIMER_PINS_PB4,
+#endif
                                TIMER_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
@@ -481,12 +483,14 @@ static Timer_Device tim3 =
         },
         .pinsGpio         =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA6,
                                GPIO_PINS_PA7,
                                GPIO_PINS_PB0,
                                GPIO_PINS_PB1,
                                GPIO_PINS_PB4,
-                               GPIO_PINS_PB5,
+#endif
+							   GPIO_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
@@ -507,11 +511,13 @@ static Timer_Device tim3 =
         },
         .pinsMux          =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
+#endif
                                GPIO_ALTERNATE_4,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
@@ -709,9 +715,11 @@ static Timer_Device tim22 =
 
         .pins                =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_PINS_PA6,
                                TIMER_PINS_PA7,
                                TIMER_PINS_PB4,
+#endif
                                TIMER_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
@@ -729,10 +737,12 @@ static Timer_Device tim22 =
         },
         .pinsChannel         =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH1,
-                               TIMER_CHANNELS_CH2,
+#endif
+							   TIMER_CHANNELS_CH2,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
@@ -749,9 +759,11 @@ static Timer_Device tim22 =
         },
         .pinsGpio            =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA6,
                                GPIO_PINS_PA7,
                                GPIO_PINS_PB4,
+#endif
                                GPIO_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
@@ -769,9 +781,11 @@ static Timer_Device tim22 =
         },
         .pinsMux             =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_5,
                                GPIO_ALTERNATE_5,
                                GPIO_ALTERNATE_4,
+#endif
                                GPIO_ALTERNATE_4,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \

@@ -79,6 +79,11 @@ typedef enum _Spi_PcsPins
     SPI_PINS_PB12,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB12,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -116,6 +121,11 @@ typedef enum _Spi_SoutPins
     SPI_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
+    SPI_PINS_PB15,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     SPI_PINS_PB15,
 #endif
 
@@ -160,6 +170,11 @@ typedef enum _Spi_SinPins
     SPI_PINS_PB4,
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
+    SPI_PINS_PB14,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     SPI_PINS_PB14,
 #endif
 
@@ -213,6 +228,11 @@ typedef enum _Spi_SckPins
     SPI_PINS_PB13,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB13,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -237,10 +257,12 @@ typedef enum _Spi_SckPins
 } Spi_SckPins;
 
 
+
 extern Spi_DeviceHandle OB_SPI1;
 #if defined (LIBOHIBOARD_STM32L073)    || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 extern Spi_DeviceHandle OB_SPI2;
 #endif
 

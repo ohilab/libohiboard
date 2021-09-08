@@ -171,56 +171,74 @@ static Iic_Device iic1 =
 
         .sclPins              =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                IIC_PINS_PA9,
                                IIC_PINS_PB6,
+#endif
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                IIC_PINS_PB8,
 #endif
         },
         .sclPinsGpio          =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA9,
                                GPIO_PINS_PB6,
+#endif
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB8,
 #endif
         },
         .sclPinsMux           =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_1,
+#endif
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_4,
 #endif
         },
 
         .sdaPins              =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                IIC_PINS_PA10,
                                IIC_PINS_PB7,
+#endif
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                IIC_PINS_PB9,
 #endif
         },
         .sdaPinsGpio          =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA10,
                                GPIO_PINS_PB7,
+#endif
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB9,
 #endif
         },
         .sdaPinsMux           =
         {
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_1,
+#endif
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_4,
 #endif
         },
@@ -230,7 +248,8 @@ static Iic_Device iic1 =
 Iic_DeviceHandle OB_IIC1 = &iic1;
 
 #if !defined (LIBOHIBOARD_STM32L081KxT) && \
-    !defined (LIBOHIBOARD_STM32L081KxU)
+    !defined (LIBOHIBOARD_STM32L081KxU) && \
+	!defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 static Iic_Device iic2 =
 {
         .regmap               = I2C2,
@@ -280,6 +299,7 @@ static Iic_Device iic2 =
 Iic_DeviceHandle OB_IIC2 = &iic2;
 #endif
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 static Iic_Device iic3 =
 {
         .regmap               = I2C3,
@@ -359,7 +379,7 @@ static Iic_Device iic3 =
         .state                = IIC_DEVICESTATE_RESET,
 };
 Iic_DeviceHandle OB_IIC3 = &iic3;
-
+#endif //LIBOHIBOARD_CMWX1ZZABZ_091
 
 #define IIC_PIN_CONFIGURATION             (GPIO_PINS_PULL                    | \
                                            GPIO_PINS_ENABLE_PULLUP           | \
