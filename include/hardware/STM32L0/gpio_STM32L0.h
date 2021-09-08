@@ -336,7 +336,7 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB2,
 #endif
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
@@ -362,7 +362,7 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PB8,
     GPIO_PINS_PB9,
 #if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
@@ -380,11 +380,8 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PC0,
-#endif
     GPIO_PINS_PC1,
     GPIO_PINS_PC2,
 #endif
@@ -395,7 +392,7 @@ typedef enum
 #endif
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
-	defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PC4,
@@ -429,7 +426,7 @@ typedef enum
 #endif
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxI) || \
-	defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PD2,
@@ -474,11 +471,11 @@ typedef enum
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
     defined (LIBOHIBOARD_STM32L072RxT) || \
-	defined (LIBOHIBOARD_STM32L072RxI) || \
-	defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PH0,
     GPIO_PINS_PH1,
 #endif
