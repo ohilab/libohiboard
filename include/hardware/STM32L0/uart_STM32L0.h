@@ -523,12 +523,16 @@ extern Uart_DeviceHandle OB_LPUART1;
 void RNG_LPUART1_IRQHandler(void);
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 void USART4_5_IRQHandler(void);
+#endif
 
 extern Uart_DeviceHandle OB_UART1;
 extern Uart_DeviceHandle OB_UART2;
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 extern Uart_DeviceHandle OB_UART4;
 extern Uart_DeviceHandle OB_UART5;
+#endif
 extern Uart_DeviceHandle OB_LPUART1;
 
 #endif
