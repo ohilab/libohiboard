@@ -298,7 +298,7 @@ typedef enum
 #if defined (LIBOHIBOARD_STM32L072)
 
     GPIO_PINS_PA0,
-    GPIO_PINS_PA1,
+    GPIO_PINS_PA1, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
     GPIO_PINS_PA2,
     GPIO_PINS_PA3,
     GPIO_PINS_PA4,
@@ -321,14 +321,13 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
-    GPIO_PINS_PA15,
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    GPIO_PINS_PA15, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
 
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-    GPIO_PINS_PB0,
-    GPIO_PINS_PB1,
-#endif
+    GPIO_PINS_PB0, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+    GPIO_PINS_PB1, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
     defined (LIBOHIBOARD_STM32L072RxT) || \
@@ -349,9 +348,7 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072VxI)
     GPIO_PINS_PB3,
 #endif
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-    GPIO_PINS_PB4,
-#endif
+    GPIO_PINS_PB4, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
     GPIO_PINS_PB5,
     GPIO_PINS_PB6,
     GPIO_PINS_PB7,
@@ -380,10 +377,11 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
-    GPIO_PINS_PC0,
-    GPIO_PINS_PC1,
-    GPIO_PINS_PC2,
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    GPIO_PINS_PC0, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+    GPIO_PINS_PC1, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+    GPIO_PINS_PC2, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
@@ -411,8 +409,9 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
-    GPIO_PINS_PC13,
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    GPIO_PINS_PC13, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
 #if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     GPIO_PINS_PC14,

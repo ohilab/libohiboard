@@ -425,14 +425,13 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_A,15,0},
 #endif
 
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_B,0,1},
     {GPIO_PORTS_B,1,1},
-#endif
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
     defined (LIBOHIBOARD_STM32L072RxT) || \
@@ -453,9 +452,7 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072VxI)
     {GPIO_PORTS_B,3,1},
 #endif
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_B,4,1},
-#endif
     {GPIO_PORTS_B,5,1},
     {GPIO_PORTS_B,6,1},
     {GPIO_PORTS_B,7,1},
@@ -484,7 +481,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_C,0,2},
     {GPIO_PORTS_C,1,2},
     {GPIO_PORTS_C,2,2},
@@ -515,7 +513,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_C,13,2},
 #endif
 #if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
