@@ -60,6 +60,34 @@ typedef enum _Adc_Pins
     ADC_PINS_PB0, //IN8
     ADC_PINS_PB1, //IN9
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+#if defined(LIBOHIBOARD_STM32L072)
+
+    ADC_PINS_PA0, //IN0
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    ADC_PINS_PA1, //IN1
+#endif
+    ADC_PINS_PA2, //IN2
+    ADC_PINS_PA3, //IN3
+    ADC_PINS_PA4, //IN4
+    ADC_PINS_PA5, //IN5
+    ADC_PINS_PA6, //IN6 // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+    ADC_PINS_PA7, //IN7 // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+
+    ADC_PINS_PB0, //IN8 // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+    ADC_PINS_PB1, //IN9 // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    ADC_PINS_PC0, //IN10
+    ADC_PINS_PC1, //IN11
+    ADC_PINS_PC2, //IN12
+    ADC_PINS_PC3, //IN13
+    ADC_PINS_PC4, //IN14
+    ADC_PINS_PC5, //IN15
+#endif
+#endif //LIBOHIBOARD_STM32L072
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 
 #if defined (LIBOHIBOARD_STM32L073)
@@ -98,7 +126,9 @@ typedef enum _Adc_Pins
 typedef enum _Adc_Channels
 {
     ADC_CHANNELS_CH0         = ((uint32_t)(ADC_CHSELR_CHSEL0)),
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     ADC_CHANNELS_CH1         = ((uint32_t)(ADC_CHSELR_CHSEL1) | ADC_CFGR1_AWDCH_0),
+#endif
     ADC_CHANNELS_CH2         = ((uint32_t)(ADC_CHSELR_CHSEL2) | ADC_CFGR1_AWDCH_1),
     ADC_CHANNELS_CH3         = ((uint32_t)(ADC_CHSELR_CHSEL3) | ADC_CFGR1_AWDCH_1 | ADC_CFGR1_AWDCH_0),
     ADC_CHANNELS_CH4         = ((uint32_t)(ADC_CHSELR_CHSEL4) | ADC_CFGR1_AWDCH_2),
@@ -107,6 +137,17 @@ typedef enum _Adc_Channels
     ADC_CHANNELS_CH7         = ((uint32_t)(ADC_CHSELR_CHSEL7) | ADC_CFGR1_AWDCH_2 | ADC_CFGR1_AWDCH_1 | ADC_CFGR1_AWDCH_0),
     ADC_CHANNELS_CH8         = ((uint32_t)(ADC_CHSELR_CHSEL8) | ADC_CFGR1_AWDCH_3),
     ADC_CHANNELS_CH9         = ((uint32_t)(ADC_CHSELR_CHSEL9) | ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_0),
+#if defined (LIBOHIBOARD_STM32L072)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    ADC_CHANNELS_CH10        = ((uint32_t)(ADC_CHSELR_CHSEL10)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_1),
+    ADC_CHANNELS_CH11        = ((uint32_t)(ADC_CHSELR_CHSEL11)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_1 | ADC_CFGR1_AWDCH_0),
+    ADC_CHANNELS_CH12        = ((uint32_t)(ADC_CHSELR_CHSEL12)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_2),
+    ADC_CHANNELS_CH13        = ((uint32_t)(ADC_CHSELR_CHSEL13)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_2 | ADC_CFGR1_AWDCH_0),
+    ADC_CHANNELS_CH14        = ((uint32_t)(ADC_CHSELR_CHSEL14)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_2 | ADC_CFGR1_AWDCH_1),
+    ADC_CHANNELS_CH15        = ((uint32_t)(ADC_CHSELR_CHSEL15)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_2 | ADC_CFGR1_AWDCH_1| ADC_CFGR1_AWDCH_0),
+#endif
+#endif
+
 #if defined (LIBOHIBOARD_STM32L0x3)
     ADC_CHANNELS_CH10        = ((uint32_t)(ADC_CHSELR_CHSEL10)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_1),
     ADC_CHANNELS_CH11        = ((uint32_t)(ADC_CHSELR_CHSEL11)| ADC_CFGR1_AWDCH_3 | ADC_CFGR1_AWDCH_1 | ADC_CFGR1_AWDCH_0),
@@ -171,6 +212,25 @@ void ADC1_COMP_IRQHandler (void);
 #define ADC_TEMPERATURE_CAL2_ADDR          ((uint16_t*)(0x1FF8007Eul))
 #define ADC_TEMPERATURE_CAL1               (30ul)
 #define ADC_TEMPERATURE_CAL2               (130ul)
+
+#elif defined LIBOHIBOARD_STM32L0x2
+#if defined LIBOHIBOARD_STM32L072
+
+extern Adc_DeviceHandle OB_ADC1;
+
+void ADC_COMP_IRQHandler (void);
+
+//#define ADC_VREFINT_CAL_ADDR               ((uint16_t*)(0x1FFF75AAul))
+#define ADC_VREFINT_CAL                    (3000ul)
+#define ADC_BANDGAP_VALUE                  (1.224f) //from 1.202 Volt to 1.242 Volt
+
+#define ADC_CALIBRATION_TIMEOUT            10U
+
+#define ADC_TEMPERATURE_CAL1_ADDR          ((uint16_t*)(0x1FF8007Aul))
+#define ADC_TEMPERATURE_CAL2_ADDR          ((uint16_t*)(0x1FF8007Eul))
+#define ADC_TEMPERATURE_CAL1               (30ul)
+#define ADC_TEMPERATURE_CAL2               (130ul)
+#endif //LIBOHIBOARD_STM32L072
 
 #elif defined LIBOHIBOARD_STM32L0x3
 
