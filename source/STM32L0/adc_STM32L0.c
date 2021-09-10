@@ -233,9 +233,7 @@ static Adc_Device adc1 =
                                ADC_PINS_PB1,
 #elif defined (LIBOHIBOARD_STM32L0x2)
                                ADC_PINS_PA0,
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                ADC_PINS_PA1,
-#endif
                                ADC_PINS_PA2,
                                ADC_PINS_PA3,
                                ADC_PINS_PA4,
@@ -245,10 +243,10 @@ static Adc_Device adc1 =
                                ADC_PINS_PB0,
                                ADC_PINS_PB1,
 #if defined (LIBOHIBOARD_STM32L072)
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                ADC_PINS_PC0,
                                ADC_PINS_PC1,
                                ADC_PINS_PC2,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                ADC_PINS_PC3,
                                ADC_PINS_PC4,
                                ADC_PINS_PC5,
@@ -294,9 +292,7 @@ static Adc_Device adc1 =
                                ADC_CHANNELS_CH9,
 #elif defined (LIBOHIBOARD_STM32L0x2)
                                ADC_CHANNELS_CH0,
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                ADC_CHANNELS_CH1,
-#endif
                                ADC_CHANNELS_CH2,
                                ADC_CHANNELS_CH3,
                                ADC_CHANNELS_CH4,
@@ -306,10 +302,10 @@ static Adc_Device adc1 =
                                ADC_CHANNELS_CH8,
                                ADC_CHANNELS_CH9,
 #if defined (LIBOHIBOARD_STM32L072)
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                ADC_CHANNELS_CH10,
                                ADC_CHANNELS_CH11,
                                ADC_CHANNELS_CH12,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                ADC_CHANNELS_CH13,
                                ADC_CHANNELS_CH14,
                                ADC_CHANNELS_CH15,
@@ -355,9 +351,7 @@ static Adc_Device adc1 =
                                GPIO_PINS_PB1,
 #elif defined (LIBOHIBOARD_STM32L0x2)
                                GPIO_PINS_PA0,
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA1,
-#endif
                                GPIO_PINS_PA2,
                                GPIO_PINS_PA3,
                                GPIO_PINS_PA4,
@@ -367,10 +361,10 @@ static Adc_Device adc1 =
                                GPIO_PINS_PB0,
                                GPIO_PINS_PB1,
 #if defined (LIBOHIBOARD_STM32L072)
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PC0,
                                GPIO_PINS_PC1,
                                GPIO_PINS_PC2,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PC3,
                                GPIO_PINS_PC4,
                                GPIO_PINS_PC5,
@@ -453,6 +447,9 @@ Adc_DeviceHandle OB_ADC1 = &adc1;
                                         ((CHANNEL) == ADC_CHANNELS_CH7)        || \
                                         ((CHANNEL) == ADC_CHANNELS_CH8)        || \
                                         ((CHANNEL) == ADC_CHANNELS_CH9)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH10)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH11)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH12)       || \
                                         ((CHANNEL) == ADC_CHANNELS_TEMPERATURE)|| \
                                         ((CHANNEL) == ADC_CHANNELS_VLCD))
 #endif //LIBOHIBOARD_CMWX1ZZABZ_091
