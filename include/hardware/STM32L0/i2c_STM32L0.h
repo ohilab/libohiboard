@@ -254,7 +254,9 @@ extern Iic_DeviceHandle OB_IIC1;
     !defined (LIBOHIBOARD_STM32L081KxU)
 extern Iic_DeviceHandle OB_IIC2;
 #endif
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 extern Iic_DeviceHandle OB_IIC3;
+#endif
 
 /**
  * @}

@@ -114,7 +114,7 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     TIMER_PINS_PA15, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
 
@@ -129,10 +129,10 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     TIMER_PINS_PB3, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
-	TIMER_PINS_PB4, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+    TIMER_PINS_PB4, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
     TIMER_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -141,7 +141,7 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     TIMER_PINS_PB10,
     TIMER_PINS_PB11,
