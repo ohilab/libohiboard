@@ -108,12 +108,16 @@ extern "C" {
 
 
 #if defined (LIBOHIBOARD_STM32L073) || \
-	defined (LIBOHIBOARD_STM32L072) || \
-	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    defined (LIBOHIBOARD_STM32L072)
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
                                ((DEVICE) == OB_IIC2)  || \
                                ((DEVICE) == OB_IIC3))
+#else
+#define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
+                               ((DEVICE) == OB_IIC2))
+#endif
 
 #endif
 
