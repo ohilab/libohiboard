@@ -90,6 +90,10 @@ typedef enum _Dac_DeviceState
 
 #include "hardware/STM32L4/dac_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/dac_STM32L0.h"
+
 #else
 
 typedef enum {
@@ -209,6 +213,11 @@ typedef enum _Dac_Resolution
     // TODO
 
 #endif
+
+#if defined (LIBOHIBOARD_STM32L0)
+    DAC_RESOLUTION_12BIT = 0x00000000u,
+    DAC_RESOLUTION_8BIT  = ADC_CFGR1_RES_1,
+#endif
 #if defined (LIBOHIBOARD_STM32L4)
     DAC_RESOLUTION_12BIT = 0x00000000u,
     DAC_RESOLUTION_8BIT  = ADC_CFGR_RES_1,
@@ -234,6 +243,23 @@ typedef enum _Dac_Trigger
 {
     /** Conversion start automatically after value has been loaded. */
     DAC_TRIGGER_NONE         = (0x00000000u),
+
+#if defined(LIBOHIBOARD_STM32L0)
+
+#if defined(LIBOHIBOARD_STM32L072)
+
+    DAC_TRIGGER_TIM6_TRGO    = (DAC_CR_TEN1),
+    DAC_TRIGGER_TIM8_TRGO    = (DAC_CR_TEN1 | DAC_CR_TSEL1_0),
+    DAC_TRIGGER_TIM7_TRGO    = (DAC_CR_TEN1 | DAC_CR_TSEL1_1),
+    DAC_TRIGGER_TIM5_TRGO    = (DAC_CR_TEN1 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0),
+    DAC_TRIGGER_TIM2_TRGO    = (DAC_CR_TEN1 | DAC_CR_TSEL1_2),
+    DAC_TRIGGER_TIM4_TRGO    = (DAC_CR_TEN1 | DAC_CR_TSEL1_2 | DAC_CR_TSEL1_0),
+    DAC_TRIGGER_EXTI_9       = (DAC_CR_TEN1 | DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1),
+    DAC_TRIGGER_SOFTWARE     = (DAC_CR_TEN1 | DAC_CR_TSEL1),
+
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L4)
 
 #if defined (LIBOHIBOARD_STM32L431) || \
     defined (LIBOHIBOARD_STM32L432) || \
@@ -275,6 +301,7 @@ typedef enum _Dac_Trigger
 
     // TODO
 
+#endif
 #endif
 
 } Dac_Trigger;
