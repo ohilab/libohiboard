@@ -873,7 +873,6 @@ static Uart_Device lpuart1 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_STM32L081KxT) || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                UART_PINS_PB10_RX,
@@ -911,7 +910,6 @@ static Uart_Device lpuart1 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_STM32L081KxT) || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PB10,
@@ -949,7 +947,6 @@ static Uart_Device lpuart1 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_STM32L081KxT) || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_7,
@@ -988,7 +985,6 @@ static Uart_Device lpuart1 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_STM32L081KxT) || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                UART_PINS_PB10_TX,
@@ -1026,7 +1022,6 @@ static Uart_Device lpuart1 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_STM32L081KxT) || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PB10,
@@ -1064,7 +1059,6 @@ static Uart_Device lpuart1 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_STM32L081KxT) || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_4,
