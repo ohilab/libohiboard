@@ -89,7 +89,8 @@ typedef enum _Spi_PcsPins
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     SPI_PINS_PA15,  // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
 
