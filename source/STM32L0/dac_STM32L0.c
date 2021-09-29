@@ -1,10 +1,9 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *   Marco Giammarini <m.giammarini@warcomeb.it>
  *   Niccolò Paolinelli <nico.paolinelli@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,9 +26,9 @@
  */
 
 /**
- * @file libohiboard/source/STM32L4/dac_STM32L4.c
- * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief DAC implementations for STM32L4 series.
+ * @file libohiboard/source/STM32L0/dac_STM32L0.c
+ * @author Niccolò Paolinelli <nico.paolinelli@gmail.com>
+ * @brief DAC implementations for STM32L0 series.
  */
 
 #ifdef LIBOHIBOARD_DAC
