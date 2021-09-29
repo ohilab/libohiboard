@@ -110,6 +110,36 @@ typedef enum _Iic_SclPins
     IIC_PINS_PB13,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+    IIC_PINS_PA8,
+    IIC_PINS_PA9,
+
+    IIC_PINS_PB6,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    IIC_PINS_PB8,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    IIC_PINS_PB10,
+#endif
+    IIC_PINS_PB13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    IIC_PINS_PC0,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -152,6 +182,45 @@ typedef enum _Iic_SdaPins
     IIC_PINS_PB14,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+    IIC_PINS_PA10,
+
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    IIC_PINS_PB4,
+#endif
+    IIC_PINS_PB7    ,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    IIC_PINS_PB9,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    IIC_PINS_PB11,
+#endif
+    IIC_PINS_PB14,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    IIC_PINS_PC1,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    IIC_PINS_PC9,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 
 #if defined (LIBOHIBOARD_STM32L073)
@@ -185,7 +254,9 @@ extern Iic_DeviceHandle OB_IIC1;
     !defined (LIBOHIBOARD_STM32L081KxU)
 extern Iic_DeviceHandle OB_IIC2;
 #endif
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 extern Iic_DeviceHandle OB_IIC3;
+#endif
 
 /**
  * @}

@@ -188,10 +188,15 @@ typedef struct _Uart_Device
 #if defined (LIBOHIBOARD_STM32L0x1) || \
     defined (LIBOHIBOARD_STM32L0x2)
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
                                 ((DEVICE) == OB_UART2)  || \
                                 ((DEVICE) == OB_UART4)  || \
                                 ((DEVICE) == OB_UART5))
+#else
+#define UART_IS_DEVICE(DEVICE) (((DEVICE) == OB_UART1)  || \
+                                ((DEVICE) == OB_UART2))
+#endif
 
 #define UART_IS_LOWPOWER_DEVICE(DEVICE) ((DEVICE) == OB_LPUART1)
 
@@ -213,35 +218,48 @@ static Uart_Device uart1 =
         .rxPins              =
         {
                                UART_PINS_PA10,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                UART_PINS_PB7_RX,
+#endif
         },
         .rxPinsGpio          =
         {
                                GPIO_PINS_PA10,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB7,
+#endif
         },
         .rxPinsMux           =
         {
                                GPIO_ALTERNATE_4,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_0,
+#endif
         },
 
         .txPins              =
         {
                                UART_PINS_PA9,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                UART_PINS_PB6,
+#endif
         },
         .txPinsGpio          =
         {
                                GPIO_PINS_PA9,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB6,
+#endif
         },
         .txPinsMux           =
         {
                                GPIO_ALTERNATE_4,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_0,
+#endif
         },
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
         .ctsPins             =
         {
                                UART_PINS_PA11,
@@ -309,6 +327,7 @@ static Uart_Device uart1 =
                                GPIO_ALTERNATE_5,
 #endif
         },
+#endif // LIBOHIBOARD_CMWX1ZZABZ_091
 
         .isrNumber           = INTERRUPT_USART1,
 
@@ -398,7 +417,10 @@ static Uart_Device uart2 =
         .txPins              =
         {
                                UART_PINS_PA2,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                UART_PINS_PA14,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PD5,
@@ -407,7 +429,10 @@ static Uart_Device uart2 =
         .txPinsGpio          =
         {
                                GPIO_PINS_PA2,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA14,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_PINS_PD5,
@@ -416,13 +441,17 @@ static Uart_Device uart2 =
         .txPinsMux           =
         {
                                GPIO_ALTERNATE_4,
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_4,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
                                GPIO_ALTERNATE_0,
 #endif
         },
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
         .ctsPins             =
         {
                                UART_PINS_PA0_CTS,
@@ -475,6 +504,7 @@ static Uart_Device uart2 =
                                GPIO_ALTERNATE_0,
 #endif
         },
+#endif // LIB0HIBOARD_CMWX1ZZABZ_091
 
         .isrNumber           = INTERRUPT_USART2,
 
@@ -486,6 +516,7 @@ static Uart_Device uart2 =
 };
 Uart_DeviceHandle OB_UART2 = &uart2;
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 static Uart_Device uart4 =
 {
         .regmap              = USART4,
@@ -499,6 +530,7 @@ static Uart_Device uart4 =
 
         .txPins              =
         {
+
                                UART_PINS_PA0_TX,
 #if defined (LIBOHIBOARD_STM32L072RxT) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
@@ -666,7 +698,9 @@ static Uart_Device uart4 =
         .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART4 = &uart4;
+#endif
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 static Uart_Device uart5 =
 {
         .regmap              = USART5,
@@ -819,6 +853,7 @@ static Uart_Device uart5 =
         .rtsPins             =
         {
                                UART_PINS_PB5,
+
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
                                UART_PINS_PE7,
@@ -850,6 +885,7 @@ static Uart_Device uart5 =
         .isErrorInterruptEnabled = FALSE,
 };
 Uart_DeviceHandle OB_UART5 = &uart5;
+#endif
 
 static Uart_Device lpuart1 =
 {
@@ -1092,6 +1128,7 @@ static Uart_Device lpuart1 =
 #endif
         },
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
         .rtsPins             =
         {
                                UART_PINS_PB1,
@@ -1225,6 +1262,7 @@ static Uart_Device lpuart1 =
                                GPIO_ALTERNATE_0,
 #endif
         },
+#endif // LIBOHIBOARD_CMWX1ZZABZ_091
 
         .isrNumber           = INTERRUPT_LPUART1,
 
@@ -2469,6 +2507,7 @@ void USART2_IRQHandler(void)
     Uart_callbackInterrupt(OB_UART2);
 }
 
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #if defined (LIBOHIBOARD_STM32L0x1) || \
     defined (LIBOHIBOARD_STM32L0x2)
 void USART4_5_IRQHandler(void)
@@ -2485,6 +2524,7 @@ void USART4_USART5_IRQHandler (void)
         Uart_callbackInterrupt(OB_UART5);
     }
 }
+#endif
 
 #endif // LIBOHIBOARD_STM32L0
 
