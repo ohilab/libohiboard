@@ -79,6 +79,43 @@ typedef enum _Spi_PcsPins
     SPI_PINS_PB12,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+    SPI_PINS_PA4,
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PA15,  // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB9,
+    SPI_PINS_PB12,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PD0,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PE12,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -91,7 +128,7 @@ typedef enum _Spi_PcsPins
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
 
-	SPI_PINS_PD0,
+    SPI_PINS_PD0,
 
     SPI_PINS_PE12,
 #endif
@@ -119,6 +156,39 @@ typedef enum _Spi_SoutPins
     SPI_PINS_PB15,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+    SPI_PINS_PA7, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+    SPI_PINS_PA12,
+
+    SPI_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB15,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PC3,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PD4,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PE15,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -134,7 +204,7 @@ typedef enum _Spi_SoutPins
     SPI_PINS_PC3,
 #endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
+    defined (LIBOHIBOARD_STM32L073VxI)
 
     SPI_PINS_PD4,
 
@@ -161,6 +231,42 @@ typedef enum _Spi_SinPins
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU)
     SPI_PINS_PB14,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+    SPI_PINS_PA6,  // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+    SPI_PINS_PA11,
+
+    SPI_PINS_PB4,
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB14,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PC2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PD3,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PE14,
 #endif
 
 #elif defined (LIBOHIBOARD_STM32L0x3)
@@ -213,6 +319,45 @@ typedef enum _Spi_SckPins
     SPI_PINS_PB13,
 #endif
 
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+    SPI_PINS_PA5,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB3, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    SPI_PINS_PB10,
+#endif
+    SPI_PINS_PB13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PD1,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+    SPI_PINS_PE13,
+#endif
+
 #elif defined (LIBOHIBOARD_STM32L0x3)
 #if defined (LIBOHIBOARD_STM32L073)
 
@@ -237,10 +382,12 @@ typedef enum _Spi_SckPins
 } Spi_SckPins;
 
 
+
 extern Spi_DeviceHandle OB_SPI1;
 #if defined (LIBOHIBOARD_STM32L073)    || \
     defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU)
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 extern Spi_DeviceHandle OB_SPI2;
 #endif
 
