@@ -107,16 +107,24 @@ extern "C" {
                               ((MODE) == IIC_SLAVE_MODE))
 
 
-#if defined (LIBOHIBOARD_STM32L073) || \
-    defined (LIBOHIBOARD_STM32L072)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091) && \
+    !defined (LIBOHIBOARD_STM32L081KxT)   && \
+    !defined (LIBOHIBOARD_STM32L081KxU)
 
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
                                ((DEVICE) == OB_IIC2)  || \
                                ((DEVICE) == OB_IIC3))
 #else
+
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
                                ((DEVICE) == OB_IIC2))
+#endif
+
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081KxU)
+#define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
+                               ((DEVICE) == OB_IIC3))
 #endif
 
 #endif
@@ -139,17 +147,6 @@ typedef struct _Iic_Device
     Gpio_Pins sdaPinsGpio[IIC_MAX_PINS];
     Gpio_Alternate sclPinsMux[IIC_MAX_PINS];
     Gpio_Alternate sdaPinsMux[IIC_MAX_PINS];
-
-//    Iic_ClockSource clockSource;
-//    Iic_AddressMode addressMode;
-//    Iic_DeviceType deviceType;
-//
-//    // Slave mode
-//    uint32_t address1;
-//    uint32_t address2;
-//    Iic_DualAddress dualAddressMode;
-//    Iic_DualAddressMask dualAddressMask;
-//    Iic_NoStrech noStretch;
 
     // Write/Read useful buffer and counter
     uint8_t* rdata;                      /**< Pointer to I2C reception buffer */

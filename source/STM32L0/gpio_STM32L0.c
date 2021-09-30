@@ -726,6 +726,30 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Ports port)
 {
     switch (port)
     {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    case GPIO_PORTS_A:
+        return GPIOA;
+
+    case GPIO_PORTS_B:
+        return GPIOB;
+
+    case GPIO_PORTS_C:
+        return GPIOC;
+#if defined (LIBOHIBOARD_STM32L071)
+    case GPIO_PORTS_D:
+        return GPIOD;
+
+    case GPIO_PORTS_E:
+        return GPIOE;
+#endif
+#if defined (LIBOHIBOARD_STM32L071)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    case GPIO_PORTS_H:
+        return GPIOH;
+#endif
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
+      defined (LIBOHIBOARD_STM32L0x3)
     case GPIO_PORTS_A:
         return GPIOA;
 
@@ -743,6 +767,7 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Ports port)
 
     case GPIO_PORTS_H:
         return GPIOH;
+#endif
 
     default:
         ohiassert(0);
@@ -754,6 +779,37 @@ void Gpio_enablePortClock (Gpio_Ports port)
 {
     switch (port)
     {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    case GPIO_PORTS_A:
+        GPIO_ENABLE_CLOCK_PORTA();
+        break;
+
+    case GPIO_PORTS_B:
+        GPIO_ENABLE_CLOCK_PORTB();
+        break;
+
+    case GPIO_PORTS_C:
+        GPIO_ENABLE_CLOCK_PORTC();
+        break;
+#if defined (LIBOHIBOARD_STM32L071)
+
+    case GPIO_PORTS_D:
+        GPIO_ENABLE_CLOCK_PORTD();
+        break;
+
+    case GPIO_PORTS_E:
+        GPIO_ENABLE_CLOCK_PORTE();
+        break;
+#endif
+#if defined (LIBOHIBOARD_STM32L071)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    case GPIO_PORTS_H:
+        GPIO_ENABLE_CLOCK_PORTH();
+        break;
+#endif
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
+      defined (LIBOHIBOARD_STM32L0x3)
     case GPIO_PORTS_A:
         GPIO_ENABLE_CLOCK_PORTA();
         break;
@@ -777,6 +833,7 @@ void Gpio_enablePortClock (Gpio_Ports port)
     case GPIO_PORTS_H:
         GPIO_ENABLE_CLOCK_PORTH();
         break;
+#endif
 
     default:
         ohiassert(0);
@@ -789,6 +846,37 @@ void Gpio_disablePortClock (Gpio_Ports port)
 {
     switch (port)
     {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    case GPIO_PORTS_A:
+        GPIO_DISABLE_CLOCK_PORTA();
+        break;
+
+    case GPIO_PORTS_B:
+        GPIO_DISABLE_CLOCK_PORTB();
+        break;
+
+    case GPIO_PORTS_C:
+        GPIO_DISABLE_CLOCK_PORTC();
+        break;
+#if defined (LIBOHIBOARD_STM32L071)
+
+    case GPIO_PORTS_D:
+        GPIO_DISABLE_CLOCK_PORTD();
+        break;
+
+    case GPIO_PORTS_E:
+        GPIO_DISABLE_CLOCK_PORTE();
+        break;
+#endif
+#if defined (LIBOHIBOARD_STM32L071)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    case GPIO_PORTS_H:
+        GPIO_DISABLE_CLOCK_PORTH();
+        break;
+#endif
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
+      defined (LIBOHIBOARD_STM32L0x3)
     case GPIO_PORTS_A:
         GPIO_DISABLE_CLOCK_PORTA();
         break;
@@ -812,6 +900,7 @@ void Gpio_disablePortClock (Gpio_Ports port)
     case GPIO_PORTS_H:
         GPIO_DISABLE_CLOCK_PORTH();
         break;
+#endif
 
     default:
         ohiassert(0);
