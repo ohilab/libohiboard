@@ -1229,8 +1229,11 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
             (void)dev->regMap->S1;
             (void)dev->regMap->D;
         }
-        // TODO: Call callback error?
-        dev->callbackError[0](dev,dev->callbackObj[0]);
+        // Call callback error?
+        if (dev->callbackError[0] != NULL)
+        {
+            dev->callbackError[0](dev,dev->callbackObj[0]);
+        }
         return;
     }
 
