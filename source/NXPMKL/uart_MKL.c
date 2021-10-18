@@ -1229,7 +1229,11 @@ static inline void __attribute__((always_inline)) Uart_callbackInterrupt (Uart_D
             (void)dev->regMap->S1;
             (void)dev->regMap->D;
         }
-        // TODO: Call callback error?
+        // Call callback error?
+        if (dev->callbackError[0] != NULL)
+        {
+            dev->callbackError[0](dev,dev->callbackObj[0]);
+        }
         return;
     }
 
@@ -1351,8 +1355,20 @@ void Uart_addTxCallback (Uart_DeviceHandle dev, Uart_callback callback)
 
 void Uart_addErrorCallback (Uart_DeviceHandle dev, Uart_callback callback)
 {
-    // Not used in this microcontroller
-    ohiassert(0);
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->callbackError[0] = callback;
+        dev->isErrorInterruptEnabled = TRUE;
+        // Enable NVIC interrupt
+        //Interrupt_enable(dev->isrNumber);
+    }
+    else
+    {
+        dev->callbackError[0] = NULL;
+        dev->isErrorInterruptEnabled = FALSE;
+    }
 }
 
 void UART0_IRQHandler (void)

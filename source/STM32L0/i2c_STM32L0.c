@@ -107,16 +107,24 @@ extern "C" {
                               ((MODE) == IIC_SLAVE_MODE))
 
 
-#if defined (LIBOHIBOARD_STM32L073) || \
-    defined (LIBOHIBOARD_STM32L072)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091) && \
+    !defined (LIBOHIBOARD_STM32L081KxT)   && \
+    !defined (LIBOHIBOARD_STM32L081KxU)
 
-#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
                                ((DEVICE) == OB_IIC2)  || \
                                ((DEVICE) == OB_IIC3))
 #else
+
+#if defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
                                ((DEVICE) == OB_IIC2))
+#endif
+
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081KxU)
+#define IIC_IS_DEVICE(DEVICE) (((DEVICE) == OB_IIC1)  || \
+                               ((DEVICE) == OB_IIC3))
 #endif
 
 #endif
@@ -139,17 +147,6 @@ typedef struct _Iic_Device
     Gpio_Pins sdaPinsGpio[IIC_MAX_PINS];
     Gpio_Alternate sclPinsMux[IIC_MAX_PINS];
     Gpio_Alternate sdaPinsMux[IIC_MAX_PINS];
-
-//    Iic_ClockSource clockSource;
-//    Iic_AddressMode addressMode;
-//    Iic_DeviceType deviceType;
-//
-//    // Slave mode
-//    uint32_t address1;
-//    uint32_t address2;
-//    Iic_DualAddress dualAddressMode;
-//    Iic_DualAddressMask dualAddressMask;
-//    Iic_NoStrech noStretch;
 
     // Write/Read useful buffer and counter
     uint8_t* rdata;                      /**< Pointer to I2C reception buffer */
@@ -180,18 +177,16 @@ static Iic_Device iic1 =
                                 IIC_PINS_PA9,
 
                                 IIC_PINS_PB6,
-#if defined (LIBOHIBOARD_STM32L072CxT) || \
-    defined (LIBOHIBOARD_STM32L072CxY) || \
-    defined (LIBOHIBOARD_STM32L072RxT) || \
-    defined (LIBOHIBOARD_STM32L072RxI) || \
-    defined (LIBOHIBOARD_STM32L072RxH) || \
-    defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-                                IIC_PINS_PB8,
-#endif
-
-#if defined (LIBOHIBOARD_STM32L081CxT) || \
+#if defined (LIBOHIBOARD_STM32L072CxT)  || \
+    defined (LIBOHIBOARD_STM32L072CxY)  || \
+    defined (LIBOHIBOARD_STM32L072RxT)  || \
+    defined (LIBOHIBOARD_STM32L072RxI)  || \
+    defined (LIBOHIBOARD_STM32L072RxH)  || \
+    defined (LIBOHIBOARD_STM32L072VxT)  || \
+    defined (LIBOHIBOARD_STM32L072VxI)  || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)|| \
+    defined (LIBOHIBOARD_STM32L073)     || \
+    defined (LIBOHIBOARD_STM32L081CxT)  || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                 IIC_PINS_PB8,
 #endif
@@ -202,19 +197,16 @@ static Iic_Device iic1 =
                                 GPIO_PINS_PA9,
 
                                 GPIO_PINS_PB6,
-#if defined (LIBOHIBOARD_STM32L072CxT) || \
-defined (LIBOHIBOARD_STM32L072CxY) || \
-defined (LIBOHIBOARD_STM32L072RxT) || \
-defined (LIBOHIBOARD_STM32L072RxI) || \
-defined (LIBOHIBOARD_STM32L072RxH) || \
-defined (LIBOHIBOARD_STM32L072VxT) || \
-defined (LIBOHIBOARD_STM32L072VxI) || \
-defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-                                GPIO_PINS_PB8,
-#endif
-
-
-#if defined (LIBOHIBOARD_STM32L081CxT) || \
+#if defined (LIBOHIBOARD_STM32L072CxT)  || \
+    defined (LIBOHIBOARD_STM32L072CxY)  || \
+    defined (LIBOHIBOARD_STM32L072RxT)  || \
+    defined (LIBOHIBOARD_STM32L072RxI)  || \
+    defined (LIBOHIBOARD_STM32L072RxH)  || \
+    defined (LIBOHIBOARD_STM32L072VxT)  || \
+    defined (LIBOHIBOARD_STM32L072VxI)  || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)|| \
+    defined (LIBOHIBOARD_STM32L073)     || \
+    defined (LIBOHIBOARD_STM32L081CxT)  || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                 GPIO_PINS_PB8,
 #endif
@@ -225,19 +217,16 @@ defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                 GPIO_ALTERNATE_6,
 
                                 GPIO_ALTERNATE_1,
-#if defined (LIBOHIBOARD_STM32L072CxT) || \
-    defined (LIBOHIBOARD_STM32L072CxY) || \
-    defined (LIBOHIBOARD_STM32L072RxT) || \
-    defined (LIBOHIBOARD_STM32L072RxI) || \
-    defined (LIBOHIBOARD_STM32L072RxH) || \
-    defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-                                GPIO_ALTERNATE_4,
-#endif
-
-
-#if defined (LIBOHIBOARD_STM32L081CxT) || \
+#if defined (LIBOHIBOARD_STM32L072CxT)   || \
+    defined (LIBOHIBOARD_STM32L072CxY)   || \
+    defined (LIBOHIBOARD_STM32L072RxT)   || \
+    defined (LIBOHIBOARD_STM32L072RxI)   || \
+    defined (LIBOHIBOARD_STM32L072RxH)   || \
+    defined (LIBOHIBOARD_STM32L072VxT)   || \
+    defined (LIBOHIBOARD_STM32L072VxI)   || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091) || \
+    defined (LIBOHIBOARD_STM32L073)      || \
+    defined (LIBOHIBOARD_STM32L081CxT)   || \
     defined (LIBOHIBOARD_STM32L081CxU)
                                 GPIO_ALTERNATE_4,
 #endif
@@ -248,21 +237,18 @@ defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                 IIC_PINS_PA10,
 
                                 IIC_PINS_PB7,
-#if defined (LIBOHIBOARD_STM32L072CxT) || \
-    defined (LIBOHIBOARD_STM32L072CxY) || \
-    defined (LIBOHIBOARD_STM32L072RxT) || \
-    defined (LIBOHIBOARD_STM32L072RxI) || \
-    defined (LIBOHIBOARD_STM32L072RxH) || \
-    defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if defined (LIBOHIBOARD_STM32L072CxT)   || \
+    defined (LIBOHIBOARD_STM32L072CxY)   || \
+    defined (LIBOHIBOARD_STM32L072RxT)   || \
+    defined (LIBOHIBOARD_STM32L072RxI)   || \
+    defined (LIBOHIBOARD_STM32L072RxH)   || \
+    defined (LIBOHIBOARD_STM32L072VxT)   || \
+    defined (LIBOHIBOARD_STM32L072VxI)   || \
+    defined (LIBOHIBOARD_STM32L073)      || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091) || \
+    defined (LIBOHIBOARD_STM32L081CxT)   || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                 IIC_PINS_PB9,
-#endif
-
-#if defined (LIBOHIBOARD_STM32L081CxT) || \
-    defined (LIBOHIBOARD_STM32L081CxU) || \
-    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-                               IIC_PINS_PB9,
 #endif
         },
         .sdaPinsGpio          =
@@ -270,20 +256,18 @@ defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                 GPIO_PINS_PA10,
 
                                 GPIO_PINS_PB7,
-#if defined (LIBOHIBOARD_STM32L072CxT) || \
-defined (LIBOHIBOARD_STM32L072CxY) || \
-defined (LIBOHIBOARD_STM32L072RxT) || \
-defined (LIBOHIBOARD_STM32L072RxI) || \
-defined (LIBOHIBOARD_STM32L072RxH) || \
-defined (LIBOHIBOARD_STM32L072VxT) || \
-defined (LIBOHIBOARD_STM32L072VxI) || \
-defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-                                GPIO_PINS_PB9,
-#endif
-
-#if defined (LIBOHIBOARD_STM32L081CxT) || \
+#if defined (LIBOHIBOARD_STM32L072CxT)   || \
+    defined (LIBOHIBOARD_STM32L072CxY)   || \
+    defined (LIBOHIBOARD_STM32L072RxT)   || \
+    defined (LIBOHIBOARD_STM32L072RxI)   || \
+    defined (LIBOHIBOARD_STM32L072RxH)   || \
+    defined (LIBOHIBOARD_STM32L072VxT)   || \
+    defined (LIBOHIBOARD_STM32L072VxI)   || \
+    defined (LIBOHIBOARD_STM32L073)      || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091) || \
+    defined (LIBOHIBOARD_STM32L081CxT)   || \
     defined (LIBOHIBOARD_STM32L081CxU)
-                               GPIO_PINS_PB9,
+                                GPIO_PINS_PB9,
 #endif
         },
         .sdaPinsMux           =
@@ -291,20 +275,18 @@ defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                 GPIO_ALTERNATE_6,
 
                                 GPIO_ALTERNATE_1,
-#if defined (LIBOHIBOARD_STM32L072CxT) || \
-    defined (LIBOHIBOARD_STM32L072CxY) || \
-    defined (LIBOHIBOARD_STM32L072RxT) || \
-    defined (LIBOHIBOARD_STM32L072RxI) || \
-    defined (LIBOHIBOARD_STM32L072RxH) || \
-    defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI) || \
-    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
-                                GPIO_ALTERNATE_4,
-#endif
-
-#if defined (LIBOHIBOARD_STM32L081CxT) || \
+#if defined (LIBOHIBOARD_STM32L072CxT)   || \
+    defined (LIBOHIBOARD_STM32L072CxY)   || \
+    defined (LIBOHIBOARD_STM32L072RxT)   || \
+    defined (LIBOHIBOARD_STM32L072RxI)   || \
+    defined (LIBOHIBOARD_STM32L072RxH)   || \
+    defined (LIBOHIBOARD_STM32L072VxT)   || \
+    defined (LIBOHIBOARD_STM32L072VxI)   || \
+    defined (LIBOHIBOARD_STM32L073)      || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091) || \
+    defined (LIBOHIBOARD_STM32L081CxT)   || \
     defined (LIBOHIBOARD_STM32L081CxU)
-                               GPIO_ALTERNATE_4,
+                                GPIO_ALTERNATE_4,
 #endif
         },
 

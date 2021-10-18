@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -26,54 +26,46 @@
  */
 
 /**
- * @file libohiboard/include/traps.h
+ * @file libohiboard/source/MKL/traps_MKL.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Traps definitions and prototypes.
+ * @brief Traps implementations for MKL Series.
  */
-
-/**
- * @addtogroup LIBOHIBOARD_Driver
- * @{
- */
-
-/**
- * @defgroup TRAPS Traps
- * @brief Traps HAL driver
- * @{
- */
-
-#ifndef __TRAPS_H
-#define __TRAPS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "platforms.h"
-#include "errors.h"
-#include "types.h"
 
-typedef enum _Traps_ErrorCode
+#if defined (LIBOHIBOARD_MKL)
+
+#include "traps.h"
+#include "system.h"
+
+static pFunc mHardFaultCallback = NULL;
+
+void Traps_addHardFaultCallback (pFunc c)
 {
-    TRAPS_ERRORCODE_NONE   = 0,
+    mHardFaultCallback = c;
+}
 
-} Traps_ErrorCode;
+void Traps_haltOnError (Traps_ErrorCode code)
+{
+    Traps_ErrorCode current = code;
 
-void Traps_haltOnError (Traps_ErrorCode code);
+    System_softwareBreakpoint();
+    asm("NOP");
+}
 
-void Traps_addHardFaultCallback (pFunc c);
+_weak void HardFault_Handler (void)
+{
+    if (mHardFaultCallback != NULL) mHardFaultCallback();
+
+    Traps_haltOnError(TRAPS_ERRORCODE_NONE);
+}
+
+#endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TRAPS_H
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-

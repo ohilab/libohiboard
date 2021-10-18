@@ -100,12 +100,23 @@ extern "C" {
 #define CLOCK_IS_VALID_HSI_DIVIDER(DIVIDER) (((DIVIDER) == CLOCK_HSIDIVIDER_1) || \
                                              ((DIVIDER) == CLOCK_HSIDIVIDER_4))
 
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
 #define CLOCK_IS_VALID_EXTERNAL_RANGE(VALUE) ((VALUE >= CLOCK_MIN_FREQ_HSE) && (VALUE <= CLOCK_MAX_FREQ_HSE))
 
 #define CLOCK_IS_VALID_SYSSOURCE(SYSSOURCE) (((SYSSOURCE & CLOCK_SYSTEMSOURCE_HSI) == CLOCK_SYSTEMSOURCE_HSI) || \
                                              ((SYSSOURCE & CLOCK_SYSTEMSOURCE_HSE) == CLOCK_SYSTEMSOURCE_HSE) || \
                                              ((SYSSOURCE & CLOCK_SYSTEMSOURCE_PLL) == CLOCK_SYSTEMSOURCE_PLL) || \
                                              ((SYSSOURCE & CLOCK_SYSTEMSOURCE_MSI) == CLOCK_SYSTEMSOURCE_MSI))
+#else
+
+#define CLOCK_IS_VALID_SYSSOURCE(SYSSOURCE) (((SYSSOURCE & CLOCK_SYSTEMSOURCE_HSI) == CLOCK_SYSTEMSOURCE_HSI) || \
+                                             ((SYSSOURCE & CLOCK_SYSTEMSOURCE_PLL) == CLOCK_SYSTEMSOURCE_PLL) || \
+                                             ((SYSSOURCE & CLOCK_SYSTEMSOURCE_MSI) == CLOCK_SYSTEMSOURCE_MSI))
+
+#endif
 
 static const uint32_t CLOCK_AHB_PRESCALE_REGISTER_TABLE[9] =
 {
@@ -617,6 +628,10 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
 
             cfgrSW = RCC_CFGR_SW_HSI;
         }
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_HSE)
         {
 //            // Check if the source is ready
@@ -628,6 +643,7 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
 //            // Save chose value for CFGR register
 //            cfgrSW = RCC_CFGR_SW_HSE;
         }
+#endif
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_MSI)
         {
             // Check if the source is ready
@@ -964,12 +980,17 @@ System_Errors Clock_init (Clock_Config* config)
     // Check and save external clock value
     // update value of external source
     // (this value can be used after for calculate clock)
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
     if ((config->source == CLOCK_CRYSTAL) || (config->source == CLOCK_EXTERNAL))
     {
         ohiassert(CLOCK_IS_VALID_EXTERNAL_RANGE(config->fext));
         clk.externalClock = config->fext;
     }
     else
+#endif
     {
         clk.externalClock = 0;
     }
@@ -1291,8 +1312,13 @@ uint32_t Clock_getConfigOscillatorValue (Clock_Config *config)
         else
             systemClock = CLOCK_FREQ_HSI;
         break;
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
     case CLOCK_SYSTEMSOURCE_HSE:
 //        systemClock = clk0.externalClock;
+#endif
         break;
     case CLOCK_SYSTEMSOURCE_PLL:
 //        systemClock = Clock_getConfigPllValue(config, &config->pll);
