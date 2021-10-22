@@ -217,6 +217,10 @@ extern "C" {
 #include "critical.h"
 #endif
 
+#ifdef LIBOHIBOARD_TRAPS
+#include "traps.h"
+#endif
+
 #ifdef LIBOHIBOARD_SDHC
 #include "sdhc.h"
 #endif

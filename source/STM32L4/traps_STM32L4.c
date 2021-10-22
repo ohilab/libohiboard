@@ -26,54 +26,47 @@
  */
 
 /**
- * @file libohiboard/include/traps.h
+ * @file libohiboard/source/STM32L4/traps_STM32L4.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Traps definitions and prototypes.
+ * @brief Traps implementations for STM32L0 Series.
  */
-
-/**
- * @addtogroup LIBOHIBOARD_Driver
- * @{
- */
-
-/**
- * @defgroup TRAPS Traps
- * @brief Traps HAL driver
- * @{
- */
-
-#ifndef __TRAPS_H
-#define __TRAPS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "platforms.h"
-#include "errors.h"
-#include "types.h"
 
-typedef enum _Traps_ErrorCode
+#if defined (LIBOHIBOARD_STM32L4)
+
+#include "traps.h"
+#include "system.h"
+
+void Traps_haltOnError (Traps_ErrorCode code)
 {
-    TRAPS_ERRORCODE_NONE   = 0,
+    Traps_ErrorCode current = code;
 
-} Traps_ErrorCode;
+    System_softwareBreakpoint();
+    asm("NOP");
+}
 
-void Traps_haltOnError (Traps_ErrorCode code);
+_weak void HardFault_Handler (void)
+{
+    Traps_haltOnError(TRAPS_ERRORCODE_NONE);
+}
 
-void Error_Handler (void);
+
+_weak void Error_Handler (void)
+{
+    __disable_irq();
+    while (1)
+    {
+        // TODO:
+    }
+}
+
+#endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TRAPS_H
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-
