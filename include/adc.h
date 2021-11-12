@@ -683,6 +683,15 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev);
  */
 uint32_t Adc_calibrationGetValue (Adc_DeviceHandle dev);
 
+
+/*
+ * To keep power consumption low, it is important to disable the ADC voltage regulator
+ * before entering lowpower mode (LPRun, LPSleep or Stop mode).
+ */
+void LowPower_disableADCRegulator (void);
+
+void LowPower_enableADCRegulator (void);
+
 /**
  * @}
  */
