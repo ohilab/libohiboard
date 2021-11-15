@@ -307,6 +307,35 @@
 #define LIBOHIBOARD_ST_STM32
 #endif
 
+#elif defined (LIBOHIBOARD_STM32G031CxT) || \
+      defined (LIBOHIBOARD_STM32G031CxU) || \
+      defined (LIBOHIBOARD_STM32G031FxP) || \
+      defined (LIBOHIBOARD_STM32G031GxU) || \
+      defined (LIBOHIBOARD_STM32G031JxM) || \
+      defined (LIBOHIBOARD_STM32G031KxT) || \
+      defined (LIBOHIBOARD_STM32G031KxU) || \
+      defined (LIBOHIBOARD_STM32G031YxY)
+
+#include "platforms/STM32G031/stm32g031xx.h"
+#include "platforms/STM32G031/stm32g0xx.h"
+#include "platforms/STM32G031/system_stm32g0xx.h"
+
+#ifndef LIBOHIBOARD_STM32G0
+#define LIBOHIBOARD_STM32G0
+#endif
+
+#ifndef LIBOHIBOARD_STM32G0x1
+#define LIBOHIBOARD_STM32G0x1
+#endif
+
+#ifndef LIBOHIBOARD_STM32G031
+#define LIBOHIBOARD_STM32G031
+#endif
+
+#ifndef LIBOHIBOARD_ST_STM32
+#define LIBOHIBOARD_ST_STM32
+#endif
+
 #elif defined (LIBOHIBOARD_PIC24FJxGA606) || \
       defined (LIBOHIBOARD_PIC24FJxGA610) || \
       defined (LIBOHIBOARD_PIC24FJxGB606) || \
