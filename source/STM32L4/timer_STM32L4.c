@@ -494,6 +494,7 @@ static Timer_Device tim1 =
         },
 
         .isrNumber           = INTERRUPT_TIM1UP_TIM16,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
 #elif defined (LIBOHIBOARD_STM32WB55)
@@ -534,6 +535,7 @@ static Timer_Device tim1 =
         },
 
         .isrNumber           = INTERRUPT_TIM1UP_TIM16,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM1 = &tim1;
 #endif
@@ -595,6 +597,7 @@ static Timer_Device tim2 =
         },
 
         .isrNumber           = INTERRUPT_TIM2,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM2 = &tim2;
 
@@ -701,6 +704,7 @@ static Timer_Device tim3 =
         },
 
         .isrNumber           = INTERRUPT_TIM3,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM3 = &tim3;
 
@@ -778,6 +782,7 @@ static Timer_Device tim4 =
         },
 
         .isrNumber           = INTERRUPT_TIM4,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM4 = &tim4;
 
@@ -846,6 +851,7 @@ static Timer_Device tim5 =
         },
 
         .isrNumber           = INTERRUPT_TIM5,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM5 = &tim5;
 
@@ -868,6 +874,7 @@ static Timer_Device tim7 =
         .rccRegisterEnable   = RCC_APB1ENR1_TIM7EN,
 
         .isrNumber           = INTERRUPT_TIM7,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM7 = &tim7;
 
@@ -908,6 +915,7 @@ static Timer_Device tim8 =
         },
 
         .isrNumber           = INTERRUPT_TIM8BRK,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM8 = &tim8;
 
@@ -1000,6 +1008,7 @@ static Timer_Device tim15 =
         },
 
         .isrNumber           = INTERRUPT_TIM1BRK_TIM15,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM15 = &tim15;
 #endif
@@ -1033,6 +1042,7 @@ static Timer_Device tim16 =
         },
 
         .isrNumber           = INTERRUPT_TIM1UP_TIM16,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM16 = &tim16;
 
@@ -1065,6 +1075,7 @@ static Timer_Device tim17 =
         },
 
         .isrNumber           = INTERRUPT_TIM1TRG_TIM17,
+        .state               = TIMER_DEVICESTATE_RESET,
 };
 Timer_DeviceHandle OB_TIM17 = &tim17;
 
@@ -1423,6 +1434,8 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
         ohiassert(0);
         break;
     }
+
+    dev->state = TIMER_DEVICESTATE_READY;
 
     return ERRORS_NO_ERROR;
 }
