@@ -1232,6 +1232,12 @@ static void Timer_computeCounterValues (Timer_DeviceHandle dev,
 
 static System_Errors Timer_configBase (Timer_DeviceHandle dev, Timer_Config *config)
 {
+    // FIXME: this function must be enabled with a specific function!
+    if ((dev == OB_TIM1) || (dev == OB_TIM8))
+    {
+        dev->regmap->BDTR = 0x00000000 | TIM_BDTR_OSSR | TIM_BDTR_OSSI | TIM_BDTR_MOE;
+    }
+
     // Set counter mode: direction and alignment
     if (TIMER_IS_DEVICE_COUNTER_MODE(dev))
     {
@@ -1715,7 +1721,14 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
     uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * config->duty);
     volatile uint32_t* regCCRn = Timer_getCCRnRegister(dev,channel);
     // Write new pulse value
-    *regCCRn = pulse - 1;
+    if (pulse > 0)
+    {
+        *regCCRn = pulse - 1;
+    }
+    else
+    {
+        *regCCRn = 0;
+    }
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
@@ -1848,7 +1861,14 @@ System_Errors Timer_setPwmDuty (Timer_DeviceHandle dev,
     // Compute duty-cycle pulse value
     uint32_t pulse = (((dev->regmap->ARR + 1) / 100) * duty);
     // Write new pulse value
-    *regCCRn = pulse - 1;
+    if (pulse > 0)
+    {
+        *regCCRn = pulse - 1;
+    }
+    else
+    {
+        *regCCRn = 0;
+    }
 
     return ERRORS_NO_ERROR;
 }
