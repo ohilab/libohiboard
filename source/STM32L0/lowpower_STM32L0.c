@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Niccolò Paolinelli <ai03@hotmail.it>
@@ -102,7 +102,6 @@ static LowPower_Device lpd =
  */
 static void LowPower_readResetStatus(void)
 {
-//    uint32_t regPWR_CR = lpd.regmapPWR->CR;
     uint32_t regPWR_CSR = lpd.regmapPWR->CSR;
     uint32_t regRCC_CSR = lpd.regmapRCC->CSR;
 
@@ -149,7 +148,6 @@ static void LowPower_enableLowPowerRunMode (void)
 {
     UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_LPSDSR);
     UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_LPRUN);
-
 }
 
 /**
@@ -217,7 +215,7 @@ static void LowPower_untilItSleeps (LowPower_WaitFor entry)
 }
 
 /**
- * FATTA, DA CONTROLLARE
+ * TODO: Check function
  */
 static void LowPower_enterSleepMode (LowPower_Regulator regulator, LowPower_WaitFor sleepEntry)
 {
@@ -264,9 +262,8 @@ static void LowPower_enterSleepMode (LowPower_Regulator regulator, LowPower_Wait
 
 }
 
-
 /**
- * FATTO! DA CONTROLLARE
+ * TODO: Check function
  */
 static void LowPower_enterStopMode (LowPower_Regulator regulator, LowPower_WaitFor stopEntry)
 {
@@ -303,7 +300,7 @@ static void LowPower_enterStopMode (LowPower_Regulator regulator, LowPower_WaitF
 }
 
 /**
- * FATTO, DA CONTROLLARE
+ * TODO: Check function
  */
 static void LowPower_enterStandbyMode (void)
 {
@@ -312,43 +309,12 @@ static void LowPower_enterStandbyMode (void)
     LowPower_untilItSleeps(LOWPOWER_WAITFOR_INTERRUPT);
 }
 
-
-/**
- * Nel 32L0 non è prevista la modalità shutdown
- */
-//static void LowPower_enterShutdownMode (void)
-//{
-//    UTILITY_MODIFY_REGISTER(lpd.regmapPWR->CR1, PWR_CR1_LPMS, PWR_CR1_LPMS_SHUTDOWN);
-//    UTILITY_SET_REGISTER_BIT(lpd.regmapSCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
-//    LowPower_untilItSleeps(LOWPOWER_WAITFOR_INTERRUPT);
-//}
-
 /**
  *
  */
 static LowPower_Mode LowPower_modeSwitchingRoute[LOWPOWER_MODE_NUMBER][LOWPOWER_MODE_NUMBER] =
 {
-//    /*                          {LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP,    LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP0, LOWPOWER_MODE_STOP1, LOWPOWER_MODE_STOP2, LOWPOWER_MODE_STANDBY, LOWPOWER_MODE_SHUTDOWN}, */
-//    /* LOWPOWER_MODE_RUN      */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPRUN,   LOWPOWER_MODE_STOP0, LOWPOWER_MODE_STOP1, LOWPOWER_MODE_STOP2, LOWPOWER_MODE_STANDBY, LOWPOWER_MODE_SHUTDOWN},
-//    /* LOWPOWER_MODE_LPRUN    */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_STOP1, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_STANDBY, LOWPOWER_MODE_SHUTDOWN},
-//    /* LOWPOWER_MODE_SLEEP    */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_LPSLEEP  */{LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN,   LOWPOWER_MODE_LPRUN},
-//    /* LOWPOWER_MODE_STOP0    */{LOWPOWER_MODE_RUN,      LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_STOP0, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_STOP1    */{LOWPOWER_MODE_RUN,      LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,   LOWPOWER_MODE_STOP1, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_STOP2    */{LOWPOWER_MODE_RUN,      LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_STOP2, LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_STANDBY  */{LOWPOWER_MODE_RUN,      LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_STANDBY, LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_SHUTDOWN */{LOWPOWER_MODE_RUN,      LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_SHUTDOWN},
-
-//        Rifatta per ST32L0 ma non penso serva
-//    /*                          {LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY}, */
-//    /* LOWPOWER_MODE_RUN      */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPRUN,   LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY},
-//    /* LOWPOWER_MODE_LPRUN    */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_RUN,    LOWPOWER_MODE_STANDBY},
-//    /* LOWPOWER_MODE_SLEEP    */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,    LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_LPSLEEP  */{LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_LPRUN,  LOWPOWER_MODE_LPRUN},
-//    /* LOWPOWER_MODE_STOP     */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_STOP,   LOWPOWER_MODE_RUN},
-//    /* LOWPOWER_MODE_STANDBY  */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,   LOWPOWER_MODE_RUN,     LOWPOWER_MODE_RUN,    LOWPOWER_MODE_STANDBY},
-
-//        Non essendo specificato sul reference manual, ho ipotizzato che ogni transizione vada bene
+    // There is not matrix transaction between each mode.
     /*                          {LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY}, */
     /* LOWPOWER_MODE_RUN      */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY},
     /* LOWPOWER_MODE_LPRUN    */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY},
@@ -356,8 +322,6 @@ static LowPower_Mode LowPower_modeSwitchingRoute[LOWPOWER_MODE_NUMBER][LOWPOWER_
     /* LOWPOWER_MODE_LPSLEEP  */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY},
     /* LOWPOWER_MODE_STOP     */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY},
     /* LOWPOWER_MODE_STANDBY  */{LOWPOWER_MODE_RUN,   LOWPOWER_MODE_LPRUN, LOWPOWER_MODE_SLEEP, LOWPOWER_MODE_LPSLEEP, LOWPOWER_MODE_STOP,   LOWPOWER_MODE_STANDBY},
-
-
 };
 
 /**
@@ -394,35 +358,12 @@ static System_Errors LowPower_enterMode (LowPower_Mode mode)
         LowPower_enterStopMode(LOWPOWER_REGULATOR_LOW, LOWPOWER_WAITFOR_INTERRUPT);
         System_resumeTick();
         break;
-//    case LOWPOWER_MODE_STOP0:
-//        System_suspendTick();
-//        LowPower_enterStopMode(0, LOWPOWER_WAITFOR_INTERRUPT);
-//        System_resumeTick();
-//        break;
-//    case LOWPOWER_MODE_STOP1:
-//        System_suspendTick();
-//        LowPower_enableLowPowerRunMode();
-//        LowPower_enterStopMode(1, LOWPOWER_WAITFOR_INTERRUPT);
-//        System_resumeTick();
-//        break;
-//    case LOWPOWER_MODE_STOP2:
-//        System_suspendTick();
-//        LowPower_enableLowPowerRunMode();
-//        LowPower_enterStopMode(2, LOWPOWER_WAITFOR_INTERRUPT);
-//        System_resumeTick();
-//        break;
     case LOWPOWER_MODE_STANDBY:
         System_suspendTick();
         LowPower_enableLowPowerRunMode();
         LowPower_enterStandbyMode();
         System_resumeTick();
         break;
-//    case LOWPOWER_MODE_SHUTDOWN:
-//        System_suspendTick();
-//        LowPower_enableLowPowerRunMode();
-//        LowPower_enterShutdownMode();
-//        System_resumeTick();
-//        break;
     }
 
     lpd.currentMode = mode;
@@ -463,13 +404,12 @@ LowPower_ResetControl LowPower_getResetStatus (void)
     return lpd.resetControl;
 }
 
-
 /*
- * FATTO SIA ENABLE CHE DISABLE, DA CONTROLLARE
-*/
-
-void LowPower_enableWakeUpPin (LowPower_WakeUpPins pins)
+ * FIXME: must to be check
+ */
+void LowPower_enableWakeUpPin (LowPower_WakeUpPins pins, LowPower_WakeUpEdge polarity)
 {
+    (void)polarity;
     UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CSR, pins);
 }
 
@@ -495,10 +435,6 @@ void LowPower_disableWakeUpPin (LowPower_WakeUpPins pins)
     }
 }
 
-/*
- * FATTO SIA GET CHE CLEAR, DA CONTROLLARE
-*/
-
 uint32_t LowPower_getWakeUpflags (void)
 {
     return UTILITY_READ_REGISTER_BIT(lpd.regmapPWR->CSR, PWR_CSR_WUF);
@@ -509,7 +445,7 @@ void LowPower_clearWakeUpflags (uint32_t flags)
     UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_CWUF);
 }
 
-System_Errors LowPower_setModeByFrequency(uint32_t frequency, LowPower_Mode mode)
+System_Errors LowPower_setModeByFrequency (uint32_t frequency, LowPower_Mode mode)
 {
     System_Errors err = ERRORS_NO_ERROR;
     if (((mode == LOWPOWER_MODE_LPRUN) || (mode == LOWPOWER_MODE_LPSLEEP)) && (frequency > 2000000u))
@@ -570,39 +506,38 @@ System_Errors LowPower_setModeByConfiguration (Clock_Config* config, LowPower_Mo
     return err;
 }
 
-LowPower_Mode LowPower_getMode(void)
+LowPower_Mode LowPower_getMode (void)
 {
     return lpd.currentMode;
 }
 
-void LowPower_enableUltraLowPower(void)
+void LowPower_enableUltraLowPower (void)
 {
     UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_ULP);
 }
 
-void LowPower_disableUltraLowPower(void)
+void LowPower_disableUltraLowPower (void)
 {
     UTILITY_CLEAR_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_ULP);
 }
 
-void LowPower_enableFastWakeUp(void)
+void LowPower_enableFastWakeUp (void)
 {
     UTILITY_SET_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_FWU);
 }
 
-void LowPower_disableFastWakeUp(void)
+void LowPower_disableFastWakeUp (void)
 {
     UTILITY_CLEAR_REGISTER_BIT(lpd.regmapPWR->CR, PWR_CR_FWU);
 }
 
-void LowPower_wakeupClkConfig(LowPower_WakeUpClk wakeupclk)
+void LowPower_wakeupClockConfig (LowPower_WakeUpClock clock)
 {
-    if (wakeupclk == 0)
-        UTILITY_CLEAR_REGISTER_BIT(lpd.regmapRCC->CFGR,  RCC_CFGR_STOPWUCK);
+    if (clock == LOWPOWER_WAKEUPCLOCK_MSI)
+        UTILITY_CLEAR_REGISTER_BIT(lpd.regmapRCC->CFGR, RCC_CFGR_STOPWUCK);
     else
         UTILITY_SET_REGISTER_BIT(lpd.regmapRCC->CFGR, RCC_CFGR_STOPWUCK);
 }
-
 
 #endif // LIBOHIBOARD_STM32L0
 

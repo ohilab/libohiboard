@@ -1188,22 +1188,22 @@ void ADC_COMP_IRQHandler (void)
     Adc_callbackInterrupt(OB_ADC1);
 }
 
-void LowPower_disableADCRegulator (void)
+void Adc_disableRegulator (Adc_DeviceHandle dev)
 {
-    if (UTILITY_READ_REGISTER_BIT(ADC1->CR, ADC_CR_ADEN) == 1)
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->CR, ADC_CR_ADEN) == 1)
     {
-        UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_CR_ADDIS);
+        UTILITY_SET_REGISTER_BIT(ADC1->regmap->CR, ADC_CR_ADDIS);
     }
-    UTILITY_CLEAR_REGISTER_BIT(ADC1->CR, ADC_CR_ADVREGEN);
+    UTILITY_CLEAR_REGISTER_BIT(ADC1->regmap->CR, ADC_CR_ADVREGEN);
 }
 
-void LowPower_enableADCRegulator (void)
+void Adc_enableRegulator (Adc_DeviceHandle dev)
 {
-    UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_CR_ADVREGEN);
-    UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_CR_ADEN);
+    UTILITY_SET_REGISTER_BIT(ADC1->regmap->CR, ADC_CR_ADVREGEN);
+    UTILITY_SET_REGISTER_BIT(ADC1->regmap->CR, ADC_CR_ADEN);
 
-    while (UTILITY_READ_REGISTER_BIT(ADC1->CR, ADC_ISR_ADRDY) != 1);
-    UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_ISR_ADRDY);
+    while (UTILITY_READ_REGISTER_BIT(ADC1->regmap->CR, ADC_ISR_ADRDY) != 1);
+    UTILITY_SET_REGISTER_BIT(ADC1->regmap->CR, ADC_ISR_ADRDY);
 }
 
 #endif // LIBOHIBOARD_STM32L0

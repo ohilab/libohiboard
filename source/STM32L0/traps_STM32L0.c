@@ -42,6 +42,13 @@ extern "C" {
 #include "traps.h"
 #include "system.h"
 
+static pFunc mHardFaultCallback = NULL;
+
+void Traps_addHardFaultCallback (pFunc c)
+{
+    mHardFaultCallback = c;
+}
+
 void Traps_haltOnError (Traps_ErrorCode code)
 {
     Traps_ErrorCode current = code;
@@ -52,6 +59,7 @@ void Traps_haltOnError (Traps_ErrorCode code)
 
 _weak void HardFault_Handler (void)
 {
+    if (mHardFaultCallback != NULL) mHardFaultCallback();
     Traps_haltOnError(TRAPS_ERRORCODE_NONE);
 }
 
