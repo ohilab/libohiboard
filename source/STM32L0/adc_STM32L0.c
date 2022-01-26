@@ -1188,6 +1188,24 @@ void ADC_COMP_IRQHandler (void)
     Adc_callbackInterrupt(OB_ADC1);
 }
 
+void LowPower_disableADCRegulator (void)
+{
+    if (UTILITY_READ_REGISTER_BIT(ADC1->CR, ADC_CR_ADEN) == 1)
+    {
+        UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_CR_ADDIS);
+    }
+    UTILITY_CLEAR_REGISTER_BIT(ADC1->CR, ADC_CR_ADVREGEN);
+}
+
+void LowPower_enableADCRegulator (void)
+{
+    UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_CR_ADVREGEN);
+    UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_CR_ADEN);
+
+    while (UTILITY_READ_REGISTER_BIT(ADC1->CR, ADC_ISR_ADRDY) != 1);
+    UTILITY_SET_REGISTER_BIT(ADC1->CR, ADC_ISR_ADRDY);
+}
+
 #endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus

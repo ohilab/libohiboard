@@ -85,8 +85,9 @@ typedef enum _LowPower_Regulator
  */
 typedef enum _LowPower_VoltageScaling
 {
-	LOWPOWER_VOLTAGESCALING_SCALE1 = 1,
-	LOWPOWER_VOLTAGESCALING_SCALE2 = 2,
+	LOWPOWER_VOLTAGESCALING_SCALE1 = 1, //1V8
+	LOWPOWER_VOLTAGESCALING_SCALE2 = 2, //1V5
+	LOWPOWER_VOLTAGESCALING_SCALE3 = 3, //1V2
 } LowPower_VoltageScaling;
 
 #if defined (LIBOHIBOARD_STM32L0)
@@ -142,7 +143,7 @@ LowPower_ResetControl LowPower_getResetStatus(void);
  *       @li WKUP4 == PA2
  *       @li WKUP5 == PC5
  */
-void LowPower_enableWakeUpPin (LowPower_WakeUpPins pins, LowPower_WakeUpEdge polarity);
+void LowPower_enableWakeUpPin (LowPower_WakeUpPins pins);
 
 /**
  * Disable the WakeUp PINx functionality.
@@ -193,6 +194,31 @@ System_Errors LowPower_setModeByConfiguration (Clock_Config* config, LowPower_Mo
  * @note the returned value is in MCU-specific enumeration;  please compare with the comfort macros for a portable usage.
  */
 LowPower_Mode LowPower_getMode(void);
+
+/**
+ * Enable the Ultra Low Power mode
+ */
+void LowPower_enableUltraLowPower(void);
+
+/**
+ * Disable the Ultra Low Power mode
+ */
+void LowPower_disableUltraLowPower(void);
+
+/**
+ * Enable the fast wake up
+ */
+void LowPower_enableFastWakeUp(void);
+
+/**
+ * Disable the fast wake up
+ */
+void LowPower_disableFastWakeUp(void);
+
+/**
+ * Select MSI or HSI as system clock source after Wake Up from Stop mode
+ */
+void LowPower_wakeupClkConfig(LowPower_WakeUpClk wakeupclk);
 
 #ifdef __cplusplus
 }
