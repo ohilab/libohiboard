@@ -52,6 +52,7 @@ void __weak Flash_notifyProgress (uint16_t p, uint16_t pages)
 
 }
 
+#if 0
 bool Flash_isPageEmpty (uint32_t address) 
 {
     uint32_t fixedAddressPage = (address & FLASH_PAGE_MASK_W);
@@ -123,12 +124,12 @@ bool Flash_memcpy (uint32_t destAddress, uint32_t sourceAddress, uint32_t length
             currentAddressDest += (FLASH_ROW_SIZE_W);
         }
 
-        // se una delle righe della pagina non è scritta correttamente, 
+        // se una delle righe della pagina non ï¿½ scritta correttamente, 
         //   allora si esegue un solo tentativo di cancellazione e 
         //   riscrittura dell'intera pagina;
         //   se anche il secondo tentativo non va a buon fine, 
         //   allora eseguire un ciclo in ci si notifica che la 
-        //   programmazione è falita e non è possibile recuperare via OTA 
+        //   programmazione ï¿½ falita e non ï¿½ possibile recuperare via OTA 
         //   il device (lampeggio o vibrazione continua))
         // se tutte le righe della pagina sono scritte correttamente, 
         //     allora si procede alla pagina successiva 
@@ -149,6 +150,7 @@ bool Flash_memcpy (uint32_t destAddress, uint32_t sourceAddress, uint32_t length
     }
     return rtnValue;
 }
+#endif
 
 #ifdef __cplusplus
 }

@@ -159,12 +159,23 @@ typedef struct _Spi_Device
 
 } Spi_Device;
 
-#if defined (LIBOHIBOARD_STM32L073)
-
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 #define SPI_IS_DEVICE(DEVICE) (((DEVICE) == OB_SPI1)  || \
                                ((DEVICE) == OB_SPI2))
-
-#endif // LIBOHIBOARD_STM32L073
+#else
+#define SPI_IS_DEVICE(DEVICE) (((DEVICE) == OB_SPI1))
+#endif
 
 static Spi_Device spi1 = {
         .regmap              = SPI1,
@@ -176,10 +187,16 @@ static Spi_Device spi1 = {
         {
                                SPI_PINS_PA6,
                                SPI_PINS_PA11,
-							   SPI_PINS_PB4,
+                               SPI_PINS_PB4,
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PE14,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PE14,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PE14,
 #endif
         },
         .sinPinsGpio          =
@@ -187,6 +204,12 @@ static Spi_Device spi1 = {
                                GPIO_PINS_PA6,
                                GPIO_PINS_PA11,
                                GPIO_PINS_PB4,
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PE14,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PE14,
@@ -197,6 +220,12 @@ static Spi_Device spi1 = {
                                GPIO_ALTERNATE_0,
                                GPIO_ALTERNATE_0,
                                GPIO_ALTERNATE_0,
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_ALTERNATE_2,
@@ -207,7 +236,13 @@ static Spi_Device spi1 = {
         {
                                SPI_PINS_PA7,
                                SPI_PINS_PA12,
-							   SPI_PINS_PB5,
+                               SPI_PINS_PB5,
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PE15,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
 	defined (LIBOHIBOARD_STM32L073VxI)
                                SPI_PINS_PE15,
@@ -218,9 +253,15 @@ static Spi_Device spi1 = {
         {
                                GPIO_PINS_PA7,
                                GPIO_PINS_PA12,
-							   GPIO_PINS_PB5,
+                               GPIO_PINS_PB5,
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PE15,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
+    defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PE15,
 #endif
         },
@@ -229,6 +270,12 @@ static Spi_Device spi1 = {
                                GPIO_ALTERNATE_0,
                                GPIO_ALTERNATE_0,
                                GPIO_ALTERNATE_0,
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_ALTERNATE_2,
@@ -238,16 +285,62 @@ static Spi_Device spi1 = {
         .sckPins              =
         {
                                SPI_PINS_PA5,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+                               SPI_PINS_PB3, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PE13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                SPI_PINS_PB3,
+#endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PE13,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PE13,
 #endif
         },
         .sckPinsGpio          =
         {
                                GPIO_PINS_PA5,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+                               GPIO_PINS_PB3, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PE13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PB3,
+#endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PE13,
@@ -256,7 +349,30 @@ static Spi_Device spi1 = {
         .sckPinsMux           =
         {
                                GPIO_ALTERNATE_0,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+                               GPIO_ALTERNATE_0, // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_0,
+#endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_ALTERNATE_2,
@@ -266,7 +382,29 @@ static Spi_Device spi1 = {
         .nssPins              =
         {
                                SPI_PINS_PA4,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PA15,  // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PE12,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                SPI_PINS_PA15,
+#endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
 	defined (LIBOHIBOARD_STM32L073VxI)
                                SPI_PINS_PE12,
@@ -275,24 +413,72 @@ static Spi_Device spi1 = {
         .nssPinsGpio          =
         {
                                GPIO_PINS_PA4,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PA15,  // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PE12,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PA15,
+#endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
+    defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PE12,
 #endif
         },
         .nssPinsMux           =
         {
                                GPIO_ALTERNATE_0,
+
+#if defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_0,  // Internally connected into LIBOHIBOARD_CMWX1ZZABZ_091
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_0,
+#endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   GPIO_ALTERNATE_2,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_2,
 #endif
         },
 };
 Spi_DeviceHandle OB_SPI1 = &spi1;
 
+#if defined (LIBOHIBOARD_STM32L073)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
 static Spi_Device spi2 = {
         .regmap              = SPI2,
 
@@ -302,20 +488,50 @@ static Spi_Device spi2 = {
         .sinPins              =
         {
                                SPI_PINS_PB14,
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PC2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PD3,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073RxT) || \
-	defined (LIBOHIBOARD_STM32L073RxI) || \
+    defined (LIBOHIBOARD_STM32L073RxI) || \
     defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                SPI_PINS_PC2,
 #endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PD3,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PD3,
 #endif
         },
         .sinPinsGpio          =
         {
                                GPIO_PINS_PB14,
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD3,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073RxT) || \
     defined (LIBOHIBOARD_STM32L073RxI) || \
     defined (LIBOHIBOARD_STM32L073VxT) || \
@@ -330,6 +546,22 @@ static Spi_Device spi2 = {
         .sinPinsMux           =
         {
                                GPIO_ALTERNATE_0,
+
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
+
 #if defined (LIBOHIBOARD_STM32L073RxT) || \
     defined (LIBOHIBOARD_STM32L073RxI) || \
     defined (LIBOHIBOARD_STM32L073VxT) || \
@@ -345,19 +577,43 @@ static Spi_Device spi2 = {
         .soutPins             =
         {
                                SPI_PINS_PB15,
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PC3,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PD4,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073RxT) || \
     defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PC3,
+                               SPI_PINS_PC3,
 #endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PD4,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PD4,
 #endif
         },
         .soutPinsGpio         =
         {
                                GPIO_PINS_PB15,
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC3,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD4,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073RxT) || \
     defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
@@ -371,6 +627,18 @@ static Spi_Device spi2 = {
         .soutPinsMux          =
         {
                                GPIO_ALTERNATE_0,
+
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_2,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_1,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073RxT) || \
     defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
@@ -384,17 +652,51 @@ static Spi_Device spi2 = {
 
         .sckPins              =
         {
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                SPI_PINS_PB10,
+#endif
                                SPI_PINS_PB13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PD1,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PD1,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PD1,
 #endif
         },
         .sckPinsGpio          =
         {
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB10,
+#endif
                                GPIO_PINS_PB13,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD1,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_PINS_PD1,
@@ -402,8 +704,25 @@ static Spi_Device spi2 = {
         },
         .sckPinsMux           =
         {
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_5,
+#endif
                                GPIO_ALTERNATE_0,
+#endif
+
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_1,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
     defined (LIBOHIBOARD_STM32L073VxI)
                                GPIO_ALTERNATE_2,
@@ -412,33 +731,77 @@ static Spi_Device spi2 = {
 
         .nssPins              =
         {
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                SPI_PINS_PB9,
+#endif
                                SPI_PINS_PB12,
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               SPI_PINS_PD0,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   SPI_PINS_PD0,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               SPI_PINS_PD0,
 #endif
         },
         .nssPinsGpio          =
         {
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB9,
+#endif
                                GPIO_PINS_PB12,
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PD0,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   GPIO_PINS_PD0,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_PINS_PD0,
 #endif
         },
         .nssPinsMux           =
         {
+
+#if defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_5,
+#endif
                                GPIO_ALTERNATE_0,
+#if defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_ALTERNATE_1,
+#endif
+
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
-							   GPIO_ALTERNATE_1,
+    defined (LIBOHIBOARD_STM32L073VxI)
+                               GPIO_ALTERNATE_1,
 #endif
         },
 };
 Spi_DeviceHandle OB_SPI2 = &spi2;
+#endif
 
 static System_Errors Spi_setSoutPin(Spi_DeviceHandle dev, Spi_SoutPins soutPin)
 {

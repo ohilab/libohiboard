@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -168,7 +168,236 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
 {
     {0xFF,0xFF,0},
 
-#if defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1)
+
+#if defined (LIBOHIBOARD_STM32L071)
+
+    {GPIO_PORTS_A,0,0},
+    {GPIO_PORTS_A,1,0},
+    {GPIO_PORTS_A,2,0},
+    {GPIO_PORTS_A,3,0},
+    {GPIO_PORTS_A,4,0},
+    {GPIO_PORTS_A,5,0},
+    {GPIO_PORTS_A,6,0},
+    {GPIO_PORTS_A,7,0},
+    {GPIO_PORTS_A,8,0},
+    {GPIO_PORTS_A,9,0},
+    {GPIO_PORTS_A,10,0},
+    {GPIO_PORTS_A,11,0},
+    {GPIO_PORTS_A,12,0},
+    {GPIO_PORTS_A,13,0},
+    {GPIO_PORTS_A,14,0},
+#if !defined (LIBOHIBOARD_STM32L071KxU)
+    {GPIO_PORTS_A,15,0},
+#endif
+
+    {GPIO_PORTS_B,0,1},
+    {GPIO_PORTS_B,1,1},
+#if defined (LIBOHIBOARD_STM32L071CxT) || \
+    defined (LIBOHIBOARD_STM32L071CxY) || \
+    defined (LIBOHIBOARD_STM32L071CxU) || \
+    defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_B,2,1},
+#endif
+#if !defined (LIBOHIBOARD_STM32L071KxU)
+    {GPIO_PORTS_B,3,1},
+#endif
+    {GPIO_PORTS_B,4,1},
+    {GPIO_PORTS_B,5,1},
+    {GPIO_PORTS_B,6,1},
+    {GPIO_PORTS_B,7,1},
+#if defined (LIBOHIBOARD_STM32L071CxT) || \
+    defined (LIBOHIBOARD_STM32L071CxY) || \
+    defined (LIBOHIBOARD_STM32L071CxU) || \
+    defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_B,8,1},
+    {GPIO_PORTS_B,9,1},
+    {GPIO_PORTS_B,10,1},
+    {GPIO_PORTS_B,11,1},
+    {GPIO_PORTS_B,12,1},
+    {GPIO_PORTS_B,13,1},
+    {GPIO_PORTS_B,14,1},
+    {GPIO_PORTS_B,15,1},
+#endif
+
+#if defined (LIBOHIBOARD_STM32L071CxY) || \
+    defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_C,0,2},
+    {GPIO_PORTS_C,1,2},
+    {GPIO_PORTS_C,2,2},
+#endif
+#if defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI))
+    {GPIO_PORTS_C,3,2},
+#endif
+#if defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_C,4,2},
+    {GPIO_PORTS_C,5,2},
+    {GPIO_PORTS_C,6,2},
+    {GPIO_PORTS_C,7,2},
+    {GPIO_PORTS_C,8,2},
+    {GPIO_PORTS_C,9,2},
+    {GPIO_PORTS_C,10,2},
+    {GPIO_PORTS_C,11,2},
+    {GPIO_PORTS_C,12,2},
+#endif
+#if defined (LIBOHIBOARD_STM32L071CxT) || \
+    defined (LIBOHIBOARD_STM32L071CxY) || \
+    defined (LIBOHIBOARD_STM32L071CxU) || \
+    defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_C,13,2},
+#endif
+    {GPIO_PORTS_C,14,2},
+    {GPIO_PORTS_C,15,2},
+
+#if defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_D,0,3},
+    {GPIO_PORTS_D,1,3},
+#endif
+#if defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_D,2,3},
+#endif
+#if defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_D,3,3},
+    {GPIO_PORTS_D,4,3},
+    {GPIO_PORTS_D,5,3},
+    {GPIO_PORTS_D,6,3},
+    {GPIO_PORTS_D,7,3},
+    {GPIO_PORTS_D,8,3},
+    {GPIO_PORTS_D,9,3},
+    {GPIO_PORTS_D,10,3},
+    {GPIO_PORTS_D,11,3},
+    {GPIO_PORTS_D,12,3},
+    {GPIO_PORTS_D,13,3},
+    {GPIO_PORTS_D,14,3},
+    {GPIO_PORTS_D,15,3},
+#endif
+
+#if defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_E,0,4},
+    {GPIO_PORTS_E,1,4},
+    {GPIO_PORTS_E,2,4},
+    {GPIO_PORTS_E,3,4},
+    {GPIO_PORTS_E,4,4},
+    {GPIO_PORTS_E,5,4},
+    {GPIO_PORTS_E,6,4},
+    {GPIO_PORTS_E,7,4},
+    {GPIO_PORTS_E,8,4},
+    {GPIO_PORTS_E,9,4},
+    {GPIO_PORTS_E,10,4},
+    {GPIO_PORTS_E,11,4},
+    {GPIO_PORTS_E,12,4},
+    {GPIO_PORTS_E,13,4},
+    {GPIO_PORTS_E,14,4},
+    {GPIO_PORTS_E,15,4},
+#endif
+
+#if defined (LIBOHIBOARD_STM32L071CxT) || \
+    defined (LIBOHIBOARD_STM32L071CxY) || \
+    defined (LIBOHIBOARD_STM32L071CxU) || \
+    defined (LIBOHIBOARD_STM32L071RxT) || \
+    defined (LIBOHIBOARD_STM32L071RxH) || \
+    defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_H,0,7},
+    {GPIO_PORTS_H,1,7},
+#endif
+#if defined (LIBOHIBOARD_STM32L071VxT) || \
+    defined (LIBOHIBOARD_STM32L071VxI)
+    {GPIO_PORTS_H,9,7},
+    {GPIO_PORTS_H,10,7},
+#endif
+
+#endif // LIBOHIBOARD_STM32L071
+
+#if defined (LIBOHIBOARD_STM32L081)
+
+    {GPIO_PORTS_A,0,0},
+    {GPIO_PORTS_A,1,0},
+    {GPIO_PORTS_A,2,0},
+    {GPIO_PORTS_A,3,0},
+    {GPIO_PORTS_A,4,0},
+    {GPIO_PORTS_A,5,0},
+    {GPIO_PORTS_A,6,0},
+    {GPIO_PORTS_A,7,0},
+    {GPIO_PORTS_A,8,0},
+    {GPIO_PORTS_A,9,0},
+    {GPIO_PORTS_A,10,0},
+    {GPIO_PORTS_A,11,0},
+    {GPIO_PORTS_A,12,0},
+    {GPIO_PORTS_A,13,0},
+    {GPIO_PORTS_A,14,0},
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_A,15,0},
+#endif
+
+    {GPIO_PORTS_B,0,1},
+    {GPIO_PORTS_B,1,1},
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_B,2,1},
+#endif
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_B,3,1},
+#endif
+    {GPIO_PORTS_B,4,1},
+    {GPIO_PORTS_B,5,1},
+    {GPIO_PORTS_B,6,1},
+    {GPIO_PORTS_B,7,1},
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_B,8,1},
+    {GPIO_PORTS_B,9,1},
+    {GPIO_PORTS_B,10,1},
+    {GPIO_PORTS_B,11,1},
+    {GPIO_PORTS_B,12,1},
+    {GPIO_PORTS_B,13,1},
+    {GPIO_PORTS_B,14,1},
+    {GPIO_PORTS_B,15,1},
+#endif
+
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_C,13,2},
+#endif
+    {GPIO_PORTS_C,14,2},
+    {GPIO_PORTS_C,15,2},
+
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    {GPIO_PORTS_H,0,7},
+    {GPIO_PORTS_H,1,7},
+#endif
+
+#endif // LIBOHIBOARD_STM32L081
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
 
@@ -194,7 +423,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_A,15,0},
 #endif
 
@@ -206,7 +436,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_B,2,1},
 #endif
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
@@ -216,7 +447,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_B,3,1},
 #endif
     {GPIO_PORTS_B,4,1},
@@ -229,11 +461,14 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_B,8,1},
     {GPIO_PORTS_B,9,1},
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_B,10,1},
     {GPIO_PORTS_B,11,1},
+#endif
     {GPIO_PORTS_B,12,1},
     {GPIO_PORTS_B,13,1},
     {GPIO_PORTS_B,14,1},
@@ -245,7 +480,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_C,0,2},
     {GPIO_PORTS_C,1,2},
     {GPIO_PORTS_C,2,2},
@@ -276,11 +512,14 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_C,13,2},
 #endif
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_C,14,2},
     {GPIO_PORTS_C,15,2},
+#endif
 
 #if defined (LIBOHIBOARD_STM32L072VxT) || \
     defined (LIBOHIBOARD_STM32L072VxI)
@@ -337,7 +576,8 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     {GPIO_PORTS_H,0,7},
     {GPIO_PORTS_H,1,7},
 #endif
@@ -486,6 +726,30 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Ports port)
 {
     switch (port)
     {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    case GPIO_PORTS_A:
+        return GPIOA;
+
+    case GPIO_PORTS_B:
+        return GPIOB;
+
+    case GPIO_PORTS_C:
+        return GPIOC;
+#if defined (LIBOHIBOARD_STM32L071)
+    case GPIO_PORTS_D:
+        return GPIOD;
+
+    case GPIO_PORTS_E:
+        return GPIOE;
+#endif
+#if defined (LIBOHIBOARD_STM32L071)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    case GPIO_PORTS_H:
+        return GPIOH;
+#endif
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
+      defined (LIBOHIBOARD_STM32L0x3)
     case GPIO_PORTS_A:
         return GPIOA;
 
@@ -503,6 +767,7 @@ static GPIO_TypeDef* Gpio_getPort (Gpio_Ports port)
 
     case GPIO_PORTS_H:
         return GPIOH;
+#endif
 
     default:
         ohiassert(0);
@@ -514,6 +779,37 @@ void Gpio_enablePortClock (Gpio_Ports port)
 {
     switch (port)
     {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    case GPIO_PORTS_A:
+        GPIO_ENABLE_CLOCK_PORTA();
+        break;
+
+    case GPIO_PORTS_B:
+        GPIO_ENABLE_CLOCK_PORTB();
+        break;
+
+    case GPIO_PORTS_C:
+        GPIO_ENABLE_CLOCK_PORTC();
+        break;
+#if defined (LIBOHIBOARD_STM32L071)
+
+    case GPIO_PORTS_D:
+        GPIO_ENABLE_CLOCK_PORTD();
+        break;
+
+    case GPIO_PORTS_E:
+        GPIO_ENABLE_CLOCK_PORTE();
+        break;
+#endif
+#if defined (LIBOHIBOARD_STM32L071)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    case GPIO_PORTS_H:
+        GPIO_ENABLE_CLOCK_PORTH();
+        break;
+#endif
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
+      defined (LIBOHIBOARD_STM32L0x3)
     case GPIO_PORTS_A:
         GPIO_ENABLE_CLOCK_PORTA();
         break;
@@ -537,6 +833,7 @@ void Gpio_enablePortClock (Gpio_Ports port)
     case GPIO_PORTS_H:
         GPIO_ENABLE_CLOCK_PORTH();
         break;
+#endif
 
     default:
         ohiassert(0);
@@ -549,6 +846,37 @@ void Gpio_disablePortClock (Gpio_Ports port)
 {
     switch (port)
     {
+#if defined (LIBOHIBOARD_STM32L0x1)
+    case GPIO_PORTS_A:
+        GPIO_DISABLE_CLOCK_PORTA();
+        break;
+
+    case GPIO_PORTS_B:
+        GPIO_DISABLE_CLOCK_PORTB();
+        break;
+
+    case GPIO_PORTS_C:
+        GPIO_DISABLE_CLOCK_PORTC();
+        break;
+#if defined (LIBOHIBOARD_STM32L071)
+
+    case GPIO_PORTS_D:
+        GPIO_DISABLE_CLOCK_PORTD();
+        break;
+
+    case GPIO_PORTS_E:
+        GPIO_DISABLE_CLOCK_PORTE();
+        break;
+#endif
+#if defined (LIBOHIBOARD_STM32L071)    || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    case GPIO_PORTS_H:
+        GPIO_DISABLE_CLOCK_PORTH();
+        break;
+#endif
+#elif defined (LIBOHIBOARD_STM32L0x2) || \
+      defined (LIBOHIBOARD_STM32L0x3)
     case GPIO_PORTS_A:
         GPIO_DISABLE_CLOCK_PORTA();
         break;
@@ -572,6 +900,7 @@ void Gpio_disablePortClock (Gpio_Ports port)
     case GPIO_PORTS_H:
         GPIO_DISABLE_CLOCK_PORTH();
         break;
+#endif
 
     default:
         ohiassert(0);

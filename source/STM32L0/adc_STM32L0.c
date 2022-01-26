@@ -180,9 +180,9 @@ typedef struct _Adc_Device
 
 } Adc_Device;
 
-#if defined (LIBOHIBOARD_STM32L0x3)
-
-#if defined (LIBOHIBOARD_STM32L073)
+#if defined (LIBOHIBOARD_STM32L0x1) || \
+    defined (LIBOHIBOARD_STM32L0x2) || \
+	defined (LIBOHIBOARD_STM32L0x3)
 
 /**
  * The time required to stabilize the internal voltage regulator
@@ -220,6 +220,50 @@ static Adc_Device adc1 =
 
         .pins                =
         {
+#if defined (LIBOHIBOARD_STM32L0x1)
+                               ADC_PINS_PA0,
+                               ADC_PINS_PA1,
+                               ADC_PINS_PA2,
+                               ADC_PINS_PA3,
+                               ADC_PINS_PA4,
+                               ADC_PINS_PA5,
+                               ADC_PINS_PA6,
+                               ADC_PINS_PA7,
+                               ADC_PINS_PB0,
+                               ADC_PINS_PB1,
+#elif defined (LIBOHIBOARD_STM32L0x2)
+                               ADC_PINS_PA0,
+                               ADC_PINS_PA1,
+                               ADC_PINS_PA2,
+                               ADC_PINS_PA3,
+                               ADC_PINS_PA4,
+                               ADC_PINS_PA5,
+                               ADC_PINS_PA6,
+                               ADC_PINS_PA7,
+                               ADC_PINS_PB0,
+                               ADC_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+                               ADC_PINS_PC0,
+                               ADC_PINS_PC1,
+                               ADC_PINS_PC2,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               ADC_PINS_PC3,
+                               ADC_PINS_PC4,
+                               ADC_PINS_PC5,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
                                ADC_PINS_PA0,
                                ADC_PINS_PA1,
                                ADC_PINS_PA2,
@@ -241,9 +285,54 @@ static Adc_Device adc1 =
                                ADC_PINS_PC4,
                                ADC_PINS_PC5,
 #endif
+#endif
         },
         .pinsChannel         =
         {
+#if defined (LIBOHIBOARD_STM32L0x1)
+                               ADC_CHANNELS_CH0,
+                               ADC_CHANNELS_CH1,
+                               ADC_CHANNELS_CH2,
+                               ADC_CHANNELS_CH3,
+                               ADC_CHANNELS_CH4,
+                               ADC_CHANNELS_CH5,
+                               ADC_CHANNELS_CH6,
+                               ADC_CHANNELS_CH7,
+                               ADC_CHANNELS_CH8,
+                               ADC_CHANNELS_CH9,
+#elif defined (LIBOHIBOARD_STM32L0x2)
+                               ADC_CHANNELS_CH0,
+                               ADC_CHANNELS_CH1,
+                               ADC_CHANNELS_CH2,
+                               ADC_CHANNELS_CH3,
+                               ADC_CHANNELS_CH4,
+                               ADC_CHANNELS_CH5,
+                               ADC_CHANNELS_CH6,
+                               ADC_CHANNELS_CH7,
+                               ADC_CHANNELS_CH8,
+                               ADC_CHANNELS_CH9,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+                               ADC_CHANNELS_CH10,
+                               ADC_CHANNELS_CH11,
+                               ADC_CHANNELS_CH12,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               ADC_CHANNELS_CH13,
+                               ADC_CHANNELS_CH14,
+                               ADC_CHANNELS_CH15,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
                                ADC_CHANNELS_CH0,
                                ADC_CHANNELS_CH1,
                                ADC_CHANNELS_CH2,
@@ -265,9 +354,54 @@ static Adc_Device adc1 =
                                ADC_CHANNELS_CH14,
                                ADC_CHANNELS_CH15,
 #endif
+#endif
         },
         .pinsGpio            =
         {
+#if defined (LIBOHIBOARD_STM32L0x1)
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PA4,
+                               GPIO_PINS_PA5,
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB0,
+                               GPIO_PINS_PB1,
+#elif defined (LIBOHIBOARD_STM32L0x2)
+                               GPIO_PINS_PA0,
+                               GPIO_PINS_PA1,
+                               GPIO_PINS_PA2,
+                               GPIO_PINS_PA3,
+                               GPIO_PINS_PA4,
+                               GPIO_PINS_PA5,
+                               GPIO_PINS_PA6,
+                               GPIO_PINS_PA7,
+                               GPIO_PINS_PB0,
+                               GPIO_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L072CxY) || \
+    defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+                               GPIO_PINS_PC0,
+                               GPIO_PINS_PC1,
+                               GPIO_PINS_PC2,
+#endif
+#if defined (LIBOHIBOARD_STM32L072RxT) || \
+    defined (LIBOHIBOARD_STM32L072RxI) || \
+    defined (LIBOHIBOARD_STM32L072RxH) || \
+    defined (LIBOHIBOARD_STM32L072VxT) || \
+    defined (LIBOHIBOARD_STM32L072VxI)
+                               GPIO_PINS_PC3,
+                               GPIO_PINS_PC4,
+                               GPIO_PINS_PC5,
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
                                GPIO_PINS_PA0,
                                GPIO_PINS_PA1,
                                GPIO_PINS_PA2,
@@ -289,6 +423,7 @@ static Adc_Device adc1 =
                                GPIO_PINS_PC4,
                                GPIO_PINS_PC5,
 #endif
+#endif
         },
 
         .isrNumber           = INTERRUPT_ADC_COMP,
@@ -297,6 +432,83 @@ static Adc_Device adc1 =
 };
 Adc_DeviceHandle OB_ADC1 = &adc1;
 
+#if defined (LIBOHIBOARD_STM32L0x1)
+#define ADC_VALID_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_VREFINT)    || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH0)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH1)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH2)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH3)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH4)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH5)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH6)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH7)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH8)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH9)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_TEMPERATURE))
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
+
+#if defined (LIBOHIBOARD_STM32L072CxE) || \
+    defined (LIBOHIBOARD_STM32L072CxT) || \
+    defined (LIBOHIBOARD_STM32L072CxU) || \
+    defined (LIBOHIBOARD_STM32L072KxT) || \
+    defined (LIBOHIBOARD_STM32L072KxU) || \
+    defined (LIBOHIBOARD_STM32L072RxZ)
+#define ADC_VALID_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_VREFINT)    || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH0)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH1)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH2)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH3)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH4)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH5)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH6)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH7)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH8)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH9)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_TEMPERATURE))
+#elif defined (LIBOHIBOARD_STM32L072CxY) || \
+      defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#define ADC_VALID_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_VREFINT)    || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH0)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH1)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH2)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH3)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH4)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH5)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH6)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH7)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH8)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH9)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH10)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH11)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH12)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_TEMPERATURE))
+#elif defined (LIBOHIBOARD_STM32L072RxT) || \
+      defined (LIBOHIBOARD_STM32L072RxI) || \
+      defined (LIBOHIBOARD_STM32L072RxH) || \
+      defined (LIBOHIBOARD_STM32L072VxT) || \
+      defined (LIBOHIBOARD_STM32L072VxI)
+#define ADC_VALID_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_VREFINT)    || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH0)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH1)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH2)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH3)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH4)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH5)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH6)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH7)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH8)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH9)        || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH10)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH11)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH12)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH13)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH14)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_CH15)       || \
+                                        ((CHANNEL) == ADC_CHANNELS_TEMPERATURE))
+#endif
+
+#elif defined (LIBOHIBOARD_STM32L0x3)
 #define ADC_VALID_CHANNEL(DEV,CHANNEL) (((CHANNEL) == ADC_CHANNELS_VREFINT)    || \
                                         ((CHANNEL) == ADC_CHANNELS_CH0)        || \
                                         ((CHANNEL) == ADC_CHANNELS_CH1)        || \
@@ -316,14 +528,13 @@ Adc_DeviceHandle OB_ADC1 = &adc1;
                                         ((CHANNEL) == ADC_CHANNELS_CH15)       || \
                                         ((CHANNEL) == ADC_CHANNELS_TEMPERATURE)|| \
                                         ((CHANNEL) == ADC_CHANNELS_VLCD))
+#endif
 
 #define ADC_VALID_TEMPERATURE_CHANNEL(DEVICE) ((DEVICE) == OB_ADC1)
 
 #define ADC_VALID_VREFINT_CHANNEL(DEVICE) ((DEVICE) == OB_ADC1)
 
-#endif // LIBOHIBOARD_STM32L073
-
-#endif // LIBOHIBOARD_STM32L0x3
+#endif // LIBOHIBOARD_STM32L0x1 || LIBOHIBOARD_STM32L0x3
 
 /**
  * Delay after voltage regulator was enabled.

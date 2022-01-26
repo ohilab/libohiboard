@@ -1,10 +1,10 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *   Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,56 +26,53 @@
  */
 
 /**
- * @file libohiboard/include/traps.h
+ * @file libohiboard/include/hardware/NXPMKL/clock_MKL.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Traps definitions and prototypes.
+ * @brief Flash useful definitions for NXP MKL series
  */
 
-/**
- * @addtogroup LIBOHIBOARD_Driver
- * @{
- */
-
-/**
- * @defgroup TRAPS Traps
- * @brief Traps HAL driver
- * @{
- */
-
-#ifndef __TRAPS_H
-#define __TRAPS_H
+#ifndef __FLASH_MKL_H
+#define __FLASH_MKL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "platforms.h"
-#include "errors.h"
-#include "types.h"
 
-typedef enum _Traps_ErrorCode
+#if defined(LIBOHIBOARD_MKL)
+
+#define FLASH_WORD_SIZE                   (4)
+#define FLASH_ROW_SIZE                    (8)
+#define FLASH_PAGE_SIZE                   FSL_FEATURE_FLASH_PFLASH_BLOCK_SECTOR_SIZE
+//#define FLASH_BANK_SIZE
+#define FLASH_SIZE                        FSL_FEATURE_FLASH_PFLASH_BLOCK_SIZE
+
+#define FLASH_MAX_PAGE_NUMBER             (FLASH_SIZE/FLASH_PAGE_SIZE)
+
+/**
+ *The list of all commands usable for manage flash.
+ */
+typedef enum _Flash_Command
 {
-    TRAPS_ERRORCODE_NONE   = 0,
+    FLASH_COMMAND_READ_1S_SECTION    = 0x01,
+    FLASH_COMMAND_PROGRAM_CHECK      = 0x02,
+    FLASH_COMMAND_READ_RESOURCE      = 0x03,
+    FLASH_COMMAND_PROGRAM_LONGWORD   = 0x06,
+    FLASH_COMMAND_ERASE_FLASH_SECTOR = 0x09,
+    FLASH_COMMAND_READ_1S_ALL_BLOCKS = 0x40,
+    FLASH_COMMAND_READ_ONCE          = 0x41,
+    FLASH_COMMAND_PROGRAM_ONCE       = 0x43,
+    FLASH_COMMAND_ERASE_ALL_BLOCKS   = 0x44,
+    FLASH_COMMAND_VERIFY_BACKDOOR    = 0x45,
+} Flash_Command;
 
-} Traps_ErrorCode;
+extern Flash_DeviceHandle OB_FLASH0;
 
-void Traps_haltOnError (Traps_ErrorCode code);
-
-void Error_Handler (void);
-
-void Traps_addHardFaultCallback (pFunc c);
+#endif // LIBOHIBOARD_MKL
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __TRAPS_H
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-
+#endif // __FLASH_MKL_H

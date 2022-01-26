@@ -177,6 +177,7 @@ typedef enum _Clock_Output
 #if defined (LIBOHIBOARD_MKL)
     CLOCK_OUTPUT_MCG      = 0x0002,
     CLOCK_OUTPUT_INTERNAL = 0x0004,
+    CLOCK_OUTPUT_BUS      = 0x0008,
 #endif
 
 #endif
@@ -223,7 +224,13 @@ typedef enum _Clock_OscillatorState
  */
 typedef enum _Clock_SystemSource
 {
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)    || \
+    defined (LIBOHIBOARD_STM32L4)
     CLOCK_SYSTEMSOURCE_HSE = 0x0001,
+#endif
     CLOCK_SYSTEMSOURCE_MSI = 0x0002,
     CLOCK_SYSTEMSOURCE_HSI = 0x0004,
     CLOCK_SYSTEMSOURCE_PLL = 0x0008,
@@ -270,7 +277,12 @@ typedef enum _Clock_PllSource
 #if defined (LIBOHIBOARD_STM32L0)
     CLOCK_PLLSOURCE_NONE = 0xFFFFFFFFu,
     CLOCK_PLLSOURCE_HSI  = (RCC_CFGR_PLLSRC_HSI),
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
     CLOCK_PLLSOURCE_HSE  = (RCC_CFGR_PLLSRC_HSE),
+#endif
 #endif
 
 } Clock_PllSource;
@@ -498,7 +510,13 @@ typedef enum _Clock_McoSource
     CLOCK_MCOSOURCE_SYSCLK   = 1,
     CLOCK_MCOSOURCE_MSI      = 2,
     CLOCK_MCOSOURCE_HSI      = 3,
+#if defined (LIBOHIBOARD_STM32L4)      || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
     CLOCK_MCOSOURCE_HSE      = 4,
+#endif
     CLOCK_MCOSOURCE_PLL      = 5,
     CLOCK_MCOSOURCE_LSI      = 6,
     CLOCK_MCOSOURCE_LSE      = 7,
@@ -562,7 +580,13 @@ typedef struct _Clock_Config
 // END IF: LIBOHIBOARD_NXP_KINETIS
 #elif defined (LIBOHIBOARD_ST_STM32)
 
+#if defined (LIBOHIBOARD_STM32L4)      || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_STM32L0x2)    || \
+    defined (LIBOHIBOARD_STM32L0x3)
     Clock_OscillatorState hseState;
+#endif
     Clock_OscillatorState hsiState;
 
 #if defined (LIBOHIBOARD_STM32WB)
@@ -686,6 +710,13 @@ uint32_t Clock_getOscillatorValue (void);
  * @return value of SYSCLK clock.
  */
 uint32_t Clock_getConfigOscillatorValue (Clock_Config *config);
+
+#if defined (LIBOHIBOARD_MKL)
+/**
+ * Enable the internal reference clock for use as MCGIRCLK.
+ */
+void Clock_enableInternalReferenceClock (void);
+#endif
 
 #if defined (LIBOHIBOARD_K10D10)       || \
     defined (LIBOHIBOARD_K10D7)        || \

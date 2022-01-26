@@ -166,7 +166,8 @@ typedef struct _Timer_Device
 
 } Timer_Device;
 
-#if defined (LIBOHIBOARD_STM32L0x2) || \
+#if defined (LIBOHIBOARD_STM32L0x1) || \
+    defined (LIBOHIBOARD_STM32L0x2) || \
     defined (LIBOHIBOARD_STM32L0x3)
 
 #define TIMER_IS_DEVICE(DEVICE) (((DEVICE) == OB_TIM2)   || \
@@ -264,7 +265,11 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_PINS_PA15,
                                TIMER_PINS_PB3,
 #endif
@@ -274,7 +279,9 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                TIMER_PINS_PB10,
                                TIMER_PINS_PB11,
 #endif
@@ -300,7 +307,11 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
 #endif
@@ -310,7 +321,9 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                TIMER_CHANNELS_CH3,
                                TIMER_CHANNELS_CH4,
 #endif
@@ -336,7 +349,11 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+	defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PA15,
                                GPIO_PINS_PB3,
 #endif
@@ -346,7 +363,9 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_PINS_PB10,
                                GPIO_PINS_PB11,
 #endif
@@ -372,7 +391,11 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_5,
                                GPIO_ALTERNATE_2,
 #endif
@@ -382,7 +405,9 @@ static Timer_Device tim2 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
                                GPIO_ALTERNATE_2,
                                GPIO_ALTERNATE_2,
 #endif
@@ -588,7 +613,10 @@ static Timer_Device tim21 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_PINS_PB13,
                                TIMER_PINS_PB14,
 #endif
@@ -610,7 +638,10 @@ static Timer_Device tim21 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
 #endif
@@ -632,7 +663,10 @@ static Timer_Device tim21 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_PINS_PB13,
                                GPIO_PINS_PB14,
 #endif
@@ -654,7 +688,10 @@ static Timer_Device tim21 =
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
                                GPIO_ALTERNATE_6,
                                GPIO_ALTERNATE_6,
 #endif
@@ -1221,7 +1258,8 @@ System_Errors Timer_configPwmPin (Timer_DeviceHandle dev,
         return ERRORS_TIMER_NO_PWM_PIN_FOUND;
     }
 
-#if defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1) || \
+    defined (LIBOHIBOARD_STM32L0x2)
     if ((pin == TIMER_PINS_PB5) && (dev == OB_TIM3))
     {
         dev->regmap->OR |= TIM3_OR_TI2_RMP;
@@ -1451,7 +1489,11 @@ void TIM3_IRQHandler (void)
     Timer_callbackInterrupt(OB_TIM3);
 }
 
+#if defined (LIBOHIBOARD_STM32L0x1)
+void TIM6_IRQHandler (void)
+#elif defined (LIBOHIBOARD_STM32L0x2)
 void TIM6_DAC_IRQHandler (void)
+#endif
 {
     Timer_callbackInterrupt(OB_TIM6);
 }

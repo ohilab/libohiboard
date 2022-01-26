@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2020 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2020-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -58,7 +58,42 @@ typedef enum
 {
     TIMER_PINS_NONE,
 
-#if defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1)
+
+#if defined (LIBOHIBOARD_STM32L081)
+    TIMER_PINS_PA0,
+    TIMER_PINS_PA1,
+    TIMER_PINS_PA2,
+    TIMER_PINS_PA3,
+    TIMER_PINS_PA5,
+    TIMER_PINS_PA6,
+    TIMER_PINS_PA7,
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    TIMER_PINS_PA15,
+#endif
+
+    TIMER_PINS_PB0,
+    TIMER_PINS_PB1,
+#if defined (LIBOHIBOARD_STM32L081KxT) || \
+    defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    TIMER_PINS_PB3,
+#endif
+    TIMER_PINS_PB4,
+    TIMER_PINS_PB5,
+#if defined (LIBOHIBOARD_STM32L081CxT) || \
+    defined (LIBOHIBOARD_STM32L081CxU)
+    TIMER_PINS_PB10,
+    TIMER_PINS_PB11,
+    TIMER_PINS_PB13,
+    TIMER_PINS_PB14,
+#endif
+
+#endif // LIBOHIBOARD_STM32L081
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
 
 #if defined (LIBOHIBOARD_STM32L072)
 
@@ -67,8 +102,10 @@ typedef enum
     TIMER_PINS_PA2,
     TIMER_PINS_PA3,
     TIMER_PINS_PA5,
-    TIMER_PINS_PA6,
-    TIMER_PINS_PA7,
+    TIMER_PINS_PA6, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+    TIMER_PINS_PA7, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+
+
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
     defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -76,12 +113,14 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
-    TIMER_PINS_PA15,
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    TIMER_PINS_PA15, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
 
-    TIMER_PINS_PB0,
-    TIMER_PINS_PB1,
+    TIMER_PINS_PB0, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+    TIMER_PINS_PB1, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
+
 #if defined (LIBOHIBOARD_STM32L072KxT) || \
     defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -89,10 +128,11 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
-    TIMER_PINS_PB3,
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+    TIMER_PINS_PB3, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
 #endif
-    TIMER_PINS_PB4,
+    TIMER_PINS_PB4, // Internally connected to LIBOHIBOARD_CMWX1ZZABZ_091
     TIMER_PINS_PB5,
 #if defined (LIBOHIBOARD_STM32L072CxT) || \
     defined (LIBOHIBOARD_STM32L072CxY) || \
@@ -100,9 +140,12 @@ typedef enum
     defined (LIBOHIBOARD_STM32L072RxI) || \
     defined (LIBOHIBOARD_STM32L072RxH) || \
     defined (LIBOHIBOARD_STM32L072VxT) || \
-    defined (LIBOHIBOARD_STM32L072VxI)
+    defined (LIBOHIBOARD_STM32L072VxI) || \
+    defined (LIBOHIBOARD_CMWX1ZZABZ_091)
+#if !defined (LIBOHIBOARD_CMWX1ZZABZ_091)
     TIMER_PINS_PB10,
     TIMER_PINS_PB11,
+#endif
     TIMER_PINS_PB13,
     TIMER_PINS_PB14,
 #endif
@@ -144,7 +187,23 @@ typedef enum
 
 } Timer_Pins;
 
-#if defined (LIBOHIBOARD_STM32L0x2)
+#if defined (LIBOHIBOARD_STM32L0x1)
+
+extern Timer_DeviceHandle OB_TIM2;
+extern Timer_DeviceHandle OB_TIM3;
+extern Timer_DeviceHandle OB_TIM6;
+extern Timer_DeviceHandle OB_TIM7;
+extern Timer_DeviceHandle OB_TIM21;
+extern Timer_DeviceHandle OB_TIM22;
+
+void TIM2_IRQHandler (void);
+void TIM3_IRQHandler (void);
+void TIM6_IRQHandler (void);
+void TIM7_IRQHandler (void);
+void TIM21_IRQHandler (void);
+void TIM22_IRQHandler (void);
+
+#elif defined (LIBOHIBOARD_STM32L0x2)
 
 extern Timer_DeviceHandle OB_TIM2;
 extern Timer_DeviceHandle OB_TIM3;

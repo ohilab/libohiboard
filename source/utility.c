@@ -254,6 +254,45 @@ System_Errors dtu8 (const uint8_t* dString, uint8_t* result, uint8_t slength)
     return ERRORS_UTILITY_EMPTY_STRING;
 }
 
+System_Errors u8td (uint8_t *dString, uint8_t number)
+{
+    uint8_t scale = 100;
+    char pad = 0;
+    uint8_t charCount = 0;
+
+    if (number == 0)
+    {
+        *dString = '0';
+        dString++;
+        *dString = '\0';
+        charCount++;
+        return charCount;
+    }
+
+    for (; scale; scale /= 10)
+    {
+        if (number >= scale)
+        {
+            *dString = hexDigits[number / scale];
+            dString++;
+            charCount++;
+            number %= scale;
+            pad = '0';
+        }
+        else
+        {
+            if (pad)
+            {
+                *dString = pad;
+                dString++;
+                charCount++;
+            }
+        }
+    }
+    *dString = '\0';
+    return charCount;
+}
+
 /**
  * @brief Decimal to uint16_t conversion. 
  * 

@@ -1,12 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2018 A. C. Open Hardware Ideas Lab
- * 
+ * Copyright (C) 2021 A. C. Open Hardware Ideas Lab
+ *
  * Authors:
- *  Edoardo Bezzeccheri <coolman3@gmail.com>
  *  Marco Giammarini <m.giammarini@warcomeb.it>
- *  
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,35 +26,45 @@
  */
 
 /**
- * @file libohiboard/include/errors.h
- * @author Edoardo Bezzeccheri <coolman3@gmail.com>
+ * @file libohiboard/source/MKL/traps_MKL.c
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Errors definition
+ * @brief Traps implementations for MKL Series.
  */
-
-#include "platforms.h"
-#include "errors.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-System_Errors Errors_assert (const char* file, const int line)
+#include "platforms.h"
+
+#if defined (LIBOHIBOARD_MKL)
+
+#include "traps.h"
+#include "system.h"
+
+static pFunc mHardFaultCallback = NULL;
+
+void Traps_addHardFaultCallback (pFunc c)
 {
-    (void)file;
-    (void)line;
-    /* Set breakpoint to control the execution! */
-#if (defined(LIBOHIBOARD_PIC24FJ) && defined(__DEBUG))
-    __builtin_software_breakpoint();
-    __builtin_nop();
-#endif
-#if defined LIBOHIBOARD_ST_STM32 || \
-    defined LIBOHIBOARD_NXP_KINETIS
-    asm("BKPT #1");
-    asm("NOP");
-#endif
-    return ERRORS_ASSERT;
+    mHardFaultCallback = c;
 }
+
+void Traps_haltOnError (Traps_ErrorCode code)
+{
+    Traps_ErrorCode current = code;
+
+    System_softwareBreakpoint();
+    asm("NOP");
+}
+
+_weak void HardFault_Handler (void)
+{
+    if (mHardFaultCallback != NULL) mHardFaultCallback();
+
+    Traps_haltOnError(TRAPS_ERRORCODE_NONE);
+}
+
+#endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *   Marco Giammarini <m.giammarini@warcomeb.it>
@@ -82,6 +82,10 @@ typedef struct _LowPowerTimer_Device* LowPowerTimer_DeviceHandle;
 
 #include "hardware/PIC24FJ/lowpower-timer_PIC24FJ.h"
 
+#elif defined (LIBOHIBOARD_MKL)
+
+#include "hardware/NXPMKL/lowpower-timer_MKL.h"
+
 #endif
 
 /**
@@ -115,6 +119,29 @@ typedef enum _LowPowerTimer_ClockPrescaler
     LOWPOWERTIMER_CLOCKPRESCALER_DIV128 = LPTIM_CFGR_PRESC,
 
 #endif
+
+#if defined (LIBOHIBOARD_MKL)
+
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV1     = (0x00000004ul), // Prescaler/filter bypassed
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV2     = (0x00000000ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV4     = (0x00000008ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV8     = (0x00000010ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV16    = (0x00000018ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV32    = (0x00000020ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV64    = (0x00000028ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV128   = (0x00000030ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV256   = (0x00000038ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV512   = (0x00000040ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV1024  = (0x00000048ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV2048  = (0x00000050ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV4096  = (0x00000058ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV8192  = (0x00000060ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV16384 = (0x00000068ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV32768 = (0x00000070ul),
+    LOWPOWERTIMER_CLOCKPRESCALER_DIV65536 = (0x00000078ul),
+
+#endif
+
 #if defined (LIBOHIBOARD_PIC24FJ)
     LOWPOWERTIMER_CLOCKPRESCALER_DIV1   = 0b00,
     LOWPOWERTIMER_CLOCKPRESCALER_DIV8   = 0b01,
@@ -126,12 +153,20 @@ typedef enum _LowPowerTimer_ClockPrescaler
 /**
  * Useful array to store all the possible register value for the prescaler.
  */
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+extern const LowPowerTimer_ClockPrescaler LOWPOWERTIMER_PRESCALER_REGISTER_TABLE[16];
+#else
 extern const LowPowerTimer_ClockPrescaler LOWPOWERTIMER_PRESCALER_REGISTER_TABLE[8];
+#endif
 
 /**
  * Useful array to store all the possible prescaler value.
  */
+#if defined (LIBOHIBOARD_NXP_KINETIS)
+extern const uint32_t LOWPOWERTIMER_PRESCALER_REGISTER_VALUE[16];
+#else
 extern const uint32_t LOWPOWERTIMER_PRESCALER_REGISTER_VALUE[8];
+#endif
 
 /**
  *
@@ -154,12 +189,22 @@ typedef enum _Timer_LowPowerClockSource
     LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL       = 0xFFFF0000,
 
 #endif
+
 #if defined (LIBOHIBOARD_PIC24FJ)
     LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_FRC    = 0b100,
     LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL        = 0b011,
     LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_LPRC   = 0b010,
     LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL_CLK    = 0b001,
     LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL_SOSC   = 0b000,
+#endif
+
+#if defined (LIBOHIBOARD_MKL)
+    LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_MCGIRCLK = 0x00000000ul,
+    LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_LPO      = 0x00000001ul,
+    LOWPOWERTIMER_CLOCKSOURCE_INTERNAL_ERCLK32K = 0x00000002ul,
+    LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL_OSCERCLK = 0x00000003ul,
+
+    LOWPOWERTIMER_CLOCKSOURCE_EXTERNAL          = 0xFFFF0000ul,
 #endif
 } LowPowerTimer_ClockSource;
 
@@ -177,6 +222,11 @@ typedef enum _LowPowerTimer_ClockPolarity
     LOWPOWERTIMER_CLOCKPOLARITY_RISING  = 0x00000000,
     LOWPOWERTIMER_CLOCKPOLARITY_FALLING = LPTIM_CFGR_CKPOL_0,
     LOWPOWERTIMER_CLOCKPOLARITY_BOTH    = LPTIM_CFGR_CKPOL_1,
+
+#elif defined (LIBOHIBOARD_MKL)
+
+    LOWPOWERTIMER_CLOCKPOLARITY_RISING  = 0x00000000ul,
+    LOWPOWERTIMER_CLOCKPOLARITY_FALLING = 0x00000008ul,
 
 #endif
 } LowPowerTimer_ClockPolarity;
@@ -200,13 +250,28 @@ typedef enum _LowPowerTimer_TriggerSource
     LOWPOWERTIMER_TRIGGERSOURCE_6        = (LPTIM_CFGR_TRIGSEL_1 | LPTIM_CFGR_TRIGSEL_2),
     LOWPOWERTIMER_TRIGGERSOURCE_7        = LPTIM_CFGR_TRIGSEL,
 
+#elif defined (LIBOHIBOARD_MKL)
+
+    LOWPOWERTIMER_TRIGGERSOURCE_SOFTWARE = 0x0000FFFFul,
+    LOWPOWERTIMER_TRIGGERSOURCE_0        = 0x00000000ul,
+    LOWPOWERTIMER_TRIGGERSOURCE_1        = 0x00000010ul,
+    LOWPOWERTIMER_TRIGGERSOURCE_2        = 0x00000020ul,
+    LOWPOWERTIMER_TRIGGERSOURCE_3        = 0x00000030ul,
+
 #endif
 } LowPowerTimer_TriggerSource;
 
+#if defined (LIBOHIBOARD_STM32)
 /**
  * The list of the possible update mode of the autoreload and compare registers.
  * The values update are done immediately or after the end of current period.
  */
+#elif defined (LIBOHIBOARD_MKL)
+/**
+ * The list of possible counter mode: free running, counter is reset on overflow
+ * or counter is reset when the compare flag is set.
+ */
+#endif
 typedef enum _LowPowerTimer_UpdateMode
 {
 #if defined (LIBOHIBOARD_STM32L0) || \
@@ -216,8 +281,14 @@ typedef enum _LowPowerTimer_UpdateMode
     LOWPOWERTIMER_UPDATEMODE_IMMEDIATE  = 0x00000000,
     LOWPOWERTIMER_UPDATEMODE_END_PERIOD = LPTIM_CFGR_PRELOAD,
 
+#elif defined (LIBOHIBOARD_MKL)
+
+    LOWPOWERTIMER_UPDATEMODE_COMPARE      = 0x00000000ul,
+    LOWPOWERTIMER_UPDATEMODE_FREE_RUNNING = 0x00000004ul,
+
 #endif
 } LowPowerTimer_UpdateMode;
+
 
 /**
  * The list of the possible source to increment the counter.
@@ -230,6 +301,11 @@ typedef enum _LowPowerTimer_CounterSource
 
     LOWPOWERTIMER_COUNTERSOURCE_INTERNAL = 0x00000000,
     LOWPOWERTIMER_COUNTERSOURCE_EXTERNAL = LPTIM_CFGR_COUNTMODE,
+
+#elif defined (LIBOHIBOARD_MKL)
+
+    LOWPOWERTIMER_COUNTERSOURCE_INTERNAL = 0x00000000ul,
+    LOWPOWERTIMER_COUNTERSOURCE_EXTERNAL = 0x00000002ul,
 
 #endif
 } LowPowerTimer_CounterSource;

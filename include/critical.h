@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2020 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
@@ -162,6 +162,35 @@ void Critical_sectionEnd (uint32_t* mask);
 #elif defined (LIBOHIBOARD_STM32L0)
 
 #include "hardware/STM32L0/critical_STM32L0.h"
+
+/**
+ * Max Value for priority interrupt
+ */
+#ifndef CRITICAL_MAX_PRIORITY
+#define CRITICAL_MAX_PRIORITY                    0
+#endif
+
+/**
+ * Define the default value for priority of timer
+ */
+#ifndef CRITICAL_DEFAULT_TICK_PRIO
+#define CRITICAL_DEFAULT_TICK_PRIO               1
+#endif
+
+/**
+ * Begins critical section
+ */
+#define CRITICAL_SECTION_BEGIN()                 {uint32_t mask = 0; Critical_sectionBegin(&mask);{}
+
+/**
+ * Ends critical section
+ */
+#define CRITICAL_SECTION_END()                   Critical_sectionEnd(&mask); }
+
+#elif defined (LIBOHIBOARD_MKL)
+
+// NOT USED!
+//#include "hardware/NXPMKL/critical_MKL.h"
 
 /**
  * Max Value for priority interrupt
