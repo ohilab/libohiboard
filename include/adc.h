@@ -683,15 +683,17 @@ System_Errors Adc_calibration (Adc_DeviceHandle dev);
  */
 uint32_t Adc_calibrationGetValue (Adc_DeviceHandle dev);
 
+#if defined (LIBOHIBOARD_STM32L0)
 
-/*
+/**
  * To keep power consumption low, it is important to disable the ADC voltage regulator
  * before entering lowpower mode (LPRun, LPSleep or Stop mode).
  */
-void LowPower_disableADCRegulator (void);
+void Adc_disableRegulator (Adc_DeviceHandle dev)
 
-void LowPower_enableADCRegulator (void);
+void Adc_enableRegulator (Adc_DeviceHandle dev);
 
+#endif
 /**
  * @}
  */
