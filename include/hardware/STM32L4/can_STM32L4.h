@@ -1,10 +1,10 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
- *  Marco Giammarini <m.giammarini@warcomeb.it>
+ *   Marco Giammarini <m.giammarini@warcomeb.it>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,56 +26,27 @@
  */
 
 /**
- * @file libohiboard/include/traps.h
+ * @file libohiboard/include/hardware/STM32L4/can_STM32L4.h
  * @author Marco Giammarini <m.giammarini@warcomeb.it>
- * @brief Traps definitions and prototypes.
+ * @brief CAN pins and device definitions for STM32L4 series
  */
 
-/**
- * @addtogroup LIBOHIBOARD_Driver
- * @{
- */
-
-/**
- * @defgroup TRAPS Traps
- * @brief Traps HAL driver
- * @{
- */
-
-#ifndef __TRAPS_H
-#define __TRAPS_H
+#ifndef __CAN_STM32L4_H
+#define __CAN_STM32L4_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "platforms.h"
-#include "errors.h"
-#include "types.h"
 
-typedef enum _Traps_ErrorCode
-{
-    TRAPS_ERRORCODE_NONE   = 0,
+#if defined(LIBOHIBOARD_CAN) & defined(LIBOHIBOARD_STM32L4)
 
-} Traps_ErrorCode;
 
-void Traps_haltOnError (Traps_ErrorCode code);
-
-void Error_Handler (void);
-
-void Traps_addHardFaultCallback (pFunc c);
+#endif // LIBOHIBOARD_CAN & LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __TRAPS_H
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-
+#endif // __CAN_STM32L4_H

@@ -227,7 +227,8 @@ typedef enum _Clock_SystemSource
 #if defined (LIBOHIBOARD_STM32L081CxT) || \
     defined (LIBOHIBOARD_STM32L081CxU) || \
     defined (LIBOHIBOARD_STM32L0x2)    || \
-    defined (LIBOHIBOARD_STM32L0x3)
+    defined (LIBOHIBOARD_STM32L0x3)    || \
+    defined (LIBOHIBOARD_STM32L4)
     CLOCK_SYSTEMSOURCE_HSE = 0x0001,
 #endif
     CLOCK_SYSTEMSOURCE_MSI = 0x0002,

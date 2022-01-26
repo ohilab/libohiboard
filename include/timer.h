@@ -154,13 +154,6 @@ typedef enum _Timer_ClockSource
 
 typedef enum _Timer_ClockPrescaler
 {
-#if defined (LIBOHIBOARD_STM32L4) || \
-    defined (LIBOHIBOARD_STM32WB)
-    TIMER_CLOCKPRESCALER_1,
-    TIMER_CLOCKPRESCALER_2,
-    TIMER_CLOCKPRESCALER_4,
-    TIMER_CLOCKPRESCALER_8,
-#endif
 
 #if defined (LIBOHIBOARD_NXP_KINETIS)
     TIMER_CLOCKPRESCALER_1   = 0,
@@ -427,6 +420,27 @@ bool Timer_isRunning (Timer_DeviceHandle dev);
  * @return The current timer counter.
  */
 uint32_t Timer_getCurrentCounter (Timer_DeviceHandle dev);
+
+/**
+ * TODO
+ */
+uint32_t Timer_getClockInputValue (Timer_DeviceHandle dev);
+
+/**
+ * This function change the prescaler value used to divide the internal
+ * source clock.
+ *
+ * @warning This function doesn't use a value of @ref System_Errors for speed
+ *          reason. So, no check on input parameters will be done!
+ *
+ * @param[in] dev Timer device handle
+ * @param[in] prescaler The new clock prescaler for internal clock.
+ */
+void Timer_setPrescaler (Timer_DeviceHandle dev,
+                         uint32_t prescaler);
+
+void Timer_setCounter (Timer_DeviceHandle dev,
+                       uint32_t counter);
 
 /**
  * @}
