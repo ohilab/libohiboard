@@ -741,7 +741,6 @@ static Timer_Device tim4 =
     defined (LIBOHIBOARD_STM32L476QxI) || \
     defined (LIBOHIBOARD_STM32L476ZxT) || \
     defined (LIBOHIBOARD_STM32L476ZxJ)
-                               {
                                TIMER_CHANNELS_CH1,
                                TIMER_CHANNELS_CH2,
                                TIMER_CHANNELS_CH3,
@@ -1522,6 +1521,48 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
 
     dev->state = TIMER_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
+}
+
+uint32_t Timer_getClockInputValue (Timer_DeviceHandle dev)
+{
+    if ((dev == NULL) || (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR))
+    {
+        return 0;
+    }
+
+    return dev->inputClock;
+}
+
+void Timer_setPrescaler (Timer_DeviceHandle dev,
+                         uint32_t prescaler)
+{
+    // Check the TIMER instance type
+    ohiassert(TIMER_IS_DEVICE(dev));
+    // Check prescaler value
+    ohiassert(prescaler < 0x00010000);
+
+    // Disable the peripheral
+    //TIMER_DEVICE_DISABLE(dev);
+    // Set prescaler
+    dev->regmap->PSC = prescaler;
+    // Enable the peripheral
+    //TIMER_DEVICE_ENABLE(dev);
+}
+
+void Timer_setCounter (Timer_DeviceHandle dev,
+                       uint32_t counter)
+{
+    // Check the TIMER instance type
+    ohiassert(TIMER_IS_DEVICE(dev));
+    // Check prescaler value
+    ohiassert(counter < 0x10000);
+
+    // Disable the peripheral
+    //TIMER_DEVICE_DISABLE(dev);
+    // Set modulo
+    dev->regmap->ARR = counter - 1;
+    // Enable the peripheral
+    //TIMER_DEVICE_ENABLE(dev);
 }
 
 /**

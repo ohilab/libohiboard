@@ -237,6 +237,10 @@ extern "C" {
 #include "lowpower-timer.h"
 #endif
 
+#ifdef LIBOHIBOARD_CAN
+#include "can.h"
+#endif
+
 #ifdef LIBOHIBOARD_WATCHDOG
 #include "watchdog.h"
 #endif

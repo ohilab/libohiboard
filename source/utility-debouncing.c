@@ -65,3 +65,63 @@ System_Errors UtilityDebouncing_debounce (Gpio_Pins pin, UtilityDeboucing_Config
     }
     return ret;
 }
+
+System_Errors UtilityDebouncing_countinuousDebounce (Gpio_Pins pin, UtilityDeboucing_Config* config)
+{
+    System_Errors ret = ERRORS_UTILITYDEBOUNCING_NO_HOLD;
+    if (config->newEvent)
+    {
+        config->count = (config->holdTime / config->checkTime);
+
+        if (config->holdLongEnable == TRUE)
+        {
+            config->countLong = (config->holdLongTime / config->checkTime);
+        }
+
+        // Setup timeout count...
+        config->newEvent = FALSE;
+    }
+    // read current state
+    Gpio_Level current = Gpio_get(pin);
+
+    // The button has the desiderata level, so wait to become stable
+    if (current == config->holdLevel)
+    {
+        if (config->count > 0)
+        {
+            config->count--;
+        }
+        else
+        {
+            if (config->holdLongEnable == TRUE)
+            {
+                if (config->countLong > 0)
+                {
+                    config->countLong--;
+                }
+                else
+                {
+                    ret = ERRORS_UTILITYDEBOUNCING_LONG_HOLD;
+                }
+            }
+            else
+            {
+                ret = ERRORS_UTILITYDEBOUNCING_HOLD;
+            }
+        }
+    }
+    else
+    {
+        if ((config->count == 0) &&
+            (config->holdLongEnable == TRUE) &&
+            (config->countLong > 0))
+        {
+            ret = ERRORS_UTILITYDEBOUNCING_HOLD;
+        }
+
+        // Reset timer
+        config->count     = config->holdTime / config->checkTime;
+        config->countLong = config->holdLongTime / config->checkTime;
+    }
+    return ret;
+}
