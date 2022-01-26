@@ -56,7 +56,7 @@ _weak void HardFault_Handler (void)
 }
 
 
-_weak void Error_Handler (void)
+_weak void Default_Handler (void)
 {
     __disable_irq();
     while (1)
