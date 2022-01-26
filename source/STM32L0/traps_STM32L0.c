@@ -63,6 +63,15 @@ _weak void HardFault_Handler (void)
     Traps_haltOnError(TRAPS_ERRORCODE_NONE);
 }
 
+_weak void Default_Handler (void)
+{
+    __disable_irq();
+    while (1)
+    {
+        // TODO:
+    }
+}
+
 #endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
