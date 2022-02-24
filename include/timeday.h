@@ -51,7 +51,7 @@ extern "C" {
 
 typedef enum _Time_Month
 {
-    TIME_MONTH_JANUARY = 0,
+    TIME_MONTH_JANUARY = 1,
     TIME_MONTH_FEBRUARY,
     TIME_MONTH_MARCH,
     TIME_MONTH_APRIL,
@@ -92,7 +92,7 @@ typedef struct
     Time_DayOfWeek  wday;
     // day of the month - [1, 31] 
     uint8_t  day;
-    // months since January - [0, 11] 
+    // months since January - [1, 12]
     Time_Month  month;
     // years since 0 
     uint16_t year;
