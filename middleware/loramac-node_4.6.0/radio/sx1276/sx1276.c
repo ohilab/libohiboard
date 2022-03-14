@@ -376,9 +376,9 @@ bool SX1276IsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThres
 
     System_delay( 1 );
 
+#if 0
     carrierSenseTime = TimerGetCurrentTime( );
 
-#if 0
     // Perform carrier sense for maxCarrierSenseTime
     while( TimerGetElapsedTime( carrierSenseTime ) < maxCarrierSenseTime )
     {
@@ -390,7 +390,7 @@ bool SX1276IsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThres
             break;
         }
     }
-#ednif
+#endif
     
     SX1276SetSleep( );
     return status;

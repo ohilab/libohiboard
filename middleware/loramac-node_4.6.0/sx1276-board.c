@@ -32,36 +32,67 @@
 #include "radio.h"
 #include "sx1276-board.h"
 
+#if !defined (RADIO_DIO_0)
+#error "You MUST define RADIO_DIO_0"
+#endif
+
+#if !defined (RADIO_DIO_1)
+#error "You MUST define RADIO_DIO_1"
+#endif
+
+#if !defined (RADIO_DIO_2)
+#error "You MUST define RADIO_DIO_2"
+#endif
+
+#if !defined (RADIO_DIO_3)
+#error "You MUST define RADIO_DIO_3"
+#endif
+
+#if !defined (RADIO_DIO_4)
+#error "You MUST define RADIO_DIO_4"
+#endif
+
+#if !defined (RADIO_DIO_5)
+#error "You MUST define RADIO_DIO_5"
+#endif
+
 #if !defined (RADIO_RESET)
-    #error "You MUST define RADIO_RESET"
+#error "You MUST define RADIO_RESET"
 #endif
 
 #if !defined (RADIO_ANT_SWITCH_RX)
-    #error "You MUST define RADIO_ANT_SWITCH_RX"
+#error "You MUST define RADIO_ANT_SWITCH_RX"
 #endif
 
 #if !defined (RADIO_ANT_SWITCH_TX_BOOST)
-    #error "You MUST define RADIO_ANT_SWITCH_TX_BOOST"
+#error "You MUST define RADIO_ANT_SWITCH_TX_BOOST"
 #endif
 
 #if !defined (RADIO_ANT_SWITCH_TX_RFO)
-    #error "You MUST define RADIO_ANT_SWITCH_TX_RFO"
+#error "You MUST define RADIO_ANT_SWITCH_TX_RFO"
 #endif
 
 #if !defined (RADIO_TCXO_POWER)
-    #error "You MUST define RADIO_TCXO_POWER"
+#error "You MUST define RADIO_TCXO_POWER"
 #endif
 
 #if defined( USE_RADIO_DEBUG )
 
 #if !defined (RADIO_DBG_PIN_TX)
-    #error "You MUST define RADIO_DBG_PIN_TX"
+#error "You MUST define RADIO_DBG_PIN_TX"
 #endif
 
 #if !defined (RADIO_DBG_PIN_RX)
-    #error "You MUST define RADIO_DBG_PIN_RX"
+#error "You MUST define RADIO_DBG_PIN_RX"
 #endif
 
+#endif
+
+/*!
+ * Defines the time required for the TCXO to wakeup [ms].
+ */
+#if !defined(BOARD_TCXO_WAKEUP_TIME)
+#define BOARD_TCXO_WAKEUP_TIME                   5
 #endif
 
 /*!
