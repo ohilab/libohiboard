@@ -360,7 +360,7 @@ void SX1276SetChannel( uint32_t freq )
 bool SX1276IsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
 {
     bool status = true;
-    int16_t rssi = 0;
+    //int16_t rssi = 0;
     //uint32_t carrierSenseTime = 0;
 
     SX1276SetSleep( );

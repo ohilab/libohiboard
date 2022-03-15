@@ -116,7 +116,7 @@ static inline bool UtilityBuffer_isFull (UtilityBuffer_DescriptorHandle buffer)
  */
 static inline void UtilityBuffer_flush (UtilityBuffer_DescriptorHandle buffer)
 {
-	buffer->tail = buffer->head = 0;
+    buffer->tail = buffer->head = 0;
 }
 
 /**
