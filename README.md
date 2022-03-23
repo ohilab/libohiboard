@@ -9,6 +9,7 @@ Currently developed microcontrollers:
 * STM32L4 Series by STM Semiconductor (M4)
 * STM32L0 Series by STM Semiconductor (M0+)
 * STM32WB Series by STM Semiconductor (M4 and M0+)
+* CMWX1ZZABZ Series by Murata Manufacturing Co., Ltd
 * PIC24FJ Series by Microchip Semiconductor
 
 ## Coding style and guidilines
