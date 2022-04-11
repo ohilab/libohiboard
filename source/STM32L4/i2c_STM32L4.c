@@ -113,6 +113,9 @@ typedef struct _Iic_Device
     volatile uint32_t* rccRegisterPtr;      /**< Register for clock enabling. */
     uint32_t rccRegisterEnable;        /**< Register mask for current device. */
 
+    volatile uint32_t* rccResetRegisterPtr;      /**< Register for clock enabling. */
+    uint32_t rccResetRegisterEnable;        /**< Register mask for current device. */
+
     volatile uint32_t* rccTypeRegisterPtr;  /**< Register for clock enabling. */
     uint32_t rccTypeRegisterMask;      /**< Register mask for user selection. */
     uint32_t rccTypeRegisterPos;       /**< Mask position for user selection. */
@@ -161,6 +164,9 @@ static Iic_Device iic1 =
 
         .rccRegisterPtr       = &RCC->APB1ENR1,
         .rccRegisterEnable    = RCC_APB1ENR1_I2C1EN,
+
+        .rccResetRegisterPtr  = &RCC->APB1RSTR1,
+        .rccResetRegisterEnable = RCC_APB1RSTR1_I2C1RST,
 
         .rccTypeRegisterPtr   = &RCC->CCIPR,
         .rccTypeRegisterMask  = RCC_CCIPR_I2C1SEL,
@@ -251,6 +257,9 @@ static Iic_Device iic2 =
         .rccRegisterPtr       = &RCC->APB1ENR1,
         .rccRegisterEnable    = RCC_APB1ENR1_I2C2EN,
 
+        .rccResetRegisterPtr  = &RCC->APB1RSTR1,
+        .rccResetRegisterEnable = RCC_APB1RSTR1_I2C2RST,
+
         .rccTypeRegisterPtr   = &RCC->CCIPR,
         .rccTypeRegisterMask  = RCC_CCIPR_I2C2SEL,
         .rccTypeRegisterPos   = RCC_CCIPR_I2C2SEL_Pos,
@@ -327,6 +336,9 @@ static Iic_Device iic3 =
 
         .rccRegisterPtr       = &RCC->APB1ENR1,
         .rccRegisterEnable    = RCC_APB1ENR1_I2C3EN,
+
+        .rccResetRegisterPtr  = &RCC->APB1RSTR1,
+        .rccResetRegisterEnable = RCC_APB1RSTR1_I2C3RST,
 
         .rccTypeRegisterPtr   = &RCC->CCIPR,
         .rccTypeRegisterMask  = RCC_CCIPR_I2C3SEL,
@@ -661,6 +673,13 @@ System_Errors Iic_deInit (Iic_DeviceHandle dev)
 
 static inline void __attribute__((always_inline)) Iic_flushTransmission (Iic_DeviceHandle dev)
 {
+    // If a pending TXIS flag is set
+    // Write a dummy data in TXDR to clear it
+    if ((dev->regmap->ISR & I2C_ISR_TXIS) != 0)
+    {
+        dev->regmap->TXDR = 0x00u;
+    }
+
     // Clear flag TXE
     if ((dev->regmap->ISR & I2C_ISR_TXE_Msk) == 0u)
     {
@@ -1042,6 +1061,9 @@ System_Errors Iic_writeRegister (Iic_DeviceHandle dev,
     err = Iic_waitUntilClear(dev,I2C_ISR_TXE,(tickStart + timeout));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
 
+    // Check the NACK status
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->ISR,I2C_ISR_NACKF) == I2C_ISR_NACKF) goto i2cerror;
+
     // Write register/memory address
     if (addressSize == IIC_REGISTERADDRESSSIZE_8BIT)
     {
@@ -1140,6 +1162,9 @@ i2cerror:
 
     // Clear STOPF flag
     dev->regmap->ICR |= I2C_ICR_STOPCF_Msk;
+
+    // Flush transmission register
+    Iic_flushTransmission(dev);
 
     // Clear configuration register
     UTILITY_MODIFY_REGISTER(dev->regmap->CR2,(IIC_TRANSFER_CONFIG_MASK),0u);
@@ -1315,6 +1340,13 @@ i2cerror:
     UTILITY_MODIFY_REGISTER(dev->regmap->CR2,(IIC_TRANSFER_CONFIG_MASK),0u);
 
     return err;
+}
+
+void Iic_forceReset (Iic_DeviceHandle dev)
+{
+    UTILITY_SET_REGISTER_BIT(*dev->rccResetRegisterPtr,dev->rccResetRegisterEnable);
+    asm("nop");
+    UTILITY_CLEAR_REGISTER_BIT(*dev->rccResetRegisterPtr,dev->rccResetRegisterEnable);
 }
 
 #endif // LIBOHIBOARD_STM32L4

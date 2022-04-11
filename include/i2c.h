@@ -361,6 +361,8 @@ void Iic_repeatedStart (Iic_DeviceHandle dev);
  */
 void Iic_stop (Iic_DeviceHandle dev);
 
+void Iic_forceReset (Iic_DeviceHandle dev);
+
 /**
  * @}
  */
