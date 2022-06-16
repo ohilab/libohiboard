@@ -113,6 +113,10 @@ Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 
     if (!(date->year % 4) && (date->month > TIME_MONTH_FEBRUARY)) unixEpoch += TIME_SECOND_PER_DAY;
 
+    // From 1-12 to 0-11
+    // Just to manage the array!
+    date->month--;
+
     /* Save seconds for the months of the current year */
     while (date->month)
     {
@@ -163,6 +167,8 @@ void Time_unixtimeToTime (Time_UnixTime unixEpoch, Time_DateType* date, Time_Tim
         date->month++;
     }
     date->day = dayNumber + 1;
+    // Use format 1 to 12!
+    date->month++;
 }
 
 void Time_unixtimeToString (Time_UnixTime unixEpoch, char * dateString)
@@ -197,7 +203,7 @@ void Time_unixtimeToString (Time_UnixTime unixEpoch, char * dateString)
     dateString++;
 
     /* Month */
-    strcpy(dateString,Time_monthString[(date.month)]);
+    strcpy(dateString,Time_monthString[(date.month - 1)]);
     dateString += 3;
 
     *dateString = ' ';
@@ -290,12 +296,12 @@ void Time_unixtimeToNumberString (Time_UnixTime unixEpoch, char * dateString, bo
     {
         *dateString = '0';
         dateString++;
-        u16td((uint8_t *)dateString,(uint16_t)date.month + 1);
+        u16td((uint8_t *)dateString,(uint16_t)date.month);
         dateString++;
     }
     else
     {
-        u16td((uint8_t *)dateString,(uint16_t)date.month + 1);
+        u16td((uint8_t *)dateString,(uint16_t)date.month);
         dateString += 2;
     }
     *dateString = '.';

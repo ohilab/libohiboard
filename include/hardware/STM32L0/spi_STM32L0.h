@@ -57,7 +57,8 @@ extern "C" {
  * @{
  */
 
-#define SPI_CR1_BR_Pos                      (3u)
+// JUST defined into new hardware support files
+//#define SPI_CR1_BR_Pos                      (3u)
 
 /**
  * List of all SS pins.

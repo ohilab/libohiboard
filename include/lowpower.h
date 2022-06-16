@@ -65,8 +65,8 @@ extern "C" {
  */
 typedef enum _LowPower_WaitFor
 {
-	LOWPOWER_WAITFOR_INTERRUPT = 1,
-	LOWPOWER_WAITFOR_EVENT     = 2,
+    LOWPOWER_WAITFOR_INTERRUPT = 1,
+    LOWPOWER_WAITFOR_EVENT     = 2,
 } LowPower_WaitFor;
 
 #endif // (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
@@ -76,8 +76,8 @@ typedef enum _LowPower_WaitFor
  */
 typedef enum _LowPower_Regulator
 {
-	LOWPOWER_REGULATOR_MAIN = 1,
-	LOWPOWER_REGULATOR_LOW  = 2,
+    LOWPOWER_REGULATOR_MAIN = 1,
+    LOWPOWER_REGULATOR_LOW  = 2,
 } LowPower_Regulator;
 
 /**
@@ -85,8 +85,9 @@ typedef enum _LowPower_Regulator
  */
 typedef enum _LowPower_VoltageScaling
 {
-	LOWPOWER_VOLTAGESCALING_SCALE1 = 1,
-	LOWPOWER_VOLTAGESCALING_SCALE2 = 2,
+    LOWPOWER_VOLTAGESCALING_SCALE1 = 1, //1V8
+    LOWPOWER_VOLTAGESCALING_SCALE2 = 2, //1V5
+    LOWPOWER_VOLTAGESCALING_SCALE3 = 3, //1V2
 } LowPower_VoltageScaling;
 
 #if defined (LIBOHIBOARD_STM32L0)
@@ -124,7 +125,7 @@ void LowPower_init(void);
  *
  * @return Reset status bits
  */
-LowPower_ResetControl LowPower_getResetStatus(void);
+LowPower_ResetControl LowPower_getResetStatusv(void);
 
 #if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4))
 
@@ -193,6 +194,33 @@ System_Errors LowPower_setModeByConfiguration (Clock_Config* config, LowPower_Mo
  * @note the returned value is in MCU-specific enumeration;  please compare with the comfort macros for a portable usage.
  */
 LowPower_Mode LowPower_getMode(void);
+
+#if (defined (LIBOHIBOARD_STM32L0)
+/**
+ * Enable the Ultra Low Power mode
+ */
+void LowPower_enableUltraLowPower (void);
+
+/**
+ * Disable the Ultra Low Power mode
+ */
+void LowPower_disableUltraLowPower (void);
+
+/**
+ * Enable the fast wake up
+ */
+void LowPower_enableFastWakeUp (void);
+
+/**
+ * Disable the fast wake up
+ */
+void LowPower_disableFastWakeUp (void);
+
+/**
+ * Select MSI or HSI as system clock source after Wake Up from Stop mode
+ */
+void LowPower_wakeupClockConfig (LowPower_WakeUpClock clock);
+#endif
 
 #ifdef __cplusplus
 }

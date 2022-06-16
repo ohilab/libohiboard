@@ -183,6 +183,19 @@ int8_t stringFindFirstOf (const char* string, char find, uint8_t size);
 
 #define UTILITY_SWAP_UINT16(x) (((x) >> 8) | ((x) << 8))
 
+/**
+ * Compose an 32 bit integer type starting from four 8 bit integer type numbers.
+ */
+#define UTILITY_BUILD_UINT32(loByte, mloByte, mhiByte, hiByte) ((uint32_t)(((uint32_t)loByte) & 0x000000FF) + \
+                                                                ((((uint32_t)mloByte) & 0x000000FF) << 8)   + \
+                                                                ((((uint32_t)mhiByte) & 0x000000FF) << 16)  + \
+                                                                ((((uint32_t)hiByte)  & 0x000000FF) << 24))
+
+#define UTILITY_LO_UINT32(a)    ((uint8_t)((a) & 0x000000FF))
+#define UTILITY_MIDLO_UINT32(a) ((uint8_t)((a >> 8) & 0x000000FF))
+#define UTILITY_MIDHI_UINT32(a) ((uint8_t)((a >> 16) & 0x000000FF))
+#define UTILITY_HI_UINT32(a)    ((uint8_t)((a >> 24) & 0x000000FF))
+
 /* *****************************************************************************
  *   Useful types
  * *****************************************************************************/
