@@ -43,6 +43,17 @@ extern "C" {
 #if defined(LIBOHIBOARD_CAN) & defined(LIBOHIBOARD_STM32L4)
 
 
+#if defined (LIBOHIBOARD_STM32L4x6)
+
+void CAN1_TX_IRQHandler (void);
+void CAN1_RX0_IRQHandler (void);
+void CAN1_RX1_IRQHandler (void);
+void CAN1_SCE_IRQHandler (void);
+
+extern Can_DeviceHandle OB_CAN1;
+
+#endif
+
 #endif // LIBOHIBOARD_CAN & LIBOHIBOARD_STM32L4
 
 #ifdef __cplusplus
