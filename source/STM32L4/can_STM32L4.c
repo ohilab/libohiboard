@@ -42,6 +42,8 @@ extern "C" {
 #if defined (LIBOHIBOARD_STM32L4)
 
 #include "can.h"
+#include "clock.h"
+#include "gpio.h"
 #include "interrupt.h"
 #include "utility.h"
 #include "system.h"
@@ -71,24 +73,51 @@ extern "C" {
 
 #define CAN_IS_VALID_FILTER_BANK_NUMBER(BANK)    ((BANK) <= 14)
 
+#define CAN_IS_VALID_FILTER_MODE(MODE)           (((MODE) == CAN_FILTERMODE_ID_MASK) || \
+                                                  ((MODE) == CAN_FILTERMODE_ID_LIST))
+
+#define CAN_IS_VALID_FILTER_SCALE(SCALE)         (((SCALE) == CAN_FILTERSCALE_16_BIT) || \
+                                                  ((SCALE) == CAN_FILTERSCALE_32_BIT))
+
+#define CAN_IS_VALID_FILTER_FIFO(FIFO)           (((FIFO) == CAN_FILTERFIFO_0) || \
+                                                  ((FIFO) == CAN_FILTERFIFO_1))
+
+#define CAN_IS_VALID_FILTER_ACTIVE(ENABLE)       (((ENABLE) == UTILITY_STATE_DISABLE) || \
+                                                  ((ENABLE) == UTILITY_STATE_ENABLE))
+
+#define CAN_CLOCK_ENABLE(REG,MASK)               do { \
+                                                    UTILITY_SET_REGISTER_BIT(REG,MASK); \
+                                                    asm("nop"); \
+                                                    (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
+                                                  } while (0)
+
+#define CAN_CLOCK_DISABLE(REG,MASK)              do { \
+                                                    UTILITY_CLEAR_REGISTER_BIT(REG,MASK); \
+                                                    asm("nop"); \
+                                                    (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
+                                                  } while (0)
+
+#define CAN_IS_VALID_TIMING_SEG_1(VALUE)         ((VALUE) <= 15u)
+#define CAN_IS_VALID_TIMING_SEG_2(VALUE)         ((VALUE) <= 7u)
+#define CAN_IS_VALID_TIMING_BRP(VALUE)           ((VALUE) <= 1023u)
+#define CAN_IS_VALID_TIMING_SJW(VALUE)           ((VALUE) <= 3)
+
+#define CAN_MAX_PINS                             5
+
 typedef struct _Can_Device
 {
     CAN_TypeDef* regmap;                           /**< Device memory pointer */
 
-//    volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
-//    uint32_t rccRegisterEnable;         /**< Register mask for current device */
-//
-//    volatile uint32_t* rccTypeRegisterPtr;   /**< Register for clock enabling */
-//    uint32_t rccTypeRegisterMask;       /**< Register mask for user selection */
-//    uint32_t rccTypeRegisterPos;        /**< Mask position for user selection */
+    volatile uint32_t* rccRegisterPtr;       /**< Register for clock enabling */
+    uint32_t rccRegisterEnable;         /**< Register mask for current device */
 
-//    Adc_Pins pins[ADC_MAX_PINS];      /**< List of the pin for the peripheral */
-//    Adc_Channels pinsChannel[ADC_MAX_PINS];
-//    Gpio_Pins pinsGpio[ADC_MAX_PINS];
+    Can_RxPins rxPins[CAN_MAX_PINS];
+    Can_TxPins txPins[CAN_MAX_PINS];
 
-//    void (* eocCallback)(struct _Adc_Device *dev);
-//    void (* eosCallback)(struct _Adc_Device *dev);
-//    void (* overrunCallback)(struct _Adc_Device *dev);
+    Gpio_Pins rxPinsGpio[CAN_MAX_PINS];
+    Gpio_Pins txPinsGpio[CAN_MAX_PINS];
+    Gpio_Alternate rxPinsMux[CAN_MAX_PINS];
+    Gpio_Alternate txPinsMux[CAN_MAX_PINS];
 
     Interrupt_Vector isrTxNumber;                   /**< ISR TX vector number */
     Interrupt_Vector isrRx0Number;                 /**< ISR RX0 vector number */
@@ -99,6 +128,24 @@ typedef struct _Can_Device
 
     Can_Config config;                                /**< User configuration */
 
+    /** The callback function pointers for TX Mailbox0 complete event. */
+    void (*callbackTxMailbox0Complete)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for TX Mailbox1 complete event. */
+    void (*callbackTxMailbox1Complete)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for TX Mailbox2 complete event. */
+    void (*callbackTxMailbox2Complete)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 0 full event. */
+    void (*callbackRxFifo0Full)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 0 message pending event. */
+    void (*callbackRxFifo0MessagePending)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 1 full event. */
+    void (*callbackRxFifo1Full)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 1 message pending event. */
+    void (*callbackRxFifo1MessagePending)(struct _Can_Device* dev, void* obj);
+
+    /** Useful object added to callback when interrupt triggered. */
+    void* callbackObj;
+
 } Can_Device;
 
 #define CAN_IS_DEVICE(DEVICE) (((DEVICE) == OB_CAN1))
@@ -107,12 +154,77 @@ static Can_Device can1 =
 {
     .regmap              = CAN1,
 
-//    .rccRegisterPtr      = &RCC->AHB2ENR,
-//    .rccRegisterEnable   = RCC_AHB2ENR_ADCEN,
-//
-//    .rccTypeRegisterPtr  = &RCC->CCIPR,
-//    .rccTypeRegisterMask = RCC_CCIPR_ADCSEL,
-//    .rccTypeRegisterPos  = RCC_CCIPR_ADCSEL_Pos,
+    .rccRegisterPtr      = &RCC->APB1ENR1,
+    .rccRegisterEnable   = RCC_APB1ENR1_CAN1EN,
+
+    .rxPins              =
+    {
+                           CAN_PINS_PA11,
+                           CAN_PINS_PB8,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                           CAN_PINS_PD0,
+#endif
+    },
+    .rxPinsGpio          =
+    {
+                           GPIO_PINS_PA11,
+                           GPIO_PINS_PB8,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                           GPIO_PINS_PD0,
+#endif
+    },
+    .rxPinsMux           =
+    {
+                           GPIO_ALTERNATE_9,
+                           GPIO_ALTERNATE_9,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                           GPIO_ALTERNATE_9,
+#endif
+    },
+
+
+    .txPins              =
+    {
+                           CAN_PINS_PA12,
+                           CAN_PINS_PB9,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                           CAN_PINS_PD1,
+#endif
+    },
+    .txPinsGpio          =
+    {
+                           GPIO_PINS_PA12,
+                           GPIO_PINS_PB9,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                           GPIO_PINS_PD1,
+#endif
+    },
+    .txPinsMux           =
+    {
+                           GPIO_ALTERNATE_9,
+                           GPIO_ALTERNATE_9,
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+                           GPIO_ALTERNATE_9,
+#endif
+    },
 
     .isrTxNumber         = INTERRUPT_CAN1_TX,
     .isrRx0Number        = INTERRUPT_CAN1_RX0,
@@ -120,9 +232,64 @@ static Can_Device can1 =
     .isrSceNumber        = INTERRUPT_CAN1_SCE,
 
     .state               = CAN_DEVICESTATE_RESET,
+
+    .callbackTxMailbox0Complete    = NULL,
+    .callbackTxMailbox1Complete    = NULL,
+    .callbackTxMailbox2Complete    = NULL,
+    .callbackRxFifo0Full           = NULL,
+    .callbackRxFifo0MessagePending = NULL,
+    .callbackRxFifo1Full           = NULL,
+    .callbackRxFifo1MessagePending = NULL,
+    .callbackObj         = NULL,
 };
 Can_DeviceHandle OB_CAN1 = &can1;
 
+System_Errors Can_setRxPin (Can_DeviceHandle dev, Can_RxPins rxPin)
+{
+    uint8_t devPinIndex;
+
+    for (devPinIndex = 0; devPinIndex < CAN_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->rxPins[devPinIndex] == rxPin)
+        {
+            Gpio_configAlternate(dev->rxPinsGpio[devPinIndex],
+                                 dev->rxPinsMux[devPinIndex],
+                                 0);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_CAN_NO_PIN_FOUND;
+}
+
+System_Errors Can_setTxPin (Can_DeviceHandle dev, Can_TxPins txPin)
+{
+    uint8_t devPinIndex;
+
+    for (devPinIndex = 0; devPinIndex < CAN_MAX_PINS; ++devPinIndex)
+    {
+        if (dev->txPins[devPinIndex] == txPin)
+        {
+            Gpio_configAlternate(dev->txPinsGpio[devPinIndex],
+                                 dev->txPinsMux[devPinIndex],
+                                 0);
+            return ERRORS_NO_ERROR;
+        }
+    }
+    return ERRORS_CAN_NO_PIN_FOUND;
+}
+
+void Can_setBaudrate (Can_DeviceHandle dev,
+                      uint32_t syncJumpWidth,
+                      uint32_t timeSeg1,
+                      uint32_t timeSeg2,
+                      uint32_t prescaler)
+{
+    // Clear flags
+    dev->regmap->BTR &= ~(CAN_BTR_BRP_Msk | CAN_BTR_TS1_Msk | CAN_BTR_TS2_Msk | CAN_BTR_BRP_Msk);
+
+    // Write values
+    dev->regmap->BTR |= (syncJumpWidth | timeSeg1 | timeSeg2 | (prescaler - 1u));
+}
 
 System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
 {
@@ -139,6 +306,17 @@ System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
         return ERRORS_CAN_WRONG_DEVICE;
     }
 
+    err  = ohiassert(CAN_IS_VALID_TIMING_SEG_1(config->timeSeg1));
+    err |= ohiassert(CAN_IS_VALID_TIMING_SEG_2(config->timeSeg2));
+    err |= ohiassert(CAN_IS_VALID_TIMING_BRP(config->prescaler));
+    err |= ohiassert(CAN_IS_VALID_TIMING_SJW(config->syncJumpWidth));
+    err |= ohiassert(UTILITY_VALID_STATE(config->timeTriggeredMode));
+    err |= ohiassert(UTILITY_VALID_STATE(config->autoBusOff));
+    err |= ohiassert(UTILITY_VALID_STATE(config->autoRetransmission));
+    err |= ohiassert(UTILITY_VALID_STATE(config->fifoLocked));
+    err |= ohiassert(UTILITY_VALID_STATE(config->txPriority));
+    err |= ohiassert(UTILITY_VALID_STATE(config->autoWakeUp));
+
     // TODO: config check!
     if (err != ERRORS_NO_ERROR)
     {
@@ -150,10 +328,188 @@ System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
     // Enable peripheral clock if needed
     if (dev->state == CAN_DEVICESTATE_RESET)
     {
+        // Enable peripheral clock
+        CAN_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
 
+        // Enable pins
+        if (config->rxPin != CAN_PINS_RXNONE)
+            Can_setRxPin(dev,config->rxPin);
+
+        if (config->txPin != CAN_PINS_TXNONE)
+            Can_setTxPin(dev,config->txPin);
+    }
+    dev->state = CAN_DEVICESTATE_BUSY;
+
+    // Exit from sleep mode
+    UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_SLEEP);
+
+    uint32_t tickstart = System_currentTick();
+    // Wait the acknowledge
+    while ((dev->regmap->MSR & CAN_MSR_SLAK) != 0U)
+    {
+        // Check for the Timeout
+        if ((System_currentTick() - tickstart) > CAN_TIMEOUT_VALUE)
+        {
+            // Change device state to ERROR
+            dev->state = CAN_DEVICESTATE_ERROR;
+
+            return ERRORS_CAN_TIMEOUT;
+        }
     }
 
-    // TODO: config!
+    // Request initialisation
+    UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_INRQ);
+
+    tickstart = System_currentTick();
+    // Wait the acknowledge
+    while ((dev->regmap->MSR & CAN_MSR_INAK) != 0U)
+    {
+        // Check for the Timeout
+        if ((System_currentTick() - tickstart) > CAN_TIMEOUT_VALUE)
+        {
+            // Change device state to ERROR
+            dev->state = CAN_DEVICESTATE_ERROR;
+
+            return ERRORS_CAN_TIMEOUT;
+        }
+    }
+
+    // Set the time triggered communication mode
+    if (dev->config.timeTriggeredMode == UTILITY_STATE_ENABLE)
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_TTCM);
+    }
+    else
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_TTCM);
+    }
+
+    // Set the automatic bus-off management
+    if (dev->config.autoBusOff == UTILITY_STATE_ENABLE)
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_ABOM);
+    }
+    else
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_ABOM);
+    }
+
+    // Set the automatic wake-up mode
+    if (dev->config.autoWakeUp == UTILITY_STATE_ENABLE)
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_AWUM);
+    }
+    else
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_AWUM);
+    }
+
+    // Set the automatic retransmission
+    if (dev->config.autoRetransmission == UTILITY_STATE_ENABLE)
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_NART);
+    }
+    else
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_NART);
+    }
+
+    // Set the receive FIFO locked mode
+    if (dev->config.fifoLocked == UTILITY_STATE_ENABLE)
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_RFLM);
+    }
+    else
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_RFLM);
+    }
+
+    // Set the transmit FIFO priority
+    if (dev->config.txPriority == UTILITY_STATE_ENABLE)
+    {
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_TXFP);
+    }
+    else
+    {
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_TXFP);
+    }
+
+    // Write operative mode
+    dev->regmap->BTR = dev->config.mode;
+
+    // Set the bit timing register
+    Can_setBaudrate(dev,
+                    dev->config.syncJumpWidth,
+                    dev->config.timeSeg1,
+                    dev->config.timeSeg2,
+                    dev->config.prescaler);
+
+    // ---------------------------------------
+    // Enable interrupts...
+    // ---------------------------------------
+    if (config->callbackRxFifo0Full != NULL)
+    {
+        // Copy callback
+        dev->callbackRxFifo0Full = config->callbackRxFifo0Full;
+
+        // Enable interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->IER,CAN_IER_FFIE0_Msk);
+
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrRx0Number);
+    }
+
+    if (config->callbackRxFifo0MessagePending != NULL)
+    {
+        // Copy callback
+        dev->callbackRxFifo0MessagePending = config->callbackRxFifo0MessagePending;
+
+        // Enable interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->IER,CAN_IER_FMPIE0_Msk);
+
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrRx0Number);
+    }
+
+    if (config->callbackRxFifo1Full != NULL)
+    {
+        // Copy callback
+        dev->callbackRxFifo1Full = config->callbackRxFifo1Full;
+
+        // Enable interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->IER,CAN_IER_FFIE1_Msk);
+
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrRx0Number);
+    }
+
+    if (config->callbackRxFifo1MessagePending != NULL)
+    {
+        // Copy callback
+        dev->callbackRxFifo1MessagePending = config->callbackRxFifo1MessagePending;
+
+        // Enable interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->IER,CAN_IER_FMPIE1_Msk);
+
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrRx1Number);
+    }
+
+    if ((config->callbackTxMailbox0Complete != NULL) ||
+        (config->callbackTxMailbox1Complete != NULL) ||
+        (config->callbackTxMailbox2Complete != NULL))
+    {
+        // Copy callback
+        dev->callbackTxMailbox0Complete = config->callbackTxMailbox0Complete;
+        dev->callbackTxMailbox1Complete = config->callbackTxMailbox1Complete;
+        dev->callbackTxMailbox2Complete = config->callbackTxMailbox2Complete;
+
+        // Enable interrupt
+        UTILITY_SET_REGISTER_BIT(dev->regmap->IER,CAN_IER_TMEIE_Msk);
+
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrTxNumber);
+    }
 
     dev->state = CAN_DEVICESTATE_READY;
     return ERRORS_NO_ERROR;
@@ -166,6 +522,18 @@ System_Errors Can_deInit (Can_DeviceHandle dev)
     {
         return ERRORS_CAN_NO_DEVICE;
     }
+
+    // Stop the device
+    Can_stop(dev);
+
+    // TODO: deInit pin
+
+    // Reset the peripheral
+    UTILITY_SET_REGISTER_BIT(dev->regmap->MCR,CAN_MCR_RESET);
+
+    dev->state = CAN_DEVICESTATE_RESET;
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Can_start (Can_DeviceHandle dev)
@@ -283,7 +651,15 @@ System_Errors Can_configFilter (Can_DeviceHandle dev,
     }
 
     // CAN1 is single instance with 14 dedicated filters banks
-    err = ohiassert(CAN_IS_VALID_FILTER_BANK_NUMBER(filter->bank));
+    err  = ohiassert(CAN_IS_VALID_FILTER_BANK_NUMBER(filter->bank));
+    err |= ohiassert(CAN_IS_VALID_FILTER_ACTIVE(filter->activation));
+    err |= ohiassert(CAN_IS_VALID_FILTER_FIFO(filter->fifo));
+    err |= ohiassert(CAN_IS_VALID_FILTER_MODE(filter->mode));
+    err |= ohiassert(CAN_IS_VALID_FILTER_SCALE(filter->scale));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_CAN_WRONG_PARAM;
+    }
 
     if ((dev->state == CAN_DEVICESTATE_LISTENING) ||
         (dev->state == CAN_DEVICESTATE_READY))
@@ -322,7 +698,35 @@ System_Errors Can_configFilter (Can_DeviceHandle dev,
             dev->regmap->sFilterRegister[filter->bank].FR2 = filter->filterMaskId;
         }
 
-        // TODOx
+        // Filter Mode
+        if (filter->mode == CAN_FILTERMODE_ID_MASK)
+        {
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->FM1R,filterPos);
+        }
+        else // CAN_FILTERMODE_ID_LIST
+        {
+            UTILITY_SET_REGISTER_BIT(dev->regmap->FM1R,filterPos);
+        }
+
+        // Filter FIFO assignment
+        if (filter->fifo == CAN_FILTERFIFO_0)
+        {
+            UTILITY_CLEAR_REGISTER_BIT(dev->regmap->FFA1R,filterPos);
+        }
+        else
+        {
+            UTILITY_SET_REGISTER_BIT(dev->regmap->FFA1R,filterPos);
+        }
+
+        // Activate filter
+        if (filter->activation == UTILITY_STATE_ENABLE)
+        {
+            UTILITY_SET_REGISTER_BIT(dev->regmap->FA1R,filterPos);
+        }
+
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->FMR,CAN_FMR_FINIT);
+
+        return ERRORS_NO_ERROR;
     }
     else
     {
@@ -351,21 +755,21 @@ System_Errors Can_addTxMessage (Can_DeviceHandle dev,
     }
 
     // Check id type
-    err = ohiassert(CAN_IS_VALID_IDTYPE(header->idType));
+    err |= ohiassert(CAN_IS_VALID_IDTYPE(header->idType));
     // Check RTR
-    err = ohiassert(CAN_IS_VALID_RTR(header->frameType));
+    err |= ohiassert(CAN_IS_VALID_RTR(header->frameType));
     // Check DLC
-    err = ohiassert(CAN_IS_VALID_DLC(header->frameLength));
+    err |= ohiassert(CAN_IS_VALID_DLC(header->frameLength));
     // Check id validity
     if (header->idType == CAN_MESSAGEIDTYPE_STANDARD)
     {
-        err = ohiassert(CAN_IS_STANDARD_ID(header->idStandard));
+        err |= ohiassert(CAN_IS_STANDARD_ID(header->idStandard));
     }
     else
     {
-        err = ohiassert(CAN_IS_EXTENDED_ID(header->idExtended));
+        err |= ohiassert(CAN_IS_EXTENDED_ID(header->idExtended));
     }
-    err = ohiassert(CAN_IS_VALID_TRANSMIT_GLOBAL_TIME(header->globalTime));
+    err |= ohiassert(CAN_IS_VALID_TRANSMIT_GLOBAL_TIME(header->globalTime));
 
     if (err != ERRORS_NO_ERROR)
     {
@@ -487,6 +891,7 @@ System_Errors Can_abortTxMessage (Can_DeviceHandle dev,
             UTILITY_SET_REGISTER_BIT(dev->regmap->TSR,CAN_TSR_ABRQ2);
             break;
         }
+        return ERRORS_NO_ERROR;
     }
     else
     {
@@ -718,9 +1123,163 @@ System_Errors Can_getRxFifoLevel (Can_DeviceHandle dev,
     }
 }
 
+void Can_setCallbackObject (Can_DeviceHandle dev, void* obj)
+{
+    ohiassert(obj != NULL);
+
+    if (obj != NULL)
+    {
+        dev->callbackObj = obj;
+    }
+}
+
 static inline void __attribute__((always_inline)) Can_callbackInterrupt (Can_DeviceHandle dev)
 {
-    (void)dev;
+    uint32_t tsrflags = dev->regmap->TSR;
+    uint32_t interrupts = dev->regmap->IER;
+    uint32_t rf0rflags = dev->regmap->RF0R;
+    uint32_t rf1rflags = dev->regmap->RF1R;
+
+    // Transmit Mailbox empty interrupt management
+    if ((interrupts & CAN_IER_TMEIE_Msk) != 0u)
+    {
+        // Mailbox0
+        if ((tsrflags & CAN_TSR_RQCP0) != 0u)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->sTxMailBox[0].TIR,CAN_TI0R_TXRQ_Msk);
+
+            if ((tsrflags & CAN_TSR_TXOK0_Msk) != 0)
+            {
+                if (dev->callbackTxMailbox0Complete != NULL)
+                {
+                    dev->callbackTxMailbox0Complete(dev,dev->callbackObj);
+                }
+            }
+            else
+            {
+                // TODO ERROR!
+            }
+        }
+
+        // Mailbox1
+        if ((tsrflags & CAN_TSR_RQCP1) != 0u)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->sTxMailBox[1].TIR,CAN_TI1R_TXRQ_Msk);
+
+            if ((tsrflags & CAN_TSR_TXOK1_Msk) != 0)
+            {
+                if (dev->callbackTxMailbox1Complete != NULL)
+                {
+                    dev->callbackTxMailbox1Complete(dev,dev->callbackObj);
+                }
+            }
+            else
+            {
+                // TODO ERROR!
+            }
+        }
+
+        // Mailbox2
+        if ((tsrflags & CAN_TSR_RQCP2) != 0u)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->sTxMailBox[2].TIR,CAN_TI2R_TXRQ_Msk);
+
+            if ((tsrflags & CAN_TSR_TXOK2_Msk) != 0)
+            {
+                if (dev->callbackTxMailbox2Complete != NULL)
+                {
+                    dev->callbackTxMailbox2Complete(dev,dev->callbackObj);
+                }
+            }
+            else
+            {
+                // TODO ERROR!
+            }
+        }
+    }
+
+    // RX FIFO 0 overrun
+    if ((interrupts & CAN_IER_FOVIE0_Msk) != 0)
+    {
+        if ((rf0rflags & CAN_RF0R_FOVR0_Msk) != 0)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RF0R,CAN_RF0R_FOVR0_Msk);
+        }
+    }
+
+    // RX FIFO 0 full
+    if ((interrupts & CAN_IER_FFIE0_Msk) != 0)
+    {
+        if ((rf0rflags & CAN_RF0R_FULL0_Msk) != 0)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RF0R,CAN_RF0R_FULL0_Msk);
+
+            if (dev->callbackRxFifo0Full != NULL)
+            {
+                dev->callbackRxFifo0Full(dev,dev->callbackObj);
+            }
+        }
+    }
+
+    // RX FIFO 0 message pending
+    if ((interrupts & CAN_IER_FMPIE0_Msk) != 0)
+    {
+        if ((rf0rflags & CAN_RF0R_FMP0_Msk) != 0)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RF0R,CAN_RF0R_FMP0_Msk);
+
+            if (dev->callbackRxFifo0MessagePending != NULL)
+            {
+                dev->callbackRxFifo0MessagePending(dev,dev->callbackObj);
+            }
+        }
+    }
+
+    // RX FIFO 1 overrun
+    if ((interrupts & CAN_IER_FOVIE0_Msk) != 0)
+    {
+        if ((rf1rflags & CAN_RF1R_FOVR1_Msk) != 0)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RF1R,CAN_RF1R_FOVR1_Msk);
+        }
+    }
+
+    // RX FIFO 1 full
+    if ((interrupts & CAN_IER_FFIE1_Msk) != 0)
+    {
+        if ((rf1rflags & CAN_RF1R_FULL1_Msk) != 0)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RF1R,CAN_RF1R_FULL1_Msk);
+
+            if (dev->callbackRxFifo1Full != NULL)
+            {
+                dev->callbackRxFifo1Full(dev,dev->callbackObj);
+            }
+        }
+    }
+
+    // RX FIFO 1 message pending
+    if ((interrupts & CAN_IER_FMPIE1_Msk) != 0)
+    {
+        if ((rf1rflags & CAN_RF1R_FMP1_Msk) != 0)
+        {
+            // Clear flag
+            UTILITY_SET_REGISTER_BIT(dev->regmap->RF1R,CAN_RF1R_FMP1_Msk);
+
+            if (dev->callbackRxFifo1MessagePending != NULL)
+            {
+                dev->callbackRxFifo1MessagePending(dev,dev->callbackObj);
+            }
+        }
+    }
 }
 
 #if defined (LIBOHIBOARD_STM32L4x6)

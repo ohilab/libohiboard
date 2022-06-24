@@ -92,12 +92,83 @@ typedef struct _Can_Device* Can_DeviceHandle;
 #error "[LIBOHIBOARD ERROR] Not implemented for the current platform!"
 #endif
 
+/**
+ * CAN Operating Mode
+ */
+typedef enum _Can_Mode
+{
+    CAN_MODE_NORMAL   = 0x00000000u,
+    CAN_MODE_LOOPBACK = ((uint32_t)CAN_BTR_LBKM),
+    CAN_MODE_SILENT   = ((uint32_t)CAN_BTR_SILM),
+    CAN_MODE_BOTH     = ((uint32_t)(CAN_BTR_LBKM | CAN_BTR_SILM)),
+} Can_Mode;
+
 typedef struct _Can_Config
 {
-//    Uart_RxPins rxPin;
-//    Uart_TxPins txPin;
+    Can_RxPins rxPin;
+    Can_TxPins txPin;
 
-    uint32_t baudrate;
+
+    uint32_t syncJumpWidth;
+    uint32_t timeSeg1;
+    uint32_t timeSeg2;
+    uint32_t prescaler;
+
+    /**
+     *
+     */
+    Can_Mode mode;
+
+    /**
+     *  Enable or disable the automatic wake-up mode.
+     */
+    Utility_State autoWakeUp;
+
+    /**
+     * Enable or disable the time triggered communication mode.
+     */
+    Utility_State timeTriggeredMode;
+
+    /**
+     * Enable or disable the automatic bus-off management.
+     */
+    Utility_State autoBusOff;
+
+    /**
+     * Enable or disable the non-automatic retransmission mode.
+     */
+    Utility_State autoRetransmission;
+
+    /**
+     * Enable or disable the Receive FIFO Locked mode.
+     * ENABLE: Receive FIFO locked against overrun. Once a receive FIFO is full the
+     *         next incoming message is discarded.
+     * DISABLE: Receive FIFO not locked on overrun. Once a receive FIFO is full
+     *          the next incoming message overwrites the previous one.
+     */
+    Utility_State fifoLocked;
+
+    /**
+     * Enable or disable the transmit FIFO priority.
+     * ENABLE: Priority driven by the request order (chronologically)
+     * DISABLE: Priority driven by the identifier of the message
+     */
+    Utility_State txPriority;
+
+    /** The callback function pointers for TX Mailbox0 complete event. */
+    void (*callbackTxMailbox0Complete)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for TX Mailbox1 complete event. */
+    void (*callbackTxMailbox1Complete)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for TX Mailbox2 complete event. */
+    void (*callbackTxMailbox2Complete)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 0 full event. */
+    void (*callbackRxFifo0Full)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 0 message pending event. */
+    void (*callbackRxFifo0MessagePending)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 1 full event. */
+    void (*callbackRxFifo1Full)(struct _Can_Device* dev, void* obj);
+    /** The callback function pointers for RX FIFO 1 message pending event. */
+    void (*callbackRxFifo1MessagePending)(struct _Can_Device* dev, void* obj);
 
 } Can_Config;
 
@@ -133,6 +204,16 @@ System_Errors Can_start (Can_DeviceHandle dev);
 System_Errors Can_stop (Can_DeviceHandle dev);
 
 /**
+ *
+ * @see http://www.bittiming.can-wiki.info/
+ */
+void Can_setBaudrate (Can_DeviceHandle dev,
+                      uint32_t syncJumpWidth,
+                      uint32_t timeSeg1,
+                      uint32_t timeSeg2,
+                      uint32_t prescaler);
+
+/**
  * CAN Filter Mode
  */
 typedef enum _Can_FilterMode
@@ -151,6 +232,16 @@ typedef enum _Can_FilterScale
     CAN_FILTERSCALE_32_BIT = 0x00000001u,
 
 } Can_FilterScale;
+
+/**
+ * CAN FIFO Filter
+ */
+typedef enum _Can_FilterFIFO
+{
+    CAN_FILTERFIFO_0 = 0x00000000u,
+    CAN_FILTERFIFO_1 = 0x00000001u,
+
+} Can_FilterFIFO;
 
 typedef struct _Can_Filter
 {
@@ -179,6 +270,16 @@ typedef struct _Can_Filter
      */
     uint32_t bank;
 
+    /**
+     * Specifies the FIFO (0 or 1U) which will be assigned to the filter.
+     */
+    Can_FilterFIFO fifo;
+
+    /**
+     * Enable or disable the filter.
+     */
+    Utility_State activation;
+
 } Can_Filter, *Can_FilterHandle;
 
 /**
@@ -186,6 +287,21 @@ typedef struct _Can_Filter
  */
 System_Errors Can_configFilter (Can_DeviceHandle dev,
                                 Can_FilterHandle filter);
+
+/**
+ *
+ * @param[in] dev Can device handle
+ */
+System_Errors Can_setRxPin (Can_DeviceHandle dev, Can_RxPins rxPin);
+
+/**
+ *
+ * @param[in] dev Can device handle
+ */
+System_Errors Can_setTxPin (Can_DeviceHandle dev, Can_TxPins txPin);
+
+
+void Can_setCallbackObject (Can_DeviceHandle dev, void* obj);
 
 /**
  * @}

@@ -42,6 +42,56 @@ extern "C" {
 
 #if defined(LIBOHIBOARD_CAN) & defined(LIBOHIBOARD_STM32L4)
 
+typedef enum _Can_RxPins
+{
+#if defined (LIBOHIBOARD_STM32L4x6)
+
+#if defined (LIBOHIBOARD_STM32L476)
+
+    CAN_PINS_PA11,
+
+    CAN_PINS_PB8,
+
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    CAN_PINS_PD0,
+#endif
+
+#endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_STM32L4x6
+
+    CAN_PINS_RXNONE,
+
+} Can_RxPins;
+
+typedef enum _Can_TxPins
+{
+#if defined (LIBOHIBOARD_STM32L4x6)
+
+#if defined (LIBOHIBOARD_STM32L476)
+
+    CAN_PINS_PA12,
+
+    CAN_PINS_PB9,
+
+#if defined (LIBOHIBOARD_STM32L476VxT) || \
+    defined (LIBOHIBOARD_STM32L476ZxT) || \
+    defined (LIBOHIBOARD_STM32L476QxI) || \
+    defined (LIBOHIBOARD_STM32L476ZxJ)
+    CAN_PINS_PD1,
+#endif
+
+#endif // LIBOHIBOARD_STM32L476
+
+#endif // LIBOHIBOARD_STM32L4x6
+
+    CAN_PINS_TXNONE,
+
+} Can_TxPins;
+
 
 #if defined (LIBOHIBOARD_STM32L4x6)
 
