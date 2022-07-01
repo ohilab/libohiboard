@@ -285,10 +285,14 @@ void Can_setBaudrate (Can_DeviceHandle dev,
                       uint32_t prescaler)
 {
     // Clear flags
-    dev->regmap->BTR &= ~(CAN_BTR_BRP_Msk | CAN_BTR_TS1_Msk | CAN_BTR_TS2_Msk | CAN_BTR_BRP_Msk);
+    dev->regmap->BTR &= ~(CAN_BTR_SJW_Msk | CAN_BTR_TS1_Msk | CAN_BTR_TS2_Msk | CAN_BTR_BRP_Msk);
 
     // Write values
-    dev->regmap->BTR |= (syncJumpWidth | timeSeg1 | timeSeg2 | (prescaler - 1u));
+    dev->regmap->BTR |= (
+                        ((syncJumpWidth << CAN_BTR_SJW_Pos) & CAN_BTR_SJW_Msk) |
+                        ((timeSeg1 << CAN_BTR_TS1_Pos) & CAN_BTR_TS1_Msk)      |
+                        ((timeSeg2 << CAN_BTR_TS2_Pos) & CAN_BTR_TS2_Msk)      |
+                        (prescaler - 1u));
 }
 
 System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
@@ -362,7 +366,7 @@ System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
 
     tickstart = System_currentTick();
     // Wait the acknowledge
-    while ((dev->regmap->MSR & CAN_MSR_INAK) != 0U)
+    while ((dev->regmap->MSR & CAN_MSR_INAK) == 0U)
     {
         // Check for the Timeout
         if ((System_currentTick() - tickstart) > CAN_TIMEOUT_VALUE)
@@ -447,6 +451,18 @@ System_Errors Can_init (Can_DeviceHandle dev, Can_Config *config)
     // ---------------------------------------
     // Enable interrupts...
     // ---------------------------------------
+    // Enable error interrupt
+    // Enable interrupt
+#if 0
+    UTILITY_SET_REGISTER_BIT(dev->regmap->IER,CAN_IER_ERRIE_Msk |
+                                              CAN_IER_EWGIE_Msk |
+                                              CAN_IER_EPVIE_Msk |
+                                              CAN_IER_BOFIE_Msk |
+                                              CAN_IER_LECIE_Msk);
+    // Enable NVIC interrupt
+    Interrupt_enable(dev->isrSceNumber);
+#endif
+
     if (config->callbackRxFifo0Full != NULL)
     {
         // Copy callback
@@ -1135,10 +1151,12 @@ void Can_setCallbackObject (Can_DeviceHandle dev, void* obj)
 
 static inline void __attribute__((always_inline)) Can_callbackInterrupt (Can_DeviceHandle dev)
 {
-    uint32_t tsrflags = dev->regmap->TSR;
+    uint32_t tsrflags   = dev->regmap->TSR;
     uint32_t interrupts = dev->regmap->IER;
-    uint32_t rf0rflags = dev->regmap->RF0R;
-    uint32_t rf1rflags = dev->regmap->RF1R;
+    uint32_t msrflags   = dev->regmap->MSR;
+    uint32_t esrflags   = dev->regmap->ESR;
+    uint32_t rf0rflags  = dev->regmap->RF0R;
+    uint32_t rf1rflags  = dev->regmap->RF1R;
 
     // Transmit Mailbox empty interrupt management
     if ((interrupts & CAN_IER_TMEIE_Msk) != 0u)
@@ -1279,6 +1297,50 @@ static inline void __attribute__((always_inline)) Can_callbackInterrupt (Can_Dev
                 dev->callbackRxFifo1MessagePending(dev,dev->callbackObj);
             }
         }
+    }
+
+    // ERROR Management
+    if ((interrupts & CAN_IER_ERRIE_Msk) != 0)
+    {
+        // Bit 2 ERRI: Error interrupt
+        // This bit is set by hardware when a bit of the CAN_ESR has been set on error
+        // detection the corresponding interrupt in the CAN_IER is enabled
+        if ((msrflags & CAN_MSR_ERRI_Msk) != 0)
+        {
+            // WARNING flag
+            if (((interrupts & CAN_IER_EWGIE_Msk) != 0) &&
+                ((esrflags & CAN_ESR_EWGF_Msk) != 0))
+            {
+                // TODO: No need for clear of Error Passive Flag as read-only
+            }
+
+            // PASSIVE flag
+            if (((interrupts & CAN_IER_EPVIE_Msk) != 0) &&
+                ((esrflags & CAN_ESR_EPVF_Msk) != 0))
+            {
+                // TODO: No need for clear of Error Passive Flag as read-only
+            }
+
+            // BUSOFF flag
+            if (((interrupts & CAN_IER_BOFIE_Msk) != 0) &&
+                ((esrflags & CAN_ESR_BOFF_Msk) != 0))
+            {
+                // TODO: No need for clear of Error Passive Flag as read-only
+            }
+
+            // Check last error code flag...
+            if (((interrupts & CAN_IER_LECIE_Msk) != 0U) &&
+                ((esrflags & CAN_ESR_LEC_Msk) != 0U))
+            {
+                // TODO!
+
+                // Clear flag
+                UTILITY_CLEAR_REGISTER_BIT(dev->regmap->ESR,CAN_ESR_LEC_Msk);
+            }
+        }
+
+        // Clear flag
+        UTILITY_SET_REGISTER_BIT(dev->regmap->MSR,CAN_MSR_ERRI_Msk);
     }
 }
 
