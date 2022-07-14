@@ -97,10 +97,10 @@ extern "C" {
                                                     (void) UTILITY_READ_REGISTER_BIT(REG,MASK); \
                                                   } while (0)
 
-#define CAN_IS_VALID_TIMING_SEG_1(VALUE)         ((VALUE) <= 15u)
-#define CAN_IS_VALID_TIMING_SEG_2(VALUE)         ((VALUE) <= 7u)
-#define CAN_IS_VALID_TIMING_BRP(VALUE)           ((VALUE) <= 1023u)
-#define CAN_IS_VALID_TIMING_SJW(VALUE)           ((VALUE) <= 3)
+#define CAN_IS_VALID_TIMING_SEG_1(VALUE)         (((VALUE) >= 1u) && ((VALUE) <= 16u))
+#define CAN_IS_VALID_TIMING_SEG_2(VALUE)         (((VALUE) >= 1u) && ((VALUE) <= 8u))
+#define CAN_IS_VALID_TIMING_BRP(VALUE)           (((VALUE) >= 1u) && ((VALUE) <= 1024u))
+#define CAN_IS_VALID_TIMING_SJW(VALUE)           (((VALUE) >= 1u) && ((VALUE) <= 4u))
 
 #define CAN_MAX_PINS                             5
 
@@ -289,9 +289,9 @@ void Can_setBaudrate (Can_DeviceHandle dev,
 
     // Write values
     dev->regmap->BTR |= (
-                        ((syncJumpWidth << CAN_BTR_SJW_Pos) & CAN_BTR_SJW_Msk) |
-                        ((timeSeg1 << CAN_BTR_TS1_Pos) & CAN_BTR_TS1_Msk)      |
-                        ((timeSeg2 << CAN_BTR_TS2_Pos) & CAN_BTR_TS2_Msk)      |
+                        (((syncJumpWidth - 1u) << CAN_BTR_SJW_Pos) & CAN_BTR_SJW_Msk) |
+                        (((timeSeg1 - 1u)<< CAN_BTR_TS1_Pos) & CAN_BTR_TS1_Msk)       |
+                        (((timeSeg2 - 1u) << CAN_BTR_TS2_Pos) & CAN_BTR_TS2_Msk)      |
                         (prescaler - 1u));
 }
 
@@ -1165,7 +1165,8 @@ static inline void __attribute__((always_inline)) Can_callbackInterrupt (Can_Dev
         if ((tsrflags & CAN_TSR_RQCP0) != 0u)
         {
             // Clear flag
-            UTILITY_SET_REGISTER_BIT(dev->regmap->sTxMailBox[0].TIR,CAN_TI0R_TXRQ_Msk);
+            //dev->regmap->sTxMailBox[0].TIR = CAN_TI0R_TXRQ_Msk;
+            UTILITY_SET_REGISTER_BIT(dev->regmap->TSR,CAN_TSR_RQCP0_Msk);
 
             if ((tsrflags & CAN_TSR_TXOK0_Msk) != 0)
             {
@@ -1184,7 +1185,7 @@ static inline void __attribute__((always_inline)) Can_callbackInterrupt (Can_Dev
         if ((tsrflags & CAN_TSR_RQCP1) != 0u)
         {
             // Clear flag
-            UTILITY_SET_REGISTER_BIT(dev->regmap->sTxMailBox[1].TIR,CAN_TI1R_TXRQ_Msk);
+            UTILITY_SET_REGISTER_BIT(dev->regmap->TSR,CAN_TSR_RQCP1_Msk);
 
             if ((tsrflags & CAN_TSR_TXOK1_Msk) != 0)
             {
@@ -1203,7 +1204,7 @@ static inline void __attribute__((always_inline)) Can_callbackInterrupt (Can_Dev
         if ((tsrflags & CAN_TSR_RQCP2) != 0u)
         {
             // Clear flag
-            UTILITY_SET_REGISTER_BIT(dev->regmap->sTxMailBox[2].TIR,CAN_TI2R_TXRQ_Msk);
+            UTILITY_SET_REGISTER_BIT(dev->regmap->TSR,CAN_TSR_RQCP2_Msk);
 
             if ((tsrflags & CAN_TSR_TXOK2_Msk) != 0)
             {
