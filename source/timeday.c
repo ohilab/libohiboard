@@ -107,7 +107,7 @@ bool Time_isValid (Time_DateType* date, Time_TimeType* time)
     return isValid;
 }
 
-Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
+Time_UnixTime Time_getUnixTime (const Time_DateType* date, const Time_TimeType* time)
 {
     Time_UnixTime unixEpoch = 0;
 
@@ -115,13 +115,14 @@ Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time)
 
     // From 1-12 to 0-11
     // Just to manage the array!
-    date->month--;
+    uint8_t month = date->month;
+    month--;
 
     /* Save seconds for the months of the current year */
-    while (date->month)
+    while (month)
     {
-        date->month--;
-        unixEpoch += Time_dayPerMonth[0][date->month] * TIME_SECOND_PER_DAY;
+        month--;
+        unixEpoch += Time_dayPerMonth[0][month] * TIME_SECOND_PER_DAY;
     }
 
     /* Save seconds for past years */

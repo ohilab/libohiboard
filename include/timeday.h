@@ -101,11 +101,90 @@ typedef struct
 typedef uint32_t Time_UnixTime;
 
 bool Time_isValid (Time_DateType* date, Time_TimeType* time);
-Time_UnixTime Time_getUnixTime (Time_DateType* date, Time_TimeType* time);
+Time_UnixTime Time_getUnixTime (const Time_DateType* date, const Time_TimeType* time);
 
 void Time_unixtimeToTime (Time_UnixTime unixEpoch, Time_DateType* date, Time_TimeType* time);
 void Time_unixtimeToString (Time_UnixTime unixEpoch, char * dateString);
 void Time_unixtimeToNumberString (Time_UnixTime unixEpoch, char * dateString, bool second);
+
+/*!
+ *
+ */
+static inline void Time_increaseDay (Time_DateType* date)
+{
+    date->day++;
+
+    if (((date->month == TIME_MONTH_APRIL) ||
+        (date->month == TIME_MONTH_JUNE)  ||
+        (date->month == TIME_MONTH_SEPTEMBER) ||
+        (date->month == TIME_MONTH_NOVEMBER)) && (date->day > 30))
+    {
+        date->day = 30;
+        return;
+    }
+
+    if (date->month == TIME_MONTH_FEBRUARY)
+    {
+        if (!(date->year % 4) && (date->day > 29)) date->day = 29;
+        else if ((date->year % 4) && (date->day > 28)) date->day = 28;
+
+        return;
+    }
+
+    if (date->day > 31) date->day = 30;
+}
+
+/*!
+ *
+ */
+static inline void Time_decreaseDay (Time_DateType* date)
+{
+    if (date->day > 1) date->day--;
+}
+
+static inline void Time_increaseMonth (Time_DateType* date)
+{
+    uint8_t t = date->month;
+    if (date->month < 12) t++;
+    date->month = (Time_Month)t;
+}
+
+static inline void Time_decreaseMonth (Time_DateType* date)
+{
+    uint8_t t = date->month;
+    if (t > 1) t--;
+    date->month = (Time_Month)t;
+}
+
+static inline void Time_increaseYear (Time_DateType* date)
+{
+    date->year++;
+}
+
+static inline void Time_decreaseYear (Time_DateType* date)
+{
+    if (date->year > 1970) date->year--;
+}
+
+static inline void Time_increaseHour (Time_TimeType* time)
+{
+    if (time->hours < 23) time->hours++;
+}
+
+static inline void Time_decreaseHour (Time_TimeType* time)
+{
+    if (time->hours > 0) time->hours--;
+}
+
+static inline void Time_increaseMinute (Time_TimeType* time)
+{
+    if (time->minutes < 59) time->minutes++;
+}
+
+static inline void Time_decreaseMinute (Time_TimeType* time)
+{
+    if (time->minutes > 0) time->minutes--;
+}
 
 #ifdef __cplusplus
 }
