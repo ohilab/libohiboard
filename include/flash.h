@@ -68,6 +68,10 @@ typedef struct _Flash_Device* Flash_DeviceHandle;
 
 //#include "hardware/STM32L4/flash_STM32L4.h"
 
+#elif defined (LIBOHIBOARD_STM32L0)
+
+#include "hardware/STM32L0/flash_STM32L0.h"
+
 #elif defined (LIBOHIBOARD_MKL)
 
 #include "hardware/NXPMKL/flash_MKL.h"
