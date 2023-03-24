@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2019-2023 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
@@ -95,7 +95,7 @@ System_Errors Flash_init (Flash_DeviceHandle dev)
     return Flash_checkErrors(dev);
 }
 
-System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint8_t pageNumber)
+System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint16_t pageNumber)
 {
     uint32_t pageAddr = pageNumber * FLASH_PAGE_SIZE;
 
@@ -120,7 +120,7 @@ System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint8_t pageNumber)
     return err;
 }
 
-System_Errors Flash_writePage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8_t* buffer, uint32_t length)
+System_Errors Flash_writePage (Flash_DeviceHandle dev, uint16_t pageNumber, uint8_t* buffer, uint32_t length)
 {
     uint32_t pageAddr = pageNumber * FLASH_PAGE_SIZE;
 
@@ -163,7 +163,7 @@ System_Errors Flash_writePage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8
     return Flash_checkErrors(dev);
 }
 
-System_Errors Flash_readPage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8_t* buffer, uint32_t length)
+System_Errors Flash_readPage (Flash_DeviceHandle dev, uint16_t pageNumber, uint8_t* buffer, uint32_t length)
 {
     uint32_t pageAddr = pageNumber * FLASH_PAGE_SIZE;
 

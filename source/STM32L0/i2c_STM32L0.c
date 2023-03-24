@@ -731,14 +731,16 @@ System_Errors Iic_init (Iic_DeviceHandle dev, Iic_Config* config)
     {
 #if !defined (LIBOHIBOARD_STM32L081KxT) && \
     !defined (LIBOHIBOARD_STM32L081KxU)
+    	// FIXME: This check is for??
         if (dev == OB_IIC2)
         {
             // Select clock source
             UTILITY_MODIFY_REGISTER(*dev->rccTypeRegisterPtr,dev->rccTypeRegisterMask,(config->clockSource << dev->rccTypeRegisterPos));
         }
+#endif
+
         // Enable peripheral clock
         IIC_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
-#endif
 
         // Enable pins
         if (config->sclPin != IIC_PINS_SCLNONE)
@@ -1343,8 +1345,8 @@ System_Errors Iic_readRegister (Iic_DeviceHandle dev,
                             (((uint32_t)devAddress  << I2C_CR2_SADD_Pos)   & I2C_CR2_SADD_Msk)  | \
                             (((uint32_t)addressSize << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES_Msk)| \
                             ((I2C_CR2_START_Msk)));
-    // Check TXE status
-    err = Iic_waitUntilClear(dev,I2C_ISR_TXE,(tickStart + timeout));
+    // Check TXSI status
+    err = Iic_waitUntilTXSI(dev,(tickStart+ timeout));
     if (err != ERRORS_NO_ERROR) goto i2cerror;
 
     // Write register/memory address

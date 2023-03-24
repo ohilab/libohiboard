@@ -1,10 +1,11 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2020 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2023 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Leonardo Morichelli <leonardo.morichelli@gruppofilippetti.it>
+ *  Lorenzo Compagnucci
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +88,7 @@ System_Errors Flash_init (Flash_DeviceHandle dev);
  * @param[in] pageNumber: progression number of page
  * @retval error
  */
-System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint8_t pageNumber);
+System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint16_t pageNumber);
 
 /**
  * Write data to the given page.
@@ -98,7 +99,7 @@ System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint8_t pageNumber);
  * @param[in]     length: Length of data
  * @retval error
  */
-System_Errors Flash_writePage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8_t* buffer, uint32_t length);
+System_Errors Flash_writePage (Flash_DeviceHandle dev, uint16_t pageNumber, uint8_t* buffer, uint32_t length);
 
 /**
  * Read data from given page.
@@ -109,7 +110,7 @@ System_Errors Flash_writePage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8
  * @param[in]     length: Length of data
  * @retval error
  */
-System_Errors Flash_readPage (Flash_DeviceHandle dev, uint8_t pageNumber, uint8_t* buffer, uint32_t length);
+System_Errors Flash_readPage (Flash_DeviceHandle dev, uint16_t pageNumber, uint8_t* buffer, uint32_t length);
 
 #if 0
 /**
