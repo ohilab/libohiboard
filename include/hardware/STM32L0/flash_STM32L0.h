@@ -50,6 +50,7 @@ extern "C" {
 #define FLASH_SIZE                        (uint32_t)((*((uint32_t *)FLASHSIZE_BASE)&0xFFFF) * 1024U)
 #define FLASH_MAX_PAGE_NUMBER             (FLASH_SIZE/FLASH_PAGE_SIZE)
 
+#define FLASH_START                       (FLASH_BASE)
 #define FLASH_END                         (FLASH_BASE + FLASH_SIZE - 1)
 
 
