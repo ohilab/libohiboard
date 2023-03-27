@@ -47,9 +47,17 @@ extern "C" {
 
 #define FLASH_READ8(address)                  ((uint8_t)(*(volatile uint8_t*)(address)))
 
+#define FLASH_ERROR_MASK  (FLASH_SR_WRPERR     | \
+                           FLASH_SR_PGAERR     | \
+                           FLASH_SR_SIZERR     | \
+                           FLASH_SR_OPTVERR    | \
+                           FLASH_SR_RDERR      | \
+                           FLASH_SR_FWWERR     | \
+                           FLASH_SR_NOTZEROERR)
+
 typedef struct _Flash_Device
 {
-	FLASH_TypeDef* regmap;
+    FLASH_TypeDef* regmap;
 
 } Flash_Device;
 
@@ -61,12 +69,89 @@ Flash_DeviceHandle OB_FLASH0 = &flash0;
 
 static System_Errors Flash_checkErrors (Flash_DeviceHandle dev)
 {
-    if (dev->regmap->SR == 0x00)
+    if ((dev->regmap->SR & FLASH_ERROR_MASK) != 0U)
     {
-        dev->regmap->SR &= 0x1;
         return ERRORS_FLASH_ERROR;
     }
     return ERRORS_NO_ERROR;
+}
+
+__attribute__((always_inline)) static inline System_Errors Flash_waitLastOperation (Flash_DeviceHandle dev,
+                                                                                    uint32_t timeout)
+
+{
+    uint32_t tickstart = System_currentTick();
+
+    while ((dev->regmap->SR & FLASH_SR_BSY) == FLASH_SR_BSY)
+    {
+        if ((timeout == 0U) || ((System_currentTick() - tickstart) > timeout))
+        {
+            return ERRORS_FLASH_TIMEOUT;
+        }
+    }
+
+    // Check FLASH End of Operation flag
+    if ((dev->regmap->SR & FLASH_SR_EOP) == FLASH_SR_EOP)
+    {
+        // Clear flag!
+        UTILITY_WRITE_REGISTER(dev->regmap->SR,FLASH_SR_EOP);
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+__attribute__((always_inline)) static inline System_Errors Flash_unlock (Flash_DeviceHandle dev)
+{
+    uint32_t primask_bit;
+
+    // Unlocking FLASH_PECR register access
+    if ((dev->regmap->PECR & FLASH_PECR_PELOCK) == FLASH_PECR_PELOCK)
+    {
+        // Disable interrupts to avoid any interruption during unlock sequence
+        primask_bit = __get_PRIMASK();
+        __disable_irq();
+
+        UTILITY_WRITE_REGISTER(dev->regmap->PEKEYR, FLASH_PEKEY1);
+        UTILITY_WRITE_REGISTER(dev->regmap->PEKEYR, FLASH_PEKEY2);
+
+        // Re-enable the interrupts: restore previous priority mask
+        __set_PRIMASK(primask_bit);
+
+        if ((dev->regmap->PECR & FLASH_PECR_PELOCK) == FLASH_PECR_PELOCK)
+        {
+            return ERRORS_FLASH_PROTECTION_VIOLATION;
+        }
+    }
+
+    if ((dev->regmap->PECR & FLASH_PECR_PRGLOCK) == FLASH_PECR_PRGLOCK)
+    {
+        // Disable interrupts to avoid any interruption during unlock sequence
+        primask_bit = __get_PRIMASK();
+        __disable_irq();
+
+        // Unlocking the program memory access
+        UTILITY_WRITE_REGISTER(dev->regmap->PRGKEYR, FLASH_PRGKEY1);
+        UTILITY_WRITE_REGISTER(dev->regmap->PRGKEYR, FLASH_PRGKEY2);
+
+        // Re-enable the interrupts: restore previous priority mask */
+        __set_PRIMASK(primask_bit);
+
+        if ((dev->regmap->PECR & FLASH_PECR_PRGLOCK) == FLASH_PECR_PRGLOCK)
+        {
+            return ERRORS_FLASH_PROTECTION_VIOLATION;
+        }
+    }
+
+    return ERRORS_NO_ERROR;
+}
+
+__attribute__((always_inline)) static inline void Flash_lock (Flash_DeviceHandle dev)
+{
+    // Set the PRGLOCK Bit to lock the FLASH Registers access
+    UTILITY_SET_REGISTER_BIT(dev->regmap->PECR,FLASH_PECR_PRGLOCK);
+
+    // Set the PELOCK Bit to lock the PECR Register access
+    UTILITY_SET_REGISTER_BIT(dev->regmap->PECR, FLASH_PECR_PELOCK);
 }
 
 System_Errors Flash_init (Flash_DeviceHandle dev)
@@ -76,21 +161,35 @@ System_Errors Flash_init (Flash_DeviceHandle dev)
 
 System_Errors Flash_erasePage (Flash_DeviceHandle dev, uint16_t pageNumber)
 {
-    uint32_t pageAddr = pageNumber * FLASH_PAGE_SIZE;
+    uint32_t pageAddr = (pageNumber * FLASH_PAGE_SIZE) + FLASH_START;
 
     if (pageNumber > FLASH_MAX_PAGE_NUMBER)
     {
         return ERRORS_FLASH_ACCESS;
     }
 
-    // TODO
+    Flash_unlock(dev);
 
-    return err;
+    Flash_waitLastOperation(dev,FLASH_TIMEOUT_VALUE);
+
+    // Set the ERASE bit
+    UTILITY_SET_REGISTER_BIT(dev->regmap->PECR, FLASH_PECR_ERASE);
+    // Set PROG bit
+    UTILITY_SET_REGISTER_BIT(dev->regmap->PECR, FLASH_PECR_PROG);
+
+    // Write 00000000h to the first word of the program page to erase
+    *(__IO uint32_t *)(uint32_t)(pageAddr & ~(FLASH_PAGE_SIZE - 1)) = 0x00000000;
+
+    Flash_waitLastOperation(dev,FLASH_TIMEOUT_VALUE);
+
+    Flash_lock(dev);
+
+    return ERRORS_NO_ERROR;
 }
 
 System_Errors Flash_writePage (Flash_DeviceHandle dev, uint16_t pageNumber, uint8_t* buffer, uint32_t length)
 {
-    uint32_t pageAddr = pageNumber * FLASH_PAGE_SIZE;
+    uint32_t pageAddr = (pageNumber * FLASH_PAGE_SIZE) + FLASH_START;
 
     if (pageNumber > FLASH_MAX_PAGE_NUMBER)
     {
@@ -102,34 +201,30 @@ System_Errors Flash_writePage (Flash_DeviceHandle dev, uint16_t pageNumber, uint
         return ERRORS_FLASH_WRONG_PARAMS;
     }
 
+    Flash_unlock(dev);
+
+    Flash_waitLastOperation(dev,FLASH_TIMEOUT_VALUE);
+
     uint32_t tempSize = length;
-
-#if 0
-    while (!(dev->regmap->FSTAT & FTFA_FSTAT_CCIF_MASK));
-
+    Utility_4Byte data;
     while (tempSize > 0)
     {
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB0, FLASH_COMMAND_PROGRAM_LONGWORD);
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB1, (uint8_t)((pageAddr >> 16) & 0x000000FF));
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB2, (uint8_t)((pageAddr >> 8)  & 0x000000FF));
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB3, (uint8_t)( pageAddr        & 0x000000FF));
+        data.b[0] = (uint8_t)(*(buffer + 3));
+        data.b[1] = (uint8_t)(*(buffer + 2));
+        data.b[2] = (uint8_t)(*(buffer + 1));
+        data.b[3] = (uint8_t)(*(buffer + 0));
 
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB4, (uint8_t)(*(buffer + 3)));
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB5, (uint8_t)(*(buffer + 2)));
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB6, (uint8_t)(*(buffer + 1)));
-        UTILITY_WRITE_REGISTER(dev->regmap->FCCOB7, (uint8_t)(*(buffer)));
-
-        __disable_irq();
-        Flash_executeCommand(dev);
-        __enable_irq();
-
-        Flash_checkErrors(dev);
+        *(volatile uint32_t *)pageAddr = (uint32_t)data.d;
 
         buffer   += 4;
         tempSize -= 4;
         pageAddr += 4;
     }
-#endif
+
+    Flash_waitLastOperation(dev,FLASH_TIMEOUT_VALUE);
+
+    Flash_lock(dev);
+
     return Flash_checkErrors(dev);
 }
 
@@ -153,19 +248,14 @@ System_Errors Flash_readPage (Flash_DeviceHandle dev, uint16_t pageNumber, uint8
         buffer++;
     }
 
-#if 0
-    dev->regmap->ACR &= ~(FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY);
-#endif
-
     return ERRORS_NO_ERROR;
 }
 
-#endif // LIBOHIBOARD_MKL
+#endif // LIBOHIBOARD_STM32L0
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // LIBOHIBOARD_FLASH
-
 

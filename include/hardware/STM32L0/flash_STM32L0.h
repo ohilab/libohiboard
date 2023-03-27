@@ -42,17 +42,42 @@ extern "C" {
 
 #if defined(LIBOHIBOARD_STM32L0)
 
-#define FLASH_WORD_SIZE                   (4)
-#define FLASH_ROW_SIZE                    (8)
+#define FLASH_WORD_SIZE                          (4)
+#define FLASH_ROW_SIZE                           (8)
 
-#define FLASH_PAGE_SIZE                   (128U)
+#define FLASH_PAGE_SIZE                          (128U)
 
-#define FLASH_SIZE                        (uint32_t)((*((uint32_t *)FLASHSIZE_BASE)&0xFFFF) * 1024U)
-#define FLASH_MAX_PAGE_NUMBER             (FLASH_SIZE/FLASH_PAGE_SIZE)
+#define FLASH_SIZE                               (uint32_t)((*((uint32_t *)FLASHSIZE_BASE)&0xFFFF) * 1024U)
+#define FLASH_MAX_PAGE_NUMBER                    (FLASH_SIZE/FLASH_PAGE_SIZE)
 
-#define FLASH_START                       (FLASH_BASE)
-#define FLASH_END                         (FLASH_BASE + FLASH_SIZE - 1)
+#define FLASH_START                              (FLASH_BASE)
+#define FLASH_END                                (FLASH_BASE + FLASH_SIZE - 1)
 
+#define FLASH_TIMEOUT_VALUE                      (50000u) // 50s
+
+/** @defgroup FLASH_Keys FLASH Keys
+  * @{
+  */
+
+#define FLASH_PDKEY1                             (0x04152637U) /*!< Flash power down key1 */
+#define FLASH_PDKEY2                             (0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1
+                                                                    to unlock the RUN_PD bit in FLASH_ACR */
+
+#define FLASH_PEKEY1                             (0x89ABCDEFU) /*!< Flash program erase key1 */
+#define FLASH_PEKEY2                             (0x02030405U) /*!< Flash program erase key: used with FLASH_PEKEY2
+                                                                   to unlock the write access to the FLASH_PECR register and
+                                                                   data EEPROM */
+
+#define FLASH_PRGKEY1                            (0x8C9DAEBFU) /*!< Flash program memory key1 */
+#define FLASH_PRGKEY2                            (0x13141516U) /*!< Flash program memory key2: used with FLASH_PRGKEY2
+                                                                   to unlock the program memory */
+
+#define FLASH_OPTKEY1                            (0xFBEAD9C8U) /*!< Flash option key1 */
+#define FLASH_OPTKEY2                            (0x24252627U) /*!< Flash option key2: used with FLASH_OPTKEY1 to
+                                                                            unlock the write access to the option byte block */
+/**
+  * @}
+  */
 
 extern Flash_DeviceHandle OB_FLASH0;
 
