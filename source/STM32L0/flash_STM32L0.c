@@ -209,10 +209,10 @@ System_Errors Flash_writePage (Flash_DeviceHandle dev, uint16_t pageNumber, uint
     Utility_4Byte data;
     while (tempSize > 0)
     {
-        data.b[0] = (uint8_t)(*(buffer + 3));
-        data.b[1] = (uint8_t)(*(buffer + 2));
-        data.b[2] = (uint8_t)(*(buffer + 1));
-        data.b[3] = (uint8_t)(*(buffer + 0));
+        data.b[0] = (uint8_t)(*(buffer + 0));
+        data.b[1] = (uint8_t)(*(buffer + 1));
+        data.b[2] = (uint8_t)(*(buffer + 2));
+        data.b[3] = (uint8_t)(*(buffer + 3));
 
         *(volatile uint32_t *)pageAddr = (uint32_t)data.d;
 
