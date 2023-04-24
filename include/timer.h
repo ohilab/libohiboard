@@ -242,6 +242,8 @@ typedef enum _Timer_ActiveChannels
  */
 typedef struct _Timer_Device* Timer_DeviceHandle;
 
+typedef void (*Timer_freeCounterCallback)(Timer_DeviceHandle dev);
+
 /* Configuration bits */
 
 #define FTM_CONFIG_PWM_POLARITY_HIGH     0x00
@@ -441,6 +443,9 @@ void Timer_setPrescaler (Timer_DeviceHandle dev,
 
 void Timer_setCounter (Timer_DeviceHandle dev,
                        uint32_t counter);
+
+void Timer_addFreeCounterCallback (Timer_DeviceHandle dev,
+                                   Timer_freeCounterCallback callback);
 
 /**
  * @}
