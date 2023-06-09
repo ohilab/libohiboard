@@ -212,6 +212,12 @@ typedef union _Utility_2Byte
     uint16_t d;
 } __packed Utility_2Byte;
 
+typedef union _Utility_Float2Word
+{
+    uint16_t w[2];
+    float    f;
+} __packed Utility_Float2Word;
+
 /* *****************************************************************************
  *   BCD value management
  * *****************************************************************************/

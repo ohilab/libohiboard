@@ -909,6 +909,12 @@ System_Errors Iic_writeMaster (Iic_DeviceHandle dev,
         return ERRORS_IIC_WRONG_DEVICE;
     }
 
+    // Shift 7-bit address
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
+    {
+        address = ((address << 1u) & 0x00FFu);
+    }
+
     // Check if the device is busy
     // Wait 25ms before enter into timeout!
     err = Iic_waitUntilSet(dev,I2C_ISR_BUSY,(System_currentTick() + 25u));
@@ -1025,6 +1031,12 @@ System_Errors Iic_readMaster (Iic_DeviceHandle dev,
     if (err != ERRORS_NO_ERROR)
     {
         return ERRORS_IIC_WRONG_DEVICE;
+    }
+
+    // Shift 7-bit address
+    if (dev->config.addressMode == IIC_SEVEN_BIT)
+    {
+        address = ((address << 1u) & 0x00FFu);
     }
 
     // Check if the device is busy
