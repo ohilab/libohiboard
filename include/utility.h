@@ -206,6 +206,13 @@ typedef union _Utility_4Byte
     uint32_t d;
 } __packed Utility_4Byte;
 
+typedef union _Utility_2Word
+{
+    uint16_t w[2];
+    uint32_t d;
+    int32_t  i;
+} __packed Utility_2Word;
+
 typedef union _Utility_2Byte
 {
     uint8_t  b[2];
