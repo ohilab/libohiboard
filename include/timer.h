@@ -408,6 +408,14 @@ System_Errors Timer_start (Timer_DeviceHandle dev);
 System_Errors Timer_stop (Timer_DeviceHandle dev);
 
 /**
+ * This function reset the counter register.
+ *
+ * @param[in] dev Timer device handle
+ * @return ERRORS_NO_ERROR In case of success.
+ */
+System_Errors Timer_reset (Timer_DeviceHandle dev);
+
+/**
  * Return the status of the selected timer.
  *
  * @param[in] dev Timer device handle

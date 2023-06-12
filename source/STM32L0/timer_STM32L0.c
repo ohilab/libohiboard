@@ -1133,6 +1133,23 @@ System_Errors Timer_stop (Timer_DeviceHandle dev)
     return ERRORS_NO_ERROR;
 }
 
+System_Errors Timer_reset (Timer_DeviceHandle dev)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    dev->regmap->CNT = 0;
+    return ERRORS_NO_ERROR;
+}
+
 void Timer_setPrescaler (Timer_DeviceHandle dev,
                          uint32_t prescaler)
 {
