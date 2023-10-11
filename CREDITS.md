@@ -9,6 +9,7 @@ Credits
 * Simone Giacomucci
 * Marco Giammarini
 * Stefano Gigli
+* Cristian Marziali
 * Leonardo Morichelli
 * Nicola Orlandini
 * Niccolo' Paolinelli
