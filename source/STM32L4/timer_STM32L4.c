@@ -1533,6 +1533,23 @@ uint32_t Timer_getClockInputValue (Timer_DeviceHandle dev)
     return dev->inputClock;
 }
 
+System_Errors Timer_reset (Timer_DeviceHandle dev)
+{
+    // Check the TIMER device
+    if (dev == NULL)
+    {
+        return ERRORS_TIMER_NO_DEVICE;
+    }
+    // Check the TIMER instance
+    if (ohiassert((TIMER_IS_DEVICE(dev))) != ERRORS_NO_ERROR)
+    {
+        return ERRORS_TIMER_WRONG_DEVICE;
+    }
+
+    dev->regmap->CNT = 0;
+    return ERRORS_NO_ERROR;
+}
+
 void Timer_setPrescaler (Timer_DeviceHandle dev,
                          uint32_t prescaler)
 {
@@ -1563,6 +1580,19 @@ void Timer_setCounter (Timer_DeviceHandle dev,
     dev->regmap->ARR = counter - 1;
     // Enable the peripheral
     //TIMER_DEVICE_ENABLE(dev);
+}
+
+void Timer_addFreeCounterCallback (Timer_DeviceHandle dev,
+                                   Timer_freeCounterCallback callback)
+{
+    ohiassert(callback != NULL);
+
+    if (callback != NULL)
+    {
+        dev->freeCounterCallback = callback;
+        // Enable NVIC interrupt
+        Interrupt_enable(dev->isrNumber);
+    }
 }
 
 /**
