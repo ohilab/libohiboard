@@ -138,8 +138,8 @@ typedef enum {
  */
 typedef enum
 {
-	SPI_SCK_INACTIVE_STATE_LOW,
-	SPI_SCK_INACTIVE_STATE_HIGH,
+    SPI_SCK_INACTIVE_STATE_LOW,
+    SPI_SCK_INACTIVE_STATE_HIGH,
 
 } Spi_ClockPolarity;
 
@@ -401,11 +401,11 @@ System_Errors Spi_txEnDisable (Spi_DeviceHandle dev, bool enable);
 System_Errors Spi_flushBuffer (Spi_DeviceHandle dev, Spi_BufferType buffer);
 
 #elif defined (LIBOHIBOARD_K10D10)      || \
-	  defined (LIBOHIBOARD_K12D5)       || \
-	  defined (LIBOHIBOARD_K60DZ10)     || \
-	  defined (LIBOHIBOARD_OHIBOARD_R1) || \
-	  defined (LIBOHIBOARD_K64F12)      || \
-	  defined (LIBOHIBOARD_FRDMK64F)
+      defined (LIBOHIBOARD_K12D5)       || \
+      defined (LIBOHIBOARD_K60DZ10)     || \
+      defined (LIBOHIBOARD_OHIBOARD_R1) || \
+      defined (LIBOHIBOARD_K64F12)      || \
+      defined (LIBOHIBOARD_FRDMK64F)
 
 System_Errors Spi_readByte (Spi_DeviceHandle dev, uint8_t * data);
 System_Errors Spi_read (Spi_DeviceHandle dev, uint32_t* data);
