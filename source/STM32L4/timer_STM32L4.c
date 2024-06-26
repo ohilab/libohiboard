@@ -1401,11 +1401,12 @@ System_Errors Timer_init (Timer_DeviceHandle dev, Timer_Config *config)
     dev->mode = config->mode;
 
     // Enable peripheral clock if needed
-    if (dev->state == TIMER_DEVICESTATE_RESET)
-    {
+    // FIXME: in C++ this variable is READY without any reason!
+    //if (dev->state == TIMER_DEVICESTATE_RESET)
+    //{
         // Enable peripheral clock
         TIMER_CLOCK_ENABLE(*dev->rccRegisterPtr,dev->rccRegisterEnable);
-    }
+    //}
 
     // Configure clock source
     Timer_configClockSource(dev,config);
