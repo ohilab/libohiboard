@@ -151,6 +151,8 @@ typedef struct _Spi_Device
     Gpio_Alternate sckPinsMux[SPI_MAX_PINS];
     Gpio_Alternate nssPinsMux[SPI_MAX_PINS];
 
+    uint32_t cr1Status;
+
     Interrupt_Vector isrNumber;                       /**< ISR vector number. */
 
     Spi_DeviceState state;                     /**< Current peripheral state. */
@@ -475,6 +477,8 @@ static Spi_Device spi1 = {
                                GPIO_ALTERNATE_2,
 #endif
         },
+
+        .cr1Status = 0,
 };
 Spi_DeviceHandle OB_SPI1 = &spi1;
 
@@ -802,6 +806,8 @@ static Spi_Device spi2 = {
                                GPIO_ALTERNATE_1,
 #endif
         },
+
+        .cr1Status = 0,
 };
 Spi_DeviceHandle OB_SPI2 = &spi2;
 #endif
@@ -1058,6 +1064,8 @@ static System_Errors Spi_config (Spi_DeviceHandle dev, Spi_Config* config)
     // The device will be enable only during transmission...
     // When the device was enable, the SS pin is set low automatically.
     // SPI_DEVICE_ENABLE(dev->regmap);
+
+    dev->cr1Status = dev->regmap->CR1;
 
     return ERRORS_NO_ERROR;
 }
@@ -1389,6 +1397,44 @@ System_Errors Spi_deInit (Spi_DeviceHandle dev)
     // TODO: Clear all register and flag interrupts!
 
     dev->state = SPI_DEVICESTATE_RESET;
+    return err;
+}
+
+System_Errors Spi_clearErrors (Spi_DeviceHandle dev)
+{
+    System_Errors err = ERRORS_NO_ERROR;
+    // Check the SPI device
+    if (dev == NULL)
+    {
+        return ERRORS_SPI_NO_DEVICE;
+    }
+    // Check the SPI instance
+    err = ohiassert(SPI_IS_DEVICE(dev));
+    if (err != ERRORS_NO_ERROR)
+    {
+        return ERRORS_SPI_WRONG_DEVICE;
+    }
+
+    // Clear Overrun error!
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_OVR))
+    {
+        // Clear overrun flag in two lines direction mode
+        // The received data is not read
+        if (dev->config.direction == SPI_DIRECTION_FULL_DUPLEX)
+        {
+            (void) dev->regmap->DR;
+            (void) dev->regmap->SR;
+        }
+    }
+
+    if (UTILITY_READ_REGISTER_BIT(dev->regmap->SR,SPI_SR_MODF))
+    {
+        (void) dev->regmap->SR;
+        UTILITY_CLEAR_REGISTER_BIT(dev->regmap->CR1,SPI_CR1_SPE);
+
+        dev->regmap->CR1 = dev->cr1Status;
+    }
+
     return err;
 }
 

@@ -387,6 +387,8 @@ System_Errors Spi_setBaudrate (Spi_DeviceHandle dev, uint32_t speed);
 
 bool Spi_isInit(Spi_DeviceHandle dev);
 
+System_Errors Spi_clearErrors (Spi_DeviceHandle dev);
+
 /**
  * @}
  */
