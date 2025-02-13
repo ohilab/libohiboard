@@ -187,10 +187,7 @@ typedef enum _Adc_SamplingTime
 
 } Adc_SamplingTime;
 
-// WLCSP72 ballout
-// LQFP64
-#if defined (LIBOHIBOARD_STM32L476Jx) || \
-    defined (LIBOHIBOARD_STM32L476Rx)
+#if defined (LIBOHIBOARD_STM32L4x6)
 
 extern Adc_DeviceHandle OB_ADC1;
 extern Adc_DeviceHandle OB_ADC2;
@@ -199,7 +196,7 @@ extern Adc_DeviceHandle OB_ADC3;
 void ADC1_2_IRQHandler (void);
 void ADC3_IRQHandler (void);
 
-#endif // LIBOHIBOARD_STM32L476Jx || LIBOHIBOARD_STM32L476Rx
+#endif // LIBOHIBOARD_STM32L4x6
 
 #define ADC_VREFINT_CAL_ADDR               ((uint16_t*)(0x1FFF75AAul))
 #define ADC_VREFINT_CAL                    (3000ul)

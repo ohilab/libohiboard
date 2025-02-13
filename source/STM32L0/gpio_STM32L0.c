@@ -148,9 +148,9 @@ typedef void (*Gpio_ExtCallback_t)(Gpio_Pins pin);
 
 typedef struct _Gpio_ExtIsrCallback
 {
-	bool enabled;
-	Gpio_Pins pin;
-	Gpio_ExtCallback_t callback;
+    bool enabled;
+    Gpio_Pins pin;
+    Gpio_ExtCallback_t callback;
 } Gpio_ExtIsrCallback_t;
 
 static Gpio_ExtIsrCallback_t Gpio_isrPortRequestVector[GPIO_MAX_PINS_NUMBER_FOR_PORT] = {0};
@@ -1138,7 +1138,7 @@ Gpio_Level Gpio_get (Gpio_Pins pin)
 
 System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, void* callback)
 {
-	(void)priority; //FIXMENOW: manage interrupt priority
+    (void)priority; //FIXMENOW: manage interrupt priority
 
     if (pin == GPIO_PINS_NONE)
     {
@@ -1151,12 +1151,12 @@ System_Errors Gpio_configInterrupt (Gpio_Pins pin, Interrupt_Priority priority, 
         return ERRORS_GPIO_WRONG_PIN;
 
     //Check callback is empty
-	if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
-	{
-		asm("NOP");
-	}
+    if (Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback != nullptr)
+    {
+        asm("NOP");
+    }
 
-	Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
+    Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].pin = pin;
     Gpio_isrPortRequestVector[GPIO_AVAILABLE_PINS[pin].pinNumber].callback = callback;
     Gpio_isrRegister |= 1 << GPIO_AVAILABLE_PINS[pin].pinNumber;
 
