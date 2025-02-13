@@ -246,7 +246,7 @@ static Spi_Device spi1 = {
 #endif
 
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
+    defined (LIBOHIBOARD_STM32L073VxI)
                                SPI_PINS_PE15,
 #endif
 
@@ -409,7 +409,7 @@ static Spi_Device spi1 = {
                                SPI_PINS_PA15,
 #endif
 #if defined (LIBOHIBOARD_STM32L073VxT) || \
-	defined (LIBOHIBOARD_STM32L073VxI)
+    defined (LIBOHIBOARD_STM32L073VxI)
                                SPI_PINS_PE12,
 #endif
         },
@@ -1111,7 +1111,7 @@ System_Errors Spi_init (Spi_DeviceHandle dev, Spi_Config *config)
     if (err != ERRORS_NO_ERROR)
     {
         // FIXME: Call deInit?
-        dev->state = SPI_DEVICESTATE_ERROR;
+        //dev->state = SPI_DEVICESTATE_ERROR;
         return err;
     }
 
@@ -1148,7 +1148,8 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
     if (dev->state != SPI_DEVICESTATE_READY)
     {
         err = ERRORS_SPI_DEVICE_BUSY;
-        dev->state = SPI_DEVICESTATE_ERROR;
+        //The peripheral is not ready, but errors cause a big problems!
+        //dev->state = SPI_DEVICESTATE_ERROR;
         // Release the device.
         goto spierror;
     }
@@ -1178,6 +1179,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
             if (System_currentTick() > timeoutEnd)
             {
                 err = ERRORS_SPI_TIMEOUT_TX;
+                dev->state = SPI_DEVICESTATE_READY;
                 // Release the device.
                 goto spierror;
             }
@@ -1200,6 +1202,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
             if (System_currentTick() > timeoutEnd)
             {
                 err = ERRORS_SPI_TIMEOUT_RX;
+                dev->state = SPI_DEVICESTATE_READY;
                 // Release the device.
                 goto spierror;
             }
@@ -1223,6 +1226,7 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
             if (System_currentTick() > timeoutEnd)
             {
                 err = ERRORS_SPI_TIMEOUT_RX;
+                dev->state = SPI_DEVICESTATE_READY;
                 // Release the device.
                 goto spierror;
             }
@@ -1240,11 +1244,10 @@ System_Errors Spi_read (Spi_DeviceHandle dev, uint8_t* data, uint32_t timeout)
     }
 
 spierror:
-    // FIXME: Disable SPI?
     if (err == ERRORS_NO_ERROR)
         dev->state = SPI_DEVICESTATE_READY;
-    else
-        dev->state = SPI_DEVICESTATE_ERROR;
+    //else
+    //    dev->state = SPI_DEVICESTATE_ERROR;
     return err;
 }
 
@@ -1266,7 +1269,8 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
     if (dev->state != SPI_DEVICESTATE_READY)
     {
         err = ERRORS_SPI_DEVICE_BUSY;
-        dev->state = SPI_DEVICESTATE_ERROR;
+        //The peripheral is not ready, but errors cause a big problems!
+        //dev->state = SPI_DEVICESTATE_ERROR;
         // Release the device.
         goto spierror;
     }
@@ -1301,6 +1305,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
             if (System_currentTick() > timeoutEnd)
             {
                 err = ERRORS_SPI_TIMEOUT_TX;
+                dev->state = SPI_DEVICESTATE_READY;
                 // Release the device.
                 goto spierror;
             }
@@ -1321,6 +1326,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
             if (System_currentTick() > timeoutEnd)
             {
                 err = ERRORS_SPI_TIMEOUT_TX;
+                dev->state = SPI_DEVICESTATE_READY;
                 // Release the device.
                 goto spierror;
             }
@@ -1339,6 +1345,7 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
             if (System_currentTick() > timeoutEnd)
             {
                 err = ERRORS_SPI_TIMEOUT_TX;
+                dev->state = SPI_DEVICESTATE_READY;
                 // Release the device.
                 goto spierror;
             }
@@ -1367,11 +1374,10 @@ System_Errors Spi_write (Spi_DeviceHandle dev, const uint8_t* data, uint32_t tim
     }
 
 spierror:
-    // FIXME: Disable SPI?
     if (err == ERRORS_NO_ERROR)
         dev->state = SPI_DEVICESTATE_READY;
-    else
-        dev->state = SPI_DEVICESTATE_ERROR;
+    //else
+    //    dev->state = SPI_DEVICESTATE_ERROR;
     return err;
 }
 
