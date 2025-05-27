@@ -372,6 +372,7 @@ typedef enum _Clock_PLLPrescaler
 
 typedef enum _Clock_PLLMultiplier
 {
+#if defined (LIBOHIBOARD_STM32L4) ||  defined (LIBOHIBOARD_STM32WB)
     CLOCK_PLLMULTIPLIER_8  = 8,
     CLOCK_PLLMULTIPLIER_9  = 9,
     CLOCK_PLLMULTIPLIER_10 = 10,
@@ -452,6 +453,19 @@ typedef enum _Clock_PLLMultiplier
     CLOCK_PLLMULTIPLIER_85 = 85,
     CLOCK_PLLMULTIPLIER_86 = 86,
 
+#elif defined (LIBOHIBOARD_STM32L0)
+
+    CLOCK_PLLMULTIPLIER_3  = 0,
+    CLOCK_PLLMULTIPLIER_4  = 1,
+    CLOCK_PLLMULTIPLIER_6  = 2,
+    CLOCK_PLLMULTIPLIER_8  = 3,
+    CLOCK_PLLMULTIPLIER_12 = 4,
+    CLOCK_PLLMULTIPLIER_16 = 5,
+    CLOCK_PLLMULTIPLIER_24 = 6,
+    CLOCK_PLLMULTIPLIER_32 = 7,
+    CLOCK_PLLMULTIPLIER_48 = 8,
+
+#endif
 } Clock_PLLMultiplier;
 
 #if defined (LIBOHIBOARD_STM32L4) || defined (LIBOHIBOARD_STM32WB)
@@ -492,6 +506,19 @@ typedef struct _Clock_PLLConfig
     Clock_PLLDividerP dividerP;
 
 } Clock_PLLConfig;
+
+#endif
+
+#if defined (LIBOHIBOARD_STM32L0)
+
+typedef enum _Clock_PLLDivider
+{
+    CLOCK_PLLDIVIDER_NO  = 0,
+    CLOCK_PLLDIVIDER_2   = 1,
+    CLOCK_PLLDIVIDER_3   = 2,
+    CLOCK_PLLDIVIDER_4   = 3,
+
+} Clock_PLLDivider;
 
 #endif
 
@@ -622,6 +649,11 @@ typedef struct _Clock_Config
     Clock_PLLConfig pll;
     Clock_PLLConfig pllSai1;
     Clock_PLLConfig pllSai2;
+#endif
+
+#if defined (LIBOHIBOARD_STM32L0)
+    Clock_PLLMultiplier pllMultiplier;
+    Clock_PLLDivider    pllDivider;
 #endif
 
     Clock_McoDivider mcoPrescaler;

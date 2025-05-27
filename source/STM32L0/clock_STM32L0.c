@@ -195,6 +195,8 @@ static const uint32_t CLOCK_MSI_RANGE[]  =
     4194000,
 };
 
+static const uint32_t CLOCK_PLL_MULTIPLIER[] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
+static const uint32_t CLOCK_PLL_DIVIDER[]    = {1, 2, 3, 4};
 
 typedef struct _Clock_Device
 {
@@ -261,7 +263,7 @@ static System_Errors Clock_deInit (void);
  *
  * @return value of PLL source clock.
  */
-//static uint32_t Clock_getActualPllInputValue (void);
+static uint32_t Clock_getActualPllInputValue (void);
 
 /**
  * Return the source clock of PLL set in configuration struct.
@@ -270,7 +272,7 @@ static System_Errors Clock_deInit (void);
  *
  * @return value of source clock of PLL.
  */
-//static uint32_t Clock_getConfigPllValue (Clock_Config *config, Clock_PLLConfig *pllConfig);
+static uint32_t Clock_getConfigPllValue (Clock_Config *config);
 
 /**
  * Return the clock set for MSI in configuration struct.
@@ -320,14 +322,16 @@ static uint32_t Clock_getActualSystemValue (void)
 //    case CLOCK_SYSTEMSOURCESWS_HSE:
 //        systemClock = clk0.externalClock;
 //        break;
-//    case CLOCK_SYSTEMSOURCESWS_PLL:
-//    {
-//        uint32_t pllmClock = Clock_getActualPllInputValue();
-//        uint32_t pllnReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLN_Msk) >> RCC_PLLCFGR_PLLN_Pos;
-//        uint32_t pllrReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLR_Msk) >> RCC_PLLCFGR_PLLR_Pos;
-//        systemClock = (((pllmClock) * pllnReg) / ((pllrReg + 1) * 2));
-//    }
-//        break;
+    case CLOCK_SYSTEMSOURCESWS_PLL:
+        {
+            uint32_t pllClock = Clock_getActualPllInputValue();
+
+            uint32_t mult = UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos;
+            uint32_t div  = UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_PLLDIV_Msk) >> RCC_CFGR_PLLDIV_Pos;
+
+            systemClock = (((pllClock) * CLOCK_PLL_MULTIPLIER[mult]) / (CLOCK_PLL_DIVIDER[div]));
+        }
+        break;
     }
 
     return systemClock;
@@ -593,6 +597,54 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
         }
     }
 
+    if (config->sysSource == CLOCK_SYSTEMSOURCE_PLL)
+    {
+        if (config->pllState == CLOCK_OSCILLATORSTATE_ON)
+        {
+            // Disable the PLL by setting PLLON to 0 in Clock control register (RCC_CR).
+            UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CR,RCC_CR_PLLON);
+            // Wait until PLLRDY is cleared. The PLL is now fully stopped.
+            tickstart = System_currentTick();
+            while (UTILITY_READ_REGISTER_BIT(clk.regmap->CR, RCC_CR_PLLRDY) == 1)
+            {
+                // 2ms minimum
+                if ((System_currentTick() - tickstart) > 20u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+
+            // FIXME: Some check on parameters validity!
+
+            // Change the desired parameter.
+            UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_PLLSRC_Msk, (config->pllSource     << RCC_CFGR_PLLSRC_Pos));
+            UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_PLLMUL_Msk, (config->pllMultiplier << RCC_CFGR_PLLMUL_Pos));
+            UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_PLLDIV_Msk, (config->pllDivider    << RCC_CFGR_PLLDIV_Pos));
+
+            // Enable the PLL again by setting PLLON to 1.
+            UTILITY_SET_REGISTER_BIT(clk.regmap->CR,RCC_CR_PLLON);
+
+            // Wait until PLLRDY is cleared. The PLL is now fully started.
+            tickstart = System_currentTick();
+            while (UTILITY_READ_REGISTER_BIT(clk.regmap->CR, RCC_CR_PLLRDY) == 1)
+            {
+                // 2ms minimum
+                if ((System_currentTick() - tickstart) > 20u)
+                    return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+        else
+        {
+            // Disable the PLL by setting PLLON to 0 in Clock control register (RCC_CR).
+            UTILITY_CLEAR_REGISTER_BIT(clk.regmap->CR,RCC_CR_PLLON);
+            // Wait until PLLRDY is cleared. The PLL is now fully stopped.
+            tickstart = System_currentTick();
+            while (UTILITY_READ_REGISTER_BIT(clk.regmap->CR, RCC_CR_PLLRDY) == 1)
+            {
+                 // 2ms minimum
+                 if ((System_currentTick() - tickstart) > 20u)
+                     return ERRORS_CLOCK_TIMEOUT;
+            }
+        }
+    }
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOSEL_Msk, (config->mcoSource << RCC_CFGR_MCOSEL_Pos));
 //    UTILITY_MODIFY_REGISTER(clk.regmap->CFGR, RCC_CFGR_MCOPRE_Msk, (config->mcoPrescaler << RCC_CFGR_MCOPRE_Pos));
 
@@ -610,13 +662,13 @@ static System_Errors Clock_outputConfig (Clock_Config* config)
         // PLL is selected as sys clock
         if (config->sysSource == CLOCK_SYSTEMSOURCE_PLL)
         {
-//            // Check if the source is ready
-//            if (UTILITY_READ_REGISTER_BIT(clk0.regmap->CR,RCC_CR_PLLRDY) == 0)
-//            {
-//                return ERRORS_CLOCK_PLL_NOT_READY;
-//            }
-//
-//            cfgrSW = RCC_CFGR_SW_PLL;
+            // Check if the source is ready
+            if (UTILITY_READ_REGISTER_BIT(clk.regmap->CR,RCC_CR_PLLRDY) == 0)
+            {
+                return ERRORS_CLOCK_PLL_NOT_READY;
+            }
+
+            cfgrSW = RCC_CFGR_SW_PLL;
         }
         else if (config->sysSource == CLOCK_SYSTEMSOURCE_HSI)
         {
@@ -1321,42 +1373,14 @@ uint32_t Clock_getConfigOscillatorValue (Clock_Config *config)
 #endif
         break;
     case CLOCK_SYSTEMSOURCE_PLL:
-//        systemClock = Clock_getConfigPllValue(config, &config->pll);
+        systemClock = Clock_getConfigPllValue(config);
         break;
     }
 
     return systemClock;
 }
 
-#if 0
-static uint32_t Clock_getActualPllInputValue(void)
-{
-    uint32_t baseClock = 0, pllmClock = 0;
-    Clock_PllSource pllSource = (Clock_PllSource)(UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLSRC_Msk));
-    uint32_t pllmReg = UTILITY_READ_REGISTER_BIT(clk0.regmap->PLLCFGR, RCC_PLLCFGR_PLLM_Msk) >> RCC_PLLCFGR_PLLM_Pos;
-
-    switch (pllSource)
-    {
-    default:
-    case CLOCK_PLLSOURCE_NONE:
-        baseClock = 0;
-        break;
-    case CLOCK_PLLSOURCE_MSI:
-        baseClock = Clock_getActualMsiValue();
-        break;
-    case CLOCK_PLLSOURCE_HSI:
-        baseClock = CLOCK_FREQ_HSI;
-        break;
-    case CLOCK_PLLSOURCE_HSE:
-        baseClock = clk0.externalClock;
-        break;
-    }
-
-    pllmClock = ((baseClock) / (pllmReg + 1));
-    return pllmClock;
-}
-
-static uint32_t Clock_getConfigPllValue (Clock_Config* config, Clock_PLLConfig *pllConfig)
+static uint32_t Clock_getConfigPllValue (Clock_Config* config)
 {
     uint32_t base = 0, frequency = 0;
 
@@ -1366,46 +1390,43 @@ static uint32_t Clock_getConfigPllValue (Clock_Config* config, Clock_PLLConfig *
     case CLOCK_PLLSOURCE_NONE:
         return 0;
 
-    case CLOCK_PLLSOURCE_MSI:
-        base = Clock_msiRange[config->msiRange];
-        break;
-
     case CLOCK_PLLSOURCE_HSI:
         base = CLOCK_FREQ_HSI;
-        break;
-
-    case CLOCK_PLLSOURCE_HSE:
-        base = clk0.externalClock;
         break;
     }
 
     frequency = base / (config->pllPrescaler + 1);
-    frequency *= pllConfig->multiplier;
 
-    switch (pllConfig->dividerR)
-    {
-    case CLOCK_PLLDIVIDER_R_2:
-        frequency /= 2;
-        break;
-
-    case CLOCK_PLLDIVIDER_R_4:
-        frequency /= 4;
-        break;
-
-    case CLOCK_PLLDIVIDER_R_6:
-        frequency /= 6;
-        break;
-
-    default:
-    case CLOCK_PLLDIVIDER_R_8:
-        frequency /= 8;
-        break;
-    }
+    frequency *= CLOCK_PLL_MULTIPLIER[config->pllMultiplier];
+    frequency /= CLOCK_PLL_DIVIDER[config->pllDivider];
 
     return frequency;
 }
 
-#endif
+static uint32_t Clock_getActualPllInputValue (void)
+{
+    uint32_t baseClock = 0, pllmClock = 0;
+    Clock_PllSource pllSource = (Clock_PllSource)(UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_PLLSRC_Msk));
+
+    //uint32_t pre  = UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos;
+    //uint32_t mult = UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos;
+    //uint32_t div  = UTILITY_READ_REGISTER_BIT(clk.regmap->CFGR, RCC_CFGR_PLLDIV_Msk) >> RCC_CFGR_PLLDIV_Pos;
+
+    switch (pllSource)
+    {
+    default:
+    case CLOCK_PLLSOURCE_NONE:
+        baseClock = 0;
+        break;
+    case CLOCK_PLLSOURCE_HSI:
+        baseClock = CLOCK_FREQ_HSI;
+        break;
+    }
+
+    //pllmClock = ((baseClock) / (pllmReg + 1));
+    //return pllmClock;
+    return baseClock;
+}
 
 #endif // LIBOHIBOARD_STM32L0
 
