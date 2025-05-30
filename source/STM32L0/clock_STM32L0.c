@@ -624,7 +624,7 @@ static System_Errors Clock_oscillatorConfig (Clock_Config* config)
 
             // Wait until PLLRDY is cleared. The PLL is now fully started.
             tickstart = System_currentTick();
-            while (UTILITY_READ_REGISTER_BIT(clk.regmap->CR, RCC_CR_PLLRDY) == 1)
+            while (UTILITY_READ_REGISTER_BIT(clk.regmap->CR, RCC_CR_PLLRDY) == 0)
             {
                 // 2ms minimum
                 if ((System_currentTick() - tickstart) > 20u)
