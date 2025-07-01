@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2021 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2021-2025 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -224,6 +224,62 @@ static const Gpio_PinDevice GPIO_AVAILABLE_PINS[] =
     {GPIO_PORTS_F,2,5},
 
 #endif // LIBOHIBOARD_STM32G031
+
+#if defined (LIBOHIBOARD_STM32G0B1)
+
+    {GPIO_PORTS_A,0,0},
+    {GPIO_PORTS_A,1,0},
+    {GPIO_PORTS_A,2,0},
+    {GPIO_PORTS_A,3,0},
+    {GPIO_PORTS_A,4,0},
+    {GPIO_PORTS_A,5,0},
+    {GPIO_PORTS_A,6,0},
+    {GPIO_PORTS_A,7,0},
+    {GPIO_PORTS_A,8,0},
+    {GPIO_PORTS_A,9,0},
+    {GPIO_PORTS_A,10,0},
+    {GPIO_PORTS_A,11,0},
+    {GPIO_PORTS_A,12,0},
+    {GPIO_PORTS_A,13,0},
+    {GPIO_PORTS_A,14,0},
+    {GPIO_PORTS_A,15,0},
+
+    {GPIO_PORTS_B,0,1},
+    {GPIO_PORTS_B,1,1},
+    {GPIO_PORTS_B,2,1},
+    {GPIO_PORTS_B,3,1},
+    {GPIO_PORTS_B,4,1},
+    {GPIO_PORTS_B,5,1},
+    {GPIO_PORTS_B,6,1},
+    {GPIO_PORTS_B,7,1},
+    {GPIO_PORTS_B,8,1},
+    {GPIO_PORTS_B,9,1},
+    {GPIO_PORTS_B,10,1},
+    {GPIO_PORTS_B,11,1},
+    {GPIO_PORTS_B,12,1},
+    {GPIO_PORTS_B,13,1},
+    {GPIO_PORTS_B,14,1},
+    {GPIO_PORTS_B,15,1},
+
+#if defined (LIBOHIBOARD_STM32G0B1CxT) || \
+    defined (LIBOHIBOARD_STM32G0B1CxU)
+    {GPIO_PORTS_C,6,2},
+    {GPIO_PORTS_C,7,2},
+#endif
+    {GPIO_PORTS_C,13,2},
+    {GPIO_PORTS_C,14,2},
+    {GPIO_PORTS_C,15,2},
+
+    {GPIO_PORTS_D,0,3},
+    {GPIO_PORTS_D,1,3},
+    {GPIO_PORTS_D,2,3},
+    {GPIO_PORTS_D,3,3},
+
+    {GPIO_PORTS_F,0,5},
+    {GPIO_PORTS_F,1,5},
+    {GPIO_PORTS_F,2,5},
+
+#endif // LIBOHIBOARD_STM32G0B1
 
 #endif // LIBOHIBOARD_STM32G0x1
 

@@ -285,6 +285,12 @@ typedef enum _Clock_PllSource
 #endif
 #endif
 
+#if defined (LIBOHIBOARD_STM32G0)
+    CLOCK_PLLSOURCE_NONE = 0xFFFFFFFFu,
+    CLOCK_PLLSOURCE_HSI  = (RCC_PLLCFGR_PLLSRC_HSI),
+    CLOCK_PLLSOURCE_HSE  = (RCC_PLLCFGR_PLLSRC_HSE),
+#endif
+
 } Clock_PllSource;
 
 typedef enum _Clock_AHBDivider
@@ -355,6 +361,10 @@ typedef enum _Clock_MSIRange
     CLOCK_MSIRANGE_48MHz   = (RCC_CR_MSIRANGE_11),
 #endif
 
+#if defined (LIBOHIBOARD_STM32G0)
+    CLOCK_MSIRANGE_NONE = 0,
+#endif
+
 } Clock_MSIRange;
 
 typedef enum _Clock_PLLPrescaler
@@ -372,7 +382,9 @@ typedef enum _Clock_PLLPrescaler
 
 typedef enum _Clock_PLLMultiplier
 {
-#if defined (LIBOHIBOARD_STM32L4) ||  defined (LIBOHIBOARD_STM32WB)
+#if defined (LIBOHIBOARD_STM32L4) || \
+    defined (LIBOHIBOARD_STM32WB) || \
+    defined (LIBOHIBOARD_STM32G0)
     CLOCK_PLLMULTIPLIER_8  = 8,
     CLOCK_PLLMULTIPLIER_9  = 9,
     CLOCK_PLLMULTIPLIER_10 = 10,
@@ -631,14 +643,14 @@ typedef struct _Clock_Config
     Clock_OscillatorState pllState;
 
     Clock_SystemSource sysSource;
-    Clock_PllSource pllSource;
+    Clock_PllSource    pllSource;
 
     Clock_Output output;
 
     Clock_AHBDivider ahbDivider;
     Clock_APBDivider apb1Divider;
     Clock_APBDivider apb2Divider;
-    Clock_MSIRange msiRange;
+    Clock_MSIRange   msiRange;
 
 #if defined (LIBOHIBOARD_STM32L0)
     Clock_HSIDivider hsiDivider;
