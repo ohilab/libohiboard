@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2014-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2014-2021 A. C. Open Hardware Ideas Lab
  * 
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -116,8 +116,11 @@ typedef enum _Gpio_Level
     GPIO_TOGGLE = 0xFF,
 } Gpio_Level;
 
+#if defined (LIBOHIBOARD_STM32G0)
 
-#if defined (LIBOHIBOARD_STM32L0)
+#include "hardware/STM32G0/gpio_STM32G0.h"
+
+#elif defined (LIBOHIBOARD_STM32L0)
 
 #include "hardware/STM32L0/gpio_STM32L0.h"
 
@@ -188,7 +191,10 @@ typedef enum _Gpio_Alternate
     GPIO_ALTERNATE_DIGITAL = -2,
 #endif
     GPIO_ALTERNATE_ANALOG  = -1,
-#if (defined (LIBOHIBOARD_STM32L0) || defined (LIBOHIBOARD_STM32L4)) || defined (LIBOHIBOARD_STM32WB)
+#if (defined (LIBOHIBOARD_STM32L0)  || \
+     defined (LIBOHIBOARD_STM32G0)  || \
+     defined (LIBOHIBOARD_STM32L4)) || \
+     defined (LIBOHIBOARD_STM32WB)
     GPIO_ALTERNATE_0       = 0,
     GPIO_ALTERNATE_1       = 1,
     GPIO_ALTERNATE_2       = 2,

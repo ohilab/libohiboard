@@ -1,7 +1,7 @@
 /*
  * This file is part of the libohiboard project.
  *
- * Copyright (C) 2012-2019 A. C. Open Hardware Ideas Lab
+ * Copyright (C) 2012-2021 A. C. Open Hardware Ideas Lab
  *
  * Authors:
  *  Marco Giammarini <m.giammarini@warcomeb.it>
@@ -53,7 +53,11 @@ typedef enum {
     INTERRUPT_ENABLE_ON,
 } Interrupt_Status;
 
-#if defined (LIBOHIBOARD_STM32L0)
+#if defined (LIBOHIBOARD_STM32G0)
+
+#include "hardware/STM32G0/interrupt_STM32G0.h"
+
+#elif defined (LIBOHIBOARD_STM32L0)
 
 #include "hardware/STM32L0/interrupt_STM32L0.h"
 
